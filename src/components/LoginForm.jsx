@@ -26,7 +26,7 @@ const LoginForm = ({ login }) => {
       if (res.data.ok && res.data.token) {
 
         console.log('✅ Token received:', res.data.token);
-        login(res.data.token, res.data.email); // ✅ Pass raw token
+        login(res.data.token, res.data.email); 
       } else {
         console.log('⚠️ Login unsuccessful, no token received');
       }

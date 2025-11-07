@@ -13,7 +13,7 @@ const OldMatches = ({ loggedIn, logout }) => {
 
       <div className="clothes-page-container">
 
-      <p className="under-button-title">unwanted Outfits</p>
+      <p className="under-button-title">Rejected Outfits</p>
 
       <div className="sticky-upload-container">
         <Link to="/buildmatches">
@@ -23,7 +23,7 @@ const OldMatches = ({ loggedIn, logout }) => {
 
       <div className="extra-space">
       <Link to="/matches">
-        <button className="regular-button">View Rejected Outfits</button>
+        <button className="regular-button">View Current Outfits</button>
       </Link>
       </div>
       

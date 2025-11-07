@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/header';
 import './Pages.css';
+import './user.css'
 
 const Homepage = ({ loggedIn, logout }) => {
   return (
@@ -11,8 +12,8 @@ const Homepage = ({ loggedIn, logout }) => {
       <div className="clothes-page-container">
         {loggedIn ? (
           <>
-            <p>Welcome!</p>
-            <button onClick={logout}>Logout</button>
+            <h2 className="page-title">Welcome</h2>
+            <button  className="logout-button" onClick={logout}>Logout</button>
           </>
         ) : (
           <>

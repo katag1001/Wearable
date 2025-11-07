@@ -1,7 +1,8 @@
-// src/pages/User.jsx
+
 import React from 'react';
 import Header from '../components/header';
 import './Pages.css';
+import './user.css'
 
 const User = ({ loggedIn, logout }) => {
   return (
@@ -9,8 +10,8 @@ const User = ({ loggedIn, logout }) => {
     <div className="full-page">
       <Header loggedIn={loggedIn} />
       <div className="clothes-page-container">
-        <h2>You are logged in</h2>
-        <button onClick={logout}>Logout</button>
+        <h2 className="page-title">You are logged in</h2>
+        <button className="logout-button" onClick={logout}>Logout</button>
       </div>
       </div>
     </>
