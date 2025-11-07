@@ -34,7 +34,7 @@ const RegisterForm = () => {
   };
 
   return (
-    <>
+     <div className="login-form-container">
       {message && <p>{message}</p>}
       <form onSubmit={handleSubmit}>
         <input
@@ -62,9 +62,10 @@ const RegisterForm = () => {
           required
         /><br/>
         <button type="submit">Register</button>
+        <Link className="register-button" to="/login">Login</Link>
       </form>
-      <button><Link to="/login">Login</Link></button>
-    </>
+      
+    </div>
   );
 };
 

@@ -1,0 +1,107 @@
+/* src/components/LoginForm.css */
+
+/* Container for the form */
+.login-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin: 0rem auto;
+  padding: 2rem;
+  box-sizing: border-box;
+  border-radius: 8px;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+
+/* Message styling */
+.login-message {
+  color: red;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Form elements */
+.login-form-container input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.login-form-container input:focus {
+  outline: none;
+  border-color: #111;
+}
+
+/* Submit button */
+.login-form-container button[type="submit"] {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #111;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.login-form-container button[type="submit"]:hover {
+  background-color: #444;
+}
+
+/* Register link button */
+.login-form-container .register-link {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  text-decoration: none;
+  color: #111;
+  transition: color 0.2s ease;
+}
+
+.login-form-container .register-link:hover {
+  color: #555;
+}
+
+
+.register-button {
+  display: block;       
+  width: 100%;           
+  text-align: center;      
+  padding: 0.75rem;      
+  margin-top: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  box-sizing: border-box;  
+}
+
+.register-button:hover {
+  background-color: #111;
+  color: #fff;
+}
+
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-form-container {
+    padding: 1.5rem;
+  }
+
+  .login-form-container input,
+  .login-form-container button[type="submit"] {
+    font-size: 0.95rem;
+  }
+}

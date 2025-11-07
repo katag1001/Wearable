@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import {URL} from "../config"; 
+import './loginForm.css'
 
 const LoginForm = ({ login }) => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -36,7 +37,7 @@ const LoginForm = ({ login }) => {
   };
 
   return (
-    <>
+    <div className="login-form-container">
       {message && <p>{message}</p>}
       <form onSubmit={handleSubmit}>
         <input
@@ -56,9 +57,10 @@ const LoginForm = ({ login }) => {
           required
         /><br/>
         <button type="submit">Login</button>
+        <Link className="register-button" to="/register">Register</Link>
       </form>
-      <button><Link to="/register">Register</Link></button>
-    </>
+      
+    </div>
   );
 };
 
