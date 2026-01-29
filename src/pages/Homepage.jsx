@@ -16,10 +16,12 @@ const Homepage = ({ loggedIn, logout }) => {
             <button  className="logout-button" onClick={logout}>Logout</button>
           </>
         ) : (
-          <>
-            <p>You are not logged in.</p>
-            <Link to="/login">Login</Link><Link to="/register">Register</Link>
-          </>
+<div className="not-logged-in-container">
+  <p>You are not logged in.</p>
+  <Link to="/login">Login</Link>
+  <Link to="/register">Register</Link>
+</div>
+
         )}
       </div>
       </div>
