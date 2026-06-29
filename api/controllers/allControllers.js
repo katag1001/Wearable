@@ -54,9 +54,11 @@ exports.login = async (req, res) => {
 
     const match = bcrypt.compareSync(password, user.password);
     if (match) {
-      const token = jwt.sign({ userEmail: user.email }, jwt_secret, {
-        expiresIn: "356d",
-      });
+      const token = jwt.sign(
+  { userId: user._id, email: user.email },
+  jwt_secret,
+  { expiresIn: "356d" }
+);
       res.json({ ok: true, message: "welcome back", token, email });
     } else return res.json({ ok: false, message: "Invalid data provided" });
   } catch (error) {

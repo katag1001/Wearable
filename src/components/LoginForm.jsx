@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import {URL} from "../config"; 
-import './loginForm.css'
+import { URL } from "../config";
+import './loginForm.css';
 
 const LoginForm = ({ login }) => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -24,9 +24,11 @@ const LoginForm = ({ login }) => {
       setMessage(res.data.message);
 
       if (res.data.ok && res.data.token) {
-
         console.log('✅ Token received:', res.data.token);
-        login(res.data.token, res.data.email); 
+
+        // ✅ NOW passing userId as well
+        login(res.data.token, res.data.email, res.data.userId);
+
       } else {
         console.log('⚠️ Login unsuccessful, no token received');
       }
@@ -39,6 +41,7 @@ const LoginForm = ({ login }) => {
   return (
     <div className="login-form-container">
       {message && <p>{message}</p>}
+
       <form onSubmit={handleSubmit}>
         <input
           name="email"
@@ -47,7 +50,9 @@ const LoginForm = ({ login }) => {
           value={form.email}
           onChange={handleChange}
           required
-        /><br/>
+        />
+        <br />
+
         <input
           name="password"
           type="password"
@@ -55,11 +60,15 @@ const LoginForm = ({ login }) => {
           value={form.password}
           onChange={handleChange}
           required
-        /><br/>
+        />
+        <br />
+
         <button type="submit">Login</button>
-        <Link className="register-button" to="/register">Register</Link>
+
+        <Link className="register-button" to="/register">
+          Register
+        </Link>
       </form>
-      
     </div>
   );
 };
