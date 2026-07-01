@@ -107,18 +107,30 @@ exports.createItem = async (req, res) => {
       });
     }
 
+    // Create and save item first
     const item = new Clothes(req.body);
     await item.save();
 
-    // Get all wardrobe items for this user (single model now)
+    // Fetch wardrobe for matching
     const allItems = await Clothes.find({ username });
 
-    processMatches(item, allItems);
-    console.log("Match processing completed.");
+    // 🚀 IMPORTANT: run matching in background (DO NOT await)
+    processMatches(item, allItems)
+      .then(() => {
+        console.log("Match processing completed.");
+      })
+      .catch((err) => {
+        console.error("Match processing failed:", err.message);
+      });
 
-    res.json(item);
+    // ✅ Respond immediately
+    return res.json({
+      ...item.toObject(),
+      processing: true
+    });
+
   } catch (error) {
-    res.json({ error: error.message });
+    return res.json({ error: error.message });
   }
 };
 

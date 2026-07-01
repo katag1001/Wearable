@@ -1,78 +1,116 @@
-import React, { useEffect, useState } from 'react'; 
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import DeleteMatches from '../matches/deleteMatches';
 import UpdateMatches from '../matches/updateMatches';
 import '../matches/viewMatches.css';
-import {URL} from "../../config"; 
+import { URL } from "../../config";
 
 const ViewNewMatches = ({ newItemName, newItemType }) => {
   const [matches, setMatches] = useState([]);
   const [itemDetails, setItemDetails] = useState({});
   const [error, setError] = useState(null);
   const [editingMatch, setEditingMatch] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMatches = async () => {
-      try {
-        setError(null);
-        const response = await axios.post(`${URL}/match`, {
-          username: localStorage.getItem('user')
+    let cancelled = false;
+
+    const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+    const fetchMatchesOnce = async () => {
+      const response = await axios.post(`${URL}/match`, {
+        username: localStorage.getItem('user')
+      });
+
+      const relevantMatches = response.data.filter(match => {
+        if (newItemType === 'outer') return match.outer === newItemName;
+        return match[newItemType] === newItemName;
+      });
+
+      return relevantMatches;
+    };
+
+    const fetchItemDetails = async (relevantMatches) => {
+      const itemsToFetch = [];
+
+      relevantMatches.forEach(match => {
+        ['top', 'bottom', 'outer', 'onepiece'].forEach(key => {
+          const name = match[key];
+          if (name) {
+            const type = key === 'outer' ? 'outer' : key;
+            itemsToFetch.push({ type, name });
+          }
         });
+      });
 
-        // Filter matches to include the new item
-        const relevantMatches = response.data.filter(match => {
-          if (newItemType === 'outer') return match.outer === newItemName;
-          return match[newItemType] === newItemName;
-        });
+      const uniqueItems = [...new Set(itemsToFetch.map(i => `${i.type}_${i.name}`))];
 
-        setMatches(relevantMatches);
-
-        const itemsToFetch = [];
-        relevantMatches.forEach(match => {
-          ['top', 'bottom', 'outer', 'onepiece'].forEach(key => {
-            const name = match[key];
-            if (name) {
-              const type = key === 'outer' ? 'outer' : key;
-              itemsToFetch.push({ type, name });
-            }
+      const fetchItem = async ({ type, name }) => {
+        try {
+          const res = await axios.post(`${URL}/clothing/${type}/${name}`, {
+            username: localStorage.getItem('user')
           });
-        });
+          return { key: `${type}_${name}`, data: res.data };
+        } catch {
+          return null;
+        }
+      };
 
-        const uniqueItems = [...new Set(itemsToFetch.map(i => `${i.type}_${i.name}`))];
+      const fetchedItems = await Promise.all(
+        uniqueItems.map(key => {
+          const [type, ...nameParts] = key.split('_');
+          const name = nameParts.join('_');
+          return fetchItem({ type, name });
+        })
+      );
 
-        const fetchItem = async ({ type, name }) => {
-          try {
-            const res = await axios.post(`${URL}/clothing/${type}/${name}`, {
-              username: localStorage.getItem('user')
-            });
-            return { key: `${type}_${name}`, data: res.data };
-          } catch {
-            return null;
-          }
-        };
+      const itemMap = {};
+      fetchedItems.forEach(entry => {
+        if (entry && entry.data && !entry.data.error) {
+          itemMap[entry.key] = entry.data;
+        }
+      });
 
-        const fetchedItems = await Promise.all(
-          uniqueItems.map(key => {
-            const [type, ...nameParts] = key.split('_');
-            const name = nameParts.join('_');
-            return fetchItem({ type, name });
-          })
-        );
+      setItemDetails(itemMap);
+    };
 
-        const itemMap = {};
-        fetchedItems.forEach(entry => {
-          if (entry && entry.data && !entry.data.error) {
-            itemMap[entry.key] = entry.data;
-          }
-        });
+    const pollForMatches = async () => {
+      setLoading(true);
+      setError(null);
 
-        setItemDetails(itemMap);
-      } catch {
-        setError('Failed to fetch new matches');
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      while (!cancelled && attempts < maxAttempts) {
+        const relevantMatches = await fetchMatchesOnce();
+
+        if (relevantMatches.length > 0) {
+          setMatches(relevantMatches);
+          await fetchItemDetails(relevantMatches);
+          setLoading(false);
+          return;
+        }
+
+        attempts++;
+        await delay(1000);
+      }
+
+      if (!cancelled) {
+        setMatches([]);
+        setLoading(false);
       }
     };
 
-    fetchMatches();
+    pollForMatches().catch(() => {
+      if (!cancelled) {
+        setError('Failed to fetch new matches');
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [newItemName, newItemType]);
 
   const handleDeleteSuccess = (id) => {
@@ -80,7 +118,9 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
   };
 
   const handleUpdateSuccess = (updatedMatch) => {
-    setMatches(prev => prev.map(m => (m._id === updatedMatch._id ? updatedMatch : m)));
+    setMatches(prev =>
+      prev.map(m => (m._id === updatedMatch._id ? updatedMatch : m))
+    );
   };
 
   const handleError = (msg) => {
@@ -89,6 +129,7 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
 
   const renderItemImage = (type, name) => {
     if (!name) return null;
+
     const lookupType = type === 'outer' ? 'outer' : type;
     const item = itemDetails[`${lookupType}_${name}`];
 
@@ -106,15 +147,25 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
     return null;
   };
 
-  const capitalize = (word) => word.charAt(0).toUpperCase() + word.slice(1);
+  const capitalize = (word) =>
+    word.charAt(0).toUpperCase() + word.slice(1);
 
   return (
     <div className="view-matches-container">
       <h3>New Outfits for {newItemName}</h3>
 
+      {loading && (
+        <p className="loading-text">
+          Generating outfit matches...
+        </p>
+      )}
+
       {error && <p className="error-text">{error}</p>}
-      {matches.length === 0 && !error && (
-        <p className="no-matches-text">No new matches found.</p>
+
+      {!loading && matches.length === 0 && !error && (
+        <p className="no-matches-text">
+          No new matches found.
+        </p>
       )}
 
       <div className="matches-grid">
@@ -129,14 +180,15 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
 
             <div className="match-info">
               <div className="item-info">
-                <div>{match.min_temp}° - {match.max_temp}°</div>
                 <div>
-                  {
-                    ['spring', 'summer', 'autumn', 'winter']
-                      .filter(season => match[season])
-                      .map(capitalize)
-                      .join(', ') || 'N/A'
-                  }
+                  {match.min_temp}° - {match.max_temp}°
+                </div>
+
+                <div>
+                  {['spring', 'summer', 'autumn', 'winter']
+                    .filter(season => match[season])
+                    .map(capitalize)
+                    .join(', ') || 'N/A'}
                 </div>
               </div>
 
@@ -146,7 +198,11 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
                   onDeleteSuccess={handleDeleteSuccess}
                   onError={handleError}
                 />
-                <button className="text-button" onClick={() => setEditingMatch(match)}>
+
+                <button
+                  className="text-button"
+                  onClick={() => setEditingMatch(match)}
+                >
                   Edit
                 </button>
               </div>
