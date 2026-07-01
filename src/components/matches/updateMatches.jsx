@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './updateMatches.css';
-import {URL} from "../../config"; 
+import { URL } from "../../config";
 
 const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
   const [updateData, setUpdateData] = useState({
@@ -15,18 +15,19 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
   useEffect(() => {
     if (match) {
       setUpdateData({
-        spring: match.spring,
-        summer: match.summer,
-        autumn: match.autumn,
-        winter: match.winter,
-        min_temp: match.min_temp,
-        max_temp: match.max_temp
+        spring: match.spring || false,
+        summer: match.summer || false,
+        autumn: match.autumn || false,
+        winter: match.winter || false,
+        min_temp: match.min_temp ?? '',
+        max_temp: match.max_temp ?? ''
       });
     }
   }, [match]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     setUpdateData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -42,18 +43,36 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
       autumn: updateData.autumn,
       winter: updateData.winter,
       min_temp: Number(updateData.min_temp),
-      max_temp: Number(updateData.max_temp)
-      // Do NOT include tags here
+      max_temp: Number(updateData.max_temp),
+      username: localStorage.getItem("user")
     };
 
     try {
-      const response = await fetch(`${URL}/match/${match._id}`, {
+      const url = `${URL}/match/${match._id}`;
+
+      console.log("🧠 Updating match");
+      console.log("🔗 URL:", url);
+      console.log("🆔 Match ID:", match._id);
+      console.log("📦 Body:", body);
+
+      const response = await fetch(url, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(body)
       });
 
+      console.log("📡 Response status:", response.status);
+
       const data = await response.json();
+      console.log("📦 Response data:", data);
+
+      if (!response.ok) {
+        console.log("❌ Request failed");
+        onError(data?.error || data?.message || 'Failed to update match');
+        return;
+      }
 
       if (data.error) {
         onError(data.error);
@@ -62,6 +81,7 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
         onClose();
       }
     } catch (err) {
+      console.error("💥 Update error:", err);
       onError('Failed to update match');
     }
   };
@@ -70,6 +90,7 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
     <div className="overlay-wrapper">
       <div className="modal-container">
         <p className="modal-header">Edit Match</p>
+
         <form className="update-match-form" onSubmit={handleSubmit}>
           <div className="form-row">
             <label htmlFor="spring">Spring:</label>
@@ -81,6 +102,7 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label htmlFor="summer">Summer:</label>
             <input
@@ -91,6 +113,7 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label htmlFor="autumn">Autumn:</label>
             <input
@@ -101,6 +124,7 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label htmlFor="winter">Winter:</label>
             <input
@@ -111,6 +135,7 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label htmlFor="min_temp">Min Temp:</label>
             <input
@@ -121,6 +146,7 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label htmlFor="max_temp">Max Temp:</label>
             <input

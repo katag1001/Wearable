@@ -4,7 +4,7 @@ import deleteClothes from './deleteClothes';
 import updateClothes from './updateClothes';
 import UpdateClothesForm from './updateClothesForm';
 import './viewClothes.css';
-import {URL} from "../../config"; 
+import { URL } from "../../config";
 
 const ViewClothes = () => {
   const [itemsByType, setItemsByType] = useState({});
@@ -16,18 +16,46 @@ const ViewClothes = () => {
   const clothingTypes = ['top', 'bottom', 'outer', 'onepiece'];
   const scrollRefs = useRef({});
 
+  const getUser = () => {
+    const user = localStorage.getItem("user");
+    return user;
+  };
+
   const fetchAllItems = async () => {
     try {
       setError(null);
-      const username = localStorage.getItem('user');
-      const allItems = {};
 
-      for (const type of clothingTypes) {
-        const response = await axios.post(`${URL}/clothing/${type}`, { username });
-        allItems[type] = response.data;
+      const username = getUser();
+
+      if (!username) {
+        setError("No user logged in");
+        return;
       }
 
-      setItemsByType(allItems);
+      const res = await axios.post(`${URL}/clothing/all`, {
+        username,
+      });
+
+      const allItems = res.data;
+
+      if (!Array.isArray(allItems)) {
+        setError(allItems?.error || "Invalid response from server");
+        return;
+      }
+
+      const grouped = {};
+
+      for (const type of clothingTypes) {
+        grouped[type] = [];
+      }
+
+      for (const item of allItems) {
+        if (grouped[item.type]) {
+          grouped[item.type].push(item);
+        }
+      }
+
+      setItemsByType(grouped);
     } catch (err) {
       console.error(err);
       setError('Failed to fetch clothing items');
@@ -43,6 +71,7 @@ const ViewClothes = () => {
     if (!confirmDelete) return;
 
     const result = await deleteClothes(type, id);
+
     if (result.error) {
       setError(result.error);
     } else {
@@ -53,6 +82,7 @@ const ViewClothes = () => {
   const handleEdit = (type, item) => {
     setEditingItem(item._id);
     setEditingType(type);
+
     setFormData({
       name: item.name || '',
       colors: item.colors || [],
@@ -125,11 +155,11 @@ const ViewClothes = () => {
   };
 
   const sectionTitles = {
-  top: "Top Half",
-  outer: "Outerwear",
-  bottom: "Bottom Half",
-  onepiece: "One-Pieces"
-};
+    top: "Top Half",
+    outer: "Outerwear",
+    bottom: "Bottom Half",
+    onepiece: "One-Pieces"
+  };
 
   return (
     <div className="view-clothes-container">
@@ -139,11 +169,13 @@ const ViewClothes = () => {
       {clothingTypes.map((type) => (
         <div key={type} className="clothing-section">
           <div className="section-wrapper">
+
             <p className="section-title-viewclothes">
               {sectionTitles[type]}
             </p>
 
             <div className="horizontal-scroll-wrapper">
+
               <button className="scroll-arrow left-arrow" onClick={() => scrollLeft(type)}>
                 ‹
               </button>
@@ -157,6 +189,7 @@ const ViewClothes = () => {
                 ) : (
                   itemsByType[type].map((item) => (
                     <div key={item._id} className="clothing-card-viewclothes">
+
                       {item.imageUrl && (
                         <img
                           src={item.imageUrl}
@@ -178,6 +211,7 @@ const ViewClothes = () => {
                           <button onClick={() => handleDelete(type, item._id)} className="text-button">Delete</button>
                         </div>
                       </div>
+
                     </div>
                   ))
                 )}
@@ -186,6 +220,7 @@ const ViewClothes = () => {
               <button className="scroll-arrow right-arrow" onClick={() => scrollRight(type)}>
                 ›
               </button>
+
             </div>
           </div>
         </div>

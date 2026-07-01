@@ -10,7 +10,10 @@ const LoginForm = ({ login }) => {
   const [message, setMessage] = useState('');
 
   const handleChange = (e) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setForm(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -26,9 +29,12 @@ const LoginForm = ({ login }) => {
       if (res.data.ok && res.data.token) {
         console.log('✅ Token received:', res.data.token);
 
-        // ✅ NOW passing userId as well
-        login(res.data.token, res.data.email, res.data.userId);
+        // ✅ Persist auth properly
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("user", res.data.email);
 
+        // ✅ Update app-level auth state
+        login(res.data.token, res.data.email);
       } else {
         console.log('⚠️ Login unsuccessful, no token received');
       }
@@ -51,6 +57,7 @@ const LoginForm = ({ login }) => {
           onChange={handleChange}
           required
         />
+
         <br />
 
         <input
@@ -61,6 +68,7 @@ const LoginForm = ({ login }) => {
           onChange={handleChange}
           required
         />
+
         <br />
 
         <button type="submit">Login</button>

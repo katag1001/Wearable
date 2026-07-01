@@ -62,7 +62,7 @@ const todaySchema = new mongoose.Schema({
 /* CLOTHING */ 
 
 
-const bottomSchema = new mongoose.Schema({
+/*const bottomSchema = new mongoose.Schema({
   name: { type: String, required: true},
   imageUrl: { type: String, default: "" },
   min_temp: { type: Number, required: true },
@@ -123,14 +123,31 @@ const topSchema = new mongoose.Schema({
   autumn: { type: Boolean, required: true },
   winter: { type: Boolean, required: true },
   username: { type: String, required: true, default: "guest" },
+});*/
+
+const clothesSchema = new mongoose.Schema({
+  name: { type: String, required: true},
+  imageUrl: { type: String, default: "" },
+  min_temp: { type: Number, required: true },
+  max_temp: { type: Number, required: true },
+  colors: { type: [String], required: true },
+  styles: { type: [String], required: true },
+  type: { type: String, required: true },
+  spring: { type: Boolean, required: true },
+  summer: { type: Boolean, required: true },
+  autumn: { type: Boolean, required: true },
+  winter: { type: Boolean, required: true },
+  username: { type: String, required: true, default: "guest" },
 });
+
 
 module.exports = {
   User: mongoose.model('User', userSchema),
   Match: mongoose.model('Match', matchSchema),
   Today: mongoose.model('Today', todaySchema),
-  Top: mongoose.model('Top', topSchema),
+  /*Top: mongoose.model('Top', topSchema),
   Bottom: mongoose.model('Bottom', bottomSchema),
   Outer: mongoose.model('Outer', outerSchema),
-  OnePiece: mongoose.model('OnePiece', onePieceSchema)
+  OnePiece: mongoose.model('OnePiece', onePieceSchema),*/
+  Clothes: mongoose.model('Clothes', clothesSchema)
 };

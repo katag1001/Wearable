@@ -3,8 +3,9 @@ const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const jwt_secret = process.env.JWT_SECRET;
 
-const { User, Top, Bottom, Outer, OnePiece, Match, Today } = require('../models/AllModels.js');
+const { User, Match, Today, Clothes } = require('../models/AllModels.js');
 const { processMatches } = require('../services/matchService');
+
 
 /* USER CONTROLLERS */
 
@@ -82,74 +83,69 @@ exports.verify_token = (req, res) => {
   });
 };
 
-/* CLOTHING CONTROLLERS */
 
-function getModel(type) {
-  if (type === 'top') return Top;
-  if (type === 'bottom') return Bottom;
-  if (type === 'outer') return Outer;
-  if (type === 'onepiece') return OnePiece;
-  return null;
-}
+/* CLOTHING CONTROLLERS (SINGLE MODEL VERSION) */
 
 exports.createItem = async (req, res) => {
-  const { type } = req.body;
   const username = req.body.username;
-  const Model = getModel(type);
-  if (!Model) return res.json({ error: 'Invalid type' });
+  const { name, type } = req.body;
+
+  if (!type) return res.json({ error: "Missing type" });
 
   try {
-    const duplicateCriteria = {
-      name: req.body.name
-    };
-
-    const existingItem = await Model.findOne(duplicateCriteria);
+    // Prevent duplicates per user + type + name
+    const existingItem = await Clothes.findOne({
+      name,
+      type,
+      username,
+    });
 
     if (existingItem) {
-      return res.json({ error: 'Duplicate item already exists', item: existingItem });
+      return res.json({
+        error: "Duplicate item already exists",
+        item: existingItem,
+      });
     }
 
-    const item = new Model(req.body);
+    const item = new Clothes(req.body);
     await item.save();
 
-    const [tops, bottoms, outer, onepieces] = await Promise.all([
-      Top.find({'username':username}),
-      Bottom.find({'username':username}),
-      Outer.find({'username':username}),
-      OnePiece.find({'username':username})
-    ]);
+    // Get all wardrobe items for this user (single model now)
+    const allItems = await Clothes.find({ username });
 
-    processMatches(item, tops, bottoms, outer, onepieces);
+    processMatches(item, allItems);
     console.log("Match processing completed.");
-    res.json(item);
 
+    res.json(item);
   } catch (error) {
     res.json({ error: error.message });
   }
 };
 
 exports.getAllItems = async (req, res) => {
-  const { type } = req.params;
-  const username = req.body.username;
-  const Model = getModel(type);
-  if (!Model) return res.json({ error: 'Invalid type' });
+  const { username } = req.body;
+
+  if (!username) {
+    return res.json({ error: "Missing username" });
+  }
 
   try {
-    const items = await Model.find({'username':username});
-    res.json(items);
+    const items = await Clothes.find({ username });
+
+    return res.json(items);
   } catch (error) {
-    res.json({ error: error.message });
+    return res.json({ error: error.message });
   }
 };
 
 exports.getItemById = async (req, res) => {
-  const { type, id } = req.params;
-  const Model = getModel(type);
-  if (!Model) return res.json({ error: 'Invalid type' });
+  const { id } = req.params;
 
   try {
-    const item = await Model.findById(id);
-    if (!item) return res.json({ message: `${type} not found` });
+    const item = await Clothes.findById(id);
+
+    if (!item) return res.json({ message: "Item not found" });
+
     res.json(item);
   } catch (error) {
     res.json({ error: error.message });
@@ -160,21 +156,27 @@ exports.getItemByName = async (req, res) => {
   const { type } = req.params;
   const username = req.body.username;
 
-  // Reconstruct the full name from the original URL
   const basePath = `/api/clothing/${type}/`;
-  const rawName = req.originalUrl.slice(basePath.length); // get the rest of the URL after the type
-  const name = decodeURIComponent(rawName); // decode in case name has %20 or other encoded chars
+  const rawName = req.originalUrl.slice(basePath.length);
+  const name = decodeURIComponent(rawName);
 
-  console.log(`Fetching ${type} with name "${name}" for user "${username}"`);
-
-  const Model = getModel(type);
-  if (!Model) return res.json({ error: 'Invalid type' });
+  console.log(
+    `Fetching ${type} with name "${name}" for user "${username}"`
+  );
 
   try {
-    const item = await Model.findOne({ name: name, username: username });
+    const item = await Clothes.findOne({
+      name,
+      type,
+      username,
+    });
+
     if (!item) {
-      return res.json({ message: `${type} with name "${name}" for user "${username}" not found` });
+      return res.json({
+        message: `${type} "${name}" not found for user "${username}"`,
+      });
     }
+
     res.json(item);
   } catch (error) {
     res.json({ error: error.message });
@@ -182,43 +184,44 @@ exports.getItemByName = async (req, res) => {
 };
 
 exports.updateItem = async (req, res) => {
-  const { type, id } = req.params;
-  const Model = getModel(type);
-  if (!Model) return res.json({ error: 'Invalid type' });
+  const { id } = req.params;
 
   try {
-    // Step 1: Find the existing item to get its current name
-    const existingItem = await Model.findById(id);
-    if (!existingItem) return res.json({ message: `${type} not found` });
+    const existingItem = await Clothes.findById(id);
+    if (!existingItem) {
+      return res.json({ message: "Item not found" });
+    }
 
     const oldName = existingItem.name;
+    const type = existingItem.type;
 
-    // Step 2: Update the item
-    const updatedItem = await Model.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
+    const updatedItem = await Clothes.findByIdAndUpdate(
+      id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    // Delete matches that referenced the old item
+    const filter = {};
+    filter[type] = oldName;
+
+    const matchDeleteResult = await Match.deleteMany(filter);
+
+    console.log(
+      `Deleted ${matchDeleteResult.deletedCount} matches using this ${type}`
+    );
+
+    // Regenerate matches for updated wardrobe
+    const allItems = await Clothes.find({
+      username: updatedItem.username,
     });
 
-    // Step 3: If type is relevant, delete related matches that used the old name
-    const allowedFields = ['top', 'bottom', 'outer', 'onepiece'];
-    if (allowedFields.includes(type)) {
-      const filter = {};
-      filter[type] = oldName;
+    processMatches(updatedItem, allItems);
 
-      const matchDeleteResult = await Match.deleteMany(filter);
-      console.log(`Deleted ${matchDeleteResult.deletedCount} matches using this ${type}`);
-
-      // Step 4: Process new matches using the updated item
-      const [tops, bottoms, outer, onepieces] = await Promise.all([
-        Top.find(),
-        Bottom.find(),
-        Outer.find(),
-        OnePiece.find()
-      ]);
-
-      processMatches(updatedItem, tops, bottoms, outer, onepieces);
-      console.log("Match processing completed after update.");
-    }
+    console.log("Match processing completed after update.");
 
     res.json(updatedItem);
   } catch (error) {
@@ -227,31 +230,30 @@ exports.updateItem = async (req, res) => {
 };
 
 exports.deleteItem = async (req, res) => {
-  const { type, id } = req.params;
-  const Model = getModel(type);
-  if (!Model) return res.json({ error: 'Invalid type' });
+  const { id } = req.params;
 
   try {
-    // Step 1: Find the item first
-    const item = await Model.findById(id);
-    if (!item) return res.json({ message: `${type} not found` });
+    const item = await Clothes.findById(id);
+    if (!item) return res.json({ message: "Item not found" });
 
-    const pieceValue = item.name
+    const { name, type, username } = item;
 
-    // Step 2: Delete all matches that use this item
-    const allowedFields = ['top', 'bottom', 'outer', 'onepiece'];
-    if (allowedFields.includes(type)) {
-      const filter = {};
-      filter[type] = pieceValue;
+    // Delete matches involving this item
+    const filter = {};
+    filter[type] = name;
 
-      const matchDeleteResult = await Match.deleteMany(filter);
-      console.log(`Deleted ${matchDeleteResult.deletedCount} matches using this ${type}`);
-    }
+    const matchDeleteResult = await Match.deleteMany(filter);
 
-    // Step 3: Delete the item itself
-    await Model.findByIdAndDelete(id);
+    console.log(
+      `Deleted ${matchDeleteResult.deletedCount} matches using this ${type}`
+    );
 
-    res.json({ message: `${type} and related matches deleted successfully` });
+    // Delete clothing item
+    await Clothes.findByIdAndDelete(id);
+
+    res.json({
+      message: "Item and related matches deleted successfully",
+    });
   } catch (error) {
     res.json({ error: error.message });
   }

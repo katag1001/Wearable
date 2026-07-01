@@ -1,13 +1,99 @@
-const { Match } = require('../models/AllModels.js');
+const { Clothes } = require("../models/AllModels.js");
 const axios = require("axios");
-const { colorPalettes } = require('../utils/colorPalettes');
+const { colorPalettes } = require("../utils/colorPalettes.js");
 
-function matchPath(newItem, tops, bottoms, outer, onepiece, matches, context) {
-  console.log("Matching path for new item:", newItem.name);
-  let matchItem;
+async function getCandidates(newItem) {
+
+  console.log("\n==================== getCandidates ====================");
+  console.log("Input item:", {
+    name: newItem.name,
+    type: newItem.type,
+    username: newItem.username
+  });
+
+  let types = [];
+
+  switch (newItem.type) {
+
+    case "top":
+      types = ["bottom"];
+      console.log("Looking for bottoms.");
+      break;
+
+    case "bottom":
+      types = ["top"];
+      console.log("Looking for tops.");
+      break;
+
+    case "onepiece":
+      types = ["outer"];
+      console.log("Looking for outers.");
+      break;
+
+    case "outer":
+      types = ["top", "onepiece"];
+      console.log("Looking for tops or onepieces.");
+      break;
+
+    case "match":
+
+      if (newItem.top && newItem.bottom && !newItem.outer) {
+        types = ["outer"];
+        console.log("Existing top+bottom. Looking for outer.");
+      } else if (newItem.outer && newItem.top && !newItem.bottom) {
+        types = ["bottom"];
+        console.log("Existing top+outer. Looking for bottom.");
+      }
+
+      break;
+
+    default:
+      console.log("Unsupported type:", newItem.type);
+      return [];
+  }
+
+  const query = {
+    username: newItem.username,
+
+    type: { $in: types },
+
+    min_temp: { $lte: newItem.max_temp },
+
+    max_temp: { $gte: newItem.min_temp },
+
+    $or: [
+      { spring: newItem.spring },
+      { summer: newItem.summer },
+      { autumn: newItem.autumn },
+      { winter: newItem.winter }
+    ]
+  };
+
+  console.log("Mongo query:");
+  console.dir(query, { depth: null });
+
+  const candidates = await Clothes.find(query);
+
+  console.log(`Found ${candidates.length} candidates:`);
+
+  candidates.forEach(c => {
+    console.log(`- ${c.name} (${c.type})`);
+  });
+
+  return candidates;
+}
+
+async function matchPath(newItem, matches) {
+
+  console.log("\n==================== matchPath ====================");
+  console.log("Matching:", newItem.name || "(generated match)");
+  console.log("Type:", newItem.type);
 
   if (newItem.type === "onepiece") {
-    const result = {
+
+    console.log("Creating standalone onepiece match.");
+
+    matches.push({
       top: null,
       bottom: null,
       outer: null,
@@ -16,7 +102,7 @@ function matchPath(newItem, tops, bottoms, outer, onepiece, matches, context) {
       min_temp: newItem.min_temp,
       max_temp: newItem.max_temp,
       type: "match",
-      styles: [newItem.style],
+      styles: [...newItem.styles],
       spring: newItem.spring,
       summer: newItem.summer,
       autumn: newItem.autumn,
@@ -24,105 +110,153 @@ function matchPath(newItem, tops, bottoms, outer, onepiece, matches, context) {
       tags: null,
       rejected: false,
       userMade: false,
-      username: newItem.username || null,
-      lastWornDate: new Date('1925-09-25T00:00:00.000Z')
-    };
+      username: newItem.username,
+      lastWornDate: new Date("1925-09-25T00:00:00.000Z")
+    });
 
-    matches.push(result);
-    return matchSeason(newItem, outer, matches, context);
+    console.log("Standalone onepiece match added.");
   }
 
-  if (newItem.type === "top") {
-    matchItem = bottoms;
-  } else if (newItem.type === "bottom") {
-    matchItem = tops;
-  } else if (newItem.type === "outer") {
-    matchItem = tops;
-    matchSeason(newItem, matchItem, matches, context);
-    matchItem = onepiece;
-    return matchSeason(newItem, matchItem, matches, context);
-  } else if (newItem.type === "match" && newItem.top && newItem.bottom && !newItem.outer) {
-    matchItem = outer;
-  } else if (newItem.type === "match" && newItem.outer && newItem.top && !newItem.bottom) {
-    matchItem = bottoms;
-  } else {
+  const candidates = await getCandidates(newItem);
+
+  console.log("Candidate count:", candidates.length);
+
+  if (!candidates.length) {
+
+    console.log("No candidates found.");
     return;
+
   }
 
-  return matchSeason(newItem, matchItem, matches, context);
+  await matchSeason(newItem, candidates, matches);
 }
 
-function matchSeason(newItem, matchItem, matches, context) {
-  console.log("Matching season for new item:", newItem.name);
-  const seasonalMatches = matchItem.filter(item =>
+async function matchSeason(newItem, candidates, matches) {
+
+  console.log("Matching season:", newItem.name);
+
+  const seasonalMatches = candidates.filter(item =>
     (item.spring && newItem.spring) ||
     (item.summer && newItem.summer) ||
     (item.autumn && newItem.autumn) ||
     (item.winter && newItem.winter)
   );
 
-  return matchStyle(newItem, seasonalMatches, matches, context);
+  await matchStyle(newItem, seasonalMatches, matches);
+
 }
 
-function matchStyle(newItem, matchItems, matches, context) {
-  console.log("Matching style for new item:", newItem.name);
+async function matchStyle(newItem, candidates, matches) {
 
-  const normalize = s => Array.isArray(s) ? s : [s];
+  console.log("Matching style:", newItem.name);
 
-  for (const item of matchItems) {
+  for (const item of candidates) {
+
     const combinedStyles = [
-      ...normalize(newItem.styles || newItem.style),
-      ...normalize(item.styles || item.style)
+      ...newItem.styles,
+      ...item.styles
     ];
 
-    const patternedCount = combinedStyles.filter(s => s === "patterned").length;
+    const patternedCount =
+      combinedStyles.filter(style => style === "patterned").length;
 
     if (patternedCount <= 1) {
-      colorMatch(newItem, item, matches, context);
+      await colorMatch(newItem, item, matches);
     }
+
   }
+
 }
 
-function colorMatch(newItem, matchItem, matches, context) {
-  console.log("Matching color for new item:", newItem.name, "with", matchItem.name);
-  const combinedColors = [...new Set([...newItem.colors, ...matchItem.colors])];
+async function colorMatch(newItem, matchItem, matches) {
 
-  if (matching(combinedColors)) {
-    tempMatch(newItem, matchItem, matches, combinedColors, context);
-  }
+  console.log(
+    "Matching colors:",
+    newItem.name,
+    "with",
+    matchItem.name
+  );
 
-  function matching(combinedColors) {
-    return colorPalettes.some(palette =>
-      combinedColors.every(color => palette.includes(color))
-    );
-  }
+  const combinedColors = [
+    ...new Set([
+      ...newItem.colors,
+      ...matchItem.colors
+    ])
+  ];
+
+  const validPalette = colorPalettes.some(palette =>
+    combinedColors.every(color => palette.includes(color))
+  );
+
+  if (!validPalette) return;
+
+  await tempMatch(
+    newItem,
+    matchItem,
+    matches,
+    combinedColors
+  );
+
 }
 
-function tempMatch(newItem, matchItem, matches, combinedColors, context) {
-  if (newItem.min_temp > matchItem.max_temp || matchItem.min_temp > newItem.max_temp) {
-    console.log("Temperature mismatch: skipping match between", newItem.name, "and", matchItem.name);
+async function tempMatch(
+  newItem,
+  matchItem,
+  matches,
+  combinedColors
+) {
+
+  if (
+    newItem.min_temp > matchItem.max_temp ||
+    matchItem.min_temp > newItem.max_temp
+  ) {
     return;
   }
 
-  const min_temp = (newItem.min_temp + matchItem.min_temp) / 2;
-  const max_temp = (newItem.max_temp + matchItem.max_temp) / 2;
+  const min_temp =
+    (newItem.min_temp + matchItem.min_temp) / 2;
 
-  pushResult(newItem, matchItem, matches, combinedColors, context, min_temp, max_temp);
+  const max_temp =
+    (newItem.max_temp + matchItem.max_temp) / 2;
+
+  await pushResult(
+    newItem,
+    matchItem,
+    matches,
+    combinedColors,
+    min_temp,
+    max_temp
+  );
+
 }
 
-function pushResult(newItem, matchItem, matches, combinedColors, context, min_temp, max_temp) {
-  console.log("Pushing result for new item:", newItem.name, "with", matchItem.name);
+async function pushResult(
+  newItem,
+  matchItem,
+  matches,
+  combinedColors,
+  min_temp,
+  max_temp
+) {
+
+  console.log("\n==================== pushResult ====================");
+
+  console.log(
+    `Creating result for ${newItem.name} + ${matchItem.name}`
+  );
 
   function createResult(overrides) {
-    return {
+
+    const result = {
       top: null,
       bottom: null,
       outer: null,
       onepiece: null,
       colors: combinedColors,
-      min_temp: parseFloat(min_temp.toFixed(1)),
-      max_temp: parseFloat(max_temp.toFixed(1)),
+      min_temp: Number(min_temp.toFixed(1)),
+      max_temp: Number(max_temp.toFixed(1)),
       type: "match",
+      styles: [...new Set([...newItem.styles, ...matchItem.styles])],
       tags: null,
       rejected: false,
       spring: newItem.spring && matchItem.spring,
@@ -130,93 +264,164 @@ function pushResult(newItem, matchItem, matches, combinedColors, context, min_te
       autumn: newItem.autumn && matchItem.autumn,
       winter: newItem.winter && matchItem.winter,
       userMade: false,
-      username: newItem.username || matchItem.username || null,
-      lastWornDate: new Date('1925-09-25T00:00:00.000Z'),
-      ...overrides,
+      username: newItem.username || matchItem.username,
+      lastWornDate: new Date("1925-09-25T00:00:00.000Z"),
+      ...overrides
     };
-  }
 
-  const baseStyles = newItem.styles || [newItem.style];
+    console.log("Generated match:");
+    console.dir(result, { depth: null });
+
+    return result;
+
+  }
 
   if (newItem.type === "top" || newItem.type === "bottom") {
+
+    console.log("Creating top+bottom match.");
+
     const result = createResult({
       top: newItem.type === "top" ? newItem.name : matchItem.name,
-      bottom: newItem.type === "bottom" ? newItem.name : matchItem.name,
-      styles: [
-        ...(Array.isArray(newItem.styles) ? newItem.styles : (newItem.style ? [newItem.style] : [])),
-        ...(Array.isArray(matchItem.styles) ? matchItem.styles : (matchItem.style ? [matchItem.style] : []))
-      ],
+      bottom: newItem.type === "bottom" ? newItem.name : matchItem.name
     });
-    matches.push(result);
-    matchPath(result, context.tops, context.bottoms, context.outer, null, matches, context);
 
-  } else if (newItem.type === "outer" && matchItem.type === "top") {
+    matches.push(result);
+
+    console.log("Recursing to search for outer...");
+    await matchPath(result, matches);
+
+    return;
+
+  }
+
+  if (newItem.type === "outer" && matchItem.type === "top") {
+
+    console.log("Outer + top. Searching for bottom.");
+
     const result = createResult({
       top: matchItem.name,
-      outer: newItem.name,
-      styles: [matchItem.style, newItem.style],
+      outer: newItem.name
     });
 
-    matchPath(result, context.tops, context.bottoms, context.outer, null, matches, context);
+    await matchPath(result, matches);
 
-  } else if (newItem.type === "outer" && matchItem.type === "onepiece") {
-    const result = createResult({
+    return;
+
+  }
+
+  if (newItem.type === "outer" && matchItem.type === "onepiece") {
+
+    console.log("Outer + onepiece complete.");
+
+    matches.push(createResult({
       onepiece: matchItem.name,
-      outer: newItem.name,
-      styles: [...baseStyles, matchItem.style],
-    });
-    matches.push(result);
+      outer: newItem.name
+    }));
 
-  } else if (newItem.type === "match" && newItem.top && newItem.bottom && !newItem.outer) {
-    const result = createResult({
+    return;
+
+  }
+
+  if (
+    newItem.type === "match" &&
+    newItem.top &&
+    newItem.bottom &&
+    !newItem.outer
+  ) {
+
+    console.log("Finishing top+bottom with outer.");
+
+    matches.push(createResult({
       top: newItem.top,
       bottom: newItem.bottom,
-      outer: matchItem.name,
-      styles: [...baseStyles, matchItem.style],
-    });
-    matches.push(result);
+      outer: matchItem.name
+    }));
 
-  } else if (newItem.type === "match" && newItem.outer && newItem.top && !newItem.bottom) {
-    const result = createResult({
+    return;
+
+  }
+
+  if (
+    newItem.type === "match" &&
+    newItem.outer &&
+    newItem.top &&
+    !newItem.bottom
+  ) {
+
+    console.log("Finishing outer+top with bottom.");
+
+    matches.push(createResult({
       top: newItem.top,
       bottom: matchItem.name,
-      outer: newItem.outer,
-      styles: [...baseStyles, matchItem.style],
-    });
-    matches.push(result);
+      outer: newItem.outer
+    }));
 
-  } else if (newItem.type === "onepiece" && matchItem.type === "outer") {
-    const result = createResult({
-      onepiece: newItem.name,
-      outer: matchItem.name,
-      styles: [
-        ...(Array.isArray(newItem.styles) ? newItem.styles : (newItem.style ? [newItem.style] : [])),
-        ...(Array.isArray(matchItem.styles) ? matchItem.styles : (matchItem.style ? [matchItem.style] : []))
-      ],
-    });
-    matches.push(result);
+    return;
+
   }
+
+  if (newItem.type === "onepiece" && matchItem.type === "outer") {
+
+    console.log("Onepiece + outer complete.");
+
+    matches.push(createResult({
+      onepiece: newItem.name,
+      outer: matchItem.name
+    }));
+
+  }
+
 }
 
+async function processMatches(newItem) {
 
-async function processMatches(newItem, tops, bottoms, outer, onepiece) {
-  console.log("Processing matches for new item:", newItem.name);
+  console.log("\n====================================================");
+  console.log("Starting processMatches");
+  console.log("====================================================");
+
+  console.dir(newItem, { depth: null });
+
   const matches = [];
-  const context = { tops, bottoms, outer }; // 
 
-  matchPath(newItem, tops, bottoms, outer, onepiece, matches, context);
+  await matchPath(newItem, matches);
 
-  if (matches.length === 0) {
-    console.log("No matches to upload.");
+  console.log("\nFinished matching.");
+  console.log("Total matches:", matches.length);
+
+  console.dir(matches, { depth: null });
+
+  if (!matches.length) {
+
+    console.log("No matches found.");
     return;
+
   }
 
   try {
-    const response = await axios.post("https://wearable-psi.vercel.app/api/match/bulk", matches);
-    console.log("Bulk matches created:", response.data);
-  } catch (error) {
-    console.error("Error uploading matches:", error.message);
+
+    console.log("Uploading matches...");
+
+    const response = await axios.post(
+      "https://wearable-psi.vercel.app/api/match/bulk",
+      matches
+    );
+
+    console.log("Upload successful.");
+    console.log("Response:");
+
+    console.dir(response.data, { depth: null });
+
+  } catch (err) {
+
+    console.error("Upload failed.");
+    console.error(err.message);
+
+    if (err.response) {
+      console.error(err.response.data);
+    }
+
   }
+
 }
 
 module.exports = {

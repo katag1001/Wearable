@@ -1,6 +1,6 @@
 import React from 'react';
 import colorOptions from '../../constants/colorOptions';
-import './updateClothesForm.css'
+import './updateClothesForm.css';
 
 const styleOptions = ["plain", "patterned"];
 
@@ -10,6 +10,7 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
     const selected = Array.from(options)
       .filter(o => o.selected)
       .map(o => o.value);
+
     onChange({ target: { name, value: selected } });
   };
 
@@ -20,7 +21,10 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
 
   return (
     <div className="modal-wrapper">
-      <p className="modal-title">Update {type.charAt(0).toUpperCase() + type.slice(1)}</p>
+      <p className="modal-title">
+        Update {type.charAt(0).toUpperCase() + type.slice(1)}
+      </p>
+
       <form className="update-form" onSubmit={onSubmit}>
         <label className="form-label">
           Name:
@@ -28,9 +32,20 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
             className="form-input"
             type="text"
             name="name"
-            value={formData.name}
+            value={formData.name || ''}
             onChange={onChange}
             required
+          />
+        </label>
+
+        <label className="form-label">
+          Image URL:
+          <input
+            className="form-input"
+            type="text"
+            name="imageUrl"
+            value={formData.imageUrl || ''}
+            onChange={onChange}
           />
         </label>
 
@@ -40,11 +55,13 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
             className="form-select multi"
             name="colors"
             multiple
-            value={formData.colors}
+            value={formData.colors || []}
             onChange={handleMultiSelectChange}
           >
             {colorOptions.map((color) => (
-              <option key={color} value={color}>{color}</option>
+              <option key={color} value={color}>
+                {color}
+              </option>
             ))}
           </select>
         </label>
@@ -55,11 +72,13 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
             className="form-select multi"
             name="styles"
             multiple
-            value={formData.styles}
+            value={formData.styles || []}
             onChange={handleMultiSelectChange}
           >
             {styleOptions.map((style) => (
-              <option key={style} value={style}>{style}</option>
+              <option key={style} value={style}>
+                {style}
+              </option>
             ))}
           </select>
         </label>
@@ -70,7 +89,7 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
             className="form-input"
             type="number"
             name="min_temp"
-            value={formData.min_temp}
+            value={formData.min_temp || ''}
             onChange={onChange}
           />
         </label>
@@ -81,29 +100,35 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
             className="form-input"
             type="number"
             name="max_temp"
-            value={formData.max_temp}
+            value={formData.max_temp || ''}
             onChange={onChange}
           />
         </label>
+
         <fieldset className="season-group">
           <legend className="legend-title">Seasons</legend>
+
           {['spring', 'summer', 'autumn', 'winter'].map((season) => (
             <label key={season} className="season-label">
-  <input
-    type="checkbox"
-    name={season}
-    checked={formData[season] || false}
-    onChange={handleCheckboxChange}
-  />
-  <span className="custom-checkbox"></span>
-  {season.charAt(0).toUpperCase() + season.slice(1)}
-</label>
+              <input
+                type="checkbox"
+                name={season}
+                checked={formData[season] || false}
+                onChange={handleCheckboxChange}
+              />
+              <span className="custom-checkbox"></span>
+              {season.charAt(0).toUpperCase() + season.slice(1)}
+            </label>
           ))}
         </fieldset>
 
         <div className="button-group">
-          <button type="submit" className="save-button">Save</button>
-          <button type="button" className="cancel-button" onClick={onCancel}>Cancel</button>
+          <button type="submit" className="save-button">
+            Save
+          </button>
+          <button type="button" className="cancel-button" onClick={onCancel}>
+            Cancel
+          </button>
         </div>
       </form>
     </div>
