@@ -133,12 +133,15 @@ const clothesSchema = new mongoose.Schema({
   colors: { type: [String], required: true },
   styles: { type: [String], required: true },
   type: { type: String, required: true },
+  lastWornDate: { type: Date, default: null },
+  tags: { type: [String], required: false },
   spring: { type: Boolean, required: true },
   summer: { type: Boolean, required: true },
   autumn: { type: Boolean, required: true },
   winter: { type: Boolean, required: true },
   username: { type: String, required: true, default: "guest" },
 });
+
 
 
 module.exports = {

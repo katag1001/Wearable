@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import UploadImages from './uploadPics';
 import ViewNewMatches from './viewNewMatches';
@@ -8,45 +8,172 @@ import { URL } from "../../config";
 
 const styleOptions = ["plain", "patterned"];
 
+const seasonTempRanges = {
+  spring: { min: 10, max: 20 },
+  summer: { min: 15, max: 35 },
+  autumn: { min: 8, max: 15 },
+  winter: { min: 0, max: 13 }
+};
+
+const tagOptions = [
+  "Work",
+  "Gym",
+  "Loungewear",
+  "Party",
+  "Date night",
+  "Wedding",
+  "Beach",
+  "Outdoor",
+  "Dinner",
+  "Everyday"
+];
+
 const CreateClothes = () => {
-  const [formData, setFormData] = useState({
+
+  const initialState = {
     name: '',
     imageUrl: '',
-    min_temp: '',
-    max_temp: '',
+    min_temp: 10,
+    max_temp: 20,
     colors: [],
-    styles: '',
+    styles: 'plain',
     type: 'top',
     spring: false,
     summer: false,
     autumn: false,
     winter: false,
+    tags: [],
+    lastWornDate: new Date(Date.now() - 100 * 365 * 24 * 60 * 60 * 1000),
     username: localStorage.getItem('user')
-  });
+  };
 
+  const [formData, setFormData] = useState(initialState);
   const [message, setMessage] = useState('');
   const [justCreatedItem, setJustCreatedItem] = useState(null);
   const [showForm, setShowForm] = useState(true);
+  const [manualTempOverride, setManualTempOverride] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked, multiple, options } = e.target;
+  const detectFromName = (name) => {
+    const lower = name.toLowerCase();
 
-    if (multiple) {
-      const selected = Array.from(options)
-        .filter(o => o.selected)
-        .map(o => o.value);
+    const detectedColors = colorOptions.filter(c =>
+      lower.includes(c.toLowerCase())
+    );
 
-      setFormData(prev => ({
-        ...prev,
-        [name]: selected
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-      }));
-    }
+    const detectedSeasons = {
+      spring: lower.includes("spring"),
+      summer: lower.includes("summer"),
+      autumn: lower.includes("autumn") || lower.includes("fall"),
+      winter: lower.includes("winter")
+    };
+
+    const detectedTags = tagOptions.filter(tag =>
+      lower.includes(tag.toLowerCase())
+    );
+
+    const style = detectedColors.length > 1 ? "patterned" : "plain";
+
+    return { detectedColors, detectedSeasons, detectedTags, style };
   };
+
+  const toggleColor = (color) => {
+    setFormData(prev => {
+      const exists = prev.colors.includes(color);
+      const colors = exists
+        ? prev.colors.filter(c => c !== color)
+        : [...prev.colors, color];
+
+      return {
+        ...prev,
+        colors,
+        styles: colors.length > 1 ? "patterned" : prev.styles
+      };
+    });
+  };
+
+  const toggleTag = (tag) => {
+    setFormData(prev => {
+      const exists = prev.tags.includes(tag);
+      const tags = exists
+        ? prev.tags.filter(t => t !== tag)
+        : [...prev.tags, tag];
+
+      return { ...prev, tags };
+    });
+  };
+
+  const toggleSeason = (season) => {
+    setManualTempOverride(false);
+
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        [season]: !prev[season]
+      };
+
+      const active = Object.keys(updated).filter(
+        s => ["spring", "summer", "autumn", "winter"].includes(s) && updated[s]
+      );
+
+      if (active.length > 0) {
+        const ranges = active.map(s => seasonTempRanges[s]);
+        updated.min_temp = Math.min(...ranges.map(r => r.min));
+        updated.max_temp = Math.max(...ranges.map(r => r.max));
+      }
+
+      return updated;
+    });
+  };
+
+  // ✅ DUAL SLIDER HANDLERS
+  const handleMinTemp = (value) => {
+    const v = Math.min(Number(value), formData.max_temp);
+    setManualTempOverride(true);
+    setFormData(prev => ({ ...prev, min_temp: v }));
+  };
+
+  const handleMaxTemp = (value) => {
+    const v = Math.max(Number(value), formData.min_temp);
+    setManualTempOverride(true);
+    setFormData(prev => ({ ...prev, max_temp: v }));
+  };
+
+  useEffect(() => {
+    if (!formData.name) return;
+
+    const { detectedColors, detectedSeasons, detectedTags, style } =
+      detectFromName(formData.name);
+
+    setFormData(prev => {
+      let updated = { ...prev };
+
+      if (detectedColors.length > 0) {
+        updated.colors = detectedColors;
+      }
+
+      Object.keys(detectedSeasons).forEach(s => {
+        updated[s] = detectedSeasons[s];
+      });
+
+      if (!manualTempOverride) {
+        const active = Object.keys(detectedSeasons).filter(s => detectedSeasons[s]);
+
+        if (active.length > 0) {
+          const ranges = active.map(s => seasonTempRanges[s]);
+          updated.min_temp = Math.min(...ranges.map(r => r.min));
+          updated.max_temp = Math.max(...ranges.map(r => r.max));
+        }
+      }
+
+      if (detectedTags.length > 0) {
+        updated.tags = detectedTags;
+      }
+
+      updated.styles = detectedColors.length > 1 ? "patterned" : style;
+
+      return updated;
+    });
+  }, [formData.name]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,17 +183,13 @@ const CreateClothes = () => {
         ...formData,
         min_temp: Number(formData.min_temp),
         max_temp: Number(formData.max_temp),
-        colors: formData.colors,
-        styles: formData.styles ? [formData.styles] : []
+        styles: formData.styles.toLowerCase()
       };
-
-      console.log('Submitting payload:', payload);
 
       const res = await axios.post(`${URL}/clothing`, payload);
 
       if (res.data.error) {
         setMessage(`Error: ${res.data.error}`);
-        setJustCreatedItem(null);
         return;
       }
 
@@ -78,26 +201,11 @@ const CreateClothes = () => {
       });
 
       setShowForm(false);
-
-      setFormData({
-        name: '',
-        imageUrl: '',
-        min_temp: '',
-        max_temp: '',
-        colors: [],
-        styles: '',
-        type: 'top',
-        spring: false,
-        summer: false,
-        autumn: false,
-        winter: false,
-        username: localStorage.getItem('user')
-      });
+      setFormData(initialState);
 
     } catch (err) {
       console.error(err);
       setMessage('Error submitting form');
-      setJustCreatedItem(null);
     }
   };
 
@@ -113,94 +221,34 @@ const CreateClothes = () => {
         <div className="create-clothes-container">
 
           <form className="clothing-form" onSubmit={handleSubmit}>
+
+            {/* NAME */}
             <label>
               Name:
               <input
                 name="name"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 required
               />
             </label>
 
+            {/* IMAGE */}
             <div className="image-upload-section">
-              <span>Image URL:</span>
-
-              <UploadImages
-                setFormData={setFormData}
-                formData={formData}
-              />
-
-              {formData.imageUrl && (
-                <img
-                  src={formData.imageUrl}
-                  alt="Clothing"
-                  className="uploaded-image-preview"
-                />
-              )}
+              <span>Image</span>
+              <UploadImages setFormData={setFormData} formData={formData} />
             </div>
 
-            <label>
-              Min Temp:
-              <input
-                name="min_temp"
-                type="number"
-                value={formData.min_temp}
-                onChange={handleChange}
-                required
-              />
-            </label>
-
-            <label>
-              Max Temp:
-              <input
-                name="max_temp"
-                type="number"
-                value={formData.max_temp}
-                onChange={handleChange}
-                required
-              />
-            </label>
-
-            <label>
-              Colors:
-              <select
-                name="colors"
-                multiple
-                value={formData.colors}
-                onChange={handleChange}
-              >
-                {colorOptions.map(color => (
-                  <option key={color} value={color}>
-                    {color}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label>
-              Style:
-              <select
-                name="styles"
-                value={formData.styles}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select a style</option>
-                {styleOptions.map(style => (
-                  <option key={style} value={style}>
-                    {style}
-                  </option>
-                ))}
-              </select>
-            </label>
-
+            {/* TYPE */}
             <label>
               Type:
               <select
-                name="type"
                 value={formData.type}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, type: e.target.value })
+                }
               >
                 <option value="top">Top</option>
                 <option value="bottom">Bottom</option>
@@ -209,76 +257,140 @@ const CreateClothes = () => {
               </select>
             </label>
 
-            <div className="season-checkboxes">
-              <label>
-                <input
-                  type="checkbox"
-                  name="spring"
-                  checked={formData.spring}
-                  onChange={handleChange}
-                />
-                Spring
-              </label>
-
-              <label>
-                <input
-                  type="checkbox"
-                  name="summer"
-                  checked={formData.summer}
-                  onChange={handleChange}
-                />
-                Summer
-              </label>
-
-              <label>
-                <input
-                  type="checkbox"
-                  name="autumn"
-                  checked={formData.autumn}
-                  onChange={handleChange}
-                />
-                Autumn
-              </label>
-
-              <label>
-                <input
-                  type="checkbox"
-                  name="winter"
-                  checked={formData.winter}
-                  onChange={handleChange}
-                />
-                Winter
-              </label>
+            {/* SEASON */}
+            <div>
+              <h4>Season</h4>
+              <div className="season-checkboxes">
+                {["spring", "summer", "autumn", "winter"].map(season => (
+                  <label key={season} className="season-label">
+                    <input
+                      type="checkbox"
+                      checked={formData[season]}
+                      onChange={() => toggleSeason(season)}
+                    />
+                    {season}
+                  </label>
+                ))}
+              </div>
             </div>
 
-            <button type="submit" className="submit-button">
+            {/* TEMP DUAL SLIDER */}
+            <div className="temp-section">
+              <h4>
+                Temperature: {formData.min_temp}°C - {formData.max_temp}°C
+              </h4>
+
+              <div className="range-wrapper">
+
+                <input
+                  type="range"
+                  min={-30}
+                  max={50}
+                  value={formData.min_temp}
+                  onChange={(e) => handleMinTemp(e.target.value)}
+                  className="range range-min"
+                />
+
+                <input
+                  type="range"
+                  min={-30}
+                  max={50}
+                  value={formData.max_temp}
+                  onChange={(e) => handleMaxTemp(e.target.value)}
+                  className="range range-max"
+                />
+
+                <div className="range-track">
+                  <div
+                    className="range-fill"
+                    style={{
+                      left: `${((formData.min_temp + 30) / 80) * 100}%`,
+                      width: `${((formData.max_temp - formData.min_temp) / 80) * 100}%`
+                    }}
+                  />
+                </div>
+
+              </div>
+            </div>
+
+            {/* COLORS */}
+            <div>
+              <h4>Colours</h4>
+              <div className="color-grid">
+                {colorOptions.map(color => (
+  <div key={color.name} className="color-item">
+    
+    <span className="color-name">
+      {color.name}
+    </span>
+
+    <div
+      className={`color-square ${
+        formData.colors.includes(color.name) ? "selected" : ""
+      }`}
+      style={{ backgroundColor: color.value }}
+      onClick={() => toggleColor(color.name)}
+    />
+    
+  </div>
+))}
+              </div>
+            </div>
+
+            {/* STYLE */}
+            <label>
+              Style:
+              <select
+                value={formData.styles}
+                onChange={(e) =>
+                  setFormData({ ...formData, styles: e.target.value })
+                }
+              >
+                {styleOptions.map(s => (
+                  <option key={s} value={s}>
+                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            {/* TAGS */}
+            <div>
+              <h4>Tags</h4>
+              <div className="tags-grid">
+                {tagOptions.map(tag => (
+                  <label key={tag} className="tag-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.tags.includes(tag)}
+                      onChange={() => toggleTag(tag)}
+                    />
+                    <span>{tag}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <button className="submit-button" type="submit">
               Add Item
             </button>
+
           </form>
 
-          {message && (
-            <p className="message-text">{message}</p>
-          )}
+          {message && <p className="message-text">{message}</p>}
         </div>
       ) : (
         <div className="item-created-section">
-
-          <button
-            className="regular-button"
-            onClick={handleAddNewItem}
-          >
+          <button className="regular-button" onClick={handleAddNewItem}>
             Add New Item
           </button>
 
           {justCreatedItem && (
-            <div className="new-match-section">
-              <ViewNewMatches
-                newItemName={justCreatedItem.name}
-                newItemType={justCreatedItem.type}
-              />
-            </div>
+            <ViewNewMatches
+              newItemName={justCreatedItem.name}
+              newItemType={justCreatedItem.type}
+            />
           )}
-
         </div>
       )}
     </div>
