@@ -89,23 +89,27 @@ const CreateMatch = () => {
         : false;
     });
 
-    const payload = {
-      top: formData.top?.name || null,
-      bottom: formData.bottom?.name || null,
-      outer: formData.outer?.name || null,
-      onepiece: formData.onepiece?.name || null,
-      colors: allColors,
-      min_temp: minTempAvg,
-      max_temp: maxTempAvg,
-      ...seasons,
-      styles: [],
-      type: 'match',
-      lastWornDate: new Date(),
-      tags: [],
-      rejected: false,
-      userMade: true,
-      username: localStorage.getItem('user') || null,
-    };
+      const clothes = [];
+
+      if (formData.top) clothes.push(`top:${formData.top.name}`);
+      if (formData.bottom) clothes.push(`bottom:${formData.bottom.name}`);
+      if (formData.outer) clothes.push(`outer:${formData.outer.name}`);
+      if (formData.onepiece) clothes.push(`onepiece:${formData.onepiece.name}`);
+
+      const payload = {
+        clothes,
+        colors: allColors,
+        min_temp: minTempAvg,
+        max_temp: maxTempAvg,
+        ...seasons,
+        styles: [],
+        type: 'match',
+        lastWornDate: new Date(),
+        tags: [],
+        rejected: false,
+        userMade: true,
+        username: localStorage.getItem('user') || null,
+      };
 
     try {
       const res = await fetch(`${URL}/match/matches`, {

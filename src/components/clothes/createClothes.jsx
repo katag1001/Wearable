@@ -16,20 +16,11 @@ const seasonTempRanges = {
 };
 
 const tagOptions = [
-  "Work",
-  "Gym",
-  "Loungewear",
-  "Party",
-  "Date night",
-  "Wedding",
-  "Beach",
-  "Outdoor",
-  "Dinner",
-  "Everyday"
+  "Work", "Gym", "Loungewear", "Party", "Date night",
+  "Wedding", "Beach", "Outdoor", "Dinner", "Everyday"
 ];
 
 const CreateClothes = () => {
-
   const initialState = {
     name: '',
     imageUrl: '',
@@ -52,6 +43,8 @@ const CreateClothes = () => {
   const [justCreatedItem, setJustCreatedItem] = useState(null);
   const [showForm, setShowForm] = useState(true);
   const [manualTempOverride, setManualTempOverride] = useState(false);
+
+  console.log("🔵 CreateClothes render:", formData);
 
   const detectFromName = (name) => {
     const lower = name.toLowerCase();
@@ -106,10 +99,7 @@ const CreateClothes = () => {
     setManualTempOverride(false);
 
     setFormData(prev => {
-      const updated = {
-        ...prev,
-        [season]: !prev[season]
-      };
+      const updated = { ...prev, [season]: !prev[season] };
 
       const active = Object.keys(updated).filter(
         s => ["spring", "summer", "autumn", "winter"].includes(s) && updated[s]
@@ -121,62 +111,98 @@ const CreateClothes = () => {
         updated.max_temp = Math.max(...ranges.map(r => r.max));
       }
 
+      console.log("🟠 toggleSeason updated:", updated);
       return updated;
     });
   };
 
-  // ✅ DUAL SLIDER HANDLERS
   const handleMinTemp = (value) => {
     const v = Math.min(Number(value), formData.max_temp);
     setManualTempOverride(true);
-    setFormData(prev => ({ ...prev, min_temp: v }));
+
+    console.log("🟠 handleMinTemp:", v);
+
+    setFormData(prev => ({
+      ...prev,
+      min_temp: v
+    }));
   };
 
   const handleMaxTemp = (value) => {
     const v = Math.max(Number(value), formData.min_temp);
     setManualTempOverride(true);
-    setFormData(prev => ({ ...prev, max_temp: v }));
+
+    console.log("🟠 handleMaxTemp:", v);
+
+    setFormData(prev => ({
+      ...prev,
+      max_temp: v
+    }));
   };
 
   useEffect(() => {
+    console.log("🟣 useEffect triggered, name:", formData.name);
+
     if (!formData.name) return;
 
-    const { detectedColors, detectedSeasons, detectedTags, style } =
-      detectFromName(formData.name);
+    try {
+      const {
+        detectedColors,
+        detectedSeasons,
+        detectedTags,
+        style
+      } = detectFromName(formData.name);
 
-    setFormData(prev => {
-      let updated = { ...prev };
-
-      if (detectedColors.length > 0) {
-        updated.colors = detectedColors;
-      }
-
-      Object.keys(detectedSeasons).forEach(s => {
-        updated[s] = detectedSeasons[s];
+      console.log("🟣 detectFromName output:", {
+        detectedColors,
+        detectedSeasons,
+        detectedTags,
+        style
       });
 
-      if (!manualTempOverride) {
-        const active = Object.keys(detectedSeasons).filter(s => detectedSeasons[s]);
+      setFormData(prev => {
+        let updated = { ...prev };
 
-        if (active.length > 0) {
-          const ranges = active.map(s => seasonTempRanges[s]);
-          updated.min_temp = Math.min(...ranges.map(r => r.min));
-          updated.max_temp = Math.max(...ranges.map(r => r.max));
+        if (detectedColors.length > 0) {
+          updated.colors = detectedColors;
         }
-      }
 
-      if (detectedTags.length > 0) {
-        updated.tags = detectedTags;
-      }
+        Object.keys(detectedSeasons).forEach(s => {
+          updated[s] = detectedSeasons[s];
+        });
 
-      updated.styles = detectedColors.length > 1 ? "patterned" : style;
+        if (!manualTempOverride) {
+          const active = Object.keys(detectedSeasons).filter(
+            s => detectedSeasons[s]
+          );
 
-      return updated;
-    });
+          if (active.length > 0) {
+            const ranges = active.map(s => seasonTempRanges[s]);
+            updated.min_temp = Math.min(...ranges.map(r => r.min));
+            updated.max_temp = Math.max(...ranges.map(r => r.max));
+          }
+        }
+
+        if (detectedTags.length > 0) {
+          updated.tags = detectedTags;
+        }
+
+        updated.styles =
+          detectedColors.length > 1 ? "patterned" : style;
+
+        console.log("🟣 updated formData from effect:", updated);
+
+        return updated;
+      });
+    } catch (err) {
+      console.error("❌ useEffect error:", err);
+    }
   }, [formData.name]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.log("🟢 submit triggered:", formData);
 
     try {
       const payload = {
@@ -186,7 +212,11 @@ const CreateClothes = () => {
         styles: formData.styles.toLowerCase()
       };
 
+      console.log("🟢 payload:", payload);
+
       const res = await axios.post(`${URL}/clothing`, payload);
+
+      console.log("🟢 response:", res.data);
 
       if (res.data.error) {
         setMessage(`Error: ${res.data.error}`);
@@ -194,7 +224,6 @@ const CreateClothes = () => {
       }
 
       setMessage(`Item created: ${res.data.name}`);
-
       setJustCreatedItem({
         name: res.data.name,
         type: res.data.type
@@ -202,14 +231,14 @@ const CreateClothes = () => {
 
       setShowForm(false);
       setFormData(initialState);
-
     } catch (err) {
-      console.error(err);
+      console.error("❌ submit error:", err);
       setMessage('Error submitting form');
     }
   };
 
   const handleAddNewItem = () => {
+    console.log("🟢 Add new item clicked");
     setShowForm(true);
     setJustCreatedItem(null);
     setMessage('');
@@ -219,7 +248,6 @@ const CreateClothes = () => {
     <div>
       {showForm ? (
         <div className="create-clothes-container">
-
           <form className="clothing-form" onSubmit={handleSubmit}>
 
             {/* NAME */}
@@ -228,9 +256,14 @@ const CreateClothes = () => {
               <input
                 name="name"
                 value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                onChange={(e) => {
+                  console.log("🟡 Name input:", e.target.value);
+
+                  setFormData(prev => ({
+                    ...prev,
+                    name: e.target.value
+                  }));
+                }}
                 required
               />
             </label>
@@ -246,9 +279,10 @@ const CreateClothes = () => {
               Type:
               <select
                 value={formData.type}
-                onChange={(e) =>
-                  setFormData({ ...formData, type: e.target.value })
-                }
+                onChange={(e) => {
+                  console.log("🟡 Type changed:", e.target.value);
+                  setFormData({ ...formData, type: e.target.value });
+                }}
               >
                 <option value="top">Top</option>
                 <option value="bottom">Bottom</option>
@@ -266,7 +300,10 @@ const CreateClothes = () => {
                     <input
                       type="checkbox"
                       checked={formData[season]}
-                      onChange={() => toggleSeason(season)}
+                      onChange={() => {
+                        console.log("🟡 Season toggle:", season);
+                        toggleSeason(season);
+                      }}
                     />
                     {season}
                   </label>
@@ -274,14 +311,13 @@ const CreateClothes = () => {
               </div>
             </div>
 
-            {/* TEMP DUAL SLIDER */}
+            {/* TEMP */}
             <div className="temp-section">
               <h4>
                 Temperature: {formData.min_temp}°C - {formData.max_temp}°C
               </h4>
 
               <div className="range-wrapper">
-
                 <input
                   type="range"
                   min={-30}
@@ -309,31 +345,30 @@ const CreateClothes = () => {
                     }}
                   />
                 </div>
-
               </div>
             </div>
 
             {/* COLORS */}
             <div>
               <h4>Colours</h4>
+
               <div className="color-grid">
                 {colorOptions.map(color => (
-  <div key={color.name} className="color-item">
-    
-    <span className="color-name">
-      {color.name}
-    </span>
+                  <div key={color.name} className="color-item">
+                    <span>{color.name}</span>
 
-    <div
-      className={`color-square ${
-        formData.colors.includes(color.name) ? "selected" : ""
-      }`}
-      style={{ backgroundColor: color.value }}
-      onClick={() => toggleColor(color.name)}
-    />
-    
-  </div>
-))}
+                    <div
+                      className={`color-square ${
+                        formData.colors.includes(color.name) ? "selected" : ""
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                      onClick={() => {
+                        console.log("🟡 Color toggle:", color.name);
+                        toggleColor(color.name);
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -342,13 +377,14 @@ const CreateClothes = () => {
               Style:
               <select
                 value={formData.styles}
-                onChange={(e) =>
-                  setFormData({ ...formData, styles: e.target.value })
-                }
+                onChange={(e) => {
+                  console.log("🟡 Style changed:", e.target.value);
+                  setFormData({ ...formData, styles: e.target.value });
+                }}
               >
                 {styleOptions.map(s => (
                   <option key={s} value={s}>
-                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                    {s}
                   </option>
                 ))}
               </select>
@@ -357,13 +393,17 @@ const CreateClothes = () => {
             {/* TAGS */}
             <div>
               <h4>Tags</h4>
+
               <div className="tags-grid">
                 {tagOptions.map(tag => (
-                  <label key={tag} className="tag-label">
+                  <label key={tag}>
                     <input
                       type="checkbox"
                       checked={formData.tags.includes(tag)}
-                      onChange={() => toggleTag(tag)}
+                      onChange={() => {
+                        console.log("🟡 Tag toggle:", tag);
+                        toggleTag(tag);
+                      }}
                     />
                     <span>{tag}</span>
                   </label>
@@ -371,17 +411,17 @@ const CreateClothes = () => {
               </div>
             </div>
 
-            <button className="submit-button" type="submit">
+            <button type="submit">
               Add Item
             </button>
 
           </form>
 
-          {message && <p className="message-text">{message}</p>}
+          {message && <p>{message}</p>}
         </div>
       ) : (
         <div className="item-created-section">
-          <button className="regular-button" onClick={handleAddNewItem}>
+          <button onClick={handleAddNewItem}>
             Add New Item
           </button>
 

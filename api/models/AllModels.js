@@ -14,10 +14,7 @@ const userSchema = new mongoose.Schema({
 
 
 const matchSchema = new mongoose.Schema({
-  top: { type: String, default: null },
-  bottom: { type: String, default: null },
-  outer: { type: String, default: null },
-  onepiece: { type: String, default: null },
+  clothes: { type: [String], required: true },
   colors: { type: [String], required: true },
   min_temp: { type: Number, required: true },
   max_temp: { type: Number, required: true },
@@ -29,19 +26,14 @@ const matchSchema = new mongoose.Schema({
   styles: { type: [String], required: true },
   tags: { type: [String], required: false },
   rejected: { type: Boolean, required: true },
-  lastWornDate: { type: Date, required: true  },
+  lastWornDate: { type: Date, required: true },
   userMade: { type: Boolean, required: true },
   username: { type: String, required: true, default: "guest" },
 });
 
-
-
 const todaySchema = new mongoose.Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, required: true, auto: false }, // Keep original Match ID
-  top: { type: String, default: null },
-  bottom: { type: String, default: null },
-  outer: { type: String, default: null },
-  onepiece: { type: String, default: null },
+  _id: { type: mongoose.Schema.Types.ObjectId, required: true, auto: false },
+  clothes: { type: [String], required: true },
   colors: { type: [String], required: true },
   min_temp: { type: Number, required: true },
   max_temp: { type: Number, required: true },

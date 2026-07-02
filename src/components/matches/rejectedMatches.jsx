@@ -20,14 +20,16 @@ const RejectedMatches = () => {
 
         // Extract item names and types from rejected matches
         const itemsToFetch = [];
+
         fetchedMatches
           .filter(match => match.rejected)
           .forEach(match => {
-            ['top', 'bottom', 'outer', 'onepiece'].forEach(type => {
-              const name = match[type];
-              if (name) {
-                const typeKey = type === 'outer' ? 'outer' : type;
-                itemsToFetch.push({ type: typeKey, name });
+            (match.clothes || []).forEach(piece => {
+              const [type, ...nameParts] = piece.split(":");
+              const name = nameParts.join(":");
+
+              if (type && name) {
+                itemsToFetch.push({ type, name });
               }
             });
           });
@@ -178,10 +180,15 @@ const RejectedMatches = () => {
         {filteredMatches.map((match) => (
           <div key={match._id} className="match-card">
             <div className="match-images">
-              {renderItemImage('top', match.top)}
-              {renderItemImage('bottom', match.bottom)}
-              {renderItemImage('outer', match.outer)}
-              {renderItemImage('onepiece', match.onepiece)}
+              {(match.clothes || []).map(piece => {
+                const [type, ...nameParts] = piece.split(":");
+                const name = nameParts.join(":");
+                return (
+                  <React.Fragment key={piece}>
+                    {renderItemImage(type, name)}
+                  </React.Fragment>
+                );
+              })}
             </div>
 
             <div className="button-row">

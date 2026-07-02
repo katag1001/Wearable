@@ -23,15 +23,17 @@ const ViewMatches = () => {
         setMatches(fetchedMatches);
 
         const itemsToFetch = [];
-        fetchedMatches.forEach((match) => {
-          ['top', 'bottom', 'outer', 'onepiece'].forEach((key) => {
-            const name = match[key];
-            if (name) {
-              const type = key === 'outer' ? 'outer' : key;
-              itemsToFetch.push({ type, name });
-            }
+
+          fetchedMatches.forEach((match) => {
+            (match.clothes || []).forEach((piece) => {
+              const [type, ...nameParts] = piece.split(':');
+              const name = nameParts.join(':');
+
+              if (type && name) {
+                itemsToFetch.push({ type, name });
+              }
+            });
           });
-        });
 
         const uniqueItems = [...new Set(itemsToFetch.map((i) => `${i.type}_${i.name}`))];
 
@@ -141,10 +143,16 @@ const ViewMatches = () => {
         {filteredMatches.map((match) => (
           <div key={match._id} className="match-card">
             <div className="match-images">
-              {renderItemImage('top', match.top)}
-              {renderItemImage('bottom', match.bottom)}
-              {renderItemImage('outer', match.outer)}
-              {renderItemImage('onepiece', match.onepiece)}
+              {(match.clothes || []).map((piece) => {
+                const [type, ...nameParts] = piece.split(':');
+                const name = nameParts.join(':');
+
+                return (
+                  <React.Fragment key={piece}>
+                    {renderItemImage(type, name)}
+                  </React.Fragment>
+                );
+              })}
             </div>
 
             <div className="match-info">

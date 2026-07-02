@@ -35,17 +35,24 @@ async function getCandidates(newItem) {
       console.log("Looking for tops or onepieces.");
       break;
 
-    case "match":
+    case "match": {
 
-      if (newItem.top && newItem.bottom && !newItem.outer) {
+      const clothes = newItem.clothes || [];
+
+      const hasTop = clothes.some(c => c.startsWith("top:"));
+      const hasBottom = clothes.some(c => c.startsWith("bottom:"));
+      const hasOuter = clothes.some(c => c.startsWith("outer:"));
+
+      if (hasTop && hasBottom && !hasOuter) {
         types = ["outer"];
         console.log("Existing top+bottom. Looking for outer.");
-      } else if (newItem.outer && newItem.top && !newItem.bottom) {
+      } else if (hasOuter && hasTop && !hasBottom) {
         types = ["bottom"];
         console.log("Existing top+outer. Looking for bottom.");
       }
 
       break;
+    }
 
     default:
       console.log("Unsupported type:", newItem.type);
@@ -94,10 +101,7 @@ async function matchPath(newItem, matches) {
     console.log("Creating standalone onepiece match.");
 
     matches.push({
-      top: null,
-      bottom: null,
-      outer: null,
-      onepiece: newItem.name,
+      clothes: [`onepiece:${newItem.name}`],
       colors: newItem.colors,
       min_temp: newItem.min_temp,
       max_temp: newItem.max_temp,
@@ -245,13 +249,10 @@ async function pushResult(
     `Creating result for ${newItem.name} + ${matchItem.name}`
   );
 
-  function createResult(overrides) {
+  function createResult(overrides = {}) {
 
     const result = {
-      top: null,
-      bottom: null,
-      outer: null,
-      onepiece: null,
+      clothes: [],
       colors: combinedColors,
       min_temp: Number(min_temp.toFixed(1)),
       max_temp: Number(max_temp.toFixed(1)),
@@ -280,10 +281,17 @@ async function pushResult(
 
     console.log("Creating top+bottom match.");
 
-    const result = createResult({
-      top: newItem.type === "top" ? newItem.name : matchItem.name,
-      bottom: newItem.type === "bottom" ? newItem.name : matchItem.name
-    });
+    const clothes = [];
+
+    if (newItem.type === "top") {
+      clothes.push(`top:${newItem.name}`);
+      clothes.push(`bottom:${matchItem.name}`);
+    } else {
+      clothes.push(`top:${matchItem.name}`);
+      clothes.push(`bottom:${newItem.name}`);
+    }
+
+    const result = createResult({ clothes });
 
     matches.push(result);
 
@@ -299,8 +307,10 @@ async function pushResult(
     console.log("Outer + top. Searching for bottom.");
 
     const result = createResult({
-      top: matchItem.name,
-      outer: newItem.name
+      clothes: [
+        `top:${matchItem.name}`,
+        `outer:${newItem.name}`
+      ]
     });
 
     await matchPath(result, matches);
@@ -314,49 +324,47 @@ async function pushResult(
     console.log("Outer + onepiece complete.");
 
     matches.push(createResult({
-      onepiece: matchItem.name,
-      outer: newItem.name
+      clothes: [
+        `onepiece:${matchItem.name}`,
+        `outer:${newItem.name}`
+      ]
     }));
 
     return;
 
   }
 
-  if (
-    newItem.type === "match" &&
-    newItem.top &&
-    newItem.bottom &&
-    !newItem.outer
-  ) {
+  if (newItem.type === "match") {
 
-    console.log("Finishing top+bottom with outer.");
+    const clothes = [...newItem.clothes];
 
-    matches.push(createResult({
-      top: newItem.top,
-      bottom: newItem.bottom,
-      outer: matchItem.name
-    }));
+    const hasTop = clothes.some(c => c.startsWith("top:"));
+    const hasBottom = clothes.some(c => c.startsWith("bottom:"));
+    const hasOuter = clothes.some(c => c.startsWith("outer:"));
 
-    return;
+    if (hasTop && hasBottom && !hasOuter) {
 
-  }
+      console.log("Finishing top+bottom with outer.");
 
-  if (
-    newItem.type === "match" &&
-    newItem.outer &&
-    newItem.top &&
-    !newItem.bottom
-  ) {
+      matches.push(createResult({
+        clothes: [...clothes, `outer:${matchItem.name}`]
+      }));
 
-    console.log("Finishing outer+top with bottom.");
+      return;
 
-    matches.push(createResult({
-      top: newItem.top,
-      bottom: matchItem.name,
-      outer: newItem.outer
-    }));
+    }
 
-    return;
+    if (hasOuter && hasTop && !hasBottom) {
+
+      console.log("Finishing outer+top with bottom.");
+
+      matches.push(createResult({
+        clothes: [...clothes, `bottom:${matchItem.name}`]
+      }));
+
+      return;
+
+    }
 
   }
 
@@ -365,8 +373,10 @@ async function pushResult(
     console.log("Onepiece + outer complete.");
 
     matches.push(createResult({
-      onepiece: newItem.name,
-      outer: matchItem.name
+      clothes: [
+        `onepiece:${newItem.name}`,
+        `outer:${matchItem.name}`
+      ]
     }));
 
   }

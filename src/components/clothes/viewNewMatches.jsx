@@ -22,10 +22,11 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
         username: localStorage.getItem('user')
       });
 
-      const relevantMatches = response.data.filter(match => {
-        if (newItemType === 'outer') return match.outer === newItemName;
-        return match[newItemType] === newItemName;
-      });
+      const relevantMatches = response.data.filter(match =>
+          (match.clothes || []).some(piece =>
+            piece === `${newItemType}:${newItemName}`
+          )
+        );
 
       return relevantMatches;
     };
@@ -33,15 +34,16 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
     const fetchItemDetails = async (relevantMatches) => {
       const itemsToFetch = [];
 
-      relevantMatches.forEach(match => {
-        ['top', 'bottom', 'outer', 'onepiece'].forEach(key => {
-          const name = match[key];
-          if (name) {
-            const type = key === 'outer' ? 'outer' : key;
-            itemsToFetch.push({ type, name });
-          }
+        relevantMatches.forEach(match => {
+          (match.clothes || []).forEach(piece => {
+            const [type, ...nameParts] = piece.split(':');
+            const name = nameParts.join(':');
+
+            if (type && name) {
+              itemsToFetch.push({ type, name });
+            }
+          });
         });
-      });
 
       const uniqueItems = [...new Set(itemsToFetch.map(i => `${i.type}_${i.name}`))];
 
@@ -172,11 +174,17 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
         {matches.filter(match => !match.rejected).map(match => (
           <div key={match._id} className="match-card">
             <div className="match-images">
-              {renderItemImage('top', match.top)}
-              {renderItemImage('bottom', match.bottom)}
-              {renderItemImage('outer', match.outer)}
-              {renderItemImage('onepiece', match.onepiece)}
-            </div>
+            {(match.clothes || []).map(piece => {
+              const [type, ...nameParts] = piece.split(':');
+              const name = nameParts.join(':');
+
+              return (
+                <React.Fragment key={piece}>
+                  {renderItemImage(type, name)}
+                </React.Fragment>
+              );
+            })}
+          </div>
 
             <div className="match-info">
               <div className="item-info">

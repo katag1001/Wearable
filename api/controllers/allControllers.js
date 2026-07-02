@@ -217,10 +217,9 @@ exports.updateItem = async (req, res) => {
     );
 
     // Delete matches that referenced the old item
-    const filter = {};
-    filter[type] = oldName;
-
-    const matchDeleteResult = await Match.deleteMany(filter);
+    const matchDeleteResult = await Match.deleteMany({
+      clothes: `${type}:${oldName}`
+    });
 
     console.log(
       `Deleted ${matchDeleteResult.deletedCount} matches using this ${type}`
@@ -251,10 +250,9 @@ exports.deleteItem = async (req, res) => {
     const { name, type, username } = item;
 
     // Delete matches involving this item
-    const filter = {};
-    filter[type] = name;
-
-    const matchDeleteResult = await Match.deleteMany(filter);
+      const matchDeleteResult = await Match.deleteMany({
+        clothes: `${type}:${name}`
+      });
 
     console.log(
       `Deleted ${matchDeleteResult.deletedCount} matches using this ${type}`
@@ -343,20 +341,21 @@ exports.deleteMatchesByPiece = async (req, res) => {
   try {
     let { pieceType, pieceValue } = req.body;
 
-    const allowedFields = ['top', 'bottom', 'outer', 'onepiece'];
+    const allowedFields = ["top", "bottom", "outer", "onepiece"];
+
     if (!allowedFields.includes(pieceType)) {
-      return res.json({ error: 'Invalid piece type' });
+      return res.json({ error: "Invalid piece type" });
     }
 
-    // Trim whitespace from pieceValue to avoid mismatch due to trailing spaces
     pieceValue = pieceValue.trim();
 
-    const filter = {};
-    filter[pieceType] = pieceValue;
+    const result = await Match.deleteMany({
+      clothes: `${pieceType}:${pieceValue}`
+    });
 
-    const result = await Match.deleteMany(filter);
-
-    res.json({ message: `Deleted ${result.deletedCount} matches` });
+    res.json({
+      message: `Deleted ${result.deletedCount} matches`
+    });
   } catch (error) {
     res.json({ error: error.message });
   }
