@@ -1,15 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import '../clothes/viewClothes.css';
+import React, { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import "../clothes/viewClothes.css";
+import "./createMatch.css";
 import { URL } from "../../config";
 
+const sectionTitles = {
+  top: "Top Half",
+  bottom: "Bottom Half",
+  outer: "Outerwear",
+  onepiece: "One-Pieces",
+};
+
 const CreateMatch = () => {
-  const [formData, setFormData] = useState({
-    top: null,
-    bottom: null,
-    outer: null,
-    onepiece: null,
-  });
+const [formData, setFormData] = useState({
+  top: [],
+  bottom: [],
+  outer: [],
+  onepiece: [],
+});
 
   const [clothesData, setClothesData] = useState({
     top: [],
@@ -18,18 +26,25 @@ const CreateMatch = () => {
     onepiece: [],
   });
 
+  const [searchTerm, setSearchTerm] = useState("");
   const [response, setResponse] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+
+  const scrollRefs = {
+    top: useRef(null),
+    bottom: useRef(null),
+    outer: useRef(null),
+    onepiece: useRef(null),
+  };
 
   useEffect(() => {
     const fetchClothes = async () => {
-      const user = localStorage.getItem('user');
+      const user = localStorage.getItem("user");
 
       try {
         const res = await axios.post(`${URL}/clothing/all`, {
           username: user,
         });
-
-        const allItems = res.data;
 
         const grouped = {
           top: [],
@@ -38,7 +53,7 @@ const CreateMatch = () => {
           onepiece: [],
         };
 
-        allItems.forEach(item => {
+        res.data.forEach((item) => {
           if (grouped[item.type]) {
             grouped[item.type].push(item);
           }
@@ -46,167 +61,400 @@ const CreateMatch = () => {
 
         setClothesData(grouped);
       } catch (err) {
-        console.error('Error fetching clothing data:', err);
+        console.error("Error fetching clothing data:", err);
       }
     };
 
     fetchClothes();
   }, []);
 
-  const handleSelect = (category, item) => {
-    setFormData(prev => ({
+const handleSelect = (category, item) => {
+  setFormData((prev) => {
+    const exists = prev[category].some(
+      (selected) => selected._id === item._id
+    );
+
+    return {
       ...prev,
-      [category]: prev[category]?._id === item._id ? null : item
-    }));
+      [category]: exists
+        ? prev[category].filter(
+            (selected) => selected._id !== item._id
+          )
+        : [...prev[category], item],
+    };
+  });
+};
+
+const isSelected = (category, item) =>
+  formData[category].some(
+    (selected) => selected._id === item._id
+  );
+
+  const filteredItems = (category) => {
+    return clothesData[category].filter((item) => {
+      const term = searchTerm.toLowerCase();
+
+      return (
+        item.name?.toLowerCase().includes(term) ||
+        item.brand?.toLowerCase().includes(term) ||
+        item.colors?.some((c) =>
+          c.toLowerCase().includes(term)
+        ) ||
+        item.tags?.some((t) =>
+          t.toLowerCase().includes(term)
+        )
+      );
+    });
   };
 
-  const isSelected = (category, item) => {
-    return formData[category]?._id === item._id;
+  const scroll = (category, direction) => {
+    const container = scrollRefs[category].current;
+
+    if (!container) return;
+
+    container.scrollBy({
+      left: direction * 300,
+      behavior: "smooth",
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const selectedItems = ['top', 'bottom', 'outer', 'onepiece']
-      .map(key => formData[key])
+    const selectedItems = [
+      "top",
+      "bottom",
+      "outer",
+      "onepiece",
+    ]
+      .map((key) => formData[key])
       .filter(Boolean);
 
-    const allColors = [...new Set(selectedItems.flatMap(item => item.colors))];
+    if (selectedItems.length === 0) {
+      alert("Please select at least one clothing item.");
+      return;
+    }
+
+    const allColors = [
+      ...new Set(
+        selectedItems.flatMap(
+          (item) => item.colors || []
+        )
+      ),
+    ];
 
     const minTempAvg = Math.round(
-      selectedItems.reduce((sum, item) => sum + item.min_temp, 0) / (selectedItems.length || 1)
+      selectedItems.reduce(
+        (sum, item) => sum + item.min_temp,
+        0
+      ) / selectedItems.length
     );
 
     const maxTempAvg = Math.round(
-      selectedItems.reduce((sum, item) => sum + item.max_temp, 0) / (selectedItems.length || 1)
+      selectedItems.reduce(
+        (sum, item) => sum + item.max_temp,
+        0
+      ) / selectedItems.length
     );
 
-    const seasonKeys = ['spring', 'summer', 'autumn', 'winter'];
+    const seasonKeys = [
+      "spring",
+      "summer",
+      "autumn",
+      "winter",
+    ];
+
     const seasons = {};
-    seasonKeys.forEach(season => {
-      seasons[season] = selectedItems.length
-        ? selectedItems.every(item => item[season])
-        : false;
+
+    seasonKeys.forEach((season) => {
+      seasons[season] = selectedItems.every(
+        (item) => item[season]
+      );
     });
 
-      const clothes = [];
+    const clothes = [];
 
-      if (formData.top) clothes.push(`top:${formData.top.name}`);
-      if (formData.bottom) clothes.push(`bottom:${formData.bottom.name}`);
-      if (formData.outer) clothes.push(`outer:${formData.outer.name}`);
-      if (formData.onepiece) clothes.push(`onepiece:${formData.onepiece.name}`);
+Object.values(formData).forEach((items) => {
+  items.forEach((item) => {
+    clothes.push(item.name);
+  });
+});
 
-      const payload = {
-        clothes,
-        colors: allColors,
-        min_temp: minTempAvg,
-        max_temp: maxTempAvg,
-        ...seasons,
-        styles: [],
-        type: 'match',
-        lastWornDate: new Date(),
-        tags: [],
-        rejected: false,
-        userMade: true,
-        username: localStorage.getItem('user') || null,
-      };
+    const payload = {
+      clothes,
+      colors: allColors,
+      min_temp: minTempAvg,
+      max_temp: maxTempAvg,
+      ...seasons,
+      styles: [],
+      type: "match",
+      lastWornDate: new Date(),
+      tags: [],
+      rejected: false,
+      userMade: true,
+      username: localStorage.getItem("user"),
+    };
 
     try {
-      const res = await fetch(`${URL}/match/matches`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        `${URL}/match/matches`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       const result = await res.json();
+
       setResponse(result);
+      setShowPopup(true);
+
+      setTimeout(() => {
+        setShowPopup(false);
+      }, 2500);
+
+setFormData({
+  top: [],
+  bottom: [],
+  outer: [],
+  onepiece: [],
+});
+
     } catch (err) {
-      setResponse({ error: err.message });
+      setResponse({
+        error: err.message,
+      });
     }
   };
 
-  const renderItems = (items, category) => (
-    <div className="clothing-section">
-      <div className="section-wrapper">
-        <p className="section-title-viewclothes">
-          {sectionTitles[category]}
-        </p>
+  const renderItems = (category) => {
+  const items = filteredItems(category);
 
-        <div className="horizontal-scroll-wrapper">
-          <button
-            className="scroll-arrow left-arrow"
-            type="button"
-          >
-            ‹
-          </button>
+    return (
+      <div className="clothing-section">
+        <div className="section-wrapper">
 
-          <div className="scroll-container">
-            {items.length === 0 ? (
-              <p className="no-items">No items found.</p>
-            ) : (
-              items.map(item => (
-                <div
-                  key={item._id}
-                  className="clothing-card-buildmatch"
-                  onClick={() => handleSelect(category, item)}
-                  style={{
-                    border: isSelected(category, item)
-                      ? '3px solid pink'
-                      : '2px solid black',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {item.imageUrl && (
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="clothing-image-buildmatch"
-                    />
-                  )}
-                </div>
-              ))
-            )}
+          <p className="section-title-viewclothes">
+            {sectionTitles[category]}
+          </p>
+
+          <div className="horizontal-scroll-wrapper">
+
+            <button
+              type="button"
+              className="scroll-arrow left-arrow"
+              onClick={() =>
+                scroll(category, -1)
+              }
+            >
+              ‹
+            </button>
+
+            <div
+              className="scroll-container"
+              ref={scrollRefs[category]}
+            >
+              {items.length === 0 ? (
+                <p className="no-items">
+                  No items found.
+                </p>
+              ) : (
+                items.map((item) => (
+                  <div
+                    key={item._id}
+                    className={`clothing-card-buildmatch buildmatch-small ${
+                      isSelected(category, item)
+                        ? "selected-item"
+                        : ""
+                    }`}
+                    onClick={() =>
+                      handleSelect(category, item)
+                    }
+                  >
+                    {item.imageUrl && (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="clothing-image-buildmatch"
+                      />
+                    )}
+
+                    <div className="buildmatch-name">
+                      {item.name}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <button
+              type="button"
+              className="scroll-arrow right-arrow"
+              onClick={() =>
+                scroll(category, 1)
+              }
+            >
+              ›
+            </button>
+
           </div>
 
-          <button
-            className="scroll-arrow right-arrow"
-            type="button"
-          >
-            ›
-          </button>
         </div>
       </div>
-    </div>
-  );
-
-  const sectionTitles = {
-    top: "Top Half",
-    outer: "Outerwear",
-    bottom: "Bottom Half",
-    onepiece: "One-Pieces"
+    );
   };
 
-  return (
+const selectedItems = Object.entries(formData).flatMap(
+  ([category, items]) =>
+    items.map((item) => ({
+      category,
+      item,
+    }))
+);
+
+    return (
     <div className="view-clothes-container">
 
+      {showPopup && (
+        <div className="match-popup-overlay">
+          <div className="match-popup">
+            <h3>✓ Outfit Submitted!</h3>
+            <p>Your outfit has been successfully added to the matches database.</p>
+          </div>
+        </div>
+      )}
+
       <div className="sticky-upload-container">
-        <button onClick={handleSubmit} className="top-button">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="top-button"
+        >
           Submit Outfit
         </button>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        {renderItems(clothesData.top, 'top')}
-        {renderItems(clothesData.bottom, 'bottom')}
-        {renderItems(clothesData.outer, 'outer')}
-        {renderItems(clothesData.onepiece, 'onepiece')}
-      </form>
+      <div className="buildmatch-layout">
 
-      {response && (
-        <pre style={{ marginTop: '20px', whiteSpace: 'pre-wrap' }}>
-          {JSON.stringify(response, null, 2)}
-        </pre>
+        {/* LEFT SIDE */}
+        <div className="buildmatch-left">
+
+          <div className="buildmatch-search">
+            <input
+              type="text"
+              className="buildmatch-search-input"
+              placeholder="Search clothing..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            {renderItems("top")}
+            {renderItems("bottom")}
+            {renderItems("outer")}
+            {renderItems("onepiece")}
+          </form>
+
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="buildmatch-right">
+
+          <div className="selected-outfit-box">
+
+            <h2 className="selected-title">
+              Selected Outfit
+            </h2>
+
+            {selectedItems.length === 0 ? (
+
+              <div className="selected-empty">
+                Select clothing items from the left to build an outfit.
+              </div>
+
+            ) : (
+
+              <div className="selected-items">
+
+                {selectedItems.map(({ category, item }) => (
+
+                  <div
+                    className="selected-card"
+                    key={item._id}
+                  >
+
+                    {item.imageUrl && (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="selected-image"
+                      />
+                    )}
+
+                    <div className="selected-info">
+
+                      <div className="selected-category">
+                        {sectionTitles[category]}
+                      </div>
+
+                      <div className="selected-name">
+                        {item.name}
+                      </div>
+
+                      {item.colors && (
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            color: "#666",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          {item.colors.join(", ")}
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        className="remove-selected-button"
+                        onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          [category]: prev[category].filter(
+                            (selected) => selected._id !== item._id
+                          ),
+                        }))
+                      }
+                      >
+                        Remove
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            )}
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {response?.error && (
+        <div className="error-text">
+          {response.error}
+        </div>
       )}
+
     </div>
   );
 };
