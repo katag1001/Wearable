@@ -27,7 +27,7 @@ const Matches = ({ loggedIn, logout }) => {
       </Link>
         </div>
         
-      <ViewMatches />
+      <ViewMatches mode="active" />
       
 
       </div>

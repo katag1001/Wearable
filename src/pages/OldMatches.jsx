@@ -1,6 +1,6 @@
 import React from 'react';
 import Header from '../components/header';
-import RejectedMatches from '../components/matches/rejectedMatches';
+import ViewMatches from '../components/matches/viewMatches';
 import { Link } from 'react-router-dom';
 import './Pages.css';
 
@@ -27,7 +27,7 @@ const OldMatches = ({ loggedIn, logout }) => {
       </Link>
       </div>
       
-      <RejectedMatches />
+      <ViewMatches mode="rejected" />
       
       </div>
     </div>

@@ -5,7 +5,7 @@ import UpdateMatches from "./updateMatches";
 import "./viewMatches.css";
 import { URL } from "../../config";
 
-const ViewMatches = () => {
+const ViewMatches = ({ mode = "active" }) => {
   const [matches, setMatches] = useState([]);
   const [error, setError] = useState(null);
   const [editingMatch, setEditingMatch] = useState(null);
@@ -19,7 +19,6 @@ const ViewMatches = () => {
         setError(null);
 
         const token = getToken();
-
         if (!token) {
           setError("No user logged in");
           return;
@@ -31,10 +30,8 @@ const ViewMatches = () => {
           },
         });
 
-        console.log("Match response:", response.data);
-
         setMatches(response.data);
-      } catch {
+      } catch (err) {
         setError("Failed to fetch matches");
       }
     };
@@ -52,8 +49,30 @@ const ViewMatches = () => {
     );
   };
 
-  const handleError = (msg) => {
-    setError(msg);
+  const handleError = (msg) => setError(msg);
+
+  const handleReinstate = async (id) => {
+    try {
+      const token = getToken();
+
+      const res = await axios.put(
+        `${URL}/match/${id}`,
+        { rejected: false },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const updated = res.data;
+
+      setMatches((prev) =>
+        prev.map((m) => (m._id === id ? updated : m))
+      );
+    } catch (err) {
+      setError("Failed to reinstate match");
+    }
   };
 
   const renderItemImage = (item) => {
@@ -67,7 +86,11 @@ const ViewMatches = () => {
   };
 
   const filteredMatches = matches.filter((match) => {
-    if (match.rejected) return false;
+    const isRejected = !!match.rejected;
+
+    if (mode === "active" && isRejected) return false;
+    if (mode === "rejected" && !isRejected) return false;
+
     if (!selectedSeason) return true;
     return match[selectedSeason];
   });
@@ -97,7 +120,11 @@ const ViewMatches = () => {
       {error && <p className="error-text">{error}</p>}
 
       {filteredMatches.length === 0 && !error && (
-        <p className="no-matches-text">No outfits found.</p>
+        <p className="no-matches-text">
+          {mode === "rejected"
+            ? "No rejected outfits found."
+            : "No outfits found."}
+        </p>
       )}
 
       <div className="matches-grid">
@@ -127,18 +154,42 @@ const ViewMatches = () => {
               </div>
 
               <div className="button-row">
-                <DeleteMatches
-                  matchId={match._id}
-                  onDeleteSuccess={handleDeleteSuccess}
-                  onError={handleError}
-                />
 
-                <button
-                  className="text-button"
-                  onClick={() => setEditingMatch(match)}
-                >
-                  Edit
-                </button>
+                {mode === "active" ? (
+                  <>
+                    <DeleteMatches
+                      matchId={match._id}
+                      onDeleteSuccess={handleDeleteSuccess}
+                      onError={handleError}
+                    />
+
+                    <button
+                      className="text-button"
+                      onClick={() => setEditingMatch(match)}
+                    >
+                      Edit
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="text-button"
+                      onClick={() => handleReinstate(match._id)}
+                    >
+                      Restore Outfit
+                    </button>
+
+                    <button
+                      className="text-button"
+                      onClick={() =>
+                        handleDeleteSuccess(match._id)
+                      }
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
+
               </div>
             </div>
 
@@ -146,7 +197,7 @@ const ViewMatches = () => {
         ))}
       </div>
 
-      {editingMatch && (
+      {editingMatch && mode === "active" && (
         <UpdateMatches
           match={editingMatch}
           onClose={() => setEditingMatch(null)}
