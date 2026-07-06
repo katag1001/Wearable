@@ -1,11 +1,18 @@
-import {URL} from "../../config"; 
+import { URL } from "../../config";
 
 const updateClothes = async (type, id, updatedData) => {
   try {
-    const response = await fetch(`${URL}/clothing/${type}/${id}`, {
-      method: 'PUT',
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return { error: "No user logged in" };
+    }
+
+    const response = await fetch(`${URL}/clothing/${id}`, {
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(updatedData),
     });
@@ -13,7 +20,7 @@ const updateClothes = async (type, id, updatedData) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    return { error: 'Failed to update item' };
+    return { error: "Failed to update item" };
   }
 };
 

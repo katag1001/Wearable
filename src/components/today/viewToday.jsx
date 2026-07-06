@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import './viewToday.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./viewToday.css";
 import { URL } from "../../config";
 
 const ViewToday = () => {
@@ -10,18 +10,30 @@ const ViewToday = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
 
+  const getToken = () => localStorage.getItem("token");
+
   const fetchTodayOutfits = async () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${URL}/today/get`, {
-        username: localStorage.getItem('user'),
+      const token = getToken();
+
+      if (!token) {
+        setMessage("No user logged in");
+        setLoading(false);
+        return;
+      }
+
+      const response = await axios.get(`${URL}/today/get`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const data = response.data;
 
       if (!Array.isArray(data)) {
-        setMessage(data.message || 'Failed to fetch outfits.');
+        setMessage(data.message || "Failed to fetch outfits.");
         setLoading(false);
         return;
       }
@@ -33,7 +45,7 @@ const ViewToday = () => {
 
       if (maxRank == null) {
         setFilteredOutfits([]);
-        setMessage('No outfits with rank found.');
+        setMessage("No outfits with rank found.");
         setLoading(false);
         return;
       }
@@ -42,10 +54,9 @@ const ViewToday = () => {
 
       setFilteredOutfits(maxRankOutfits);
       setCurrentIndex(0);
-
     } catch (err) {
-      console.error('[ERROR] Failed to fetch outfits:', err);
-      setMessage('Error fetching outfits: ' + err.message);
+      console.error("[ERROR] Failed to fetch outfits:", err);
+      setMessage("Error fetching outfits: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -63,7 +74,10 @@ const ViewToday = () => {
 
   const goPrev = () => {
     if (filteredOutfits.length > 0) {
-      setCurrentIndex((prev) => (prev - 1 + filteredOutfits.length) % filteredOutfits.length);
+      setCurrentIndex(
+        (prev) =>
+          (prev - 1 + filteredOutfits.length) % filteredOutfits.length
+      );
     }
   };
 
@@ -72,9 +86,14 @@ const ViewToday = () => {
     if (!outfit?._id) return;
 
     try {
+      const token = getToken();
+
       const response = await fetch(`${URL}/match/${outfit._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ lastWornDate: new Date().toISOString() }),
       });
 
@@ -90,10 +109,10 @@ const ViewToday = () => {
           return arr;
         });
 
-        alert('Marked as worn today!');
+        alert("Marked as worn today!");
       }
     } catch (err) {
-      alert('Error updating lastWornDate: ' + err.message);
+      alert("Error updating lastWornDate: " + err.message);
     }
   };
 
@@ -102,9 +121,14 @@ const ViewToday = () => {
     if (!outfit?._id) return;
 
     try {
+      const token = getToken();
+
       const response = await fetch(`${URL}/match/${outfit._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ rejected: true }),
       });
 
@@ -120,10 +144,10 @@ const ViewToday = () => {
           return arr;
         });
 
-        alert('Outfit rejected.');
+        alert("Outfit rejected.");
       }
     } catch (err) {
-      alert('Error rejecting outfit: ' + err.message);
+      alert("Error rejecting outfit: " + err.message);
     }
   };
 
@@ -164,14 +188,13 @@ const ViewToday = () => {
 
   return (
     <div className="view-today-container">
-
       <div className="horizontal-scroll-wrapper">
-        <button className="left-right" onClick={goPrev}>‹</button>
+        <button className="left-right" onClick={goPrev}>
+          ‹
+        </button>
 
         <div className="clothing-card">
-          <div className="today-image-group">
-            {images}
-          </div>
+          <div className="today-image-group">{images}</div>
 
           <div className="today-buttons">
             <button className="regular-button" onClick={markAsWornToday}>
@@ -184,9 +207,10 @@ const ViewToday = () => {
           </div>
         </div>
 
-        <button className="left-right" onClick={goNext}>›</button>
+        <button className="left-right" onClick={goNext}>
+          ›
+        </button>
       </div>
-
     </div>
   );
 };

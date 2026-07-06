@@ -16,24 +16,24 @@ const ViewClothes = () => {
   const clothingTypes = ['top', 'bottom', 'outer', 'onepiece'];
   const scrollRefs = useRef({});
 
-  const getUser = () => {
-    const user = localStorage.getItem("user");
-    return user;
-  };
+  // 🔐 Get token from storage
+  const getToken = () => localStorage.getItem("token");
 
   const fetchAllItems = async () => {
     try {
       setError(null);
 
-      const username = getUser();
+      const token = getToken();
 
-      if (!username) {
+      if (!token) {
         setError("No user logged in");
         return;
       }
 
-      const res = await axios.post(`${URL}/clothing/all`, {
-        username,
+      const res = await axios.get(`${URL}/clothing/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const allItems = res.data;
@@ -207,8 +207,12 @@ const ViewClothes = () => {
                         </div>
 
                         <div className="button-row">
-                          <button onClick={() => handleEdit(type, item)} className="text-button">Edit</button>
-                          <button onClick={() => handleDelete(type, item._id)} className="text-button">Delete</button>
+                          <button onClick={() => handleEdit(type, item)} className="text-button">
+                            Edit
+                          </button>
+                          <button onClick={() => handleDelete(type, item._id)} className="text-button">
+                            Delete
+                          </button>
                         </div>
                       </div>
 

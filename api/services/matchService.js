@@ -1,15 +1,14 @@
-const { Clothes } = require("../models/AllModels.js");
-const axios = require("axios");
+const { Clothes, Match } = require("../models/AllModels.js");
 const { colorPalettes } = require("../utils/colorPalettes.js");
 
 async function getCandidates(newItem) {
 
   console.log("\n==================== getCandidates ====================");
-  console.log("Input item:", {
-    name: newItem.name,
-    type: newItem.type,
-    username: newItem.username
-  });
+console.log("Input item:", {
+  name: newItem.name,
+  type: newItem.type,
+  userId: newItem.userId
+});
 
   let types = [];
 
@@ -59,7 +58,7 @@ case "match": {
   }
 
   const query = {
-    username: newItem.username,
+    userId: newItem.userId,
 
     type: { $in: types },
 
@@ -101,6 +100,7 @@ async function matchPath(newItem, matches) {
 
     matches.push({
       clothes: [newItem._id],
+      userId: newItem.userId,
       colors: newItem.colors,
       min_temp: newItem.min_temp,
       max_temp: newItem.max_temp,
@@ -113,7 +113,6 @@ async function matchPath(newItem, matches) {
       tags: null,
       rejected: false,
       userMade: false,
-      username: newItem.username,
       lastWornDate: new Date("1925-09-25T00:00:00.000Z")
     });
 
@@ -251,23 +250,23 @@ async function pushResult(
   function createResult(overrides = {}) {
 
     const result = {
-      clothes: [],
-      colors: combinedColors,
-      min_temp: Number(min_temp.toFixed(1)),
-      max_temp: Number(max_temp.toFixed(1)),
-      type: "match",
-      styles: [...new Set([...newItem.styles, ...matchItem.styles])],
-      tags: null,
-      rejected: false,
-      spring: newItem.spring && matchItem.spring,
-      summer: newItem.summer && matchItem.summer,
-      autumn: newItem.autumn && matchItem.autumn,
-      winter: newItem.winter && matchItem.winter,
-      userMade: false,
-      username: newItem.username || matchItem.username,
-      lastWornDate: new Date("1925-09-25T00:00:00.000Z"),
-      ...overrides
-    };
+        clothes: [],
+        userId: newItem.userId || matchItem.userId,
+        colors: combinedColors,
+        min_temp: Number(min_temp.toFixed(1)),
+        max_temp: Number(max_temp.toFixed(1)),
+        type: "match",
+        styles: [...new Set([...newItem.styles, ...matchItem.styles])],
+        tags: null,
+        rejected: false,
+        spring: newItem.spring && matchItem.spring,
+        summer: newItem.summer && matchItem.summer,
+        autumn: newItem.autumn && matchItem.autumn,
+        winter: newItem.winter && matchItem.winter,
+        userMade: false,
+        lastWornDate: new Date("1925-09-25T00:00:00.000Z"),
+        ...overrides
+      };
 
     console.log("Generated match:");
     console.dir(result, { depth: null });
@@ -410,29 +409,14 @@ async function processMatches(newItem) {
 
   }
 
-  try {
+try { console.log("Saving matches..."); 
+  const insertedMatches = await Match.insertMany(matches); 
+  console.log("Matches saved successfully."); 
+  console.dir(insertedMatches, { depth: null }); 
+}
 
-    console.log("Uploading matches...");
-
-    const response = await axios.post(
-      "https://wearable-psi.vercel.app/api/match/bulk",
-      matches
-    );
-
-    console.log("Upload successful.");
-    console.log("Response:");
-
-    console.dir(response.data, { depth: null });
-
-  } catch (err) {
-
-    console.error("Upload failed.");
-    console.error(err.message);
-
-    if (err.response) {
-      console.error(err.response.data);
-    }
-
+  catch (err) { 
+    console.error("Failed to save matches."); console.error(err); 
   }
 
 }

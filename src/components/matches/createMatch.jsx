@@ -37,13 +37,22 @@ const CreateMatch = () => {
     onepiece: useRef(null),
   };
 
+  const getToken = () => localStorage.getItem("token");
+
   useEffect(() => {
     const fetchClothes = async () => {
-      const user = localStorage.getItem("user");
+      const token = getToken();
+
+      if (!token) {
+        console.error("No user logged in");
+        return;
+      }
 
       try {
-        const res = await axios.post(`${URL}/clothing/all`, {
-          username: user,
+        const res = await axios.get(`${URL}/clothing/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const grouped = {
@@ -113,90 +122,112 @@ const CreateMatch = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  console.log("=== Submit button clicked ===");
 
-    const selectedItems = Object.values(formData).flat();
+  const token = getToken();
 
-    if (selectedItems.length === 0) {
-      alert("Please select at least one clothing item.");
-      return;
-    }
+  if (!token) {
+    console.log("No token found");
+    alert("No user logged in");
+    return;
+  }
 
-    const allColors = [
-      ...new Set(selectedItems.flatMap((item) => item.colors || [])),
-    ];
+  const selectedItems = Object.values(formData).flat();
 
-    const minTempAvg = Math.round(
-      selectedItems.reduce((sum, item) => sum + item.min_temp, 0) /
-        selectedItems.length
-    );
+  if (selectedItems.length === 0) {
+    alert("Please select at least one clothing item.");
+    return;
+  }
 
-    const maxTempAvg = Math.round(
-      selectedItems.reduce((sum, item) => sum + item.max_temp, 0) /
-        selectedItems.length
-    );
+  const allColors = [
+    ...new Set(selectedItems.flatMap((item) => item.colors || [])),
+  ];
 
-    const seasonKeys = ["spring", "summer", "autumn", "winter"];
+  const minTempAvg = Math.round(
+    selectedItems.reduce((sum, item) => sum + item.min_temp, 0) /
+      selectedItems.length
+  );
 
-    const seasons = {};
+  const maxTempAvg = Math.round(
+    selectedItems.reduce((sum, item) => sum + item.max_temp, 0) /
+      selectedItems.length
+  );
 
-    seasonKeys.forEach((season) => {
-      seasons[season] = selectedItems.every((item) => item[season]);
+  const seasonKeys = ["spring", "summer", "autumn", "winter"];
+
+  const seasons = {};
+
+  seasonKeys.forEach((season) => {
+    seasons[season] = selectedItems.every((item) => item[season]);
+  });
+
+  const clothes = [];
+
+  Object.values(formData).forEach((items) => {
+    items.forEach((item) => {
+      clothes.push(item._id);
     });
+  });
 
-    const clothes = [];
-
-    Object.values(formData).forEach((items) => {
-      items.forEach((item) => {
-        clothes.push(item._id);
-      });
-    });
-
-    const payload = {
-      clothes,
-      colors: allColors,
-      min_temp: minTempAvg,
-      max_temp: maxTempAvg,
-      ...seasons,
-      styles: [],
-      type: "match",
-      lastWornDate: new Date(),
-      tags: [],
-      rejected: false,
-      userMade: true,
-      username: localStorage.getItem("user"),
-    };
-
-    try {
-      const res = await fetch(`${URL}/match/matches`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await res.json();
-
-      setResponse(result);
-      setShowPopup(true);
-
-      setTimeout(() => {
-        setShowPopup(false);
-      }, 2500);
-
-      setFormData({
-        top: [],
-        bottom: [],
-        outer: [],
-        onepiece: [],
-      });
-    } catch (err) {
-      setResponse({
-        error: err.message,
-      });
-    }
+  const payload = {
+    clothes,
+    colors: allColors,
+    min_temp: minTempAvg,
+    max_temp: maxTempAvg,
+    ...seasons,
+    styles: [],
+    type: "match",
+    lastWornDate: new Date(),
+    tags: [],
+    rejected: false,
+    userMade: true,
   };
+
+  console.log("Sending request to:", `${URL}/match/matches`);
+  console.log("Payload:", payload);
+
+  try {
+    const res = await fetch(`${URL}/match/matches`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    console.log("Status:", res.status);
+
+    const result = await res.json();
+
+    console.log("Response:", result);
+
+    if (!res.ok) {
+      throw new Error(result.error || "Failed to create match");
+    }
+
+    setResponse(result);
+    setShowPopup(true);
+
+    setTimeout(() => {
+      setShowPopup(false);
+    }, 2500);
+
+    setFormData({
+      top: [],
+      bottom: [],
+      outer: [],
+      onepiece: [],
+    });
+  } catch (err) {
+    console.error("Submit failed:", err);
+
+    setResponse({
+      error: err.message,
+    });
+  }
+};
 
   const renderItems = (category) => {
     const items = filteredItems(category);
@@ -281,7 +312,6 @@ const CreateMatch = () => {
       </div>
 
       <div className="buildmatch-layout">
-        {/* LEFT SIDE */}
         <div className="buildmatch-left">
           <div className="buildmatch-search">
             <input
@@ -301,7 +331,6 @@ const CreateMatch = () => {
           </form>
         </div>
 
-        {/* RIGHT SIDE */}
         <div className="buildmatch-right">
           <div className="selected-outfit-box">
             <h2 className="selected-title">Selected Outfit</h2>

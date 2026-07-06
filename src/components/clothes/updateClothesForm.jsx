@@ -1,15 +1,21 @@
-import React from 'react';
-import colorOptions from '../../constants/colorOptions';
-import './updateClothesForm.css';
+import React from "react";
+import colorOptions from "../../constants/colorOptions";
+import "./updateClothesForm.css";
 
 const styleOptions = ["plain", "patterned"];
 
-const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => {
+const UpdateClothesForm = ({
+  type,
+  formData,
+  onChange,
+  onSubmit,
+  onCancel,
+}) => {
   const handleMultiSelectChange = (e) => {
     const { name, options } = e.target;
     const selected = Array.from(options)
-      .filter(o => o.selected)
-      .map(o => o.value);
+      .filter((o) => o.selected)
+      .map((o) => o.value);
 
     onChange({ target: { name, value: selected } });
   };
@@ -32,7 +38,7 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
             className="form-input"
             type="text"
             name="name"
-            value={formData.name || ''}
+            value={formData.name || ""}
             onChange={onChange}
             required
           />
@@ -44,15 +50,15 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
             className="form-input"
             type="text"
             name="imageUrl"
-            value={formData.imageUrl || ''}
+            value={formData.imageUrl || ""}
             onChange={onChange}
           />
         </label>
 
         <label className="form-label">
-          Colors (multi-select):
+          Colors:
           <select
-            className="form-select multi"
+            className="form-select"
             name="colors"
             multiple
             value={formData.colors || []}
@@ -69,7 +75,7 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
         <label className="form-label">
           Styles:
           <select
-            className="form-select multi"
+            className="form-select"
             name="styles"
             multiple
             value={formData.styles || []}
@@ -89,7 +95,7 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
             className="form-input"
             type="number"
             name="min_temp"
-            value={formData.min_temp || ''}
+            value={formData.min_temp || ""}
             onChange={onChange}
           />
         </label>
@@ -100,7 +106,7 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
             className="form-input"
             type="number"
             name="max_temp"
-            value={formData.max_temp || ''}
+            value={formData.max_temp || ""}
             onChange={onChange}
           />
         </label>
@@ -108,7 +114,7 @@ const UpdateClothesForm = ({ type, formData, onChange, onSubmit, onCancel }) => 
         <fieldset className="season-group">
           <legend className="legend-title">Seasons</legend>
 
-          {['spring', 'summer', 'autumn', 'winter'].map((season) => (
+          {["spring", "summer", "autumn", "winter"].map((season) => (
             <label key={season} className="season-label">
               <input
                 type="checkbox"

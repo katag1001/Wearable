@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import DeleteMatches from './deleteMatches';
-import UpdateMatches from './updateMatches';
-import './viewMatches.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import DeleteMatches from "./deleteMatches";
+import UpdateMatches from "./updateMatches";
+import "./viewMatches.css";
 import { URL } from "../../config";
 
 const ViewMatches = () => {
@@ -11,19 +11,31 @@ const ViewMatches = () => {
   const [editingMatch, setEditingMatch] = useState(null);
   const [selectedSeason, setSelectedSeason] = useState(null);
 
+  const getToken = () => localStorage.getItem("token");
+
   useEffect(() => {
     const fetchMatches = async () => {
       try {
         setError(null);
 
-        const response = await axios.post(`${URL}/match`, {
-          username: localStorage.getItem('user'),
+        const token = getToken();
+
+        if (!token) {
+          setError("No user logged in");
+          return;
+        }
+
+        const response = await axios.get(`${URL}/match/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
 
-        setMatches(response.data);
+        console.log("Match response:", response.data);
 
+        setMatches(response.data);
       } catch {
-        setError('Failed to fetch matches');
+        setError("Failed to fetch matches");
       }
     };
 
@@ -49,11 +61,7 @@ const ViewMatches = () => {
 
     return (
       <div className="match-image-wrapper">
-        <img
-          src={item.imageUrl}
-          alt={item.name}
-          className="match-image"
-        />
+        <img src={item.imageUrl} alt={item.name} className="match-image" />
       </div>
     );
   };
@@ -75,10 +83,10 @@ const ViewMatches = () => {
     <div className="view-matches-container">
 
       <div className="season-filters">
-        {['spring', 'summer', 'autumn', 'winter'].map((season) => (
+        {["spring", "summer", "autumn", "winter"].map((season) => (
           <button
             key={season}
-            className={`text-button ${selectedSeason === season ? 'active' : ''}`}
+            className={`text-button ${selectedSeason === season ? "active" : ""}`}
             onClick={() => toggleSeasonFilter(season)}
           >
             {capitalize(season)}
@@ -111,10 +119,10 @@ const ViewMatches = () => {
                 </div>
 
                 <div>
-                  {['spring', 'summer', 'autumn', 'winter']
+                  {["spring", "summer", "autumn", "winter"]
                     .filter((season) => match[season])
                     .map(capitalize)
-                    .join(', ') || 'N/A'}
+                    .join(", ") || "N/A"}
                 </div>
               </div>
 

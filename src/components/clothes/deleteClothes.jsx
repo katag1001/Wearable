@@ -1,10 +1,18 @@
-
-import {URL} from "../../config"; 
+import { URL } from "../../config";
 
 const deleteClothes = async (type, id) => {
   try {
-    const response = await fetch(`${URL}/clothing/${type}/${id}`, {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return { error: "No user logged in" };
+    }
+
+    const response = await fetch(`${URL}/clothing/${id}`, {
       method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     const data = await response.json();

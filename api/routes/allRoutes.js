@@ -1,30 +1,31 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const allControllers = require('../controllers/allControllers'); // 👈 your combined controller file
+const allControllers = require("../controllers/allControllers");
+const { authMiddleware } = require("../middleware/authMiddleware");
 
 /* USER ROUTES */
-router.post('/users/register', allControllers.createItemregister);
-router.post('/users/login', allControllers.login);
-router.post('/users/verify_token', allControllers.verify_token);
+router.post("/users/register", allControllers.createItemregister);
+router.post("/users/login", allControllers.login);
+router.post("/users/verify_token", allControllers.verify_token);
 
 /* CLOTHING ROUTES */
-router.post('/clothing/', allControllers.createItem); 
-router.post('/clothing/:type', allControllers.getAllItems); 
-router.get('/clothing/:type/:id', allControllers.getItemById); 
-router.put('/clothing/:type/:id', allControllers.updateItem);
-router.delete('/clothing/:type/:id', allControllers.deleteItem); 
-router.post('/clothing/:type/:name', allControllers.getItemByName);
+router.post("/clothing/", authMiddleware, allControllers.createItem);
+router.get("/clothing/", authMiddleware, allControllers.getAllItems);
+router.get("/clothing/:id", authMiddleware, allControllers.getItemById);
+router.put("/clothing/:id", authMiddleware, allControllers.updateItem);
+router.delete("/clothing/:id", authMiddleware, allControllers.deleteItem);
+router.get("/clothing/:type/:name", authMiddleware, allControllers.getItemByName);
 
 /* MATCH ROUTES */
-router.post('/match/matches', allControllers.createMatch);
-router.post('/match/bulk', allControllers.createMatchesBulk);
-router.post('/match/', allControllers.getAllMatches);
-router.get('/match/:id', allControllers.getMatchById);
-router.put('/match/:id', allControllers.updateMatch);
-router.delete('/match/:id', allControllers.deleteMatch);
+router.post("/match/matches", authMiddleware, allControllers.createMatch);
+router.post("/match/bulk", authMiddleware, allControllers.createMatchesBulk);
+router.get("/match/", authMiddleware, allControllers.getAllMatches);
+router.get("/match/:id", authMiddleware, allControllers.getMatchById);
+router.put("/match/:id", authMiddleware, allControllers.updateMatch);
+router.delete("/match/:id", authMiddleware, allControllers.deleteMatch);
 
 /* TODAY ROUTES */
-router.post('/today/create', allControllers.createToday);
-router.post('/today/get', allControllers.getToday);
+router.post("/today/create", authMiddleware, allControllers.createToday);
+router.get("/today/get", authMiddleware, allControllers.getToday);
 
 module.exports = router;

@@ -1,46 +1,48 @@
 // src/components/LoginForm.jsx
-import React, { useState } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
 import { URL } from "../config";
-import './loginForm.css';
+import "./loginForm.css";
 
 const LoginForm = ({ login }) => {
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [message, setMessage] = useState('');
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
-    setForm(prev => ({
+  
+
+    setForm((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('🔍 Submitting login form with:', form);
 
     try {
       const res = await axios.post(`${URL}/users/login`, form);
-      console.log('✅ Login response from backend:', res.data);
 
       setMessage(res.data.message);
 
       if (res.data.ok && res.data.token) {
-        console.log('✅ Token received:', res.data.token);
 
-        // ✅ Persist auth properly
+        // ✅ ONLY STORE TOKEN (secure baseline improvement)
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", res.data.email);
 
-        // ✅ Update app-level auth state
-        login(res.data.token, res.data.email);
+        login(res.data.token);
       } else {
-        console.log('⚠️ Login unsuccessful, no token received');
+        console.log("⚠️ Login failed - no token returned");
       }
     } catch (error) {
-      console.error('❌ Login error:', error);
-      setMessage('Login failed');
+      console.log("❌ LOGIN ERROR CAUGHT");
+
+      console.log("🔥 Error object:", error);
+      console.log("📩 Error response:", error.response);
+      console.log("📩 Error response data:", error.response?.data);
+
+      setMessage(error.response?.data?.message || "Login failed");
     }
   };
 

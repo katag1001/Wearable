@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import DeleteMatches from '../matches/deleteMatches';
-import UpdateMatches from '../matches/updateMatches';
-import '../matches/viewMatches.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import DeleteMatches from "../matches/deleteMatches";
+import UpdateMatches from "../matches/updateMatches";
+import "../matches/viewMatches.css";
 import { URL } from "../../config";
 
 const ViewNewMatches = ({ newItemName, newItemType }) => {
@@ -12,21 +12,27 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
   const [editingMatch, setEditingMatch] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const getToken = () => localStorage.getItem("token");
+
   useEffect(() => {
     let cancelled = false;
 
-    const delay = (ms) => new Promise(res => setTimeout(res, ms));
+    const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
     const fetchMatchesOnce = async () => {
-      const response = await axios.post(`${URL}/match`, {
-        username: localStorage.getItem('user')
+      const token = getToken();
+
+      const response = await axios.get(`${URL}/match/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      const relevantMatches = response.data.filter(match =>
-          (match.clothes || []).some(piece =>
-            piece === `${newItemType}:${newItemName}`
-          )
-        );
+      const relevantMatches = response.data.filter((match) =>
+        (match.clothes || []).some(
+          (piece) => piece === `${newItemType}:${newItemName}`
+        )
+      );
 
       return relevantMatches;
     };
@@ -34,24 +40,34 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
     const fetchItemDetails = async (relevantMatches) => {
       const itemsToFetch = [];
 
-        relevantMatches.forEach(match => {
-          (match.clothes || []).forEach(piece => {
-            const [type, ...nameParts] = piece.split(':');
-            const name = nameParts.join(':');
+      relevantMatches.forEach((match) => {
+        (match.clothes || []).forEach((piece) => {
+          const [type, ...nameParts] = piece.split(":");
+          const name = nameParts.join(":");
 
-            if (type && name) {
-              itemsToFetch.push({ type, name });
-            }
-          });
+          if (type && name) {
+            itemsToFetch.push({ type, name });
+          }
         });
+      });
 
-      const uniqueItems = [...new Set(itemsToFetch.map(i => `${i.type}_${i.name}`))];
+      const uniqueItems = [
+        ...new Set(itemsToFetch.map((i) => `${i.type}_${i.name}`)),
+      ];
+
+      const token = getToken();
 
       const fetchItem = async ({ type, name }) => {
         try {
-          const res = await axios.post(`${URL}/clothing/${type}/${name}`, {
-            username: localStorage.getItem('user')
-          });
+          const res = await axios.get(
+            `${URL}/clothing/${type}/${encodeURIComponent(name)}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
           return { key: `${type}_${name}`, data: res.data };
         } catch {
           return null;
@@ -59,15 +75,15 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
       };
 
       const fetchedItems = await Promise.all(
-        uniqueItems.map(key => {
-          const [type, ...nameParts] = key.split('_');
-          const name = nameParts.join('_');
+        uniqueItems.map((key) => {
+          const [type, ...nameParts] = key.split("_");
+          const name = nameParts.join("_");
           return fetchItem({ type, name });
         })
       );
 
       const itemMap = {};
-      fetchedItems.forEach(entry => {
+      fetchedItems.forEach((entry) => {
         if (entry && entry.data && !entry.data.error) {
           itemMap[entry.key] = entry.data;
         }
@@ -105,7 +121,7 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
 
     pollForMatches().catch(() => {
       if (!cancelled) {
-        setError('Failed to fetch new matches');
+        setError("Failed to fetch new matches");
         setLoading(false);
       }
     });
@@ -116,12 +132,12 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
   }, [newItemName, newItemType]);
 
   const handleDeleteSuccess = (id) => {
-    setMatches(prev => prev.filter(match => match._id !== id));
+    setMatches((prev) => prev.filter((match) => match._id !== id));
   };
 
   const handleUpdateSuccess = (updatedMatch) => {
-    setMatches(prev =>
-      prev.map(m => (m._id === updatedMatch._id ? updatedMatch : m))
+    setMatches((prev) =>
+      prev.map((m) => (m._id === updatedMatch._id ? updatedMatch : m))
     );
   };
 
@@ -132,7 +148,7 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
   const renderItemImage = (type, name) => {
     if (!name) return null;
 
-    const lookupType = type === 'outer' ? 'outer' : type;
+    const lookupType = type === "outer" ? "outer" : type;
     const item = itemDetails[`${lookupType}_${name}`];
 
     if (item?.imageUrl) {
@@ -146,6 +162,7 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
         </div>
       );
     }
+
     return null;
   };
 
@@ -156,67 +173,63 @@ const ViewNewMatches = ({ newItemName, newItemType }) => {
     <div className="view-matches-container">
       <h3>New Outfits for {newItemName}</h3>
 
-      {loading && (
-        <p className="loading-text">
-          Generating outfit matches...
-        </p>
-      )}
+      {loading && <p className="loading-text">Generating outfit matches...</p>}
 
       {error && <p className="error-text">{error}</p>}
 
       {!loading && matches.length === 0 && !error && (
-        <p className="no-matches-text">
-          No new matches found.
-        </p>
+        <p className="no-matches-text">No new matches found.</p>
       )}
 
       <div className="matches-grid">
-        {matches.filter(match => !match.rejected).map(match => (
-          <div key={match._id} className="match-card">
-            <div className="match-images">
-            {(match.clothes || []).map(piece => {
-              const [type, ...nameParts] = piece.split(':');
-              const name = nameParts.join(':');
+        {matches
+          .filter((match) => !match.rejected)
+          .map((match) => (
+            <div key={match._id} className="match-card">
+              <div className="match-images">
+                {(match.clothes || []).map((piece) => {
+                  const [type, ...nameParts] = piece.split(":");
+                  const name = nameParts.join(":");
 
-              return (
-                <React.Fragment key={piece}>
-                  {renderItemImage(type, name)}
-                </React.Fragment>
-              );
-            })}
-          </div>
-
-            <div className="match-info">
-              <div className="item-info">
-                <div>
-                  {match.min_temp}° - {match.max_temp}°
-                </div>
-
-                <div>
-                  {['spring', 'summer', 'autumn', 'winter']
-                    .filter(season => match[season])
-                    .map(capitalize)
-                    .join(', ') || 'N/A'}
-                </div>
+                  return (
+                    <React.Fragment key={piece}>
+                      {renderItemImage(type, name)}
+                    </React.Fragment>
+                  );
+                })}
               </div>
 
-              <div className="button-row">
-                <DeleteMatches
-                  matchId={match._id}
-                  onDeleteSuccess={handleDeleteSuccess}
-                  onError={handleError}
-                />
+              <div className="match-info">
+                <div className="item-info">
+                  <div>
+                    {match.min_temp}° - {match.max_temp}°
+                  </div>
 
-                <button
-                  className="text-button"
-                  onClick={() => setEditingMatch(match)}
-                >
-                  Edit
-                </button>
+                  <div>
+                    {["spring", "summer", "autumn", "winter"]
+                      .filter((season) => match[season])
+                      .map(capitalize)
+                      .join(", ") || "N/A"}
+                  </div>
+                </div>
+
+                <div className="button-row">
+                  <DeleteMatches
+                    matchId={match._id}
+                    onDeleteSuccess={handleDeleteSuccess}
+                    onError={handleError}
+                  />
+
+                  <button
+                    className="text-button"
+                    onClick={() => setEditingMatch(match)}
+                  >
+                    Edit
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {editingMatch && (

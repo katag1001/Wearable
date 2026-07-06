@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import './updateMatches.css';
+import React, { useState, useEffect } from "react";
+import "./updateMatches.css";
 import { URL } from "../../config";
 
 const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
@@ -8,9 +8,11 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
     summer: false,
     autumn: false,
     winter: false,
-    min_temp: '',
-    max_temp: ''
+    min_temp: "",
+    max_temp: "",
   });
+
+  const getToken = () => localStorage.getItem("token");
 
   useEffect(() => {
     if (match) {
@@ -19,8 +21,8 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
         summer: match.summer || false,
         autumn: match.autumn || false,
         winter: match.winter || false,
-        min_temp: match.min_temp ?? '',
-        max_temp: match.max_temp ?? ''
+        min_temp: match.min_temp ?? "",
+        max_temp: match.max_temp ?? "",
       });
     }
   }, [match]);
@@ -28,14 +30,21 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    setUpdateData(prev => ({
+    setUpdateData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const token = getToken();
+
+    if (!token) {
+      onError("No user logged in");
+      return;
+    }
 
     const body = {
       spring: updateData.spring,
@@ -44,33 +53,24 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
       winter: updateData.winter,
       min_temp: Number(updateData.min_temp),
       max_temp: Number(updateData.max_temp),
-      username: localStorage.getItem("user")
     };
 
     try {
       const url = `${URL}/match/${match._id}`;
 
-      console.log("🧠 Updating match");
-      console.log("🔗 URL:", url);
-      console.log("🆔 Match ID:", match._id);
-      console.log("📦 Body:", body);
-
       const response = await fetch(url, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       });
 
-      console.log("📡 Response status:", response.status);
-
       const data = await response.json();
-      console.log("📦 Response data:", data);
 
       if (!response.ok) {
-        console.log("❌ Request failed");
-        onError(data?.error || data?.message || 'Failed to update match');
+        onError(data?.error || data?.message || "Failed to update match");
         return;
       }
 
@@ -82,7 +82,7 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
       }
     } catch (err) {
       console.error("💥 Update error:", err);
-      onError('Failed to update match');
+      onError("Failed to update match");
     }
   };
 
@@ -160,7 +160,7 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
 
           {match?.tags?.length > 0 && (
             <div className="tags-display">
-              <strong>Tags:</strong> {match.tags.join(', ')}
+              <strong>Tags:</strong> {match.tags.join(", ")}
             </div>
           )}
 

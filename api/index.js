@@ -1,67 +1,91 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
+require("dotenv").config();
 
-// Import the route handlers for your application
-const allRoutes = require('./routes/allRoutes');
+const allRoutes = require("./routes/allRoutes");
 
 const app = express();
-const port = process.env.PORT || 4444;
 
-// Middleware to enable CORS and parse request bodies
-app.use(cors());
+/* -------------------- MIDDLEWARE -------------------- */
+
+app.use(
+cors({
+origin: true,
+credentials: true,
+})
+);
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+/* -------------------- DATABASE -------------------- */
 
 async function connectToDB() {
-  try {
-    await mongoose.connect(process.env.MONGO, {
-      useUnifiedTopology: true,
-      useNewUrlParser: true,
-    });
-    console.log("✅ Connected to MongoDB");
-  } catch (err) {
-    console.log("☢️ ERROR: Unable to connect to DB. Is MongoDB running?");
-    console.error(err.message);
-  }
+try {
+await mongoose.connect(process.env.MONGO);
+console.log("✅ Connected to MongoDB");
+} catch (err) {
+console.error("☢️ MongoDB connection error:", err.message);
+process.exit(1);
 }
+}
+
 connectToDB();
 
-const cloudinary = require("cloudinary");
-cloudinary.config({
-	cloud_name: process.env.CLOUD_NAME || "default_value",
-	api_key: process.env.API_KEY || "default_value",
-	api_secret: process.env.API_SECRET || "default_value",
+/* -------------------- CLOUDINARY -------------------- */
+
+const cloudinary = require("cloudinary").v2;
+
+const {
+  CLOUD_NAME,
+  API_KEY,
+  API_SECRET,
+} = process.env;
+
+if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
+  console.warn("⚠️ Cloudinary not configured - image uploads disabled");
+} else {
+  cloudinary.config({
+    cloud_name: CLOUD_NAME,
+    api_key: API_KEY,
+    api_secret: API_SECRET,
   });
+
   (async () => {
-	try {
-	  const response = await cloudinary.api.ping();
-	  console.log("Cloudinary connection test:", response);
-	} catch (error) {
-	  console.error("Cloudinary connection failed:", error);
-	}
+    try {
+      const response = await cloudinary.api.ping();
+      console.log("☁️ Cloudinary connected:", response.status || response);
+    } catch (error) {
+      console.error("☁️ Cloudinary connection failed:", error.message);
+    }
   })();
-
-
-// Attach the API routes to specific endpoints
-app.use('/api', allRoutes);
-
-module.exports = app;
-
-// And for development only start the server if we're not in a serverless environment
-// This will only happen locally in development mode
-if (process.env.NODE_ENV !== 'production') {
-
-  // Serve static files from the dist directory
-  app.use(express.static("dist"));
-  // Serve index.html for all other requests
-  app.get("/{*splat}", (req, res) => {
-    res.sendFile(__dirname + "/dist/index.html");
-  });
-  // Start the server
-  const port = process.env.PORT || 4444;
-  app.listen(port, () => console.log("🚀 Listening on port: " + port + " 🚀"));
 }
 
+module.exports.cloudinary = cloudinary;
+
+/* -------------------- ROUTES -------------------- */
+
+app.use("/api", allRoutes);
+
+/* -------------------- FRONTEND (PROD BUILD) -------------------- */
+
+if (process.env.NODE_ENV === "production") {
+const path = require("path");
+
+app.use(express.static(path.join(__dirname, "dist")));
+
+app.get("*", (req, res) => {
+res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
+}
+
+/* -------------------- EXPORT -------------------- */
+
+const PORT = process.env.PORT || 4444;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+
+module.exports = app;

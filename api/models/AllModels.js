@@ -1,167 +1,125 @@
-/* USERS */
+const mongoose = require("mongoose");
 
-const mongoose = require('mongoose');
+/* -------------------- USER -------------------- */
 
-const userSchema = new mongoose.Schema({
-    email: { type: String, unique: true, required: true },
-    password: { type: String, required: true },
-    
+const userSchema = new mongoose.Schema(
+{
+email: { type: String, unique: true, required: true },
+password: { type: String, required: true },
 },
-{strictQuery: false}
-)
+{ strictQuery: false }
+);
 
-/* MATCHES */
-
+/* -------------------- MATCH -------------------- */
 
 const matchSchema = new mongoose.Schema({
-  clothes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Clothes",
-    required: true
-  }],
+clothes: [
+{
+type: mongoose.Schema.Types.ObjectId,
+ref: "Clothes",
+required: true,
+},
+],
 
-  colors: { type: [String], required: true },
-  min_temp: { type: Number, required: true },
-  max_temp: { type: Number, required: true },
-  type: { type: String, required: true },
+userId: {
+type: mongoose.Schema.Types.ObjectId,
+ref: "User",
+required: true,
+index: true,
+},
 
-  spring: { type: Boolean, required: true },
-  summer: { type: Boolean, required: true },
-  autumn: { type: Boolean, required: true },
-  winter: { type: Boolean, required: true },
+colors: { type: [String], required: true },
+min_temp: { type: Number, required: true },
+max_temp: { type: Number, required: true },
+type: { type: String, required: true },
 
-  styles: { type: [String], required: true },
-  tags: { type: [String], required: false },
+spring: { type: Boolean, required: true },
+summer: { type: Boolean, required: true },
+autumn: { type: Boolean, required: true },
+winter: { type: Boolean, required: true },
 
-  rejected: { type: Boolean, required: true },
-  lastWornDate: { type: Date, required: true },
+styles: { type: [String], default: [] },
+tags: { type: [String], required: false },
 
-  userMade: { type: Boolean, required: true },
-  username: { type: String, required: true, default: "guest" },
+rejected: { type: Boolean, required: true },
+lastWornDate: { type: Date, required: true },
+
+userMade: { type: Boolean, required: true },
 });
+
+/* -------------------- TODAY -------------------- */
 
 const todaySchema = new mongoose.Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, required: true, auto: false },
+clothes: [
+{
+type: mongoose.Schema.Types.ObjectId,
+ref: "Clothes",
+required: true,
+},
+],
 
-  clothes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Clothes",
-    required: true
-  }],
+userId: {
+type: mongoose.Schema.Types.ObjectId,
+ref: "User",
+required: true,
+index: true,
+},
 
-  colors: { type: [String], required: true },
-  min_temp: { type: Number, required: true },
-  max_temp: { type: Number, required: true },
-  type: { type: String, required: true },
+colors: { type: [String], required: true },
+min_temp: { type: Number, required: true },
+max_temp: { type: Number, required: true },
+type: { type: String, required: true },
 
-  spring: { type: Boolean, required: true },
-  summer: { type: Boolean, required: true },
-  autumn: { type: Boolean, required: true },
-  winter: { type: Boolean, required: true },
+spring: { type: Boolean, required: true },
+summer: { type: Boolean, required: true },
+autumn: { type: Boolean, required: true },
+winter: { type: Boolean, required: true },
 
-  styles: { type: [String], required: true },
-  tags: { type: [String], required: false },
+styles: { type: [String], required: true },
+tags: { type: [String], required: false },
 
-  rejected: { type: Boolean, required: true },
-  lastWornDate: { type: Date, default: null },
+rejected: { type: Boolean, required: true },
 
-  rank: { type: Number, default: null },
+lastWornDate: { type: Date, default: null },
 
-  userMade: { type: Boolean, required: true },
-  username: { type: String, required: true, default: "guest" },
+rank: { type: Number, default: null },
+
+userMade: { type: Boolean, required: true },
 });
 
-/* CLOTHING */
-
-/*const bottomSchema = new mongoose.Schema({
-  name: { type: String, required: true},
-  imageUrl: { type: String, default: "" },
-  min_temp: { type: Number, required: true },
-  max_temp: { type: Number, required: true },
-  colors: { type: [String], required: true },
-  styles: { type: [String], required: true },
-  type: { type: String, default: "bottom", enum: ["bottom"], required: true },
-  spring: { type: Boolean, required: true },
-  summer: { type: Boolean, required: true },
-  autumn: { type: Boolean, required: true },
-  winter: { type: Boolean, required: true },
-  username: { type: String, required: true, default: "guest" },
-});
-
-
-const onePieceSchema = new mongoose.Schema({
-  name: { type: String, required: true},
-  imageUrl: { type: String, default: "" },
-  min_temp: { type: Number, required: true },
-  max_temp: { type: Number, required: true },
-  colors: { type: [String], required: true },
-  styles: { type: [String], required: true },
-  type: { type: String, default: "onepiece", enum: ["onepiece"], required: true },
-  spring: { type: Boolean, required: true },
-  summer: { type: Boolean, required: true },
-  autumn: { type: Boolean, required: true },
-  winter: { type: Boolean, required: true },
-  username: { type: String, required: true, default: "guest" },
-});
-
-
-const outerSchema = new mongoose.Schema({
-  name: { type: String, required: true},
-  imageUrl: { type: String, default: "" },
-  min_temp: { type: Number, required: true },
-  max_temp: { type: Number, required: true },
-  colors: { type: [String], required: true },
-  styles: { type: [String], required: true },
-  type: { type: String, default: "outer", enum: ["outer"], required: true },
-  spring: { type: Boolean, required: true },
-  summer: { type: Boolean, required: true },
-  autumn: { type: Boolean, required: true },
-  winter: { type: Boolean, required: true },
-  username: { type: String, required: true, default: "guest" },
-});
-
-
-const topSchema = new mongoose.Schema({
-  name: { type: String, required: true},
-  imageUrl: { type: String, default: "" },
-  min_temp: { type: Number, required: true },
-  max_temp: { type: Number, required: true },
-  colors: { type: [String], required: true },
-  styles: { type: [String], required: true },
-  type: { type: String, default: "top", enum: ["top"], required: true },
-  spring: { type: Boolean, required: true },
-  summer: { type: Boolean, required: true },
-  autumn: { type: Boolean, required: true },
-  winter: { type: Boolean, required: true },
-  username: { type: String, required: true, default: "guest" },
-});*/
+/* -------------------- CLOTHES -------------------- */
 
 const clothesSchema = new mongoose.Schema({
-  name: { type: String, required: true},
-  imageUrl: { type: String, default: "" },
-  min_temp: { type: Number, required: true },
-  max_temp: { type: Number, required: true },
-  colors: { type: [String], required: true },
-  styles: { type: [String], required: true },
-  type: { type: String, required: true },
-  lastWornDate: { type: Date, default: null },
-  tags: { type: [String], required: false },
-  spring: { type: Boolean, required: true },
-  summer: { type: Boolean, required: true },
-  autumn: { type: Boolean, required: true },
-  winter: { type: Boolean, required: true },
-  username: { type: String, required: true, default: "guest" },
+name: { type: String, required: true },
+imageUrl: { type: String, default: "" },
+
+userId: {
+type: mongoose.Schema.Types.ObjectId,
+ref: "User",
+required: true,
+index: true,
+},
+
+min_temp: { type: Number, required: true },
+max_temp: { type: Number, required: true },
+colors: { type: [String], required: true },
+styles: { type: [String], required: true },
+type: { type: String, required: true },
+
+lastWornDate: { type: Date, default: null },
+tags: { type: [String], required: false },
+
+spring: { type: Boolean, required: true },
+summer: { type: Boolean, required: true },
+autumn: { type: Boolean, required: true },
+winter: { type: Boolean, required: true },
 });
 
-
+/* -------------------- MODELS -------------------- */
 
 module.exports = {
-  User: mongoose.model('User', userSchema),
-  Match: mongoose.model('Match', matchSchema),
-  Today: mongoose.model('Today', todaySchema),
-  /*Top: mongoose.model('Top', topSchema),
-  Bottom: mongoose.model('Bottom', bottomSchema),
-  Outer: mongoose.model('Outer', outerSchema),
-  OnePiece: mongoose.model('OnePiece', onePieceSchema),*/
-  Clothes: mongoose.model('Clothes', clothesSchema)
+User: mongoose.model("User", userSchema),
+Match: mongoose.model("Match", matchSchema),
+Today: mongoose.model("Today", todaySchema),
+Clothes: mongoose.model("Clothes", clothesSchema),
 };

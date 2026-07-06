@@ -1,41 +1,35 @@
-// src/App.jsx
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import axios from "axios";
 import { URL } from "./config";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
-// Pages
-import Homepage from './pages/Homepage';
-import AddClothes from './pages/AddClothes';
-import BuildMatches from './pages/BuildMatches';
-import OldMatches from './pages/OldMatches';
-import Clothes from './pages/Clothes';
-import Matches from './pages/Matches';
-import TodayOutfits from './pages/TodayOutfits';
-import User from './pages/User';
-import Register from './pages/Register';
-import Login from './pages/Login';
+/* Pages */
+import Homepage from "./pages/Homepage";
+import AddClothes from "./pages/AddClothes";
+import BuildMatches from "./pages/BuildMatches";
+import OldMatches from "./pages/OldMatches";
+import Clothes from "./pages/Clothes";
+import Matches from "./pages/Matches";
+import TodayOutfits from "./pages/TodayOutfits";
+import User from "./pages/User";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
 
-// Components
-import Enter from './components/Enter';
-import ProtectedRoute from './components/ProtectedRoute';
+/* Components */
+import Enter from "./components/Enter";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
+  const [userEmail, setUserEmail] = useState("");
   const [isCheckingToken, setIsCheckingToken] = useState(true);
 
-  // 🔁 Restore session on refresh
+  /* -------------------- RESTORE SESSION -------------------- */
   useEffect(() => {
-    console.log('🔁 Checking stored auth...');
-
-    const token = localStorage.getItem('token');
-    const email = localStorage.getItem('user');
-
-    console.log('🔑 Token:', token);
-    console.log('👤 Email:', email);
+    const token = localStorage.getItem("token");
+    const email = localStorage.getItem("user");
 
     if (!token) {
       setLoggedIn(false);
@@ -43,69 +37,54 @@ const App = () => {
       return;
     }
 
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    // Optional but recommended: verify token with backend
-    axios.post(`${URL}/users/verify_token`)
+    axios
+      .post(`${URL}/users/verify_token`)
       .then((res) => {
-        console.log('✅ Token verification:', res.data);
-
         if (res.data.ok) {
           setLoggedIn(true);
 
-          // Prefer stored email fallback (backend JWT payload may vary)
-          const safeEmail =
-            res.data.succ?.email ||
-            res.data.succ?.userEmail ||
-            email ||
-            '';
+          const decodedEmail = res.data.decoded?.email || email || "";
 
-          setUserEmail(safeEmail);
-          localStorage.setItem('user', safeEmail);
+          setUserEmail(decodedEmail);
+          localStorage.setItem("user", decodedEmail);
         } else {
-          console.log('❌ Invalid token');
           setLoggedIn(false);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
         }
 
         setIsCheckingToken(false);
       })
-      .catch((err) => {
-        console.log('❌ Token verification failed:', err);
+      .catch(() => {
         setLoggedIn(false);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         setIsCheckingToken(false);
       });
   }, []);
 
-  // ✅ Login handler
+  /* -------------------- LOGIN -------------------- */
   const login = (token, email) => {
-    console.log('📦 Logging in user:', email);
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", email);
 
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', email);
-
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
     setLoggedIn(true);
     setUserEmail(email);
-
-    console.log('✅ Logged in successfully');
   };
 
-  // ✅ Logout handler
+  /* -------------------- LOGOUT -------------------- */
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-    delete axios.defaults.headers.common['Authorization'];
+    delete axios.defaults.headers.common["Authorization"];
 
     setLoggedIn(false);
-    setUserEmail('');
-
-    console.log('🚪 Logged out');
+    setUserEmail("");
   };
 
   if (isCheckingToken) {
@@ -119,18 +98,13 @@ const App = () => {
 
       <Router>
         <Routes>
-
           {/* Public */}
           <Route path="/register" element={<Register />} />
 
           <Route
             path="/login"
             element={
-              <Login
-                login={login}
-                logout={logout}
-                loggedIn={loggedIn}
-              />
+              <Login login={login} logout={logout} loggedIn={loggedIn} />
             }
           />
 
@@ -143,10 +117,7 @@ const App = () => {
           <Route
             path="/"
             element={
-              <Homepage
-                loggedIn={loggedIn}
-                logout={logout}
-              />
+              <Homepage loggedIn={loggedIn} logout={logout} />
             }
           />
 
@@ -213,7 +184,6 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-
         </Routes>
       </Router>
     </>
