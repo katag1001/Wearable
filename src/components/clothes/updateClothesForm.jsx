@@ -13,17 +13,42 @@ const UpdateClothesForm = ({
 }) => {
   const handleMultiSelectChange = (e) => {
     const { name, options } = e.target;
+
     const selected = Array.from(options)
       .filter((o) => o.selected)
       .map((o) => o.value);
 
-    onChange({ target: { name, value: selected } });
+    onChange({
+      target: {
+        name,
+        value: selected,
+      },
+    });
   };
 
   const handleCheckboxChange = (e) => {
     const { name, checked } = e.target;
-    onChange({ target: { name, value: checked } });
+
+    onChange({
+      target: {
+        name,
+        value: checked,
+      },
+    });
   };
+
+  // 🧠 SAFE NORMALIZATION (prevents crash)
+  const safeStyles = Array.isArray(formData.styles)
+    ? formData.styles
+    : formData.styles
+    ? [formData.styles]
+    : [];
+
+  const safeColors = Array.isArray(formData.colors)
+    ? formData.colors
+    : formData.colors
+    ? [formData.colors]
+    : [];
 
   return (
     <div className="modal-wrapper">
@@ -32,6 +57,7 @@ const UpdateClothesForm = ({
       </p>
 
       <form className="update-form" onSubmit={onSubmit}>
+        {/* NAME */}
         <label className="form-label">
           Name:
           <input
@@ -44,6 +70,7 @@ const UpdateClothesForm = ({
           />
         </label>
 
+        {/* IMAGE */}
         <label className="form-label">
           Image URL:
           <input
@@ -55,30 +82,32 @@ const UpdateClothesForm = ({
           />
         </label>
 
+        {/* COLORS */}
         <label className="form-label">
           Colors:
           <select
             className="form-select"
             name="colors"
             multiple
-            value={formData.colors || []}
+            value={safeColors}
             onChange={handleMultiSelectChange}
           >
             {colorOptions.map((color) => (
-              <option key={color} value={color}>
-                {color}
-              </option>
-            ))}
+          <option key={color.name} value={color.name}>
+            {color.name}
+          </option>
+        ))}
           </select>
         </label>
 
+        {/* STYLES (FIXED CRASH HERE) */}
         <label className="form-label">
           Styles:
           <select
             className="form-select"
             name="styles"
             multiple
-            value={formData.styles || []}
+            value={safeStyles}
             onChange={handleMultiSelectChange}
           >
             {styleOptions.map((style) => (
@@ -89,6 +118,7 @@ const UpdateClothesForm = ({
           </select>
         </label>
 
+        {/* MIN TEMP */}
         <label className="form-label">
           Min Temp:
           <input
@@ -100,6 +130,7 @@ const UpdateClothesForm = ({
           />
         </label>
 
+        {/* MAX TEMP */}
         <label className="form-label">
           Max Temp:
           <input
@@ -111,6 +142,7 @@ const UpdateClothesForm = ({
           />
         </label>
 
+        {/* SEASONS */}
         <fieldset className="season-group">
           <legend className="legend-title">Seasons</legend>
 
@@ -119,7 +151,7 @@ const UpdateClothesForm = ({
               <input
                 type="checkbox"
                 name={season}
-                checked={formData[season] || false}
+                checked={!!formData[season]}
                 onChange={handleCheckboxChange}
               />
               <span className="custom-checkbox"></span>
@@ -128,11 +160,16 @@ const UpdateClothesForm = ({
           ))}
         </fieldset>
 
+        {/* BUTTONS */}
         <div className="button-group">
           <button type="submit" className="save-button">
             Save
           </button>
-          <button type="button" className="cancel-button" onClick={onCancel}>
+          <button
+            type="button"
+            className="cancel-button"
+            onClick={onCancel}
+          >
             Cancel
           </button>
         </div>

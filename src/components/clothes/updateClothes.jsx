@@ -18,8 +18,18 @@ const updateClothes = async (type, id, updatedData) => {
     });
 
     const data = await response.json();
+
+    // 🔥 IMPORTANT: handle HTTP errors
+    if (!response.ok) {
+      return {
+        error: data?.error || "Update failed",
+        status: response.status,
+      };
+    }
+
     return data;
   } catch (error) {
+    console.error("Update request failed:", error);
     return { error: "Failed to update item" };
   }
 };
