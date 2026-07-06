@@ -1,7 +1,6 @@
 /* ==========================================
    CREATE MATCH PAGE
    Additional CSS
-   (Uses viewClothes.css as a base)
    ========================================== */
 
 /* ---------- Layout ---------- */
@@ -42,7 +41,6 @@
     transition: 0.2s;
 }
 
-
 /* ---------- Smaller clothing cards ---------- */
 
 .buildmatch-small {
@@ -60,19 +58,9 @@
 
 .buildmatch-small img {
     width: 100%;
-    height: 120px;
+    height: 100%;
     object-fit: cover;
 }
-
-.buildmatch-name {
-    padding: 6px;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 500;
-    border-top: 1px solid #ddd;
-}
-
-
 
 /* ---------- Selected Outfit Panel ---------- */
 
@@ -96,52 +84,45 @@
     font-style: italic;
 }
 
+/* GRID LAYOUT */
 .selected-items {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.selected-card {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 12px;
+}
+
+/* CARD */
+.selected-card {
+    position: relative;
+    width: 100%;
+    height: 140px;
     border: 1px solid #ddd;
-    padding: 10px;
-    align-items: center;
+    overflow: hidden;
 }
 
+/* IMAGE ONLY */
 .selected-image {
-    width: 80px;
-    height: 100px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border: 1px solid black;
 }
 
-.selected-info {
-    flex: 1;
-}
-
-.selected-category {
-    font-size: 12px;
-    color: grey;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-}
-
-.selected-name {
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
+/* REMOVE BUTTON TOP RIGHT */
 .remove-selected-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
     border: none;
-    background: black;
+    background: rgba(0,0,0,0.7);
     color: white;
-    padding: 7px 14px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
     cursor: pointer;
-    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-
 
 /* ---------- Success Popup ---------- */
 
@@ -190,7 +171,6 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 1000px) {
-
     .buildmatch-layout {
         flex-direction: column;
     }
@@ -205,7 +185,6 @@
     }
 
     .selected-card {
-        flex-direction: row;
+        height: 160px;
     }
-
 }
