@@ -30,6 +30,7 @@
   letter-spacing: 1px;
   cursor: pointer;
   user-select: none;
+
 }
 
 .upload-clothes-button:hover,
@@ -77,7 +78,6 @@
 
 .clothes-page-container {
   display: flex;
-
   align-items: center;  
   flex-direction: column;
   font-family: 'Helvetica Neue', sans-serif;
@@ -95,6 +95,8 @@
   text-transform: uppercase;
   color: black;
   margin: 4rem 0rem 0rem 0rem;
+  position: sticky;
+  z-index: 1;
 }
 
 /****For pages without top button****/
@@ -107,6 +109,8 @@
   text-align: center;
   color: black;
   margin: 1rem;
+  position: sticky;
+  z-index: 1;
 }
 
 .extra-space {

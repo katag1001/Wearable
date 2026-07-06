@@ -22,13 +22,16 @@
 .buildmatch-right {
     flex: 1;
     position: sticky;
-    top: 90px;
+    top: 160px;
 }
 
 /* ---------- Search ---------- */
 
 .buildmatch-search {
     margin: 0 0 20px 0;
+        position: sticky;
+    top: 160px;
+    z-index: 1;
 }
 
 .buildmatch-search-input {
@@ -39,6 +42,7 @@
     font-family: inherit;
     outline: none;
     transition: 0.2s;
+
 }
 
 /* ---------- Smaller clothing cards ---------- */
