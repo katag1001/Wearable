@@ -14,45 +14,64 @@ const userSchema = new mongoose.Schema({
 
 
 const matchSchema = new mongoose.Schema({
-  clothes: { type: [String], required: true },
+  clothes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Clothes",
+    required: true
+  }],
+
   colors: { type: [String], required: true },
   min_temp: { type: Number, required: true },
   max_temp: { type: Number, required: true },
   type: { type: String, required: true },
+
   spring: { type: Boolean, required: true },
   summer: { type: Boolean, required: true },
   autumn: { type: Boolean, required: true },
   winter: { type: Boolean, required: true },
+
   styles: { type: [String], required: true },
   tags: { type: [String], required: false },
+
   rejected: { type: Boolean, required: true },
   lastWornDate: { type: Date, required: true },
+
   userMade: { type: Boolean, required: true },
   username: { type: String, required: true, default: "guest" },
 });
 
 const todaySchema = new mongoose.Schema({
   _id: { type: mongoose.Schema.Types.ObjectId, required: true, auto: false },
-  clothes: { type: [String], required: true },
+
+  clothes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Clothes",
+    required: true
+  }],
+
   colors: { type: [String], required: true },
   min_temp: { type: Number, required: true },
   max_temp: { type: Number, required: true },
   type: { type: String, required: true },
+
   spring: { type: Boolean, required: true },
   summer: { type: Boolean, required: true },
   autumn: { type: Boolean, required: true },
   winter: { type: Boolean, required: true },
+
   styles: { type: [String], required: true },
   tags: { type: [String], required: false },
+
   rejected: { type: Boolean, required: true },
   lastWornDate: { type: Date, default: null },
+
   rank: { type: Number, default: null },
+
   userMade: { type: Boolean, required: true },
   username: { type: String, required: true, default: "guest" },
 });
 
-/* CLOTHING */ 
-
+/* CLOTHING */
 
 /*const bottomSchema = new mongoose.Schema({
   name: { type: String, required: true},

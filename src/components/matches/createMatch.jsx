@@ -121,14 +121,7 @@ const isSelected = (category, item) =>
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const selectedItems = [
-      "top",
-      "bottom",
-      "outer",
-      "onepiece",
-    ]
-      .map((key) => formData[key])
-      .filter(Boolean);
+    const selectedItems = Object.values(formData).flat();
 
     if (selectedItems.length === 0) {
       alert("Please select at least one clothing item.");
@@ -174,11 +167,11 @@ const isSelected = (category, item) =>
 
     const clothes = [];
 
-Object.values(formData).forEach((items) => {
-  items.forEach((item) => {
-    clothes.push(item.name);
-  });
-});
+      Object.values(formData).forEach((items) => {
+        items.forEach((item) => {
+          clothes.push(item._id);
+        });
+      });
 
     const payload = {
       clothes,
@@ -308,13 +301,10 @@ setFormData({
     );
   };
 
-const selectedItems = Object.entries(formData).flatMap(
-  ([category, items]) =>
-    items.map((item) => ({
-      category,
-      item,
-    }))
-);
+    const selectedItems = Object.entries(formData).flatMap(
+      ([category, items]) =>
+        items.map((item) => ({ category, item }))
+    );
 
     return (
     <div className="view-clothes-container">
