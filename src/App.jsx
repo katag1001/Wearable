@@ -7,7 +7,6 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 
 /* Pages */
 import Homepage from "./pages/Homepage";
-import AddClothes from "./pages/AddClothes";
 import BuildMatches from "./pages/BuildMatches";
 import OldMatches from "./pages/OldMatches";
 import Clothes from "./pages/Clothes";
@@ -122,14 +121,6 @@ const App = () => {
           />
 
           {/* Protected */}
-          <Route
-            path="/addclothes"
-            element={
-              <ProtectedRoute loggedIn={loggedIn}>
-                <AddClothes loggedIn={loggedIn} logout={logout} />
-              </ProtectedRoute>
-            }
-          />
 
           <Route
             path="/buildmatches"

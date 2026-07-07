@@ -35,7 +35,7 @@ const UploadImages = ({setFormData,formData}) => {
       {/* form to add title, description, author, date -- onchange goes to state */}
       <div className="upload">
         <button type="button" className="button" onClick={uploadWidget}>
-          Open widget
+          Upload Image
         </button>
       </div>
       {/* button PUBLISH POST on click take data from state and send to server on the body -- function*/}
