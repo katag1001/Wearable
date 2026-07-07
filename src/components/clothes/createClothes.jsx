@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import UploadImages from './uploadPics';
 import ViewNewMatches from './viewNewMatches';
-import colorOptions from '../../constants/colorOptions';
+import colorOptions from '../../constants/colorOptions.js';
+import typeOptions from '../../constants/typeOptions.js';
 import './createClothes.css';
 import { URL } from "../../config";
 
@@ -28,7 +29,8 @@ const CreateClothes = () => {
     max_temp: 20,
     colors: [],
     styles: 'plain',
-    type: 'top',
+    type: '',
+    subtype: '',
     spring: false,
     summer: false,
     autumn: false,
@@ -274,20 +276,37 @@ const CreateClothes = () => {
               <UploadImages setFormData={setFormData} formData={formData} />
             </div>
 
-            {/* TYPE */}
+            
+            {/* SUBTYPE */}
             <label>
-              Type:
+              Subtype:
               <select
-                value={formData.type}
+                value={formData.subtype}
                 onChange={(e) => {
-                  console.log("🟡 Type changed:", e.target.value);
-                  setFormData({ ...formData, type: e.target.value });
+                  const selectedSubtype = e.target.value;
+
+                  const selectedOption = typeOptions.find(
+                    option => option.name === selectedSubtype
+                  );
+
+                  setFormData(prev => ({
+                    ...prev,
+                    subtype: selectedSubtype,
+                    type: selectedOption?.type || ''
+                  }));
                 }}
+                required
               >
-                <option value="top">Top</option>
-                <option value="bottom">Bottom</option>
-                <option value="outer">Outer</option>
-                <option value="onepiece">Onepiece</option>
+                <option value="">Select subtype</option>
+
+                {typeOptions.map(option => (
+                  <option
+                    key={option.name}
+                    value={option.name}
+                  >
+                    {option.name}
+                  </option>
+                ))}
               </select>
             </label>
 

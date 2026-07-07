@@ -85,6 +85,8 @@ const ViewClothes = () => {
 
     setFormData({
       name: item.name || '',
+      type: item.type || '',
+      subtype: item.subtype || '',
       colors: item.colors || [],
       styles: item.styles || [],
       min_temp: item.min_temp || '',

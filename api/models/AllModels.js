@@ -105,6 +105,7 @@ max_temp: { type: Number, required: true },
 colors: { type: [String], required: true },
 styles: { type: [String], required: true },
 type: { type: String, required: true },
+subtype: { type: String, required: true },
 
 lastWornDate: { type: Date, default: null },
 tags: { type: [String], required: false },

@@ -1,6 +1,7 @@
 import React from "react";
 import colorOptions from "../../constants/colorOptions";
 import "./updateClothesForm.css";
+import typeOptions from "../../constants/typeOptions";
 
 const styleOptions = ["plain", "patterned"];
 
@@ -50,7 +51,15 @@ const UpdateClothesForm = ({
     ? [formData.colors]
     : [];
 
+    console.log("Update formData:", formData);
+console.log(
+  "Available subtypes:",
+  typeOptions.filter(option => option.type === formData.type)
+);
+
   return (
+
+    
     <div className="modal-wrapper">
       <p className="modal-title">
         Update {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -68,6 +77,51 @@ const UpdateClothesForm = ({
             onChange={onChange}
             required
           />
+        </label>
+
+        {/* SUBTYPE */}
+        <label className="form-label">
+          Subtype:
+          <select
+            className="form-select"
+            name="subtype"
+            value={formData.subtype || ""}
+            onChange={(e) => {
+              const selectedSubtype = e.target.value;
+
+              const selectedOption = typeOptions.find(
+                option => option.name === selectedSubtype
+              );
+
+              onChange({
+                target: {
+                  name: "subtype",
+                  value: selectedSubtype,
+                },
+              });
+
+              // Keep type synced automatically
+              onChange({
+                target: {
+                  name: "type",
+                  value: selectedOption?.type || "",
+                },
+              });
+            }}
+          >
+            <option value="">Select subtype</option>
+
+            {typeOptions
+              .filter(option => option.type === formData.type)
+              .map(option => (
+                <option
+                  key={option.name}
+                  value={option.name}
+                >
+                  {option.name}
+                </option>
+              ))}
+          </select>
         </label>
 
         {/* IMAGE */}
