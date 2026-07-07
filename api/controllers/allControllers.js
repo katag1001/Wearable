@@ -460,20 +460,24 @@ success: false,
 };
 
 exports.getToday = async (req, res) => {
-const userId = req.user?.userId;
+  const userId = req.user?.userId;
 
-try {
-const outfits = await Today.find({ userId }).sort({ rank: 1 });
+  try {
+    const outfits = await Today.find({ userId })
+      .populate("clothes", "name imageUrl type")
+      .sort({ rank: 1 });
 
-if (!outfits.length) {
-  return res.json({ message: "No outfits found for today." });
-}
+    if (!outfits.length) {
+      return res.json({ message: "No outfits found for today." });
+    }
 
-return res.json(outfits);
+    return res.json(outfits);
 
-} catch (err) {
-return res.status(500).json({
-message: "Internal server error.",
-});
-}
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: "Internal server error.",
+    });
+  }
 };

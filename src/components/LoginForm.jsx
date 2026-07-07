@@ -36,11 +36,6 @@ const LoginForm = ({ login }) => {
         console.log("⚠️ Login failed - no token returned");
       }
     } catch (error) {
-      console.log("❌ LOGIN ERROR CAUGHT");
-
-      console.log("🔥 Error object:", error);
-      console.log("📩 Error response:", error.response);
-      console.log("📩 Error response data:", error.response?.data);
 
       setMessage(error.response?.data?.message || "Login failed");
     }
