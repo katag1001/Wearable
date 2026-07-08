@@ -405,6 +405,109 @@ body.modal-open {
   background: transparent;
 }
 
+/* Subtype selection */
+
+.subtype-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+
+.subtype-category {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+
+.subtype-category h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  margin: 0;
+  color: #111;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.4rem;
+}
+
+
+/* Grid of clothing options */
+
+.subtype-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+
+}
+
+
+/* Individual subtype card */
+
+.subtype-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 95px;
+  padding: 12px 8px;
+  background: #fff;
+  color: #111;
+  border: 1px solid #d6d6d6;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 0.82rem;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
+
+}
+
+
+.subtype-button:hover {
+  border-color: #555;
+  transform: translateY(-2px);
+}
+
+
+/* Google Material Symbol */
+
+.subtype-icon {
+  font-size: 34px;
+  color: #111;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 250,
+    'GRAD' 0,
+    'opsz' 48;
+}
+
+
+/* Selected subtype */
+
+.subtype-button.selected {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+
+}
+
+
+.subtype-button.selected .subtype-icon {
+  color: #fff;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 48;
+
+}
+
+
 
 
 

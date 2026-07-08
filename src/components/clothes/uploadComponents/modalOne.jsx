@@ -10,6 +10,20 @@ const ModalOne = ({
   handleSubtypeChange
 }) => {
 
+
+  const groupedTypes = typeOptions.reduce((groups, item) => {
+
+    if (!groups[item.type]) {
+      groups[item.type] = [];
+    }
+
+    groups[item.type].push(item);
+
+    return groups;
+
+  }, {});
+
+
   return (
     <div className="modal-page">
 
@@ -47,36 +61,71 @@ const ModalOne = ({
 
 
 
-      <label className="form-label">
+      {/* Subtype */}
+
+      <div className="form-label">
 
         Subtype:
 
-        <select
-          className="form-select"
-          value={formData.subtype}
-          onChange={handleSubtypeChange}
-          required
-        >
+        <div className="subtype-container">
 
-          <option value="">
-            Select subtype
-          </option>
+          {Object.entries(groupedTypes).map(
+            ([category, subtypes]) => (
+
+              <div
+                key={category}
+                className="subtype-category"
+              >
+
+                <h4>
+                  {category}
+                </h4>
 
 
-          {typeOptions.map(option => (
+                <div className="subtype-grid">
 
-            <option
-              key={option.name}
-              value={option.name}
-            >
-              {option.name}
-            </option>
+                  {subtypes.map(subtype => (
 
-          ))}
+                    <button
+                      type="button"
+                      key={subtype.name}
+                      className={
+                        formData.subtype === subtype.name
+                          ? "subtype-button selected"
+                          : "subtype-button"
+                      }
+                      onClick={() =>
+  handleSubtypeChange({
+    target: {
+      value: subtype.name
+    }
+  })
+}
+                    >
 
-        </select>
+                      <span className="material-symbols-outlined subtype-icon">
+                        {subtype.icon}
+                      </span>
 
-      </label>
+
+                      <span>
+                        {subtype.name}
+                      </span>
+
+                    </button>
+
+                  ))}
+
+                </div>
+
+              </div>
+
+            )
+          )}
+
+        </div>
+
+      </div>
 
 
     </div>
