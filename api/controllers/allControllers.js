@@ -223,16 +223,14 @@ userId,
 });
 
 if (!existingItem) {
-  return res.json({ message: "Item not found" });
+return res.json({ message: "Item not found" });
 }
 
 const updatedItem = await Clothes.findOneAndUpdate(
-  { _id: id, userId },
-  req.body,
-  { new: true, runValidators: true }
+{ _id: id, userId },
+req.body,
+{ new: true, runValidators: true }
 );
-
-await Match.deleteMany({ clothes: existingItem._id });
 
 const allItems = await Clothes.find({ userId });
 
@@ -244,6 +242,7 @@ return res.json(updatedItem);
 return res.status(500).json({ error: error.message });
 }
 };
+
 
 exports.deleteItem = async (req, res) => {
 const userId = req.user?.userId;
@@ -279,6 +278,28 @@ exports.createMatch = async (req, res) => {
   }
 
   try {
+    const clothes = (req.body.clothes || []).map((id) => id.toString()).sort();
+
+    const existingMatches = await Match.find({
+      userId,
+      clothes: { $size: clothes.length },
+    }).select("clothes");
+
+    const duplicate = existingMatches.find((match) => {
+      const existingClothes = match.clothes
+        .map((id) => id.toString())
+        .sort();
+
+      return (
+        existingClothes.length === clothes.length &&
+        existingClothes.every((id, index) => id === clothes[index])
+      );
+    });
+
+    if (duplicate) {
+      return res.status(409).json({ error: "Match already exists." });
+    }
+
     const match = new Match({
       ...req.body,
       userId,
@@ -305,7 +326,39 @@ exports.createMatchesBulk = async (req, res) => {
       userId,
     }));
 
-    const matches = await Match.insertMany(matchesToInsert);
+    const clothesArrays = matchesToInsert.map((match) =>
+      match.clothes.map((id) => id.toString()).sort()
+    );
+
+    const existingMatches = await Match.find({
+      userId,
+      clothes: {
+        $in: matchesToInsert.map((match) => match.clothes),
+      },
+    }).select("clothes");
+
+    const filteredMatches = matchesToInsert.filter((match) => {
+      const clothes = match.clothes.map((id) => id.toString()).sort();
+
+      const alreadyExists = existingMatches.some((existingMatch) => {
+        const existingClothes = existingMatch.clothes
+          .map((id) => id.toString())
+          .sort();
+
+        return (
+          existingClothes.length === clothes.length &&
+          existingClothes.every((id, index) => id === clothes[index])
+        );
+      });
+
+      return !alreadyExists;
+    });
+
+    if (filteredMatches.length === 0) {
+      return res.status(409).json({ error: "All matches already exist." });
+    }
+
+    const matches = await Match.insertMany(filteredMatches);
 
     return res.json(matches);
   } catch (error) {
