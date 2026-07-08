@@ -1,6 +1,7 @@
 import React from "react";
 import UploadImages from "../uploadPics";
 import typeOptions from "./typeOptions.js";
+import { suggestSubtypesFromName } from "./uploadHelpers";
 
 
 const ModalOne = ({
@@ -22,6 +23,12 @@ const ModalOne = ({
     return groups;
 
   }, {});
+
+
+  const subtypeSuggestions = suggestSubtypesFromName(
+    formData.name,
+    typeOptions
+  );
 
 
   return (
@@ -67,6 +74,54 @@ const ModalOne = ({
 
         Subtype:
 
+
+        {subtypeSuggestions.length > 0 && (
+
+          <div className="subtype-suggestions">
+
+            <h4>
+              Suggested:
+            </h4>
+
+
+            <div className="suggestion-grid">
+
+              {subtypeSuggestions.map(suggestion => (
+
+                <button
+                  key={suggestion.name}
+                  type="button"
+                  className="suggestion-button"
+                  onClick={() =>
+                    handleSubtypeChange({
+                      target: {
+                        value: suggestion.name
+                      }
+                    })
+                  }
+                >
+
+                  <span className="material-symbols-outlined subtype-icon">
+                    {suggestion.icon}
+                  </span>
+
+
+                  <span>
+                    {suggestion.name}
+                  </span>
+
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+        )}
+
+
+
         <div className="subtype-container">
 
           {Object.entries(groupedTypes).map(
@@ -95,12 +150,12 @@ const ModalOne = ({
                           : "subtype-button"
                       }
                       onClick={() =>
-  handleSubtypeChange({
-    target: {
-      value: subtype.name
-    }
-  })
-}
+                        handleSubtypeChange({
+                          target: {
+                            value: subtype.name
+                          }
+                        })
+                      }
                     >
 
                       <span className="material-symbols-outlined subtype-icon">
