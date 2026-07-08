@@ -2,7 +2,7 @@ import React from "react";
 import {
   seasonOptions
 } from "./uploadHelpers";
-import TemperatureSlider from "./temperatureSlider";
+import TemperatureSlider from "../../general/temperatureSlider";
 
 
 const ModalTwo = ({

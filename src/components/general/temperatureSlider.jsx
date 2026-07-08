@@ -1,5 +1,5 @@
 import React from "react";
-import "../AddUpdateClothes.css";
+import "./temperatureSlider.css";
 
 const TemperatureSlider = ({
   min,

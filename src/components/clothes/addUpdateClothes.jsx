@@ -11,7 +11,7 @@ import ModalThree from "./uploadComponents/modalThree";
 import { useClothingForm } from "./uploadComponents/useClothingForm";
 import { useClothingDetection } from "./uploadComponents/useClothingDetection";
 
-import "./AddUpdateClothes.css";
+import "./addUpdateClothes.css";
 
 const AddUpdateClothes = ({ item, onClose, refresh }) => {
   const isUpdate = !!item;
