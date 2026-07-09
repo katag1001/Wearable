@@ -1,10 +1,6 @@
 import { useEffect } from "react";
-
-import {
-  detectFromName,
-  calculateTemperatureRange,
-  seasonOptions
-} from "./uploadHelpers";
+import {detectFromName,calculateTemperatureRange,} from "./uploadHelpers";
+import {seasonOptions} from "../../general/optionsBank";
 
 
 export const useClothingDetection = (

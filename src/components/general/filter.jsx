@@ -1,7 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./filter.css";
 import TemperatureSlider from "./temperatureSlider";
+import {
+  seasonOptions,
+  colorOptions,
+  styleOptions,
+  tagOptions,
+} from "./optionsBank";
 
+const defaultFilters = {
+  seasons: [],
+  colors: [],
+  styles: [],
+  tags: [],
+  minTemp: null,
+  maxTemp: null,
+};
 
 const Filter = ({
   isOpen,
@@ -10,221 +24,200 @@ const Filter = ({
   setFilters,
   availableColors = [],
   availableStyles = [],
+  availableTags = [],
+  showSeasons = true,
+  showColors = true,
+  showStyles = true,
+  showTags = true,
+  showTemperature = true,
 }) => {
+  const [localFilters, setLocalFilters] = useState({
+    ...defaultFilters,
+    ...filters,
+  });
 
-  const [localFilters, setLocalFilters] = useState(filters);
+  useEffect(() => {
+    setLocalFilters({
+      ...defaultFilters,
+      ...filters,
+    });
+  }, [filters]);
 
+  const seasons = seasonOptions;
 
-  const seasons = [
-    "spring",
-    "summer",
-    "autumn",
-    "winter"
-  ];
+  const colors =
+    availableColors.length > 0
+      ? colorOptions.filter((color) =>
+          availableColors.includes(color.name)
+        )
+      : colorOptions;
+
+  const styles =
+    availableStyles.length > 0
+      ? styleOptions.filter((style) =>
+          availableStyles.includes(style)
+        )
+      : styleOptions;
+
+  const tags =
+    availableTags.length > 0
+      ? tagOptions.filter((tag) =>
+          availableTags.includes(tag)
+        )
+      : tagOptions;
 
   const toggleArrayFilter = (field, value) => {
-
-    setLocalFilters(prev => {
-
+    setLocalFilters((prev) => {
       const current = prev[field] || [];
 
       return {
         ...prev,
         [field]: current.includes(value)
-          ? current.filter(item => item !== value)
-          : [...current, value]
+          ? current.filter((item) => item !== value)
+          : [...current, value],
       };
-
     });
-
   };
 
   const handleTemperatureChange = (minTemp, maxTemp) => {
-
-    setLocalFilters(prev => ({
+    setLocalFilters((prev) => ({
       ...prev,
       minTemp,
-      maxTemp
+      maxTemp,
     }));
-
   };
 
   const applyFilters = () => {
     setFilters(localFilters);
     onClose();
-
   };
 
   const resetFilters = () => {
-
-    const reset = {
-      seasons: [],
-      colors: [],
-      styles: [],
-      minTemp: null,
-      maxTemp: null
-    };
-
-    setLocalFilters(reset);
-    setFilters(reset);
-
+    setLocalFilters(defaultFilters);
+    setFilters(defaultFilters);
   };
 
   if (!isOpen) return null;
 
   return (
-
     <div className="filter-overlay">
-
       <div className="filter-panel">
-
-
         <button
           className="close-filter-button"
           onClick={onClose}
         >
           ×
         </button>
-        <h2>
-          Filter Clothes
-        </h2>
 
-        <div className="filter-section">
-          <h3>
-            Season
-          </h3>
+        <h2>Filter</h2>
 
-          {seasons.map(season => (
+        {showSeasons && (
+          <div className="filter-section">
+            <h3>Season</h3>
 
-            <label key={season}>
+            {seasons.map((season) => (
+              <label key={season}>
+                <input
+                  type="checkbox"
+                  checked={localFilters.seasons.includes(season)}
+                  onChange={() =>
+                    toggleArrayFilter("seasons", season)
+                  }
+                />
 
-              <input
-                type="checkbox"
-                checked={
-                  localFilters.seasons.includes(season)
-                }
-                onChange={() =>
-                  toggleArrayFilter(
-                    "seasons",
-                    season
-                  )
-                }
-              />
+                {season.charAt(0).toUpperCase() + season.slice(1)}
+              </label>
+            ))}
+          </div>
+        )}
 
-              {season.charAt(0).toUpperCase() + season.slice(1)}
+        {showColors && (
+          <div className="filter-section">
+            <h3>Colors</h3>
 
-            </label>
+            {colors.map((color) => (
+              <label key={color.name}>
+                <input
+                  type="checkbox"
+                  checked={localFilters.colors.includes(color.name)}
+                  onChange={() =>
+                    toggleArrayFilter("colors", color.name)
+                  }
+                />
 
-          ))}
-        </div>
+                {color.name}
+              </label>
+            ))}
+          </div>
+        )}
 
-        <div className="filter-section">
+        {showTemperature && (
+          <div className="filter-section">
+            <h3>Temperature</h3>
 
-          <h3>
-            Color
-          </h3>
+            <TemperatureSlider
+              min={-10}
+              max={50}
+              valueMin={localFilters.minTemp ?? -10}
+              valueMax={localFilters.maxTemp ?? 50}
+              step={1}
+              onChange={handleTemperatureChange}
+            />
+          </div>
+        )}
 
+        {showStyles && (
+          <div className="filter-section">
+            <h3>Styles</h3>
 
-          {availableColors.map(color => (
+            {styles.map((style) => (
+              <label key={style}>
+                <input
+                  type="checkbox"
+                  checked={localFilters.styles.includes(style)}
+                  onChange={() =>
+                    toggleArrayFilter("styles", style)
+                  }
+                />
 
-            <label key={color}>
+                {style.charAt(0).toUpperCase() + style.slice(1)}
+              </label>
+            ))}
+          </div>
+        )}
 
-              <input
-                type="checkbox"
-                checked={
-                  localFilters.colors.includes(color)
-                }
-                onChange={() =>
-                  toggleArrayFilter(
-                    "colors",
-                    color
-                  )
-                }
-              />
+        {showTags && (
+          <div className="filter-section">
+            <h3>Tags</h3>
 
-              {color}
+            {tags.map((tag) => (
+              <label key={tag}>
+                <input
+                  type="checkbox"
+                  checked={localFilters.tags.includes(tag)}
+                  onChange={() =>
+                    toggleArrayFilter("tags", tag)
+                  }
+                />
 
-            </label>
+                {tag}
+              </label>
+            ))}
+          </div>
+        )}
 
-          ))}
-
-
-        </div>
-
-        <div className="filter-section">
-
-          <h3>
-            Temperature
-          </h3>
-
-          <TemperatureSlider
-
-            min={-10}
-            max={50}
-
-            valueMin={
-              localFilters.minTemp ?? -10
-            }
-
-            valueMax={
-              localFilters.maxTemp ?? 50
-            }
-
-            step={1}
-
-            onChange={
-              handleTemperatureChange
-            }
-
-          />
-        </div>
-        <div className="filter-section">
-
-          <h3>
-            Style
-          </h3>
-          {availableStyles.map(style => (
-
-            <label key={style}>
-
-              <input
-                type="checkbox"
-                checked={
-                  localFilters.styles.includes(style)
-                }
-                onChange={() =>
-                  toggleArrayFilter(
-                    "styles",
-                    style
-                  )
-                }
-              />
-
-              {style}
-
-            </label>
-
-          ))}
-
-
-        </div>
         <div className="filter-buttons">
-          <button
-            onClick={resetFilters}
-          >
+          <button onClick={resetFilters}>
             Reset
           </button>
 
-          <button
-            onClick={applyFilters}
-          >
+          <button onClick={applyFilters}>
             Apply
           </button>
         </div>
       </div>
     </div>
   );
-
 };
 
 export default Filter;

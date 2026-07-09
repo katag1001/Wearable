@@ -1,11 +1,6 @@
 import React from "react";
 
-import {
-  styleOptions,
-  colorOptions,
-  tagOptions
-} from "./uploadHelpers";
-
+import {styleOptions, colorOptions, tagOptions} from "../../general/optionsBank";
 
 const ModalThree = ({
   formData,
@@ -62,12 +57,8 @@ const ModalThree = ({
         </div>
       </div>
 
-
-
       <label className="form-label">
-
         Style:
-
         <select
           className="form-select"
           value={formData.styles}
@@ -86,9 +77,7 @@ const ModalThree = ({
           ))}
 
         </select>
-
       </label>
-
 
 
       <div>

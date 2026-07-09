@@ -1,9 +1,6 @@
 import { useState } from "react";
 
-import {
-  getInitialState,
-  calculateTemperatureRange
-} from "./uploadHelpers";
+import {getInitialState, calculateTemperatureRange} from "./uploadHelpers";
 
 import typeOptions from "./typeOptions.js";
 

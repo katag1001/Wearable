@@ -1,9 +1,6 @@
 import React from "react";
-import {
-  seasonOptions
-} from "./uploadHelpers";
+import {seasonOptions} from "../../general/optionsBank";
 import TemperatureSlider from "../../general/temperatureSlider";
-
 
 const ModalTwo = ({
   formData,

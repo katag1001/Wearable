@@ -79,33 +79,22 @@ const ViewClothes = () => {
 
   const applyFilters = () => {
     let filtered = [...allItems];
-
     if (searchTerm.trim()) {
-
       filtered = filtered.filter(item =>
-
         item.name
           .toLowerCase()
           .includes(
             searchTerm.toLowerCase()
           )
-
       );
-
     }
 
     if (filters.seasons.length > 0) {
-
       filtered = filtered.filter(item =>
-
         filters.seasons.some(season =>
-
           item[season]
-
         )
-
       );
-
     }
 
     if (filters.colors.length > 0) {
@@ -140,11 +129,8 @@ const ViewClothes = () => {
     }
 
     const grouped = {};
-
     clothingTypes.forEach(type => {
-
       grouped[type] = [];
-
     });
 
     filtered.forEach(item => {
@@ -211,310 +197,157 @@ const ViewClothes = () => {
   };
 
   const handleAddItem = () => {
-
     setSelectedItem(null);
-
     setShowClothingModal(true);
-
   };
 
   const handleEdit = (item) => {
-
     setSelectedItem(item);
-
     setShowClothingModal(true);
-
   };
 
   const closeModal = () => {
-
     setShowClothingModal(false);
-
     setSelectedItem(null);
-
   };
 
   const getSeasons = (item) => {
-
-
     const seasons = [];
-
-
-
     if (item.spring)
       seasons.push('Spring');
-
 
     if (item.summer)
       seasons.push('Summer');
 
-
     if (item.autumn)
       seasons.push('Autumn');
-
 
     if (item.winter)
       seasons.push('Winter');
 
-
-
     return seasons.length
-
       ? seasons.join(', ')
-
       : 'None';
-
 
   };
 
   const scrollLeft = (type) => {
 
-
     if (scrollRefs.current[type]) {
-
       scrollRefs.current[type].scrollBy({
-
         left: -320,
-
         behavior: 'smooth'
-
       });
-
     }
-
   };
 
   const scrollRight = (type) => {
-
-
     if (scrollRefs.current[type]) {
-
       scrollRefs.current[type].scrollBy({
-
         left: 320,
-
         behavior: 'smooth'
-
       });
-
     }
-
   };
 
   const sectionTitles = {
-
     top: "Top Half",
-
     outer: "Outerwear",
-
     bottom: "Bottom Half",
-
     onepiece: "One-Pieces"
-
   };
 
-
-
-
-
   return (
-
-
     <div className="view-clothes-container">
-
-
       {error && (
-
         <p className="error-text">
-
           Error: {error}
-
         </p>
-
       )}
 
-
-
-
-
       <div className="top-controls">
-
-
         <input
-
           className="clothing-search-bar"
-
           type="text"
-
           placeholder="Search clothes..."
-
           value={searchTerm}
-
           onChange={(e) =>
             setSearchTerm(e.target.value)
           }
-
         />
 
-
-
         <button
-
           className="add-item-button"
-
           onClick={handleAddItem}
-
         >
-
           Add Item
-
         </button>
 
-
-
         <button
-
           className="filter-button"
-
           onClick={() =>
             setShowFilters(true)
           }
-
         >
-
           Filter
-
         </button>
-
-
-
       </div>
 
-
-
-
-
       {clothingTypes.map(type => (
-
-
         <div
-
           key={type}
-
           className="clothing-section"
-
         >
-
-
           <div className="section-wrapper">
-
-
-
             <p className="section-title-viewclothes">
-
               {sectionTitles[type]}
-
             </p>
-
-
-
-
             <div className="horizontal-scroll-wrapper">
-
-
-
               <button
-
                 className="scroll-arrow left-arrow"
-
                 onClick={() => scrollLeft(type)}
-
               >
-
                 ‹
-
               </button>
-
-
-
-
-
               <div
-
                 className="scroll-container"
-
                 ref={(el) =>
                   scrollRefs.current[type] = el
                 }
-
               >
-
-
-
                 {(!itemsByType[type] ||
-
                   itemsByType[type].length === 0) ? (
-
-
                   <p className="no-items">
-
                     No items found.
-
                   </p>
-
-
                 ) : (
 
-
-
                   itemsByType[type].map(item => (
-
-
-
                     <div
-
                       key={item._id}
-
                       className="clothing-card-viewclothes"
                     >
-
                       {item.imageUrl && (
-
                         <img
-
                           src={item.imageUrl}
-
                           alt={
                             item.name ||
                             "Clothing item"
                           }
-
                           className="clothing-image-viewclothes"
-
                         />
-
                       )}
-
-
                       <div className="clothing-details-viewclothes">
-
                         <div className="item-name">
-
                           {item.name}
-
                         </div>
-
-
                         <div className="item-info">
-
                           <div>
                             {getSeasons(item)}
                           </div>
-
                           <div>
                             {item.min_temp}° - {item.max_temp}°
                           </div>
-
                         </div>
 
                         <div className="button-row">
@@ -525,7 +358,6 @@ const ViewClothes = () => {
                             }
                             className="text-button"
                           >
-
                             Edit
                           </button>
 
@@ -541,23 +373,17 @@ const ViewClothes = () => {
                             Delete
                           </button>
                         </div>
-
                       </div>
-
                     </div>
                   ))
                 )}
-
               </div>
 
               <button
-
                 className="scroll-arrow right-arrow"
                 onClick={() => scrollRight(type)}
               >
-
                 ›
-
               </button>
             </div>
           </div>
@@ -580,28 +406,20 @@ const ViewClothes = () => {
         filters={filters}
         setFilters={setFilters}
         availableColors={
-
           [...new Set(
-
             allItems.flatMap(item =>
               item.colors || []
             )
-
           )]
         }
 
         availableStyles={
-
           [...new Set(
-
             allItems.flatMap(item =>
               item.styles || []
             )
-
           )]
-
         }
-
       />
     </div>
   );
