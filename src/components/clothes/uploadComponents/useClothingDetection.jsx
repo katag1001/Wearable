@@ -1,9 +1,12 @@
 import { useEffect } from "react";
 import { detectFromName } from "./uploadHelpers";
+import typeOptions from "./typeOptions.js";
 
 export const useClothingDetection = (
 name,
-setFormData
+subtype,
+setFormData,
+manualTempOverride
 ) => {
 
 useEffect(() => {
@@ -26,6 +29,7 @@ setFormData(prev => {
   };
 
 
+  // Existing name detection
   if (detectedColors.length) {
     updated.colors = detectedColors;
   }
@@ -37,10 +41,44 @@ setFormData(prev => {
 
 
   Object.entries(detectedSeasons).forEach(([season, value]) => {
+
     if (value) {
       updated[season] = true;
     }
+
   });
+
+
+  // New subtype detection
+  const subtypeOption = typeOptions.find(
+    item => item.name === subtype
+  );
+
+
+  if (subtypeOption) {
+
+
+    subtypeOption.season.forEach(season => {
+
+      updated[
+        season.toLowerCase()
+      ] = true;
+
+    });
+
+
+    if (!manualTempOverride) {
+
+      updated.min_temp =
+        subtypeOption.minTemp;
+
+
+      updated.max_temp =
+        subtypeOption.maxTemp;
+
+    }
+
+  }
 
 
   updated.styles = style;
@@ -53,7 +91,9 @@ setFormData(prev => {
 
 }, [
 name,
-setFormData
+subtype,
+setFormData,
+manualTempOverride
 ]);
 
 };

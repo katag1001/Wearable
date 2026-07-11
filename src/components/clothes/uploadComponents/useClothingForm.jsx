@@ -113,27 +113,52 @@ setFormData(prev => ({
 
 const handleSubtypeChange = (e) => {
 
-
-const subtype = e.target.value;
-
-
-const option = typeOptions.find(
-  item =>
-    item.name === subtype
-);
+  const subtype = e.target.value;
 
 
-setFormData(prev => ({
+  const option = typeOptions.find(
+    item => item.name === subtype
+  );
 
-  ...prev,
 
-  subtype,
+  setFormData(prev => {
 
-  type:
-    option?.type || ""
+    const updated = {
+      ...prev,
+      subtype,
+      type: option?.type || ""
+    };
 
-}));
 
+    if (option) {
+
+
+      option.season.forEach(season => {
+
+        updated[
+          season.toLowerCase()
+        ] = true;
+
+      });
+
+
+      if (!manualTempOverride) {
+
+        updated.min_temp =
+          option.minTemp;
+
+
+        updated.max_temp =
+          option.maxTemp;
+
+      }
+
+    }
+
+
+    return updated;
+
+  });
 
 };
 

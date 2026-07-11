@@ -32,11 +32,12 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   const [justSavedItem, setJustSavedItem] = useState(null);
   const [message, setMessage] = useState("");
 
-  useClothingDetection(
-    formData.name,
-    setFormData,
-    manualTempOverride
-  );
+useClothingDetection(
+  formData.name,
+  formData.subtype,
+  setFormData,
+  manualTempOverride
+);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
