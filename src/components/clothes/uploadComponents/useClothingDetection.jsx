@@ -1,78 +1,59 @@
 import { useEffect } from "react";
-import {detectFromName,calculateTemperatureRange,} from "./uploadHelpers";
-import {seasonOptions} from "../../general/optionsBank";
-
+import { detectFromName } from "./uploadHelpers";
 
 export const useClothingDetection = (
-  name,
-  setFormData,
-  manualTempOverride
+name,
+setFormData
 ) => {
 
-  useEffect(() => {
-    if (!name) return;
+useEffect(() => {
+if (!name) return;
 
 
-    const {
-      detectedColors,
-      detectedSeasons,
-      detectedTags,
-      style
-    } = detectFromName(name);
+const {
+  detectedColors,
+  detectedSeasons,
+  detectedTags,
+  style
+} = detectFromName(name);
 
 
-    setFormData(prev => {
 
-      const updated = {
-        ...prev
-      };
+setFormData(prev => {
 
-
-      if (detectedColors.length) {
-        updated.colors = detectedColors;
-      }
+  const updated = {
+    ...prev
+  };
 
 
-      seasonOptions.forEach(season => {
-        updated[season] = detectedSeasons[season];
-      });
+  if (detectedColors.length) {
+    updated.colors = detectedColors;
+  }
 
 
-      if (!manualTempOverride) {
-
-        const activeSeasons = seasonOptions.filter(
-          season => detectedSeasons[season]
-        );
+  if (detectedTags.length) {
+    updated.tags = detectedTags;
+  }
 
 
-        const temperatureRange =
-          calculateTemperatureRange(activeSeasons);
+  Object.entries(detectedSeasons).forEach(([season, value]) => {
+    if (value) {
+      updated[season] = true;
+    }
+  });
 
 
-        updated.min_temp =
-          temperatureRange.min_temp;
-
-        updated.max_temp =
-          temperatureRange.max_temp;
-      }
+  updated.styles = style;
 
 
-      if (detectedTags.length) {
-        updated.tags = detectedTags;
-      }
+  return updated;
+
+});
 
 
-      updated.styles = style;
-
-
-      return updated;
-    });
-
-
-  }, [
-    name,
-    setFormData,
-    manualTempOverride
-  ]);
+}, [
+name,
+setFormData
+]);
 
 };

@@ -83,37 +83,6 @@ export const detectFromName = (name) => {
   };
 };
 
-export const calculateTemperatureRange = (
-  activeSeasons
-) => {
-
-  if (!activeSeasons.length) {
-    return {
-      min_temp: 10,
-      max_temp: 20
-    };
-  }
-
-
-
-  const ranges = activeSeasons.map(
-    season =>
-      seasonTempRanges[season]
-  );
-
-
-
-  return {
-    min_temp: Math.min(
-      ...ranges.map(range => range.min)
-    ),
-
-    max_temp: Math.max(
-      ...ranges.map(range => range.max)
-    )
-  };
-};
-
 
 export const suggestSubtypesFromName = (name, typeOptions) => {
 
@@ -195,6 +164,7 @@ export const suggestSubtypesFromName = (name, typeOptions) => {
 
 
     "T-Shirt": [
+      "top",
       "tshirt",
       "t-shirt",
       "tee",
@@ -241,6 +211,7 @@ export const suggestSubtypesFromName = (name, typeOptions) => {
 
     "Tank Top": [
       "tank",
+      "top",
       "tank top",
       "camisole",
       "cami",
