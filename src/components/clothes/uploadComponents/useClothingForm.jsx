@@ -130,30 +130,40 @@ const handleSubtypeChange = (e) => {
     };
 
 
-    if (option) {
+   if (option) {
+
+  option.season.forEach(season => {
+
+    updated[
+      season.toLowerCase()
+    ] = true;
+
+  });
 
 
-      option.season.forEach(season => {
+  if (option.tags) {
 
-        updated[
-          season.toLowerCase()
-        ] = true;
+    updated.tags = [
+      ...new Set([
+        ...updated.tags,
+        ...option.tags
+      ])
+    ];
 
-      });
-
-
-      if (!manualTempOverride) {
-
-        updated.min_temp =
-          option.minTemp;
+  }
 
 
-        updated.max_temp =
-          option.maxTemp;
+  if (!manualTempOverride) {
 
-      }
+    updated.min_temp =
+      option.minTemp;
 
-    }
+    updated.max_temp =
+      option.maxTemp;
+
+  }
+
+}
 
 
     return updated;

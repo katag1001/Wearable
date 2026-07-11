@@ -62,7 +62,7 @@ const typeOptions = [
     icon: "checkroom",
     season: ["Spring", "Summer", "Autumn", "Winter"],
     tags: ["Everyday", "Gym", "Outdoor"],
-    minTemp: 18,
+    minTemp: 10,
     maxTemp: 35,
   },
   {

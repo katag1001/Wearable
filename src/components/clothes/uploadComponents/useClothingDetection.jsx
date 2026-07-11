@@ -35,10 +35,14 @@ setFormData(prev => {
   }
 
 
-  if (detectedTags.length) {
-    updated.tags = detectedTags;
-  }
-
+ if (detectedTags.length) {
+  updated.tags = [
+    ...new Set([
+      ...updated.tags,
+      ...detectedTags
+    ])
+  ];
+}
 
   Object.entries(detectedSeasons).forEach(([season, value]) => {
 
@@ -56,6 +60,13 @@ setFormData(prev => {
 
 
   if (subtypeOption) {
+
+      updated.tags = [
+    ...new Set([
+      ...updated.tags,
+      ...subtypeOption.tags
+    ])
+  ];
 
 
     subtypeOption.season.forEach(season => {
