@@ -57,8 +57,9 @@ if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
       const response = await cloudinary.api.ping();
       console.log("☁️ Cloudinary connected:", response.status || response);
     } catch (error) {
-      console.error("☁️ Cloudinary connection failed:", error.message);
-    }
+  console.error("☁️ Cloudinary connection failed:");
+  console.dir(error, { depth: null });
+}
   })();
 }
 

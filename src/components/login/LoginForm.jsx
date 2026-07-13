@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { URL } from "../config";
+import { URL } from "../../config";
 import "./loginForm.css";
 
 const LoginForm = ({ login }) => {

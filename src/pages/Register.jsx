@@ -1,8 +1,7 @@
-// src/pages/Register.jsx
 import React, { useEffect } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/header';
-import RegisterForm from '../components/RegisterForm';
+import RegisterForm from '../components//login/RegisterForm';
 import './Pages.css';
 
 const Register = ({ loggedIn, logout }) => {

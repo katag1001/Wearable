@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-
 const jwt_secret = process.env.JWT_SECRET;
 
 exports.authMiddleware = (req, res, next) => {
@@ -17,7 +16,6 @@ exports.authMiddleware = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, jwt_secret);
 
-    // attach user to request
     req.user = {
       userId: decoded.userId,
       email: decoded.email,

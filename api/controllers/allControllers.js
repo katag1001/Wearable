@@ -243,7 +243,6 @@ return res.status(500).json({ error: error.message });
 }
 };
 
-
 exports.deleteItem = async (req, res) => {
 const userId = req.user?.userId;
 const { id } = req.params;

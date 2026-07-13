@@ -2,7 +2,7 @@
 import React from 'react';
 import Header from '../components/header';
 import './Pages.css';
-import './user.css'
+
 
 const User = ({ loggedIn, logout }) => {
   return (
