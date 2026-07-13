@@ -1,11 +1,13 @@
+const UploadImages = ({ setFormData, formData }) => {
 
-const UploadImages = ({setFormData,formData}) => {
+  const addImageData = (url, publicId) => {
+    setFormData(prev => ({
+      ...prev,
+      imageUrl: url,
+      cloudinaryId: publicId
+    }));
+  };
 
-    const addURL = (url) => {   
-        setFormData(prev => ({
-            ...prev,
-            imageUrl: url
-          }))};
 
   const uploadWidget = () => {
 
@@ -16,31 +18,48 @@ const UploadImages = ({setFormData,formData}) => {
         api_key: import.meta.env.VITE_CLOUD_API_KEY,
         tags: ["user"],
         sources: ["local", "url", "camera", "image_search"],
-
       },
+
       (error, result) => {
+
         if (error) {
-          console.log('Cloudinary Widget Error: ', error);
-        } else {
-            addURL(result.info.files[0].uploadInfo.url)
+          console.log("Cloudinary Widget Error: ", error);
+        } 
+        
+        else if (result.event === "success") {
+
+          console.log(result.info);
+
+          addImageData(
+            result.info.url,
+            result.info.public_id
+          );
+
         }
+
       }
     );
   };
 
 
-
   return (
     <div className="flex_upload">
-      {/* form to add title, description, author, date -- onchange goes to state */}
+
       <div className="upload">
-        <button type="button" className="button" onClick={uploadWidget}>
+
+        <button 
+          type="button" 
+          className="button" 
+          onClick={uploadWidget}
+        >
           Upload Image
         </button>
+
       </div>
-      {/* button PUBLISH POST on click take data from state and send to server on the body -- function*/}
+
     </div>
   );
 };
+
 
 export default UploadImages;

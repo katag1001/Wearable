@@ -93,6 +93,11 @@ const clothesSchema = new mongoose.Schema({
 name: { type: String, required: true },
 imageUrl: { type: String, default: "" },
 
+cloudinaryId: {
+    type: String,
+    default: ""
+  },
+
 userId: {
 type: mongoose.Schema.Types.ObjectId,
 ref: "User",

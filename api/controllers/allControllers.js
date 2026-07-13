@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
+const cloudinary = require("../cloudinary.js");
 const jwt_secret = process.env.JWT_SECRET;
 
 const { User, Match, Today, Clothes } = require("../models/AllModels.js");
@@ -244,27 +245,42 @@ return res.status(500).json({ error: error.message });
 };
 
 exports.deleteItem = async (req, res) => {
-const userId = req.user?.userId;
-const { id } = req.params;
+  const userId = req.user?.userId;
+  const { id } = req.params;
 
-try {
-const item = await Clothes.findOne({
-_id: id,
-userId,
-});
+  try {
+    const item = await Clothes.findOne({
+      _id: id,
+      userId,
+    });
 
-if (!item) return res.json({ message: "Item not found" });
+    if (!item) {
+      return res.json({ message: "Item not found" });
+    }
 
-await Match.deleteMany({ clothes: item._id });
-await Clothes.deleteOne({ _id: id, userId });
 
-return res.json({
-  message: "Item and related matches deleted successfully",
-});
+    if (item.cloudinaryId) {
+      await cloudinary.uploader.destroy(item.cloudinaryId);
+    }
 
-} catch (error) {
-return res.status(500).json({ error: error.message });
-}
+
+    await Match.deleteMany({ clothes: item._id });
+
+    await Clothes.deleteOne({
+      _id: id,
+      userId,
+    });
+
+
+    return res.json({
+      message: "Item, image, and related matches deleted successfully",
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
 };
 
 /* -------------------- MATCH CONTROLLERS -------------------- */
