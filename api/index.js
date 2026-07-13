@@ -85,6 +85,16 @@ res.sendFile(path.join(__dirname, "dist", "index.html"));
 
 const PORT = process.env.PORT || 4444;
 
+app.use((err, req, res, next) => {
+  console.error("🔥 SERVER ERROR:");
+  console.error(err);
+
+  res.status(500).json({
+    message: err.message,
+    stack: err.stack,
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
