@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import DeleteMatches from "./deleteMatches";
 import UpdateMatches from "./updateMatches";
+import ViewMatchesBox from "./ViewMatchesBox";
 import Filter from "../general/filter.jsx";
 import "./viewMatches.css";
 import { URL } from "../../config";
@@ -14,6 +15,8 @@ const ViewMatches = ({ mode = "active" }) => {
   const [selectedSeason, setSelectedSeason] = useState(null);
 
   const [showFilters, setShowFilters] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [filters, setFilters] = useState({
     seasons: [],
@@ -31,6 +34,7 @@ const ViewMatches = ({ mode = "active" }) => {
     const fetchMatches = async () => {
       try {
         setError(null);
+
         const token = getToken();
 
         if (!token) {
@@ -55,32 +59,41 @@ const ViewMatches = ({ mode = "active" }) => {
 
   }, []);
 
+
   const handleDeleteSuccess = (id) => {
 
     setMatches((prev) =>
       prev.filter((match) => match._id !== id)
     );
+
   };
+
 
   const handleUpdateSuccess = (updatedMatch) => {
 
     setMatches((prev) =>
-      prev.map((m) =>
-        m._id === updatedMatch._id
+      prev.map((match) =>
+        match._id === updatedMatch._id
           ? updatedMatch
-          : m
+          : match
       )
     );
 
   };
 
-  const handleError = (msg) => setError(msg);
+
+  const handleError = (msg) => {
+    setError(msg);
+  };
+
 
   const handleReinstate = async (id) => {
 
     try {
+
       const token = getToken();
-      const res = await axios.put(
+
+      const response = await axios.put(
         `${URL}/match/${id}`,
         { rejected: false },
         {
@@ -90,23 +103,29 @@ const ViewMatches = ({ mode = "active" }) => {
         }
       );
 
-      const updated = res.data;
+      const updated = response.data;
 
       setMatches((prev) =>
-        prev.map((m) =>
-          m._id === id
+        prev.map((match) =>
+          match._id === id
             ? updated
-            : m
+            : match
         )
       );
 
     } catch (err) {
+
       setError("Failed to reinstate match");
+
     }
+
   };
 
+
   const renderItemImage = (item) => {
+
     if (!item?.imageUrl) return null;
+
     return (
       <div className="match-image-wrapper">
         <img
@@ -116,23 +135,52 @@ const ViewMatches = ({ mode = "active" }) => {
         />
       </div>
     );
+
   };
 
+
   const filteredMatches = matches.filter((match) => {
-    
+
     const isRejected = !!match.rejected;
+
 
     if (mode === "active" && isRejected)
       return false;
 
+
     if (mode === "rejected" && !isRejected)
       return false;
 
-    if (selectedSeason && !match[selectedSeason]) {
+
+    if (selectedSeason && !match[selectedSeason])
       return false;
+
+
+    // Search filter
+    if (searchTerm.trim() !== "") {
+
+      const search = searchTerm.toLowerCase();
+
+      const matchesSearch =
+        match.name?.toLowerCase().includes(search) ||
+        match.colors?.some(color =>
+          color.toLowerCase().includes(search)
+        ) ||
+        match.styles?.some(style =>
+          style.toLowerCase().includes(search)
+        ) ||
+        match.tags?.some(tag =>
+          tag.toLowerCase().includes(search)
+        );
+
+      if (!matchesSearch)
+        return false;
+
     }
 
+
     if (filters.seasons.length > 0) {
+
       const seasonMatch = filters.seasons.some(
         season => match[season]
       );
@@ -141,6 +189,7 @@ const ViewMatches = ({ mode = "active" }) => {
         return false;
 
     }
+
 
     if (filters.colors.length > 0) {
 
@@ -153,6 +202,7 @@ const ViewMatches = ({ mode = "active" }) => {
 
     }
 
+
     if (filters.styles.length > 0) {
 
       const styleMatch = match.styles.some(
@@ -163,6 +213,7 @@ const ViewMatches = ({ mode = "active" }) => {
         return false;
 
     }
+
 
     if (filters.tags.length > 0) {
 
@@ -175,12 +226,14 @@ const ViewMatches = ({ mode = "active" }) => {
 
     }
 
+
     if (filters.minTemp !== null) {
 
       if (match.max_temp < filters.minTemp)
         return false;
 
     }
+
 
     if (filters.maxTemp !== null) {
 
@@ -189,9 +242,11 @@ const ViewMatches = ({ mode = "active" }) => {
 
     }
 
+
     return true;
 
   });
+
 
   const toggleSeasonFilter = (season) => {
 
@@ -203,14 +258,30 @@ const ViewMatches = ({ mode = "active" }) => {
 
   };
 
+
   const capitalize = (word) =>
     word.charAt(0).toUpperCase() + word.slice(1);
 
-  return (
-    <div className="view-matches-container">
-      
-      <div className="season-filters">
 
+  return (
+
+    <div className="view-matches-container">
+
+
+      <div className="search-container">
+
+        <input
+          type="text"
+          placeholder="Search outfits..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-bar"
+        />
+
+      </div>
+
+
+      <div className="season-filters">
 
         {["spring", "summer", "autumn", "winter"].map((season) => (
 
@@ -221,25 +292,24 @@ const ViewMatches = ({ mode = "active" }) => {
                 ? "active"
                 : ""
             }`}
-            onClick={() =>
-              toggleSeasonFilter(season)
-            }
+            onClick={() => toggleSeasonFilter(season)}
           >
             {capitalize(season)}
           </button>
+
         ))}
 
-                <button
+
+        <button
           className="text-button"
-          onClick={() =>
-            setShowFilters(true)
-          }
+          onClick={() => setShowFilters(true)}
         >
           More Filters
         </button>
 
-
       </div>
+
+
 
       {error && (
         <p className="error-text">
@@ -247,144 +317,94 @@ const ViewMatches = ({ mode = "active" }) => {
         </p>
       )}
 
+
+
       {filteredMatches.length === 0 && !error && (
+
         <p className="no-matches-text">
+
           {mode === "rejected"
             ? "No rejected outfits found."
             : "No outfits found."}
+
         </p>
+
       )}
+
+
 
       <div className="matches-grid">
 
         {filteredMatches.map((match) => (
-          <div
+
+          <ViewMatchesBox
             key={match._id}
-            className="match-card"
-          >
+            match={match}
+            mode={mode}
+            renderItemImage={renderItemImage}
+            capitalize={capitalize}
+            handleReinstate={handleReinstate}
+            handleDeleteSuccess={handleDeleteSuccess}
+            setEditingMatch={setEditingMatch}
+            onDeleteError={handleError}
+          />
 
-            <div className="match-images">
-              {(match.clothes || []).map((item) => (
-                <React.Fragment key={item._id}>
-                  {renderItemImage(item)}
-                </React.Fragment>
-              ))}
-            </div>
-
-            <div className="match-info">
-              <div className="item-info">
-                <div>
-                  {match.min_temp}° - {match.max_temp}°
-                </div>
-                <div>
-
-                  {[
-                    "spring",
-                    "summer",
-                    "autumn",
-                    "winter"
-                  ]
-
-                    .filter(
-                      (season) => match[season]
-                    )
-
-                    .map(capitalize)
-
-                    .join(", ") || "N/A"}
-                </div>
-              </div>
-              <div className="button-row">
-                {mode === "active" ? (
-                  <>
-                    <DeleteMatches
-                      matchId={match._id}
-                      onDeleteSuccess={handleDeleteSuccess}
-                      onError={handleError}
-                    />
-
-                    <button
-                      className="text-button"
-                      onClick={() =>
-                        setEditingMatch(match)
-                      }
-                    >
-                      Edit
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      className="text-button"
-                      onClick={() =>
-                        handleReinstate(match._id)
-                      }
-                    >
-                      Restore Outfit
-                    </button>
-
-                    <button
-                      className="text-button"
-                      onClick={() =>
-                        handleDeleteSuccess(match._id)
-                      }
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
         ))}
+
       </div>
 
+
+
+
       <Filter
-          isOpen={showFilters}
-          onClose={() => setShowFilters(false)}
-          filters={filters}
-          setFilters={setFilters}
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        filters={filters}
+        setFilters={setFilters}
 
-          availableColors={[
-            ...new Set(
-              matches.flatMap(
-                match => match.colors || []
-              )
+        availableColors={[
+          ...new Set(
+            matches.flatMap(
+              match => match.colors || []
             )
-          ]}
+          )
+        ]}
 
-          availableStyles={[
-            ...new Set(
-              matches.flatMap(
-                match => match.styles || []
-              )
+        availableStyles={[
+          ...new Set(
+            matches.flatMap(
+              match => match.styles || []
             )
-          ]}
+          )
+        ]}
 
-          availableTags={[
-            ...new Set(
-              matches.flatMap(
-                match => match.tags || []
-              )
+        availableTags={[
+          ...new Set(
+            matches.flatMap(
+              match => match.tags || []
             )
-          ]}
-        />
+          )
+        ]}
+      />
+
+
+
 
       {editingMatch && mode === "active" && (
 
         <UpdateMatches
           match={editingMatch}
-          onClose={() =>
-            setEditingMatch(null)
-          }
+          onClose={() => setEditingMatch(null)}
           onUpdateSuccess={handleUpdateSuccess}
           onError={handleError}
         />
+
       )}
 
     </div>
+
   );
 
 };
-export default ViewMatches;
 
+export default ViewMatches;

@@ -3,6 +3,8 @@ import axios from 'axios';
 import deleteClothes from './deleteClothes';
 import AddUpdateClothes from './addUpdateClothes';
 import Filter from '../general/filter.jsx';
+
+import ViewClothesBox from "./viewClothesBox";
 import './viewClothes.css';
 import { URL } from "../../config";
 
@@ -323,59 +325,15 @@ const ViewClothes = () => {
                 ) : (
 
                   itemsByType[type].map(item => (
-                    <div
-                      key={item._id}
-                      className="clothing-card-viewclothes"
-                    >
-                      {item.imageUrl && (
-                        <img
-                          src={item.imageUrl}
-                          alt={
-                            item.name ||
-                            "Clothing item"
-                          }
-                          className="clothing-image-viewclothes"
-                        />
-                      )}
-                      <div className="clothing-details-viewclothes">
-                        <div className="item-name">
-                          {item.name}
-                        </div>
-                        <div className="item-info">
-                          <div>
-                            {getSeasons(item)}
-                          </div>
-                          <div>
-                            {item.min_temp}° - {item.max_temp}°
-                          </div>
-                        </div>
-
-                        <div className="button-row">
-
-                          <button
-                            onClick={() =>
-                              handleEdit(item)
-                            }
-                            className="text-button"
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              handleDelete(
-                                type,
-                                item._id
-                              )
-                            }
-                            className="text-button"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
+  <ViewClothesBox
+    key={item._id}
+    item={item}
+    type={type}
+    getSeasons={getSeasons}
+    onEdit={handleEdit}
+    onDelete={handleDelete}
+  />
+))
                 )}
               </div>
 
