@@ -1,4 +1,4 @@
-import { colorOptions, tagOptions } from "../../general/optionsBank";
+import { colorOptions, tagOptions } from "../../../constants/optionsBank";
 
 export const seasonTempRanges = {
   spring: {

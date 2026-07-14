@@ -5,7 +5,7 @@
   height: 80px; /* IF YOU UPDATE THIS, UPDATE sticky-upload-container IN PAGES - pages/pages line 14*/
   background-color: #fff;
   border-bottom: 2px solid #111;
-  padding: 0.5rem 0rem; 
+  padding: 0.5rem 0rem;
   font-family: 'Helvetica Neue', sans-serif;
   box-sizing: border-box;
   position: sticky;
@@ -14,7 +14,9 @@
 }
 
 .navbar {
+  position: relative; /* Needed for perfectly centered title */
   width: 100%;
+  height: 100%;
   display: flex;
   padding: 3.5px 12px;
   justify-content: space-between;
@@ -25,12 +27,38 @@
 .navbar-left {
   display: flex;
   align-items: center;
+  z-index: 2;
 }
 
 .navbar-right {
   display: flex;
   align-items: center;
   gap: 1rem;
+  z-index: 2;
+}
+
+/* ---------- Centered Page Title ---------- */
+
+.navbar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+   letter-spacing: 0.1em;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  color: black;
+}
+
+.navbar-title h1 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111;
+  white-space: nowrap;
 }
 
 /* Logo */
@@ -40,7 +68,6 @@
   display: block;
   padding: 0rem 0rem 0rem 0.5rem;
 }
-
 
 /* Navigation link styling */
 .nav-link {
@@ -83,29 +110,7 @@
   color: #666;
 }
 
-/* Responsive styling */
-@media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-  }
-
-  .navbar-right {
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .nav-select {
-    width: 100%;
-  }
-
-  .auth-links {
-    flex-direction: row;
-  }
-}
-
-/* -------------------- Burger menu (added only) -------------------- */
+/* -------------------- Burger menu -------------------- */
 
 .menu_toggle {
   display: none;
@@ -139,9 +144,14 @@
   transform: translateY(-7.5px) rotate(-45deg);
 }
 
-/* -------------------- Mobile dropdown -------------------- */
+/* -------------------- Responsive styling -------------------- */
 
 @media (max-width: 768px) {
+
+  .navbar {
+    flex-direction: row;
+    align-items: center;
+  }
 
   .menu_toggle {
     display: flex;
@@ -154,13 +164,23 @@
     right: 0;
     left: 0;
     background-color: white;
-    border-bottom: 2px solid #000; 
+    border-bottom: 2px solid #000;
     padding: 1rem;
     flex-direction: column;
     gap: 1rem;
+    z-index: 10;
   }
 
   .navbar-right.open {
     display: flex;
+  }
+
+  .auth-links {
+    flex-direction: row;
+  }
+
+  /* Smaller title on mobile */
+  .navbar-title h1 {
+    font-size: 1.5rem;
   }
 }

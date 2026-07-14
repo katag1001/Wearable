@@ -4,7 +4,7 @@ import {
   styleOptions,
   colorOptions,
   tagOptions
-} from "../../general/optionsBank";
+} from "../../../constants/optionsBank";
 
 const ModalThree = ({
   formData,

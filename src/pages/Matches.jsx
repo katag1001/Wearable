@@ -9,11 +9,9 @@ const Matches = ({ loggedIn, logout }) => {
 
   <div className="full-page">
 
-      <Header loggedIn={loggedIn} />
+      <Header loggedIn={loggedIn} title="My Outfits" />
 
       <div className="clothes-page-container">
-
-      <p className="under-button-title">My Outfits</p>
 
       <div className="sticky-upload-container">
         <Link to="/buildmatches">

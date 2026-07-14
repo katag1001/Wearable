@@ -1,5 +1,5 @@
 import React from "react";
-import {seasonOptions} from "../../general/optionsBank";
+import {seasonOptions} from "../../../constants/optionsBank";
 import TemperatureSlider from "../../general/temperatureSlider";
 
 const ModalTwo = ({

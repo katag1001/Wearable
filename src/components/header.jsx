@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import wearableLogo from '../assets/images/wearable_logo.png';
 import './header.css';
 
-const Header = ({ loggedIn }) => {
+const Header = ({ loggedIn, title }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(prev => !prev);
@@ -33,6 +33,12 @@ const Header = ({ loggedIn }) => {
             <span></span>
           </div>
         </div>
+
+        {title && (
+          <div className="navbar-title">
+            <h1>{title}</h1>
+          </div>
+        )}
 
         <div className={`navbar-right ${menuOpen ? 'open' : ''}`}>
           {loggedIn ? (

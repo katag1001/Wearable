@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { detectFromName } from "./uploadHelpers";
-import typeOptions from "./typeOptions.js";
+import typeOptions from "../../../constants/typeOptions";
 
 export const useClothingDetection = (
 name,

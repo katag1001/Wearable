@@ -1,6 +1,6 @@
 import React from "react";
 import UploadImages from "../uploadPics";
-import typeOptions from "./typeOptions.js";
+import typeOptions from "../../../constants/typeOptions";
 import { suggestSubtypesFromName } from "./uploadHelpers";
 
 

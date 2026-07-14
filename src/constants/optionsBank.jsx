@@ -11,7 +11,6 @@ export const tagOptions = [
   "Everyday"
 ];
 
-
 export const seasonOptions = [
   "spring",
   "summer",

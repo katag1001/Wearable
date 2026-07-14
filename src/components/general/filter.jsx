@@ -6,7 +6,7 @@ import {
   colorOptions,
   styleOptions,
   tagOptions,
-} from "./optionsBank";
+} from "../../constants/optionsBank";
 
 const defaultFilters = {
   seasons: [],

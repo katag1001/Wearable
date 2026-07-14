@@ -8,10 +8,8 @@ const Clothes = ({ loggedIn, logout }) => {
   return (
     <>
   <div className="full-page">
-  <Header loggedIn={loggedIn} />
+   <Header loggedIn={loggedIn} title="My Clothes" />
   <div className="clothes-page-container">
-  <p className="page-title">My Clothes</p>
-
     <ViewClothes />
 </div>
 </div>
