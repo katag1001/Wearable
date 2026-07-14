@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import deleteClothes from './deleteClothes';
 import AddUpdateClothes from './addUpdateClothes';
@@ -6,17 +7,25 @@ import Filter from '../general/filter.jsx';
 
 import ViewClothesBox from "./viewClothesBox";
 import './viewClothes.css';
+import '../matches/viewMatches.css';
 import { URL } from "../../config";
+
 
 const ViewClothes = () => {
 
-  const [itemsByType, setItemsByType] = useState({});
   const [allItems, setAllItems] = useState([]);
   const [error, setError] = useState(null);
+
   const [showClothingModal, setShowClothingModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+
   const [showFilters, setShowFilters] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [selectedType, setSelectedType] = useState(null);
+
+
   const [filters, setFilters] = useState({
 
     seasons: [],
@@ -27,139 +36,293 @@ const ViewClothes = () => {
 
   });
 
+
+
   const clothingTypes = [
-    'top',
-    'bottom',
-    'outer',
-    'onepiece'
+    "top",
+    "outer",
+    "bottom",
+    "onepiece"
   ];
 
-  const scrollRefs = useRef({});
+
+
+  const typeTitles = {
+
+    top: "Top Half",
+    outer: "Outerwear",
+    bottom: "Bottom Half",
+    onepiece: "One-Pieces"
+
+  };
+
+
 
   const getToken = () =>
     localStorage.getItem("token");
 
+
+
+
   const fetchAllItems = async () => {
+
     try {
+
       setError(null);
+
       const token = getToken();
+
+
       if (!token) {
+
         setError("No user logged in");
         return;
+
       }
+
+
 
       const res = await axios.get(
+
         `${URL}/clothing/`,
+
         {
+
           headers: {
+
             Authorization:
               `Bearer ${token}`,
+
           },
+
         }
+
       );
 
-      const fetchedItems = res.data;
 
-      if (!Array.isArray(fetchedItems)) {
+
+      if (!Array.isArray(res.data)) {
+
         setError(
-          fetchedItems?.error ||
+          res.data?.error ||
           "Invalid response from server"
         );
+
         return;
+
       }
 
-      setAllItems(fetchedItems);
+
+
+      setAllItems(res.data);
+
+
 
     } catch (err) {
+
       console.error(err);
+
       setError(
         "Failed to fetch clothing items"
       );
+
     }
 
   };
 
-  const applyFilters = () => {
-    let filtered = [...allItems];
-    if (searchTerm.trim()) {
-      filtered = filtered.filter(item =>
-        item.name
-          .toLowerCase()
-          .includes(
-            searchTerm.toLowerCase()
-          )
-      );
+
+
+
+  useEffect(() => {
+
+    fetchAllItems();
+
+  }, []);
+
+
+
+
+
+
+  const filteredItems = allItems.filter(item => {
+
+
+
+    if (selectedType && item.type !== selectedType) {
+
+      return false;
+
     }
+
+
+
+
+    if (searchTerm.trim()) {
+
+      const search =
+        searchTerm.toLowerCase();
+
+
+      const matchesSearch =
+
+        item.name
+          ?.toLowerCase()
+          .includes(search)
+
+        ||
+
+        item.colors?.some(color =>
+          color.toLowerCase().includes(search)
+        )
+
+        ||
+
+        item.styles?.some(style =>
+          style.toLowerCase().includes(search)
+        );
+
+
+      if (!matchesSearch) {
+
+        return false;
+
+      }
+
+    }
+
+
+
+
+
 
     if (filters.seasons.length > 0) {
-      filtered = filtered.filter(item =>
+
+      const seasonMatch =
         filters.seasons.some(season =>
           item[season]
-        )
-      );
+        );
+
+
+      if (!seasonMatch) {
+
+        return false;
+
+      }
+
     }
+
+
+
+
+
 
     if (filters.colors.length > 0) {
-      filtered = filtered.filter(item =>
-        item.colors.some(color =>
+
+      const colorMatch =
+        item.colors?.some(color =>
           filters.colors.includes(color)
-        )
-      );
+        );
+
+
+      if (!colorMatch) {
+
+        return false;
+
+      }
+
     }
+
+
+
+
+
 
     if (filters.styles.length > 0) {
-      filtered = filtered.filter(item =>
-        item.styles.some(style =>
-          filters.styles.includes(style)
-        )
 
-      );
+      const styleMatch =
+        item.styles?.some(style =>
+          filters.styles.includes(style)
+        );
+
+
+      if (!styleMatch) {
+
+        return false;
+
+      }
+
     }
+
+
+
+
+
 
     if (filters.minTemp !== null) {
-      filtered = filtered.filter(item =>
-        item.max_temp >= filters.minTemp
-      );
+
+      if (item.max_temp < filters.minTemp) {
+
+        return false;
+
+      }
+
     }
+
+
+
+
 
     if (filters.maxTemp !== null) {
 
-      filtered = filtered.filter(item =>
-        item.min_temp <= filters.maxTemp
-      );
+      if (item.min_temp > filters.maxTemp) {
+
+        return false;
+
+      }
 
     }
 
-    const grouped = {};
-    clothingTypes.forEach(type => {
-      grouped[type] = [];
-    });
 
-    filtered.forEach(item => {
 
-      if (grouped[item.type]) {
-        grouped[item.type].push(item);
-      }
-    });
 
-    setItemsByType(grouped);
+    return true;
+
+
+  });
+
+
+
+
+
+
+  const toggleTypeFilter = (type) => {
+
+    setSelectedType(prev =>
+
+      prev === type
+        ? null
+        : type
+
+    );
+
   };
 
-  useEffect(() => {
-    fetchAllItems();
-  }, []);
 
-  useEffect(() => {
 
-    applyFilters();
 
-  }, [
 
-    allItems,
-    searchTerm,
-    filters
 
-  ]);
+  const capitalize = (word) =>
+
+    word.charAt(0).toUpperCase()
+    +
+    word.slice(1);
+
+
+
+
+
+
 
   const handleDelete = async (type, id) => {
 
@@ -172,7 +335,9 @@ const ViewClothes = () => {
 
 
 
-    if (!confirmDelete) return;
+    if (!confirmDelete)
+      return;
+
 
 
 
@@ -198,189 +363,328 @@ const ViewClothes = () => {
 
   };
 
+
+
+
+
+
   const handleAddItem = () => {
+
     setSelectedItem(null);
     setShowClothingModal(true);
+
   };
+
+
+
+
+
 
   const handleEdit = (item) => {
+
     setSelectedItem(item);
     setShowClothingModal(true);
+
   };
+
+
+
+
+
 
   const closeModal = () => {
+
     setShowClothingModal(false);
     setSelectedItem(null);
+
   };
+
+
+
+
+
 
   const getSeasons = (item) => {
+
     const seasons = [];
+
+
     if (item.spring)
-      seasons.push('Spring');
+      seasons.push("Spring");
+
 
     if (item.summer)
-      seasons.push('Summer');
+      seasons.push("Summer");
+
 
     if (item.autumn)
-      seasons.push('Autumn');
+      seasons.push("Autumn");
+
 
     if (item.winter)
-      seasons.push('Winter');
+      seasons.push("Winter");
+
+
 
     return seasons.length
-      ? seasons.join(', ')
-      : 'None';
+      ? seasons.join(", ")
+      : "None";
 
   };
 
-  const scrollLeft = (type) => {
 
-    if (scrollRefs.current[type]) {
-      scrollRefs.current[type].scrollBy({
-        left: -320,
-        behavior: 'smooth'
-      });
-    }
-  };
 
-  const scrollRight = (type) => {
-    if (scrollRefs.current[type]) {
-      scrollRefs.current[type].scrollBy({
-        left: 320,
-        behavior: 'smooth'
-      });
-    }
-  };
 
-  const sectionTitles = {
-    top: "Top Half",
-    outer: "Outerwear",
-    bottom: "Bottom Half",
-    onepiece: "One-Pieces"
-  };
+
 
   return (
+
     <div className="view-clothes-container">
+
+
       {error && (
+
         <p className="error-text">
+
           Error: {error}
+
         </p>
+
       )}
 
+
+
+
+
+
       <div className="top-controls">
+
+
         <input
+
           className="clothing-search-bar"
+
           type="text"
+
           placeholder="Search clothes..."
+
           value={searchTerm}
+
           onChange={(e) =>
             setSearchTerm(e.target.value)
           }
+
         />
 
-        <button
-          className="add-item-button"
-          onClick={handleAddItem}
-        >
-          Add Item
-        </button>
+
 
         <button
-          className="filter-button"
+
+          className="text-button"
+
+          onClick={handleAddItem}
+
+        >
+
+          Add Item
+
+        </button>
+
+
+      </div>
+
+
+
+
+
+
+
+      <div className="season-filters">
+
+
+        {clothingTypes.map(type => (
+
+
+          <button
+
+            key={type}
+
+            className={`text-button ${
+              selectedType === type
+                ? "active"
+                : ""
+            }`}
+
+            onClick={() =>
+              toggleTypeFilter(type)
+            }
+
+          >
+
+            {typeTitles[type]}
+
+
+          </button>
+
+
+        ))}
+
+
+
+
+
+        <button
+
+          className="text-button"
+
           onClick={() =>
             setShowFilters(true)
           }
+
         >
-          Filter
+
+          More Filters
+
+
         </button>
+
+
       </div>
 
-      {clothingTypes.map(type => (
-        <div
-          key={type}
-          className="clothing-section"
-        >
-          <div className="section-wrapper">
-            <p className="section-title-viewclothes">
-              {sectionTitles[type]}
-            </p>
-            <div className="horizontal-scroll-wrapper">
-              <button
-                className="scroll-arrow left-arrow"
-                onClick={() => scrollLeft(type)}
-              >
-                ‹
-              </button>
-              <div
-                className="scroll-container"
-                ref={(el) =>
-                  scrollRefs.current[type] = el
-                }
-              >
-                {(!itemsByType[type] ||
-                  itemsByType[type].length === 0) ? (
-                  <p className="no-items">
-                    No items found.
-                  </p>
-                ) : (
 
-                  itemsByType[type].map(item => (
-  <ViewClothesBox
-    key={item._id}
-    item={item}
-    type={type}
-    getSeasons={getSeasons}
-    onEdit={handleEdit}
-    onDelete={handleDelete}
-  />
-))
-                )}
-              </div>
 
-              <button
-                className="scroll-arrow right-arrow"
-                onClick={() => scrollRight(type)}
-              >
-                ›
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
 
-      {showClothingModal && (
-        <AddUpdateClothes
-          item={selectedItem}
-          onClose={closeModal}
-          refresh={fetchAllItems}
-        />
+
+
+
+      {filteredItems.length === 0 && !error && (
+
+        <p className="no-items">
+
+          No clothes found.
+
+        </p>
+
       )}
 
+
+
+
+
+
+
+      <div className="items-grid">
+
+
+        {filteredItems.map(item => (
+
+
+          <ViewClothesBox
+
+            key={item._id}
+
+            item={item}
+
+            type={item.type}
+
+            getSeasons={getSeasons}
+
+            onEdit={handleEdit}
+
+            onDelete={handleDelete}
+
+          />
+
+
+        ))}
+
+
+      </div>
+
+
+
+
+
+
+
+      {showClothingModal && (
+
+        <AddUpdateClothes
+
+          item={selectedItem}
+
+          onClose={closeModal}
+
+          refresh={fetchAllItems}
+
+        />
+
+      )}
+
+
+
+
+
+
+
+
       <Filter
+
         isOpen={showFilters}
+
         onClose={() =>
           setShowFilters(false)
         }
+
         filters={filters}
+
         setFilters={setFilters}
-        availableColors={
-          [...new Set(
+
+
+
+
+
+        availableColors={[
+
+          ...new Set(
+
             allItems.flatMap(item =>
               item.colors || []
             )
-          )]
-        }
 
-        availableStyles={
-          [...new Set(
+          )
+
+        ]}
+
+
+
+
+
+        availableStyles={[
+
+          ...new Set(
+
             allItems.flatMap(item =>
               item.styles || []
             )
-          )]
-        }
+
+          )
+
+        ]}
+
+
       />
+
+
+
     </div>
+
+
   );
+
+
 };
 
+
 export default ViewClothes;
+
