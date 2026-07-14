@@ -69,7 +69,7 @@ module.exports.cloudinary = cloudinary;
 
 app.use("/api", allRoutes);
 
-/* -------------------- FRONTEND (PROD BUILD) -------------------- */
+/* -------------------- FRONTEND (PROD BUILD) --------------------
 
 if (process.env.NODE_ENV === "production") {
 const path = require("path");
@@ -79,7 +79,7 @@ app.use(express.static(path.join(__dirname, "dist")));
 app.get("*", (req, res) => {
 res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
-}
+}*/
 
 /* -------------------- EXPORT -------------------- */
 
