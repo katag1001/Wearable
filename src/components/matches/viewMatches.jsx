@@ -1,11 +1,12 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import UpdateMatches from "./updateMatches";
 import ViewMatchesBox from "./ViewMatchesBox";
+import ViewMatchesTop from "./viewMatchesTop";
 import Filter from "../general/filter.jsx";
 import "./viewMatches.css";
 import { URL } from "../../config";
+
 
 const ViewMatches = ({ mode = "active" }) => {
 
@@ -13,28 +14,29 @@ const ViewMatches = ({ mode = "active" }) => {
   const [error, setError] = useState(null);
   const [editingMatch, setEditingMatch] = useState(null);
   const [selectedSeason, setSelectedSeason] = useState(null);
-
   const [showFilters, setShowFilters] = useState(false);
-
   const [searchTerm, setSearchTerm] = useState("");
 
   const [filters, setFilters] = useState({
+
     seasons: [],
     colors: [],
     styles: [],
     tags: [],
     minTemp: null,
     maxTemp: null
+
   });
 
-  const getToken = () => localStorage.getItem("token");
+  const getToken = () =>
+    localStorage.getItem("token");
 
   useEffect(() => {
 
-    const fetchMatches = async () => {
+  const fetchMatches = async () => {
+
       try {
         setError(null);
-
         const token = getToken();
 
         if (!token) {
@@ -42,16 +44,22 @@ const ViewMatches = ({ mode = "active" }) => {
           return;
         }
 
-        const response = await axios.get(`${URL}/match/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          `${URL}/match/`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
 
         setMatches(response.data);
 
       } catch (err) {
-        setError("Failed to fetch matches");
+        setError(
+          "Failed to fetch matches"
+        );
       }
     };
 
@@ -59,54 +67,50 @@ const ViewMatches = ({ mode = "active" }) => {
 
   }, []);
 
-
   const handleDeleteSuccess = (id) => {
 
-    setMatches((prev) =>
-      prev.filter((match) => match._id !== id)
-    );
-
-  };
-
-
-  const handleUpdateSuccess = (updatedMatch) => {
-
-    setMatches((prev) =>
-      prev.map((match) =>
-        match._id === updatedMatch._id
-          ? updatedMatch
-          : match
+    setMatches(prev =>
+      prev.filter(
+        match => match._id !== id
       )
     );
 
   };
 
+  const handleUpdateSuccess = (updatedMatch) => {
+
+    setMatches(prev =>
+      prev.map(match =>
+        match._id === updatedMatch._id
+          ? updatedMatch
+          : match
+      )
+    );
+  };
 
   const handleError = (msg) => {
     setError(msg);
   };
 
-
   const handleReinstate = async (id) => {
-
     try {
-
       const token = getToken();
-
       const response = await axios.put(
         `${URL}/match/${id}`,
-        { rejected: false },
+        {
+          rejected: false
+        },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization:
+              `Bearer ${token}`,
           },
         }
       );
 
       const updated = response.data;
-
-      setMatches((prev) =>
-        prev.map((match) =>
+      setMatches(prev =>
+        prev.map(match =>
           match._id === id
             ? updated
             : match
@@ -115,16 +119,18 @@ const ViewMatches = ({ mode = "active" }) => {
 
     } catch (err) {
 
-      setError("Failed to reinstate match");
+      setError(
+        "Failed to reinstate match"
+      );
 
     }
 
   };
 
-
   const renderItemImage = (item) => {
 
-    if (!item?.imageUrl) return null;
+    if (!item?.imageUrl)
+      return null;
 
     return (
       <div className="match-image-wrapper">
@@ -138,39 +144,57 @@ const ViewMatches = ({ mode = "active" }) => {
 
   };
 
+  const filteredMatches = matches.filter(match => {
 
-  const filteredMatches = matches.filter((match) => {
+    const isRejected =
+      !!match.rejected;
 
-    const isRejected = !!match.rejected;
-
-
-    if (mode === "active" && isRejected)
+    if (
+      mode === "active" &&
+      isRejected
+    )
       return false;
 
-
-    if (mode === "rejected" && !isRejected)
+    if (
+      mode === "rejected" &&
+      !isRejected
+    )
       return false;
 
-
-    if (selectedSeason && !match[selectedSeason])
+    if (
+      selectedSeason &&
+      !match[selectedSeason]
+    )
       return false;
 
+    if (searchTerm.trim()) {
 
-    // Search filter
-    if (searchTerm.trim() !== "") {
-
-      const search = searchTerm.toLowerCase();
+      const search =
+        searchTerm.toLowerCase();
 
       const matchesSearch =
-        match.name?.toLowerCase().includes(search) ||
+        match.name?.toLowerCase()
+          .includes(search)
+
+        ||
+
         match.colors?.some(color =>
-          color.toLowerCase().includes(search)
-        ) ||
+          color.toLowerCase()
+            .includes(search)
+        )
+
+        ||
+
         match.styles?.some(style =>
-          style.toLowerCase().includes(search)
-        ) ||
+          style.toLowerCase()
+            .includes(search)
+        )
+
+        ||
+
         match.tags?.some(tag =>
-          tag.toLowerCase().includes(search)
+          tag.toLowerCase()
+            .includes(search)
         );
 
       if (!matchesSearch)
@@ -179,137 +203,118 @@ const ViewMatches = ({ mode = "active" }) => {
     }
 
 
+
+
+
     if (filters.seasons.length > 0) {
 
-      const seasonMatch = filters.seasons.some(
-        season => match[season]
-      );
-
-      if (!seasonMatch)
+      if (
+        !filters.seasons.some(
+          season => match[season]
+        )
+      )
         return false;
 
     }
+
+
+
 
 
     if (filters.colors.length > 0) {
 
-      const colorMatch = match.colors.some(
-        color => filters.colors.includes(color)
-      );
-
-      if (!colorMatch)
+      if (
+        !match.colors?.some(
+          color =>
+            filters.colors.includes(color)
+        )
+      )
         return false;
 
     }
+
+
+
 
 
     if (filters.styles.length > 0) {
 
-      const styleMatch = match.styles.some(
-        style => filters.styles.includes(style)
-      );
-
-      if (!styleMatch)
+      if (
+        !match.styles?.some(
+          style =>
+            filters.styles.includes(style)
+        )
+      )
         return false;
 
     }
+
+
+
 
 
     if (filters.tags.length > 0) {
 
-      const tagMatch = (match.tags || []).some(
-        tag => filters.tags.includes(tag)
-      );
-
-      if (!tagMatch)
+      if (
+        !(match.tags || []).some(
+          tag =>
+            filters.tags.includes(tag)
+        )
+      )
         return false;
 
     }
 
 
-    if (filters.minTemp !== null) {
-
-      if (match.max_temp < filters.minTemp)
-        return false;
-
-    }
 
 
-    if (filters.maxTemp !== null) {
 
-      if (match.min_temp > filters.maxTemp)
-        return false;
+    if (
+      filters.minTemp !== null &&
+      match.max_temp < filters.minTemp
+    )
+      return false;
 
-    }
+
+
+
+    if (
+      filters.maxTemp !== null &&
+      match.min_temp > filters.maxTemp
+    )
+      return false;
+
+
 
 
     return true;
 
+
   });
 
-
   const toggleSeasonFilter = (season) => {
-
-    setSelectedSeason((prev) =>
+    setSelectedSeason(prev =>
       prev === season
         ? null
         : season
     );
-
   };
-
 
   const capitalize = (word) =>
     word.charAt(0).toUpperCase() + word.slice(1);
-
 
   return (
 
     <div className="view-items-container">
 
-
-      <div className="search-container">
-
-        <input
-          type="text"
-          placeholder="Search outfits..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-bar"
-        />
-
-      </div>
-
-
-      <div className="season-filters">
-
-        {["spring", "summer", "autumn", "winter"].map((season) => (
-
-          <button
-            key={season}
-            className={`text-button ${
-              selectedSeason === season
-                ? "active"
-                : ""
-            }`}
-            onClick={() => toggleSeasonFilter(season)}
-          >
-            {capitalize(season)}
-          </button>
-
-        ))}
-
-
-        <button
-          className="text-button"
-          onClick={() => setShowFilters(true)}
-        >
-          More Filters
-        </button>
-
-      </div>
-
-
+      <ViewMatchesTop
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        selectedSeason={selectedSeason}
+        toggleSeasonFilter={toggleSeasonFilter}
+        setShowFilters={setShowFilters}
+        capitalize={capitalize}
+      />
 
       {error && (
         <p className="error-text">
@@ -318,24 +323,18 @@ const ViewMatches = ({ mode = "active" }) => {
       )}
 
 
-
       {filteredMatches.length === 0 && !error && (
-
         <p className="no-matches-text">
-
-          {mode === "rejected"
-            ? "No rejected outfits found."
-            : "No outfits found."}
-
+          {
+            mode === "rejected"
+              ? "No rejected outfits found."
+              : "No outfits found."
+          }
         </p>
-
       )}
 
-
-
       <div className="items-grid">
-
-        {filteredMatches.map((match) => (
+        {filteredMatches.map(match => (
 
           <ViewMatchesBox
             key={match._id}
@@ -348,24 +347,21 @@ const ViewMatches = ({ mode = "active" }) => {
             setEditingMatch={setEditingMatch}
             onDeleteError={handleError}
           />
-
         ))}
-
       </div>
-
-
-
 
       <Filter
         isOpen={showFilters}
-        onClose={() => setShowFilters(false)}
+        onClose={() =>
+          setShowFilters(false)
+        }
         filters={filters}
         setFilters={setFilters}
-
         availableColors={[
           ...new Set(
             matches.flatMap(
-              match => match.colors || []
+              match =>
+                match.colors || []
             )
           )
         ]}
@@ -373,7 +369,8 @@ const ViewMatches = ({ mode = "active" }) => {
         availableStyles={[
           ...new Set(
             matches.flatMap(
-              match => match.styles || []
+              match =>
+                match.styles || []
             )
           )
         ]}
@@ -381,30 +378,29 @@ const ViewMatches = ({ mode = "active" }) => {
         availableTags={[
           ...new Set(
             matches.flatMap(
-              match => match.tags || []
+              match =>
+                match.tags || []
             )
           )
         ]}
       />
 
-
-
-
       {editingMatch && mode === "active" && (
 
         <UpdateMatches
           match={editingMatch}
-          onClose={() => setEditingMatch(null)}
+          onClose={() =>
+            setEditingMatch(null)
+          }
           onUpdateSuccess={handleUpdateSuccess}
           onError={handleError}
         />
-
       )}
 
     </div>
-
   );
 
 };
+
 
 export default ViewMatches;
