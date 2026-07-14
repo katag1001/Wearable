@@ -265,7 +265,7 @@ const ViewMatches = ({ mode = "active" }) => {
 
   return (
 
-    <div className="view-matches-container">
+    <div className="view-items-container">
 
 
       <div className="search-container">
@@ -333,7 +333,7 @@ const ViewMatches = ({ mode = "active" }) => {
 
 
 
-      <div className="matches-grid">
+      <div className="items-grid">
 
         {filteredMatches.map((match) => (
 

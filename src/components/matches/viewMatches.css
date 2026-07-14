@@ -7,7 +7,7 @@
 }
 
 /* Container for the entire view */
-.view-matches-container {
+.view-items-container {
   font-family: 'Helvetica Neue', sans-serif;
   color: #111;
   background-color: #fff;
@@ -18,14 +18,14 @@
   padding: 0rem 1rem;
 }
 
-.view-matches-container h2 {
+.view-items-container h2 {
   font-family: 'Playfair Display', serif;
   font-size: 2.5rem;
   text-transform: uppercase;
   color: black;
 }
 
-.view-matches-container h3 {
+.view-items-container h3 {
   font-family: 'Playfair Display', serif;
   font-size: 1.5rem;
   text-transform: uppercase;
@@ -39,7 +39,7 @@
 }
 
 
-.matches-grid {
+.items-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -86,7 +86,7 @@
 }
 
 /* Button row */
-.button-row {
+.items-button-row {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
