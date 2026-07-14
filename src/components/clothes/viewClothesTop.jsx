@@ -1,4 +1,5 @@
 import React from "react";
+import './viewClothesTop.css'
 
 const ViewClothesTop = ({
   searchTerm,
@@ -12,61 +13,69 @@ const ViewClothesTop = ({
 }) => {
 
   return (
-    <>
-      <div className="top-controls">
+    <div className="wardrobe-top-wrapper">
 
-        <input
-          className="clothing-search-bar"
-          type="text"
-          placeholder="Search clothes..."
-          value={searchTerm}
-          onChange={(e) =>
-            setSearchTerm(e.target.value)
-          }
-        />
+
+      <button
+        className="wardrobe-action-button"
+        onClick={handleAddItem}
+      >
+        Add Item
+      </button>
+
+
+      <div className="wardrobe-selection-area">
+
+        <div className="wardrobe-option-row">
+
+          {clothingTypes.map((type) => (
+
+            <button
+              key={type}
+              className={`wardrobe-option-button ${
+                selectedType === type
+                  ? "wardrobe-option-active"
+                  : ""
+              }`}
+              onClick={() => toggleTypeFilter(type)}
+            >
+              {typeTitles[type]}
+            </button>
+
+          ))}
+
+        </div>
+      </div>
+
+      <div className="wardrobe-search-row">
 
         <button
-          className="text-button"
-          onClick={handleAddItem}
+          className="wardrobe-filter-button"
+          onClick={() => setShowFilters(true)}
         >
-          Add Item
+          <span className="wardrobe-filter-icon">☰</span>
+          Filters
         </button>
+
+        <div className="wardrobe-search-box">
+
+          <input
+            type="text"
+            placeholder="Search clothes..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="wardrobe-search-input"
+          />
+
+          <span className="wardrobe-search-icon">
+            🔍
+          </span>
+
+        </div>
 
       </div>
 
-
-      <div className="season-filters">
-
-        {clothingTypes.map(type => (
-
-          <button
-            key={type}
-            className={`text-button ${
-              selectedType === type
-                ? "active"
-                : ""
-            }`}
-            onClick={() =>
-              toggleTypeFilter(type)
-            }
-          >
-            {typeTitles[type]}
-          </button>
-
-        ))}
-
-
-        <button
-          className="text-button"
-          onClick={() =>
-            setShowFilters(true)
-          }
-        >
-          More Filters
-        </button>
-
-      </div>
-    </>
+    </div>
   );
 };
 

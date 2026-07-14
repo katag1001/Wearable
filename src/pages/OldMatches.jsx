@@ -13,11 +13,6 @@ const OldMatches = ({ loggedIn, logout }) => {
 
       <div className="clothes-page-container">
 
-      <div className="sticky-upload-container">
-        <Link to="/buildmatches">
-          <button className="top-button">Build Outfits</button>
-        </Link>
-      </div>
 
       <div className="extra-space">
       <Link to="/matches">

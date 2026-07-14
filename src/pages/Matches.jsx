@@ -13,12 +13,11 @@ const Matches = ({ loggedIn, logout }) => {
 
       <div className="clothes-page-container">
 
-
       <div className="extra-space">
       <Link to="/oldmatches">
         <button className="regular-button">View Rejected Outfits</button>
       </Link>
-        </div>
+      </div>
         
       <ViewMatches mode="active" />
       

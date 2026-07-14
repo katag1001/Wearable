@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const ViewMatchesTop = ({
   searchTerm,
@@ -18,68 +18,70 @@ const ViewMatchesTop = ({
   ];
 
   return (
-    <>
+    <div className="wardrobe-top-wrapper">
 
-          <div className="sticky-upload-container">
-        <Link to="/buildmatches">
-          <button className="top-button">Build Outfits</button>
-        </Link>
+      <Link to="/buildmatches" className="wardrobe-action-link">
+        <button className="wardrobe-action-button">
+          Build Outfits
+        </button>
+      </Link>
+
+      <div className="wardrobe-selection-area">
+
+        <div className="wardrobe-option-row">
+
+          {seasons.map((season) => (
+            <button
+              key={season}
+              className={`wardrobe-option-button ${
+                selectedSeason === season
+                  ? "wardrobe-option-active"
+                  : ""
+              }`}
+              onClick={() => toggleSeasonFilter(season)}
+            >
+              {capitalize(season)}
+            </button>
+          ))}
+
+        </div>
+
       </div>
 
-      <div className="search-container">
 
-        <input
-          type="text"
-          placeholder="Search outfits..."
-          value={searchTerm}
-          onChange={(e) =>
-            setSearchTerm(e.target.value)
-          }
-          className="search-bar"
-        />
-
-      </div>
-
-      <div className="season-filters">
-
-        {seasons.map((season) => (
-
-          <button
-            key={season}
-
-            className={`text-button ${
-              selectedSeason === season
-                ? "active"
-                : ""
-            }`}
-
-            onClick={() =>
-              toggleSeasonFilter(season)
-            }
-
-          >
-
-            {capitalize(season)}
-
-          </button>
-
-        ))}
+      <div className="wardrobe-search-row">
 
         <button
-          className="text-button"
-          onClick={() =>
-            setShowFilters(true)
-          }
+          className="wardrobe-filter-button"
+          onClick={() => setShowFilters(true)}
         >
-          More Filters
-
+          <span className="wardrobe-filter-icon">☰</span>
+          Filters
         </button>
+
+        
+
+
+        <div className="wardrobe-search-box">
+
+          <input
+            type="text"
+            placeholder="Search outfits..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="wardrobe-search-input"
+          />
+
+          <span className="wardrobe-search-icon">
+            🔍
+          </span>
+
+        </div>
 
       </div>
 
-    </>
+    </div>
   );
-
 };
 
 export default ViewMatchesTop;
