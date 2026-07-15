@@ -48,7 +48,6 @@ const ViewMatchesTop = ({
 
       </div>
 
-
       <div className="wardrobe-search-row">
 
         <button
@@ -59,9 +58,7 @@ const ViewMatchesTop = ({
           Filters
         </button>
 
-        
-
-
+    
         <div className="wardrobe-search-box">
 
           <input

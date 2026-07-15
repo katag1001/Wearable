@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '../components/header';
 import CreateMatch from '../components/matches/createMatch';
-import './Pages.css'; 
+import './pages.css'; 
 
 const BuildMatches = ({ loggedIn, logout }) => {
   return (

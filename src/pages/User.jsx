@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Header from '../components/header';
-import './Pages.css';
+import './pages.css';
 
 
 const User = ({ loggedIn, logout }) => {

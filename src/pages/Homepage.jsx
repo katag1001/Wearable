@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/header';
-import './Pages.css';
+import './pages.css';
 
 
 const Homepage = ({ loggedIn, logout }) => {

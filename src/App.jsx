@@ -6,19 +6,19 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
 /* Pages */
-import Homepage from "./pages/Homepage";
-import BuildMatches from "./pages/BuildMatches";
-import OldMatches from "./pages/OldMatches";
-import Clothes from "./pages/Clothes";
-import Matches from "./pages/Matches";
-import TodayOutfits from "./pages/TodayOutfits";
-import User from "./pages/User";
-import Register from "./pages/Register";
-import Login from "./pages/Login";
+import Homepage from "./pages/homepage";
+import BuildMatches from "./pages/buildMatches";
+import OldMatches from "./pages/oldMatches";
+import Clothes from "./pages/clothes";
+import Matches from "./pages/matches";
+import TodayOutfits from "./pages/todayOutfits";
+import User from "./pages/user";
+import Register from "./pages/register";
+import Login from "./pages/login";
 
 /* Components */
-import Enter from "./components/login/Enter";
-import ProtectedRoute from "./components/login/ProtectedRoute";
+import Enter from "./components/login/enter";
+import ProtectedRoute from "./components/login/protectedRoute";
 
 const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
