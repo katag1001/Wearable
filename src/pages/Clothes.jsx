@@ -7,11 +7,9 @@ import './pages.css';
 const Clothes = ({ loggedIn, logout }) => {
   return (
     <>
-  <div className="full-page">
+  <div className="full-page-container">
    <Header loggedIn={loggedIn} title="My Clothes" />
-  <div className="clothes-page-container">
     <ViewClothes />
-</div>
 </div>
 </>
 

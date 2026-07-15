@@ -1,5 +1,6 @@
 import React from "react";
-import './viewClothesTop.css'
+import '../../pages/pagesTop.css'
+
 
 const ViewClothesTop = ({
   searchTerm,
@@ -13,28 +14,28 @@ const ViewClothesTop = ({
 }) => {
 
   return (
-    <div className="wardrobe-top-wrapper">
+    <div className="top-area-wrapper">
 
 
       <button
-        className="wardrobe-action-button"
+        className="top-action-button"
         onClick={handleAddItem}
       >
         Add Item
       </button>
 
 
-      <div className="wardrobe-selection-area">
+      <div className="top-selection-area">
 
-        <div className="wardrobe-option-row">
+        <div className="top-option-row">
 
           {clothingTypes.map((type) => (
 
             <button
               key={type}
-              className={`wardrobe-option-button ${
+              className={`top-option-button ${
                 selectedType === type
-                  ? "wardrobe-option-active"
+                  ? "top-option-active"
                   : ""
               }`}
               onClick={() => toggleTypeFilter(type)}
@@ -47,27 +48,27 @@ const ViewClothesTop = ({
         </div>
       </div>
 
-      <div className="wardrobe-search-row">
+      <div className="top-search-row">
 
         <button
-          className="wardrobe-filter-button"
+          className="top-filter-button"
           onClick={() => setShowFilters(true)}
         >
-          <span className="wardrobe-filter-icon">☰</span>
+          <span className="top-filter-icon">☰</span>
           Filters
         </button>
 
-        <div className="wardrobe-search-box">
+        <div className="top-search-box">
 
           <input
             type="text"
             placeholder="Search clothes..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="wardrobe-search-input"
+            className="top-search-input"
           />
 
-          <span className="wardrobe-search-icon">
+          <span className="top-search-icon">
             🔍
           </span>
 

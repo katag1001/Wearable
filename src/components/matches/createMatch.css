@@ -5,12 +5,16 @@
 
 /* ---------- Layout ---------- */
 
+.create-matches-container {
+    width: 100%;
+}
+
 .buildmatch-layout {
     display: flex;
     width: 100%;
-    gap: 30px;
+    gap: 20px;
     align-items: flex-start;
-    padding: 20px;
+    padding: 0px 20px;
 }
 
 .buildmatch-left {
@@ -23,6 +27,68 @@
     flex: 1;
     position: sticky;
     top: 160px;
+}
+
+.clothing-section{
+    padding-top: 20px;
+}
+
+
+
+/*Scroll layout ------------------------------------------*/
+.horizontal-scroll-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 10px 0;
+  width: 100%;
+  
+}
+
+.scroll-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 10px 0;
+  width: 100%;
+ 
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-arrow {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #111;
+  width: 20px;
+  height: 100%;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  outline: none;
+}
+
+.scroll-arrow:hover {
+  color: #666;
+}
+
+.left-arrow {
+  margin-right: 8px;
+}
+
+.right-arrow {
+  margin-left: 8px;
 }
 
 /* ---------- Search ---------- */

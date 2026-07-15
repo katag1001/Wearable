@@ -6,11 +6,9 @@ import './pages.css';
 const BuildMatches = ({ loggedIn, logout }) => {
   return (
     <>
-      <div className="full-page">
+      <div className="full-page-container">
       <Header loggedIn={loggedIn} title="Build outfits"/>
-  <div className="clothes-page-container">
       <CreateMatch />
-      </div>
       </div>
     </>
   );

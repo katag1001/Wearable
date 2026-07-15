@@ -1,7 +1,7 @@
 import React from "react";
-import "./viewClothes.css";
+import "./viewClothesCard.css";
 
-const ViewClothesBox = ({
+const ViewClothesCard = ({
   item,
   type,
   getSeasons,
@@ -19,11 +19,11 @@ const ViewClothesBox = ({
       )}
 
       <div className="clothing-details-viewclothes">
-        <div className="item-name">
+        <div className="clothing-item-name">
           {item.name}
         </div>
 
-        <div className="item-info">
+        <div className="clothing-item-info">
           <div>
             {getSeasons(item)}
           </div>
@@ -33,16 +33,16 @@ const ViewClothesBox = ({
           </div>
         </div>
 
-        <div className="button-row">
+        <div className="clothing-card-button-row">
           <button
-            className="text-button"
+            className="clothing-text-button"
             onClick={() => onEdit(item)}
           >
             Edit
           </button>
 
           <button
-            className="text-button"
+            className="clothing-text-button"
             onClick={() => onDelete(type, item._id)}
           >
             Delete
@@ -53,4 +53,4 @@ const ViewClothesBox = ({
   );
 };
 
-export default ViewClothesBox;
+export default ViewClothesCard;

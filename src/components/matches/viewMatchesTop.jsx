@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import '../../pages/pagesTop.css'
 
 const ViewMatchesTop = ({
   searchTerm,
@@ -18,24 +19,24 @@ const ViewMatchesTop = ({
   ];
 
   return (
-    <div className="wardrobe-top-wrapper">
+    <div className="top-area-wrapper">
 
-      <Link to="/buildmatches" className="wardrobe-action-link">
-        <button className="wardrobe-action-button">
+      <Link to="/buildmatches" className="top-action-link">
+        <button className="top-action-button">
           Build Outfits
         </button>
       </Link>
 
-      <div className="wardrobe-selection-area">
+      <div className="top-selection-area">
 
-        <div className="wardrobe-option-row">
+        <div className="top-option-row">
 
           {seasons.map((season) => (
             <button
               key={season}
-              className={`wardrobe-option-button ${
+              className={`top-option-button ${
                 selectedSeason === season
-                  ? "wardrobe-option-active"
+                  ? "top-option-active"
                   : ""
               }`}
               onClick={() => toggleSeasonFilter(season)}
@@ -48,28 +49,28 @@ const ViewMatchesTop = ({
 
       </div>
 
-      <div className="wardrobe-search-row">
+      <div className="top-search-row">
 
         <button
-          className="wardrobe-filter-button"
+          className="top-filter-button"
           onClick={() => setShowFilters(true)}
         >
-          <span className="wardrobe-filter-icon">☰</span>
+          <span className="top-filter-icon">☰</span>
           Filters
         </button>
 
     
-        <div className="wardrobe-search-box">
+        <div className="top-search-box">
 
           <input
             type="text"
             placeholder="Search outfits..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="wardrobe-search-input"
+            className="top-search-input"
           />
 
-          <span className="wardrobe-search-icon">
+          <span className="top-search-icon">
             🔍
           </span>
 

@@ -14,13 +14,12 @@ const Register = ({ loggedIn, logout }) => {
   }, [loggedIn, navigate]);
 
   return (
-    <div className="full-page">
+    <div className="full-page-container">
       <Header loggedIn={loggedIn} />
-      <div className="clothes-page-container">
         <h2 className="page-title">Register</h2>
         <RegisterForm />
-      </div>
     </div>
+
   );
 };
 

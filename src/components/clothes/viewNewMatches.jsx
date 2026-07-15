@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DeleteMatches from "../matches/deleteMatches";
 import UpdateMatches from "../matches/updateMatches";
-import "../matches/viewMatches.css";
 import { URL } from "../../config";
 
 const ViewNewMatches = ({ newItemName, newItemType }) => {

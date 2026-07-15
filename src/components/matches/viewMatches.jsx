@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import UpdateMatches from "./updateMatches";
-import ViewMatchesBox from "./ViewMatchesBox";
-import ViewMatchesTop from "./viewMatchesTop";
-import Filter from "../general/filter.jsx";
-import "./viewMatches.css";
 import { URL } from "../../config";
 
+import UpdateMatches from "./updateMatches";
+import ViewMatchesCard from "./viewMatchesCard.jsx"; 
+import ViewMatchesTop from "./viewMatchesTop";
+import Filter from "../general/filter.jsx";
+
+import "./viewMatchesCard.css"; /*.match-image for renderItemImage */
+import '../../pages/pagesBottom.css'
 
 const ViewMatches = ({ mode = "active" }) => {
 
@@ -133,7 +135,7 @@ const ViewMatches = ({ mode = "active" }) => {
       return null;
 
     return (
-      <div className="match-image-wrapper">
+      <div >
         <img
           src={item.imageUrl}
           alt={item.name}
@@ -305,7 +307,8 @@ const ViewMatches = ({ mode = "active" }) => {
 
   return (
 
-    <div className="view-items-container">
+
+    <div className="main-container">
 
       <ViewMatchesTop
         searchTerm={searchTerm}
@@ -333,21 +336,23 @@ const ViewMatches = ({ mode = "active" }) => {
         </p>
       )}
 
-      <div className="items-grid">
-        {filteredMatches.map(match => (
+      <div className="bottom-area-wrapper">
+        <div className="items-grid">
+          {filteredMatches.map(match => (
 
-          <ViewMatchesBox
-            key={match._id}
-            match={match}
-            mode={mode}
-            renderItemImage={renderItemImage}
-            capitalize={capitalize}
-            handleReinstate={handleReinstate}
-            handleDeleteSuccess={handleDeleteSuccess}
-            setEditingMatch={setEditingMatch}
-            onDeleteError={handleError}
-          />
-        ))}
+            <ViewMatchesCard
+              key={match._id}
+              match={match}
+              mode={mode}
+              renderItemImage={renderItemImage}
+              capitalize={capitalize}
+              handleReinstate={handleReinstate}
+              handleDeleteSuccess={handleDeleteSuccess}
+              setEditingMatch={setEditingMatch}
+              onDeleteError={handleError}
+            />
+          ))}
+        </div>
       </div>
 
       <Filter
@@ -398,6 +403,7 @@ const ViewMatches = ({ mode = "active" }) => {
       )}
 
     </div>
+
   );
 
 };

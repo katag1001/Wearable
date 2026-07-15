@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import './viewMatches.css';
 import { URL } from "../../config";
+
+import "./viewMatchesCard.css"; 
 
 const DeleteMatches = ({ matchId, onDeleteSuccess, onError }) => {
   const [loading, setLoading] = useState(false);
@@ -48,7 +49,7 @@ const DeleteMatches = ({ matchId, onDeleteSuccess, onError }) => {
     <button
       onClick={handleDelete}
       disabled={loading}
-      className="delete-match-button"
+      className="match-text-button"
     >
       {loading ? "Deleting..." : "Delete"}
     </button>

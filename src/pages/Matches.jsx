@@ -7,11 +7,9 @@ import './pages.css';
 const Matches = ({ loggedIn, logout }) => {
   return (
 
-  <div className="full-page">
+  <div className="full-page-container">
 
       <Header loggedIn={loggedIn} title="My Outfits" />
-
-      <div className="clothes-page-container">
 
       <div className="extra-space">
       <Link to="/oldmatches">
@@ -22,8 +20,7 @@ const Matches = ({ loggedIn, logout }) => {
       <ViewMatches mode="active" />
       
 
-      </div>
-    </div>
+  </div>
 
   );
 };

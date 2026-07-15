@@ -7,15 +7,15 @@ import './pages.css';
 const TodayOutfits = ({ loggedIn, logout }) => {
 
   return (
-    <><div className="full-page">
+  <div className="full-page-container">
       <Header loggedIn={loggedIn} />
-      <div className="clothes-page-container">
+
         <h2 className="page-title">Today's Outfit</h2>
       <AutoWeather />
       <ViewToday />
-      </div>
+
 </div>
-    </>
+
   );
 };
 

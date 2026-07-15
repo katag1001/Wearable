@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Didot&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
 
-/* Universal box-sizing fix */
+/* Universal box-sizing fix 
 * {
   box-sizing: border-box;
-}
+}*/
 
 
-/* Container & general layout */
+/* Container & general layout 
 .view-clothes-container {
   font-family: 'Helvetica Neue', sans-serif;
   color: #111;
@@ -26,63 +26,7 @@
 .error-text {
   color: red;
   margin-bottom: 1rem;
-}
-
-/* Scroll layout */
-.horizontal-scroll-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  margin: 10px 0;
-  width: 100%;
-  
-}
-
-.scroll-container {
-  display: flex;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  padding: 10px 0;
-  width: 100%;
- 
-}
-
-.scroll-container::-webkit-scrollbar {
-  display: none;
-}
-
-.scroll-arrow {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #111;
-  width: 20px;
-  height: 100%;
-  cursor: pointer;
-  user-select: none;
-  transition: color 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  outline: none;
-}
-
-.scroll-arrow:hover {
-  color: #666;
-}
-
-.left-arrow {
-  margin-right: 8px;
-}
-
-.right-arrow {
-  margin-left: 8px;
-}
+}*/
 
 /* Card styling */
 .clothing-card-viewclothes {
@@ -96,12 +40,12 @@
   margin-right: -2px;
 }
 
-.clothing-card-buildmatch {
+/*.clothing-card-buildmatch {
   width: 140px;
   border: 2px solid black;
   background-color: white;
   margin-right: -2px;
-}
+}*/
 /** Card selected CSS directly inline in createMatch.jsx line 120 ****/
 
 
@@ -111,11 +55,11 @@
   object-fit: cover;
 }
 
-.clothing-image-buildmatch {
+/*.clothing-image-buildmatch {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
+}*/
 
 
 .clothing-details-viewclothes {
@@ -127,40 +71,34 @@
   position: relative;
 }
 
-.item-name {
+.clothing-item-name {
   font-weight: bold;
   font-size: 1rem;
   margin-bottom: 10px;
   text-align: left;
 }
 
-.item-info {
+.clothing-item-info {
   font-size: 0.8rem;
   text-align: right;
   line-height: 1.2;
   margin-top: auto;
 }
 
-.button-row {
+.clothing-card-button-row {
   font-size: 0.8rem;
   gap: 10px;
   margin-top: 10px;
   text-align: right;
 }
 
-.button-row button {
+.clothing-card-button-row button {
   margin: 0 3px;
   font-size: 0.8rem;
 }
 
 
-.no-items {
-  text-align: center;
-  padding: 1rem;
-  font-style: italic;
-}
-
-/* Section styling */
+/* Section styling 
 .clothing-section {
   position: relative;
   width: 100%;
@@ -180,10 +118,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
+}*/
 
 /* Text button style */
-.text-button {
+.clothing-text-button {
   background: none;
   border: none;
   padding: 0;
@@ -200,7 +138,7 @@
 }
 
 
-.text-button::after {
+.clothing-text-button::after {
   content: '';
   position: absolute;
   left: 0;
@@ -211,15 +149,15 @@
   transition: right 0.2s ease;
 }
 
-.text-button:hover::after {
+.clothing-text-button:hover::after {
   right: 0;
 }
 
-.text-button.active {
+.clothing-text-button.active {
   font-weight: bold;
 }
 
-.text-button.active::after {
+.clothing-text-button.active::after {
   right: 0;
 }
 

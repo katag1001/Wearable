@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import "../clothes/viewClothes.css";
 import "./createMatch.css";
 import { URL } from "../../config";
 
 const sectionTitles = {
-  top: "Top Half",
-  bottom: "Bottom Half",
+  top: "Tops",
+  bottom: "Bottoms",
   outer: "Outerwear",
   onepiece: "One-Pieces",
 };
@@ -295,7 +294,8 @@ const CreateMatch = () => {
   );
 
   return (
-    <div className="view-clothes-container">
+    <div className="main-container">
+
       {showPopup && (
         <div className="match-popup-overlay">
           <div className="match-popup">
@@ -305,12 +305,12 @@ const CreateMatch = () => {
         </div>
       )}
 
-      <div className="sticky-upload-container">
-        <button type="button" onClick={handleSubmit} className="top-button">
+      <div className="top-area-wrapper">
+        <button type="button" onClick={handleSubmit} className="top-action-button">
           Submit Outfit
         </button>
       </div>
-
+      <div className="create-matches-container">
       <div className="buildmatch-layout">
         <div className="buildmatch-left">
           <div className="buildmatch-search">
@@ -372,9 +372,11 @@ const CreateMatch = () => {
           </div>
         </div>
       </div>
+      </div>
 
       {response?.error && <div className="error-text">{response.error}</div>}
     </div>
+
   );
 };
 

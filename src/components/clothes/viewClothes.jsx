@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-import deleteClothes from "./deleteClothes";
-import AddUpdateClothes from "./addUpdateClothes";
+import deleteClothes from "./deleteClothes.jsx";
+import AddUpdateClothes from "./addUpdateClothes.jsx";
 import Filter from "../general/filter.jsx";
 
-import ViewClothesTop from "./viewClothesTop";
-import ViewClothesBox from "./viewClothesBox";
+import ViewClothesTop from "./viewClothesTop.jsx";
+import ViewClothesCard from "./viewClothesCard.jsx";
 
-import "./viewClothes.css";
-import "../matches/viewMatches.css";
+import '../../pages/pagesBottom.css'
 
 import { URL } from "../../config";
 
@@ -284,7 +283,8 @@ const ViewClothes = () => {
 
   return (
 
-    <div className="view-clothes-container">
+
+    <div className="main-container">
 
       {error && (
 
@@ -307,27 +307,29 @@ const ViewClothes = () => {
 
       {filteredItems.length === 0 && !error && (
 
-        <p className="no-items">
+        <p className="no-clothing-items">
           No clothes found.
         </p>
 
       )}
 
-      <div className="items-grid">
+      <div className="bottom-area-wrapper">
+          <div className="items-grid">
 
-        {filteredItems.map(item => (
+            {filteredItems.map(item => (
 
-          <ViewClothesBox
-            key={item._id}
-            item={item}
-            type={item.type}
-            getSeasons={getSeasons}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+              <ViewClothesCard
+                key={item._id}
+                item={item}
+                type={item.type}
+                getSeasons={getSeasons}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
 
-        ))}
+            ))}
 
+          </div>
       </div>
 
       {showClothingModal && (
@@ -363,6 +365,7 @@ const ViewClothes = () => {
         ]}
       />
     </div>
+
 
   );
 

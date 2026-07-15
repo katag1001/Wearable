@@ -1,8 +1,8 @@
 import React from "react";
 import DeleteMatches from "./deleteMatches";
-import "./viewMatches.css";
+import "./viewMatchesCard.css";
 
-const ViewMatchesBox = ({
+const ViewMatchesCard = ({
   match,
   mode,
   renderItemImage,
@@ -36,17 +36,18 @@ const ViewMatchesBox = ({
           </div>
         </div>
 
-        <div className="button-row">
+        <div className="match-items-button-row">
           {mode === "active" ? (
             <>
               <DeleteMatches
                 matchId={match._id}
                 onDeleteSuccess={handleDeleteSuccess}
                 onError={onDeleteError}
+                className="match-text-button"
               />
 
               <button
-                className="text-button"
+                className="match-text-button"
                 onClick={() => setEditingMatch(match)}
               >
                 Edit
@@ -54,15 +55,16 @@ const ViewMatchesBox = ({
             </>
           ) : (
             <>
+              {/*Delete and restore button class names passed from deleteMatches.jsx*/}
               <button
-                className="text-button"
+            
                 onClick={() => handleReinstate(match._id)}
               >
                 Restore Outfit
               </button>
 
               <button
-                className="text-button"
+                
                 onClick={() => handleDeleteSuccess(match._id)}
               >
                 Delete
@@ -75,4 +77,4 @@ const ViewMatchesBox = ({
   );
 };
 
-export default ViewMatchesBox;
+export default ViewMatchesCard;

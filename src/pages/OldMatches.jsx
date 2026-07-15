@@ -7,11 +7,9 @@ import './Pages.css';
 const OldMatches = ({ loggedIn, logout }) => {
   return (
 
-  <div className="full-page">
+  <div className="full-page-container">
 
       <Header loggedIn={loggedIn} title="Rejected Outfits"/>
-
-      <div className="clothes-page-container">
 
 
       <div className="extra-space">
@@ -22,7 +20,7 @@ const OldMatches = ({ loggedIn, logout }) => {
       
       <ViewMatches mode="rejected" />
       
-      </div>
+
     </div>
 
   );
