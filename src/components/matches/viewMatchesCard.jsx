@@ -57,7 +57,7 @@ const ViewMatchesCard = ({
             <>
               {/*Delete and restore button class names passed from deleteMatches.jsx*/}
               <button
-            
+              
                 onClick={() => handleReinstate(match._id)}
               >
                 Restore Outfit

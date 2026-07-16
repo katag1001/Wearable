@@ -71,10 +71,6 @@ const ViewMatchesTop = ({
             className="top-search-input"
           />
 
-          <span className="top-search-icon">
-            🔍
-          </span>
-
         </div>
 
       </div>
