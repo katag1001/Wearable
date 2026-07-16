@@ -8,15 +8,15 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import './App.css'
 
 /* Pages */
-import Homepage from "./pages/homepage";
-import BuildMatches from "./pages/buildMatches";
-import OldMatches from "./pages/oldMatches";
-import Clothes from "./pages/clothes";
-import Matches from "./pages/matches";
-import TodayOutfits from "./pages/todayOutfits";
-import User from "./pages/user";
-import Register from "./pages/register";
-import Login from "./pages/login";
+import Homepage from "./pages/Homepage";
+import BuildMatches from "./pages/BuildMatches";
+import OldMatches from "./pages/OldMatches";
+import Clothes from "./pages/Clothes";
+import Matches from "./pages/Matches";
+import TodayOutfits from "./pages/TodayOutfits";
+import User from "./pages/User";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
 
 /* Components */
 import Enter from "./components/login/enter";
