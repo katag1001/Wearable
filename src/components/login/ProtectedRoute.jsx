@@ -10,4 +10,5 @@ const ProtectedRoute = ({ loggedIn, children }) => {
   return children;
 };
 
+
 export default ProtectedRoute;

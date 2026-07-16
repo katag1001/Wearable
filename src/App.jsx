@@ -19,8 +19,8 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 
 /* Components */
-import Enter from "./components/login/enter";
-import ProtectedRoute from "./components/login/protectedRoute";
+import Enter from "./components/login/Enter";
+import ProtectedRoute from "./components/login/ProtectedRoute";
 
 const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);

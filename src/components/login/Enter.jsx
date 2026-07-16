@@ -1,7 +1,6 @@
 import React, {useEffect} from 'react'
 import {useParams,useNavigate} from 'react-router'
 
-// spinners import stuff
 import { css } from "@emotion/react";
 import FadeLoader from "react-spinners/FadeLoader";
 const override = css`
@@ -9,7 +8,7 @@ display: block;
 margin: 0 auto;
 border-color: red;
 `;
-// end spinners import stuff
+
 
 export default function Enter(props) {
 	let params = useParams();
