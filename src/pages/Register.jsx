@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/header';
-import RegisterForm from '../components/login/registerForm';
+import RegisterForm from '../components/login/RegisterForm';
 import '../styles/pages.css';
 
 const Register = ({ loggedIn, logout }) => {

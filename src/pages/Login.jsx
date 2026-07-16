@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import Header from '../components/header';
-import LoginForm from '../components/login/loginForm';
+import LoginForm from '../components/login/LoginForm';
 import '../styles/pages.css';
 
 const Login = ({ login, logout, loggedIn }) => {

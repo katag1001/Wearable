@@ -8,5 +8,4 @@ const UserEmail = (props) => {
 		</form>
 		)
 }
-
 export default UserEmail
