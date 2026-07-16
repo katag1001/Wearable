@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/header';
-import './pages.css';
+import '../styles/pages.css';
 
 
 const Homepage = ({ loggedIn, logout }) => {
@@ -9,8 +9,10 @@ const Homepage = ({ loggedIn, logout }) => {
     <>
       <div className="full-page-container">
       <Header loggedIn={loggedIn} />
+      <div className="main-container">
         {loggedIn ? (
           <>
+          
             <h2 className="page-title">Welcome</h2>
             <button  className="logout-button" onClick={logout}>Logout</button>
           </>
@@ -20,8 +22,11 @@ const Homepage = ({ loggedIn, logout }) => {
             <Link to="/login">Login</Link>
             <Link to="/register">Register</Link>
           </div>
-
+          
         )}
+        </div>
+      
+      
       </div>
     </>
   );

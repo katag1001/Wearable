@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import Header from '../components/header';
 import LoginForm from '../components/login/loginForm';
-import './pages.css';
+import '../styles/pages.css';
 
 const Login = ({ login, logout, loggedIn }) => {
   const navigate = useNavigate();
@@ -15,9 +15,9 @@ const Login = ({ login, logout, loggedIn }) => {
   }, [loggedIn, navigate]);
 
   return (
-    <div className="full-page">
+    <div className="full-page-container">
       <Header loggedIn={loggedIn} />
-      <div className="clothes-page-container">
+      <div className="main-container">
         {loggedIn ? (
           <>
           

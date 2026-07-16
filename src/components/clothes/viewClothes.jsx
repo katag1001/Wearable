@@ -8,7 +8,7 @@ import Filter from "../general/filter.jsx";
 import ViewClothesTop from "./viewClothesTop.jsx";
 import ViewClothesCard from "./viewClothesCard.jsx";
 
-import '../../pages/pagesBottom.css'
+import '../../styles/pagesBottom.css'
 
 import { URL } from "../../config";
 

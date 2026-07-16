@@ -2,7 +2,7 @@ import React from 'react';
 import Header from '../components/header';
 import ViewMatches from '../components/matches/viewMatches';
 import { Link } from 'react-router-dom';
-import './Pages.css';
+import '../styles/pages.css';
 
 const OldMatches = ({ loggedIn, logout }) => {
   return (
@@ -10,13 +10,6 @@ const OldMatches = ({ loggedIn, logout }) => {
   <div className="full-page-container">
 
       <Header loggedIn={loggedIn} title="Rejected Outfits"/>
-
-
-      <div className="extra-space">
-      <Link to="/matches">
-        <button className="regular-button">View Current Outfits</button>
-      </Link>
-      </div>
       
       <ViewMatches mode="rejected" />
       

@@ -7,6 +7,7 @@
 
 .create-matches-container {
     width: 100%;
+
 }
 
 .buildmatch-layout {
@@ -14,19 +15,19 @@
     width: 100%;
     gap: 20px;
     align-items: flex-start;
-    padding: 0px 20px;
+    padding: 20px 20px;
 }
 
 .buildmatch-left {
     flex: 3;
     min-width: 0;
-    max-width: 50%;
+    max-width: 50%; 
 }
 
 .buildmatch-right {
     flex: 1;
     position: sticky;
-    top: 160px;
+    top: 140px; /*To make it stay in place when scrolling*/
 }
 
 .clothing-section{
@@ -95,9 +96,9 @@
 
 .buildmatch-search {
     margin: 0 0 20px 0;
-        position: sticky;
-    top: 160px;
+    position: sticky;
     z-index: 1;
+    top: 140px; /*To make it stay in place when scrolling*/
 }
 
 .buildmatch-search-input {

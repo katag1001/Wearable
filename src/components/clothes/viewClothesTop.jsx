@@ -1,5 +1,5 @@
 import React from "react";
-import '../../pages/pagesTop.css'
+import '../../styles/pagesTop.css'
 
 
 const ViewClothesTop = ({

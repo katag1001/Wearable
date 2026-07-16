@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import '../../pages/pagesTop.css'
+import '../../styles/pagesTop.css'
 
 const ViewMatchesTop = ({
+  mode,
   searchTerm,
   setSearchTerm,
   selectedSeason,
@@ -77,7 +78,20 @@ const ViewMatchesTop = ({
         </div>
 
       </div>
-
+      
+        <div className="top-wrapper-bottom">
+          <Link
+            to={mode === "active" ? "/oldmatches" : "/matches"}
+            className="top-action-link"
+          >
+            <button className="side-action-button">
+              {mode === "active"
+                ? "View Rejected Outfits"
+                : "View Current Outfits"}
+            </button>
+          </Link>
+        </div>
+  
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { URL } from "../../config";
+import { Link } from 'react-router-dom';
 
 import UpdateMatches from "./updateMatches";
 import ViewMatchesCard from "./viewMatchesCard.jsx"; 
@@ -8,7 +9,7 @@ import ViewMatchesTop from "./viewMatchesTop";
 import Filter from "../general/filter.jsx";
 
 import "./viewMatchesCard.css"; /*.match-image for renderItemImage */
-import '../../pages/pagesBottom.css'
+import '../../styles/pagesBottom.css'
 
 const ViewMatches = ({ mode = "active" }) => {
 
@@ -307,10 +308,10 @@ const ViewMatches = ({ mode = "active" }) => {
 
   return (
 
-
     <div className="main-container">
 
       <ViewMatchesTop
+        mode={mode}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         selectedSeason={selectedSeason}
@@ -318,6 +319,7 @@ const ViewMatches = ({ mode = "active" }) => {
         setShowFilters={setShowFilters}
         capitalize={capitalize}
       />
+
 
       {error && (
         <p className="error-text">

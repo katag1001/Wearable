@@ -2,7 +2,7 @@ import React from 'react';
 import Header from '../components/header';
 import ViewClothes from '../components/clothes/viewClothes';
 import { Link } from 'react-router-dom';
-import './pages.css';
+import '../styles/pages.css';
 
 const Clothes = ({ loggedIn, logout }) => {
   return (

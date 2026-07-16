@@ -187,6 +187,7 @@ const ViewToday = () => {
     .filter(Boolean);
 
   return (
+    
     <div className="view-today-container">
       <div className="horizontal-scroll-wrapper">
         <button className="left-right" onClick={goPrev}>

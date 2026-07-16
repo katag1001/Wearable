@@ -4,8 +4,9 @@
   flex-direction: column;
   font-family: 'Helvetica Neue', sans-serif;
   min-height: 100vh;
-  width: 100%;
-  box-sizing: border-box;
+  width: 100vw;
+  padding: 0;
+  margin: 0;
 }
 
 
@@ -17,7 +18,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0rem;
+  gap: 0;
+  padding-top: var(--header-height);
+
+  
 }
 
 .main-container h2 {
