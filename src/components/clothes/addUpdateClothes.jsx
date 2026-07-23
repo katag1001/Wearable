@@ -164,7 +164,7 @@ useClothingDetection(
                 {currentPage > 1 && (
                   <button
                     type="button"
-                    className="back-button"
+                    className="modal-button"
                     onClick={() =>
                       setCurrentPage(prev => prev - 1)
                     }
@@ -177,7 +177,7 @@ useClothingDetection(
                 {currentPage < 3 && (
                   <button
                     type="button"
-                    className="next-button"
+                    className="modal-button"
                     onClick={() =>
                       setCurrentPage(prev => prev + 1)
                     }
@@ -189,7 +189,7 @@ useClothingDetection(
 
                 {currentPage === 3 && (
                   <button
-                    className="save-button"
+                    className="modal-button"
                     type="submit"
                   >
                     Save

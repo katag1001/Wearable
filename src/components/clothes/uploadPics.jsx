@@ -49,7 +49,7 @@ const UploadImages = ({ setFormData, formData }) => {
 
         <button 
           type="button" 
-          className="button" 
+          className="upload-button" 
           onClick={uploadWidget}
         >
           Upload Image

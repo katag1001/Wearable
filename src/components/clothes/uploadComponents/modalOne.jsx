@@ -33,12 +33,8 @@ const ModalOne = ({
 
   return (
     <div className="modal-page">
-
-
       <label className="form-label">
-
-        Name:
-
+        Name
         <input
           className="form-input"
           value={formData.name}
@@ -53,45 +49,31 @@ const ModalOne = ({
 
       </label>
 
-
-
       <div>
-
-        Image:
-
+        <label className="form-label">Image</label>
         <UploadImages
           setFormData={setFormData}
           formData={formData}
         />
-
       </div>
 
-
-
       {/* Subtype */}
-
       <div className="form-label">
-
-        Subtype:
-
-
+        Suggested Type
         {subtypeSuggestions.length > 0 && (
 
           <div className="subtype-suggestions">
 
-            <h4>
-              Suggested:
-            </h4>
-
-
-            <div className="suggestion-grid">
-
+            <div className="subtype-grid">
               {subtypeSuggestions.map(suggestion => (
-
                 <button
                   key={suggestion.name}
                   type="button"
-                  className="suggestion-button"
+                  className={
+                    formData.subtype === suggestion.name
+                      ? "subtype-button selected"
+                      : "subtype-button"
+                  }
                   onClick={() =>
                     handleSubtypeChange({
                       target: {
@@ -100,16 +82,15 @@ const ModalOne = ({
                     })
                   }
                 >
-
-                  <span className="material-symbols-outlined subtype-icon">
-                    {suggestion.icon}
-                  </span>
-
+                  <img
+                    src={suggestion.icon}
+                    alt={suggestion.name}
+                    className="subtype-icon"
+                  />
 
                   <span>
                     {suggestion.name}
                   </span>
-
                 </button>
 
               ))}
@@ -158,9 +139,11 @@ const ModalOne = ({
                       }
                     >
 
-                      <span className="material-symbols-outlined subtype-icon">
-                        {subtype.icon}
-                      </span>
+                      <img
+                        src={subtype.icon}
+                        alt={subtype.name}
+                        className="subtype-icon"
+                      />
 
 
                       <span>

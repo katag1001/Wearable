@@ -1,9 +1,32 @@
+// src/constants/typeOptions.js
+
+import fancy_top from "../assets/images/icons/fancy_top.png";
+import formal_dress from "../assets/images/icons/formal_dress.png";
+import light_jacket from "../assets/images/icons/light_jacket.png";
+import light_jumper from "../assets/images/icons/light_jumper.png";
+import light_pants from "../assets/images/icons/light_pants.png";
+import light_shirt from "../assets/images/icons/light_shirt.png";
+import maxi_skirt from "../assets/images/icons/maxi_skirt.png";
+import midi_skirt from "../assets/images/icons/midi_skirt.png";
+import mini_skirt from "../assets/images/icons/mini_skirt.png";
+import party_dress from "../assets/images/icons/party_dress.png";
+import shorts from "../assets/images/icons/shorts.png";
+import sports_top from "../assets/images/icons/sports_top.png";
+import summer_dress from "../assets/images/icons/summer_dress.png";
+import t_shirt from "../assets/images/icons/t_shirt.png";
+import tank_top from "../assets/images/icons/tank_top.png";
+import warm_dress from "../assets/images/icons/warm_dress.png";
+import warm_jumper from "../assets/images/icons/warm_jumper.png";
+import warm_pants from "../assets/images/icons/warm_pants.png";
+import warm_shirt from "../assets/images/icons/warm_shirt.png";
+import winter_coat from "../assets/images/icons/winter_coat.png";
+
 const typeOptions = [
   // bottom
   {
     type: "bottom",
     name: "Light Pants",
-    icon: "straight",
+    icon: light_pants,
     season: ["Spring", "Summer"],
     tags: ["Work", "Everyday", "Beach", "Dinner", "Loungewear"],
     minTemp: 18,
@@ -12,7 +35,7 @@ const typeOptions = [
   {
     type: "bottom",
     name: "Warm Pants",
-    icon: "checkroom",
+    icon: warm_pants,
     season: ["Autumn", "Winter"],
     tags: ["Work", "Everyday", "Beach", "Dinner"],
     minTemp: -5,
@@ -21,7 +44,7 @@ const typeOptions = [
   {
     type: "bottom",
     name: "Maxi Skirt",
-    icon: "styler",
+    icon: maxi_skirt,
     season: ["Spring", "Summer"],
     tags: ["Everyday", "Beach", "Work", "Date Night"],
     minTemp: 18,
@@ -30,7 +53,7 @@ const typeOptions = [
   {
     type: "bottom",
     name: "Shorts",
-    icon: "shorts",
+    icon: shorts,
     season: ["Spring", "Summer"],
     tags: ["Everyday", "Beach", "Outdoor", "Sports"],
     minTemp: 22,
@@ -39,7 +62,7 @@ const typeOptions = [
   {
     type: "bottom",
     name: "Mini Skirt",
-    icon: "apparel",
+    icon: mini_skirt,
     season: ["Spring", "Summer", "Autumn"],
     tags: ["Date Night", "Party", "Everyday"],
     minTemp: 18,
@@ -48,7 +71,7 @@ const typeOptions = [
   {
     type: "bottom",
     name: "Midi Skirt",
-    icon: "dry_cleaning",
+    icon: midi_skirt,
     season: ["Spring", "Summer", "Autumn", "Winter"],
     tags: ["Work", "Everyday", "Wedding"],
     minTemp: 12,
@@ -59,7 +82,7 @@ const typeOptions = [
   {
     type: "top",
     name: "T-Shirt",
-    icon: "checkroom",
+    icon: t_shirt,
     season: ["Spring", "Summer", "Autumn", "Winter"],
     tags: ["Everyday", "Gym", "Outdoor"],
     minTemp: 10,
@@ -68,7 +91,7 @@ const typeOptions = [
   {
     type: "top",
     name: "Sports Top",
-    icon: "sports_handball",
+    icon: sports_top,
     season: ["Spring", "Summer", "Autumn", "Winter"],
     tags: ["Gym", "Outdoor"],
     minTemp: 15,
@@ -77,7 +100,7 @@ const typeOptions = [
   {
     type: "top",
     name: "Light Shirt",
-    icon: "apparel",
+    icon: light_shirt,
     season: ["Spring", "Summer", "Autumn"],
     tags: ["Work", "Dinner", "Everyday"],
     minTemp: 16,
@@ -86,7 +109,7 @@ const typeOptions = [
   {
     type: "top",
     name: "Warm Shirt",
-    icon: "dry_cleaning",
+    icon: warm_shirt,
     season: ["Autumn", "Winter"],
     tags: ["Work", "Dinner", "Everyday"],
     minTemp: 5,
@@ -95,7 +118,7 @@ const typeOptions = [
   {
     type: "top",
     name: "Tank Top",
-    icon: "accessibility",
+    icon: tank_top,
     season: ["Spring", "Summer"],
     tags: ["Everyday", "Gym", "Outdoor"],
     minTemp: 22,
@@ -104,7 +127,7 @@ const typeOptions = [
   {
     type: "top",
     name: "Light Jumper",
-    icon: "layers",
+    icon: light_jumper,
     season: ["Spring", "Autumn"],
     tags: ["Everyday", "Work", "Outdoor", "Dinner"],
     minTemp: 10,
@@ -113,7 +136,7 @@ const typeOptions = [
   {
     type: "top",
     name: "Warm Jumper",
-    icon: "texture",
+    icon: warm_jumper,
     season: ["Autumn", "Winter"],
     tags: ["Everyday", "Work", "Outdoor", "Dinner"],
     minTemp: -5,
@@ -122,7 +145,7 @@ const typeOptions = [
   {
     type: "top",
     name: "Fancy Top",
-    icon: "diamond",
+    icon: fancy_top,
     season: ["Spring", "Summer", "Autumn", "Winter"],
     tags: ["Party", "Date Night", "Wedding", "Dinner"],
     minTemp: 15,
@@ -133,7 +156,7 @@ const typeOptions = [
   {
     type: "outer",
     name: "Light Jacket",
-    icon: "jacket",
+    icon: light_jacket,
     season: ["Spring", "Autumn"],
     tags: ["Everyday", "Work", "Outdoor", "Dinner"],
     minTemp: 10,
@@ -142,7 +165,7 @@ const typeOptions = [
   {
     type: "outer",
     name: "Winter Coat",
-    icon: "weather_snowy",
+    icon: winter_coat,
     season: ["Autumn", "Winter"],
     tags: ["Everyday", "Work", "Outdoor", "Dinner", "Date Night"],
     minTemp: -15,
@@ -153,7 +176,7 @@ const typeOptions = [
   {
     type: "onepiece",
     name: "Formal Dress/Jumpsuit",
-    icon: "styler",
+    icon: formal_dress,
     season: ["Spring", "Summer", "Autumn", "Winter"],
     tags: ["Party", "Date Night", "Wedding", "Dinner"],
     minTemp: 15,
@@ -162,7 +185,7 @@ const typeOptions = [
   {
     type: "onepiece",
     name: "Party Dress/Jumpsuit",
-    icon: "celebration",
+    icon: party_dress,
     season: ["Spring", "Summer", "Autumn", "Winter"],
     tags: ["Party", "Date Night", "Wedding", "Dinner"],
     minTemp: 16,
@@ -171,7 +194,7 @@ const typeOptions = [
   {
     type: "onepiece",
     name: "Summer Dress/Jumpsuit",
-    icon: "local_florist",
+    icon: summer_dress,
     season: ["Spring", "Summer"],
     tags: ["Everyday", "Beach", "Date Night"],
     minTemp: 22,
@@ -180,7 +203,7 @@ const typeOptions = [
   {
     type: "onepiece",
     name: "Warm Dress/Jumpsuit",
-    icon: "ac_unit",
+    icon: warm_dress,
     season: ["Autumn", "Winter"],
     tags: ["Everyday", "Work", "Date Night"],
     minTemp: 8,
