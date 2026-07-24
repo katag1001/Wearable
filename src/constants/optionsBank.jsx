@@ -1,15 +1,57 @@
+import work from "../assets/images/icons/work.png";
+import gym from "../assets/images/icons/gym.png";
+import loungewear from "../assets/images/icons/loungewear.png";
+import party from "../assets/images/icons/party.png";
+import date_night from "../assets/images/icons/date_night.png";
+import wedding from "../assets/images/icons/wedding.png";
+import beach from "../assets/images/icons/beach.png";
+import outdoor from "../assets/images/icons/outdoor.png";
+import dinner from "../assets/images/icons/dinner.png";
+import everyday from "../assets/images/icons/everyday.png";
+
 export const tagOptions = [
-  "Work",
-  "Gym",
-  "Loungewear",
-  "Party",
-  "Date night",
-  "Wedding",
-  "Beach",
-  "Outdoor",
-  "Dinner",
-  "Everyday"
+  {
+    name: "Work",
+    image: work
+  },
+  {
+    name: "Gym",
+    image: gym
+  },
+  {
+    name: "Loungewear",
+    image: loungewear
+  },
+  {
+    name: "Party",
+    image: party
+  },
+  {
+    name: "Date night",
+    image: date_night
+  },
+  {
+    name: "Wedding",
+    image: wedding
+  },
+  {
+    name: "Beach",
+    image: beach
+  },
+  {
+    name: "Outdoor",
+    image: outdoor
+  },
+  {
+    name: "Dinner",
+    image: dinner
+  },
+  {
+    name: "Everyday",
+    image: everyday
+  }
 ];
+
 
 export const seasonOptions = [
   "spring",

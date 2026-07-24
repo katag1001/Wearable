@@ -17,146 +17,125 @@ const ModalThree = ({
   );
 
   const suggestedTags = tagOptions.filter(tag =>
-    formData.tags.includes(tag)
+    formData.tags.includes(tag.name)
   );
 
   return (
     <div className="modal-page">
 
-      {/* Colours */}
-<div className="color-section">
+    {/* Colours */}
+      <div className="color-section">
 
-  {suggestedColors.length > 0 && (
-    <div className="upload-suggestions">
-
-      <div className="form-label">
-        Selected
-      </div>
-
-      <div className="color-grid">
-        {suggestedColors.map((color) => (
-          <div className="color-item" key={color.name}>
-            <button
-              type="button"
-              className="color-button"
-              onClick={() => toggleColor(color.name)}
-            >
-              <div
-                className="color-square selected"
-                style={{
-                  backgroundColor: color.value,
-                }}
-              />
-
-              <span>{color.name}</span>
-            </button>
-          </div>
-        ))}
-      </div>
-
-    </div>
-  )}
-
-  <div className="form-label">
-    Colours
-  </div>
-
-  <div className="color-grid">
-    {colorOptions.map((color) => (
-      <div className="color-item" key={color.name}>
-
-        <span>{color.name}</span>
-
-        <div
-          className={
-            formData.colors.includes(color.name)
-              ? "color-square selected"
-              : "color-square"
-          }
-          style={{
-            backgroundColor: color.value,
-          }}
-          onClick={() => toggleColor(color.name)}
-        />
-
-      </div>
-    ))}
-  </div>
-
-</div>
-
-
-
-     {/* Tags */}
-      <div>
-
-      <div className="form-label">
-        Tags
-      </div>
-
-        {suggestedTags.length > 0 && (
-
+        {suggestedColors.length > 0 && (
           <div className="upload-suggestions">
 
-            <h4>
-              Selected:
-            </h4>
+            <div className="form-label">
+              Selected
+            </div>
 
-            <div className="suggestion-grid">
+            <div className="color-grid">
+              {suggestedColors.map((color) => (
+                <div className="color-item" key={color.name}>
+                  <button
+                    type="button"
+                    className="color-button"
+                    onClick={() => toggleColor(color.name)}
+                  >
+                    <div
+                      className="color-square selected"
+                      style={{
+                        backgroundColor: color.value,
+                      }}
+                    />
 
-              {suggestedTags.map(tag => (
-
-                <button
-                  key={tag}
-                  type="button"
-                  className="suggestion-button"
-                  onClick={() =>
-                    toggleTag(tag)
-                  }
-                >
-
-                  <input
-                    type="checkbox"
-                    checked
-                    readOnly
-                  />
-
-                  <span>
-                    {tag}
-                  </span>
-
-                </button>
-
+                    <span>{color.name}</span>
+                  </button>
+                </div>
               ))}
-
             </div>
 
           </div>
-
         )}
 
-        {tagOptions.map(tag => (
+        <div className="form-label">
+          Colours
+        </div>
 
-          <label key={tag}>
+        <div className="color-grid">
+          {colorOptions.map((color) => (
+            <div className="color-item" key={color.name}>
 
-            <input
-              type="checkbox"
-              checked={
-                formData.tags.includes(tag)
-              }
-              onChange={() =>
-                toggleTag(tag)
-              }
-            />
+              <span>{color.name}</span>
 
-            {" "}
-            {tag}
+              <div
+                className={
+                  formData.colors.includes(color.name)
+                    ? "color-square selected"
+                    : "color-square"
+                }
+                style={{
+                  backgroundColor: color.value,
+                }}
+                onClick={() => toggleColor(color.name)}
+              />
 
-          </label>
-
-        ))}
+            </div>
+          ))}
+        </div>
 
       </div>
+
+<div className="modal-divider-container">
+<div className="modal-divider" />
+</div>     
+
+    {/* Tags */}
+      <div className="tags-section">
+
+        <div className="form-label">
+          Tags
+        </div>
+
+        <div className="tag-grid">
+
+          {tagOptions.map(tag => (
+
+            <div
+              className="tag-item"
+              key={tag.name}
+            >
+
+              <button
+                type="button"
+                className={
+                  formData.tags.includes(tag.name)
+                    ? "tag-button selected"
+                    : "tag-button"
+                }
+                onClick={() => toggleTag(tag.name)}
+              >
+
+                <img
+                  src={tag.image}
+                  alt={tag.name}
+                />
+
+                <span>
+                  {tag.name}
+                </span>
+
+              </button>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </div>
+
+
+
 
     </div>
   );

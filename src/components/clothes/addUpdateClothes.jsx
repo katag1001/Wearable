@@ -137,11 +137,11 @@ const handleSubmit = async (e) => {
         {!justSavedItem ? (
 
           <>
-            <h2 className="modal-title">
+            <div className="modal-title">
               {isUpdate
                 ? "Update Clothing Item"
                 : "Add Clothing Item"}
-            </h2>
+            </div>
 
 
             <form

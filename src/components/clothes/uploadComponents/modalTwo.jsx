@@ -9,58 +9,69 @@ const ModalTwo = ({
 }) => {
 
   return (
+
     <div className="modal-page">
 
-      <fieldset className="season-group">
+    {/* Season */}
 
-        <label className="form-label">Seasons</label>
+        <div>
 
+          <fieldset className="season-group">
 
-        {seasonOptions.map(season => (
-
-          <label
-            key={season}
-            className="season-label"
-          >
-
-            <input
-              type="checkbox"
-              checked={formData[season]}
-              onChange={() =>
-                toggleSeason(season)
-              }
-            />
-
-            {" "}
-            {season}
-
-          </label>
-
-        ))}
-
-      </fieldset>
+            <label className="form-label">Seasons</label>
 
 
+            {seasonOptions.map(season => (
 
-<label className="form-label">
-  Temperature Range
+              <label
+                key={season}
+                className="season-label"
+              >
 
-  <TemperatureSlider
-    min={-20}
-    max={50}
-    valueMin={formData.min_temp}
-    valueMax={formData.max_temp}
-    onChange={(minTemp, maxTemp) => {
-      handleTempChange("min_temp", minTemp);
-      handleTempChange("max_temp", maxTemp);
-    }}
-  />
-</label>
+                <input
+                  type="checkbox"
+                  checked={formData[season]}
+                  onChange={() =>
+                    toggleSeason(season)
+                  }
+                />
 
+                {" "}
+                {season}
 
-    </div>
-  );
-};
+              </label>
+
+            ))}
+
+          </fieldset>
+
+          </div>
+
+<div className="modal-divider-container">
+<div className="modal-divider" />
+</div>
+
+    {/* Temperature */}
+
+    <div>
+        <label className="form-label">
+          Temperature Range
+        </label>
+        
+          <TemperatureSlider
+            min={-20}
+            max={50}
+            valueMin={formData.min_temp}
+            valueMax={formData.max_temp}
+            onChange={(minTemp, maxTemp) => {
+              handleTempChange("min_temp", minTemp);
+              handleTempChange("max_temp", maxTemp);
+            }}
+          />
+        </div>
+        </div>
+      );
+    };
 
 
 export default ModalTwo;

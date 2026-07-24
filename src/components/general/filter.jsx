@@ -62,7 +62,7 @@ const Filter = ({
   const tags =
     availableTags.length > 0
       ? tagOptions.filter((tag) =>
-          availableTags.includes(tag)
+          availableTags.includes(tag.name)
         )
       : tagOptions;
 
@@ -191,16 +191,16 @@ const Filter = ({
             <h3>Tags</h3>
 
             {tags.map((tag) => (
-              <label key={tag}>
+              <label key={tag.name}>
                 <input
                   type="checkbox"
-                  checked={localFilters.tags.includes(tag)}
+                  checked={localFilters.tags.includes(tag.name)}
                   onChange={() =>
-                    toggleArrayFilter("tags", tag)
+                    toggleArrayFilter("tags", tag.name)
                   }
                 />
 
-                {tag}
+                {tag.name}
               </label>
             ))}
           </div>

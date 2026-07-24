@@ -51,7 +51,9 @@ const ModalOne = ({
 
       </label>
 
-
+<div className="modal-divider-container">
+<div className="modal-divider" />
+</div>
 
       {/* Subtype */}
       <div className="form-label">
@@ -62,6 +64,7 @@ const ModalOne = ({
 
             <div className="subtype-grid">
               {subtypeSuggestions.map(suggestion => (
+                
                 <button
                   key={suggestion.name}
                   type="button"
@@ -108,12 +111,6 @@ const ModalOne = ({
                 key={category}
                 className="subtype-category"
               >
-
-                <h4>
-                  {category}
-                </h4>
-
-
                 <div className="subtype-grid">
 
                   {subtypes.map(subtype => (
@@ -160,6 +157,10 @@ const ModalOne = ({
         </div>
 
       </div>
+
+<div className="modal-divider-container">
+<div className="modal-divider" />
+</div>
 
       {/* Image */}
       <div>
