@@ -22,93 +22,81 @@ const ModalThree = ({
 
   return (
     <div className="modal-page">
-      
-      <div>
-        <h4>Colours</h4>
 
-        {suggestedColors.length > 0 && (
+      {/* Colours */}
+<div className="color-section">
 
-          <div className="subtype-suggestions">
+  {suggestedColors.length > 0 && (
+    <div className="upload-suggestions">
 
-            <h4>
-              Selected:
-            </h4>
-
-            <div className="suggestion-grid">
-
-              {suggestedColors.map(color => (
-
-                <button
-                  key={color.name}
-                  type="button"
-                  className="suggestion-button"
-                  onClick={() =>
-                    toggleColor(color.name)
-                  }
-                >
-
-                  <div
-                    className="color-square selected"
-                    style={{
-                      backgroundColor: color.value
-                    }}
-                  />
-
-                  <span>
-                    {color.name}
-                  </span>
-
-                </button>
-
-              ))}
-
-            </div>
-
-          </div>
-
-        )}
-
-        <div className="color-grid">
-
-          {colorOptions.map(color => (
-
-            <div key={color.name}>
-
-              <span>
-                {color.name}
-              </span>
-
-              <div
-                className={
-                  formData.colors.includes(color.name)
-                    ? "color-square selected"
-                    : "color-square"
-                }
-                style={{
-                  backgroundColor: color.value
-                }}
-                onClick={() =>
-                  toggleColor(color.name)
-                }
-              />
-
-            </div>
-
-          ))}
-
-        </div>
-
+      <div className="form-label">
+        Selected
       </div>
 
+      <div className="color-grid">
+        {suggestedColors.map((color) => (
+          <div className="color-item" key={color.name}>
+            <button
+              type="button"
+              className="color-button"
+              onClick={() => toggleColor(color.name)}
+            >
+              <div
+                className="color-square selected"
+                style={{
+                  backgroundColor: color.value,
+                }}
+              />
+
+              <span>{color.name}</span>
+            </button>
+          </div>
+        ))}
+      </div>
+
+    </div>
+  )}
+
+  <div className="form-label">
+    Colours
+  </div>
+
+  <div className="color-grid">
+    {colorOptions.map((color) => (
+      <div className="color-item" key={color.name}>
+
+        <span>{color.name}</span>
+
+        <div
+          className={
+            formData.colors.includes(color.name)
+              ? "color-square selected"
+              : "color-square"
+          }
+          style={{
+            backgroundColor: color.value,
+          }}
+          onClick={() => toggleColor(color.name)}
+        />
+
+      </div>
+    ))}
+  </div>
+
+</div>
+
+
+
+     {/* Tags */}
       <div>
 
-        <h4>
-          Tags
-        </h4>
+      <div className="form-label">
+        Tags
+      </div>
 
         {suggestedTags.length > 0 && (
 
-          <div className="subtype-suggestions">
+          <div className="upload-suggestions">
 
             <h4>
               Selected:

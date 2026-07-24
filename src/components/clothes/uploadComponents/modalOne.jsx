@@ -58,7 +58,7 @@ const ModalOne = ({
         Type
         {subtypeSuggestions.length > 0 && (
 
-          <div className="subtype-suggestions">
+          <div className="upload-suggestions">
 
             <div className="subtype-grid">
               {subtypeSuggestions.map(suggestion => (
@@ -161,7 +161,7 @@ const ModalOne = ({
 
       </div>
 
-            {/* Image */}
+      {/* Image */}
       <div>
         <label className="form-label">Image</label>
         <UploadImages

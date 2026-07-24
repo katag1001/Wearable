@@ -47,7 +47,7 @@ export const colorOptions = [
   { name: "Tan", value: "#D2B48C" },
   { name: "Teal", value: "#008080" },
   { name: "Turquoise", value: "#40E0D0" },
-  { name: "White", value: "#FFFFFF" },
+  { name: "White", value: "#f9f5f5d7" },
   { name: "Yellow", value: "#FFFF00" }
 ];
 
