@@ -13,9 +13,7 @@ const ModalTwo = ({
 
       <fieldset className="season-group">
 
-        <legend>
-          Seasons
-        </legend>
+        <label className="form-label">Seasons</label>
 
 
         {seasonOptions.map(season => (

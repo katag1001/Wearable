@@ -79,6 +79,7 @@
   flex-direction: column;
   gap: 0.8rem;
   font-weight: bold;
+  margin-bottom: 10px;
 }
 
 
@@ -216,38 +217,28 @@
   cursor: pointer;
   text-transform: uppercase;
   transition:
-    background-color 0.2s ease;
+  background-color 0.2s ease;
 
 }
 
 
 .save-button:hover {
-
   background-color: #444;
-
 }
 
 
 .cancel-button {
-
   all: unset;
-
   cursor: pointer;
-
   font-size: 0.95rem;
-
   color: #111;
-
   padding: 8px 12px;
-
 }
 
 
 /* Matches area inside modal */
 .matches-container {
-
   margin-top: 1rem;
-
 }
 
 
@@ -278,9 +269,8 @@ body.modal-open {
 
 
 .subtype-category h4 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 300;
   text-transform: capitalize;
   margin: 0;
   color: #111;

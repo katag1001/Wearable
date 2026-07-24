@@ -33,6 +33,8 @@ const ModalOne = ({
 
   return (
     <div className="modal-page">
+
+      {/* Name */}
       <label className="form-label">
         Name
         <input
@@ -49,17 +51,11 @@ const ModalOne = ({
 
       </label>
 
-      <div>
-        <label className="form-label">Image</label>
-        <UploadImages
-          setFormData={setFormData}
-          formData={formData}
-        />
-      </div>
+
 
       {/* Subtype */}
       <div className="form-label">
-        Suggested Type
+        Type
         {subtypeSuggestions.length > 0 && (
 
           <div className="subtype-suggestions">
@@ -163,6 +159,15 @@ const ModalOne = ({
 
         </div>
 
+      </div>
+
+            {/* Image */}
+      <div>
+        <label className="form-label">Image</label>
+        <UploadImages
+          setFormData={setFormData}
+          formData={formData}
+        />
       </div>
 
 

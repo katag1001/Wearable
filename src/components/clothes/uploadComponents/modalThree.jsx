@@ -1,7 +1,6 @@
 import React from "react";
 
 import {
-  styleOptions,
   colorOptions,
   tagOptions
 } from "../../../constants/optionsBank";
@@ -13,13 +12,6 @@ const ModalThree = ({
   updateField
 }) => {
 
-  const handleStyleChange = (e) => {
-    updateField(
-      "styles",
-      e.target.value
-    );
-  };
-
   const suggestedColors = colorOptions.filter(color =>
     formData.colors.includes(color.name)
   );
@@ -30,9 +22,8 @@ const ModalThree = ({
 
   return (
     <div className="modal-page">
-
+      
       <div>
-
         <h4>Colours</h4>
 
         {suggestedColors.length > 0 && (
@@ -108,33 +99,6 @@ const ModalThree = ({
         </div>
 
       </div>
-
-
-      <label className="form-label">
-
-        Style:
-
-        <select
-          className="form-select"
-          value={formData.styles}
-          onChange={handleStyleChange}
-        >
-
-          {styleOptions.map(style => (
-
-            <option
-              key={style}
-              value={style}
-            >
-              {style}
-            </option>
-
-          ))}
-
-        </select>
-
-      </label>
-
 
       <div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 import ViewNewMatches from "./viewNewMatches";
@@ -14,6 +14,7 @@ import { useClothingDetection } from "./uploadComponents/useClothingDetection";
 import "./addUpdateClothes.css";
 
 const AddUpdateClothes = ({ item, onClose, refresh }) => {
+
   const isUpdate = !!item;
 
   const {
@@ -39,7 +40,25 @@ useClothingDetection(
   manualTempOverride
 );
 
-  const handleSubmit = async (e) => {
+useEffect(() => {
+
+  const nextStyle =
+    formData.colors.length > 1
+      ? "Patterned"
+      : "Plain";
+
+  if (formData.styles !== nextStyle) {
+    updateField("styles", nextStyle);
+  }
+
+}, [
+  formData.colors,
+  formData.styles,
+  updateField
+]);
+
+
+const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {

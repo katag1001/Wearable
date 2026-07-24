@@ -12,18 +12,13 @@ manualTempOverride
 useEffect(() => {
 if (!name) return;
 
-
 const {
   detectedColors,
   detectedSeasons,
   detectedTags,
-  style
 } = detectFromName(name);
 
-
-
 setFormData(prev => {
-
   const updated = {
     ...prev
   };
@@ -90,10 +85,6 @@ setFormData(prev => {
     }
 
   }
-
-
-  updated.styles = style;
-
 
   return updated;
 
