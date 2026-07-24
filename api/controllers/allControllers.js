@@ -328,7 +328,7 @@ exports.createMatch = async (req, res) => {
   }
 };
 
-exports.createMatchesBulk = async (req, res) => {
+/*exports.createMatchesBulk = async (req, res) => {
   const userId = req.user?.userId;
 
   if (!userId) {
@@ -379,7 +379,7 @@ exports.createMatchesBulk = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-};
+}; */
 
 exports.getAllMatches = async (req, res) => {
 const userId = req.user?.userId;

@@ -18,7 +18,7 @@ router.get("/clothing/:type/:name", authMiddleware, allControllers.getItemByName
 
 /* MATCH ROUTES */
 router.post("/match/matches", authMiddleware, allControllers.createMatch);
-router.post("/match/bulk", authMiddleware, allControllers.createMatchesBulk);
+/*router.post("/match/bulk", authMiddleware, allControllers.createMatchesBulk);*/
 router.get("/match/", authMiddleware, allControllers.getAllMatches);
 router.get("/match/:id", authMiddleware, allControllers.getMatchById);
 router.put("/match/:id", authMiddleware, allControllers.updateMatch);

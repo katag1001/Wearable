@@ -409,15 +409,71 @@ async function processMatches(newItem) {
 
   }
 
-try { console.log("Saving matches..."); 
-  const insertedMatches = await Match.insertMany(matches); 
-  console.log("Matches saved successfully."); 
-  console.dir(insertedMatches, { depth: null }); 
+try {
+  console.log("Checking for existing matches before saving...");
+
+  const existingMatches = await Match.find({
+    userId: newItem.userId
+  }).select("clothes");
+
+  const existingKeys = new Set(
+    existingMatches.map((match) =>
+      match.clothes
+        .map((id) => id.toString())
+        .sort()
+        .join(",")
+    )
+  );
+
+  const seenKeys = new Set();
+
+  const filteredMatches = matches.filter((match) => {
+    const key = match.clothes
+      .map((id) => id.toString())
+      .sort()
+      .join(",");
+
+    console.log("Checking match:", key);
+
+    // Already exists in database
+    if (existingKeys.has(key)) {
+      console.log("❌ Skipping existing match:", key);
+      return false;
+    }
+
+    // Duplicate generated in this process
+    if (seenKeys.has(key)) {
+      console.log("❌ Skipping duplicate generated match:", key);
+      return false;
+    }
+
+    seenKeys.add(key);
+
+    console.log("✅ Match allowed:", key);
+    return true;
+  });
+
+  console.log(
+    `Before filtering: ${matches.length}, after filtering: ${filteredMatches.length}`
+  );
+
+  if (!filteredMatches.length) {
+    console.log("No new matches to save.");
+    return;
+  }
+
+  console.log("Saving matches...");
+
+  const insertedMatches = await Match.insertMany(filteredMatches);
+
+  console.log("Matches saved successfully.");
+  console.dir(insertedMatches, { depth: null });
+
+} catch (err) {
+  console.error("Failed to save matches.");
+  console.error(err);
 }
 
-  catch (err) { 
-    console.error("Failed to save matches."); console.error(err); 
-  }
 
 }
 

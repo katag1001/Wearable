@@ -1,13 +1,13 @@
-import work from "../assets/images/icons/work.png";
-import gym from "../assets/images/icons/gym.png";
-import loungewear from "../assets/images/icons/loungewear.png";
-import party from "../assets/images/icons/party.png";
-import date_night from "../assets/images/icons/date_night.png";
-import wedding from "../assets/images/icons/wedding.png";
-import beach from "../assets/images/icons/beach.png";
-import outdoor from "../assets/images/icons/outdoor.png";
-import dinner from "../assets/images/icons/dinner.png";
-import everyday from "../assets/images/icons/everyday.png";
+import work from "../assets/images/icons/work.PNG";
+import gym from "../assets/images/icons/gym.PNG";
+import loungewear from "../assets/images/icons/loungewear.PNG";
+import party from "../assets/images/icons/party.PNG";
+import date_night from "../assets/images/icons/date_night.PNG";
+import wedding from "../assets/images/icons/wedding.PNG";
+import beach from "../assets/images/icons/beach.PNG";
+import outdoor from "../assets/images/icons/outdoor.PNG";
+import dinner from "../assets/images/icons/dinner.PNG";
+import everyday from "../assets/images/icons/everyday.PNG";
 
 export const tagOptions = [
   {

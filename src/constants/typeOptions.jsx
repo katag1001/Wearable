@@ -1,25 +1,25 @@
 // src/constants/typeOptions.js
 
-import fancy_top from "../assets/images/icons/fancy_top.png";
-import formal_dress from "../assets/images/icons/formal_dress.png";
-import light_jacket from "../assets/images/icons/light_jacket.png";
-import light_jumper from "../assets/images/icons/light_jumper.png";
-import light_pants from "../assets/images/icons/light_pants.png";
-import light_shirt from "../assets/images/icons/light_shirt.png";
-import maxi_skirt from "../assets/images/icons/maxi_skirt.png";
-import midi_skirt from "../assets/images/icons/midi_skirt.png";
-import mini_skirt from "../assets/images/icons/mini_skirt.png";
-import party_dress from "../assets/images/icons/party_dress.png";
-import shorts from "../assets/images/icons/shorts.png";
-import sports_top from "../assets/images/icons/sports_top.png";
-import summer_dress from "../assets/images/icons/summer_dress.png";
-import t_shirt from "../assets/images/icons/t_shirt.png";
-import tank_top from "../assets/images/icons/tank_top.png";
-import warm_dress from "../assets/images/icons/warm_dress.png";
-import warm_jumper from "../assets/images/icons/warm_jumper.png";
-import warm_pants from "../assets/images/icons/warm_pants.png";
-import warm_shirt from "../assets/images/icons/warm_shirt.png";
-import winter_coat from "../assets/images/icons/winter_coat.png";
+import fancy_top from "../assets/images/icons/fancy_top.PNG";
+import formal_dress from "../assets/images/icons/formal_dress.PNG";
+import light_jacket from "../assets/images/icons/light_jacket.PNG";
+import light_jumper from "../assets/images/icons/light_jumper.PNG";
+import light_pants from "../assets/images/icons/light_pants.PNG";
+import light_shirt from "../assets/images/icons/light_shirt.PNG";
+import maxi_skirt from "../assets/images/icons/maxi_skirt.PNG";
+import midi_skirt from "../assets/images/icons/midi_skirt.PNG";
+import mini_skirt from "../assets/images/icons/mini_skirt.PNG";
+import party_dress from "../assets/images/icons/party_dress.PNG";
+import shorts from "../assets/images/icons/shorts.PNG";
+import sports_top from "../assets/images/icons/sports_top.PNG";
+import summer_dress from "../assets/images/icons/summer_dress.PNG";
+import t_shirt from "../assets/images/icons/t_shirt.PNG";
+import tank_top from "../assets/images/icons/tank_top.PNG";
+import warm_dress from "../assets/images/icons/warm_dress.PNG";
+import warm_jumper from "../assets/images/icons/warm_jumper.PNG";
+import warm_pants from "../assets/images/icons/warm_pants.PNG";
+import warm_shirt from "../assets/images/icons/warm_shirt.PNG";
+import winter_coat from "../assets/images/icons/winter_coat.PNG";
 
 const typeOptions = [
   // bottom
