@@ -11,10 +11,10 @@ const Header = ({ loggedIn, title }) => {
 
   return (
     <header className="header">
-      <nav className="navbar">
+      <nav className={`navbar ${title ? 'has-title' : 'no-title'}`}>
 
         <div className="navbar-left">
-          <Link to="/" onClick={closeMenu}>
+          <Link to="/" onClick={closeMenu} className="navbar-logo-link">
             <img
               src={wearableLogo}
               alt="Wearable Logo"
@@ -43,16 +43,28 @@ const Header = ({ loggedIn, title }) => {
         <div className={`navbar-right ${menuOpen ? 'open' : ''}`}>
           {loggedIn ? (
             <>
-              <Link to="/clothes" className="nav-link" onClick={closeMenu}>Clothes</Link>
-              <Link to="/matches" className="nav-link" onClick={closeMenu}>Outfits</Link>
-              <Link to="/today-outfits" className="nav-link" onClick={closeMenu}>Today</Link>
-              <Link to="/user" className="nav-link" onClick={closeMenu}>User</Link>
+              <Link to="/clothes" className="nav-link" onClick={closeMenu}>
+                Clothes
+              </Link>
+              <Link to="/matches" className="nav-link" onClick={closeMenu}>
+                Outfits
+              </Link>
+              <Link to="/today-outfits" className="nav-link" onClick={closeMenu}>
+                Today
+              </Link>
+              <Link to="/user" className="nav-link" onClick={closeMenu}>
+                User
+              </Link>
             </>
           ) : (
             <div className="auth-links">
-              <Link to="/login" className="nav-link" onClick={closeMenu}>Login</Link>
+              <Link to="/login" className="nav-link" onClick={closeMenu}>
+                Login
+              </Link>
               <span className="separator">|</span>
-              <Link to="/register" className="nav-link" onClick={closeMenu}>Register</Link>
+              <Link to="/register" className="nav-link" onClick={closeMenu}>
+                Register
+              </Link>
             </div>
           )}
         </div>

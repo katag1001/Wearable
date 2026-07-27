@@ -154,10 +154,29 @@
     align-items: center;
   }
 
-  .menu_toggle {
-    display: flex;
+  .navbar-left {
+    flex: 1;
+    align-items: center;
   }
 
+  /* Mobile: hide logo only when title exists */
+  .navbar.has-title .navbar-logo-link {
+    display: none;
+  }
+
+  /* Mobile: show logo when there is no title */
+  .navbar.no-title .navbar-logo-link {
+    display: block;
+  }
+
+  /* Burger */
+  .menu_toggle {
+    display: flex;
+    margin-left: auto;
+    margin-right: 0.5rem;
+  }
+
+  /* Dropdown menu */
   .navbar-right {
     display: none;
     position: absolute;
@@ -180,8 +199,17 @@
     flex-direction: row;
   }
 
-  /* Smaller title on mobile */
+  /* Mobile title */
+  .navbar-title {
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .navbar-title h1 {
     font-size: 1.5rem;
   }
 }
+
+

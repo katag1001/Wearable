@@ -118,3 +118,91 @@
 }
 
 
+/* Mobile adjustments -------------------------------------------------------------*/
+
+@media (max-width: 768px) {
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .full-page-container {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .main-container {
+    width: 100%;
+    max-width: 100%;
+    padding-top: var(--header-height);
+    overflow-x: hidden;
+  }
+
+  .page-title {
+    width: 100%;
+    max-width: 100%;
+    font-size: 1.8rem;
+    margin: 0.75rem 0;
+    overflow-wrap: break-word;
+  }
+
+  .main-container h2 {
+    font-size: 1.8rem;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .main-container h3 {
+    font-size: 1.2rem;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .logout-button {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .not-logged-in-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .not-logged-in-container a {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+
+@media (max-width: 480px) {
+
+  .main-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .main-container h3 {
+    font-size: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+  }
+
+  .logout-button,
+  .not-logged-in-container a {
+    max-width: 100%;
+  }
+}
+
+
+
