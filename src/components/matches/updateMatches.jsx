@@ -150,29 +150,29 @@ const toggleTag = (tagName) => {
           </div>
 
 
-{/* Temperature */}
-<div>
-  <label className="form-label">
-    Temperature Range
-  </label>
+          {/* Temperature */}
+          <div>
+            <label className="form-label">
+              Temperature Range
+            </label>
 
-  <TemperatureSlider
-    min={-20}
-    max={50}
-    valueMin={Number(updateData.min_temp)}
-    valueMax={Number(updateData.max_temp)}
-    step={1}
-    onChange={(minTemp, maxTemp) =>
-      setUpdateData((prev) => ({
-        ...prev,
-        min_temp: minTemp,
-        max_temp: maxTemp,
-      }))
-    }
-  />
-</div>
+            <TemperatureSlider
+              min={-20}
+              max={50}
+              valueMin={Number(updateData.min_temp)}
+              valueMax={Number(updateData.max_temp)}
+              step={1}
+              onChange={(minTemp, maxTemp) =>
+                setUpdateData((prev) => ({
+                  ...prev,
+                  min_temp: minTemp,
+                  max_temp: maxTemp,
+                }))
+              }
+            />
+          </div>
 
-
+          {/* Tags */}
           <div className="tags-section">
 
               <div className="form-label">
@@ -218,11 +218,13 @@ const toggleTag = (tagName) => {
 
           </div>
 
-
-          <div className="button-group">
+          {/* Nav */}
+          <div className="modal-navigation">
             <button type="submit" className="modal-button">
               Save
             </button>
+
+
           </div>
         </form>
       </div>
