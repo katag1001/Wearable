@@ -17,12 +17,8 @@ const ModalTwo = ({
         <div>
 
           <fieldset className="season-group">
-
             <label className="form-label">Seasons</label>
-
-
             {seasonOptions.map(season => (
-
               <label
                 key={season}
                 className="season-label"
@@ -47,9 +43,6 @@ const ModalTwo = ({
 
           </div>
 
-<div className="modal-divider-container">
-<div className="modal-divider" />
-</div>
 
     {/* Temperature */}
 
@@ -70,6 +63,8 @@ const ModalTwo = ({
           />
         </div>
         </div>
+
+        
       );
     };
 

@@ -2,6 +2,7 @@ import React from "react";
 import UploadImages from "../uploadPics";
 import typeOptions from "../../../constants/typeOptions";
 import { suggestSubtypesFromName } from "./uploadHelpers";
+import '../../../styles/modal.css' 
 
 
 const ModalOne = ({
@@ -32,7 +33,7 @@ const ModalOne = ({
 
 
   return (
-    <div className="modal-page">
+    <div>
 
       {/* Name */}
       <label className="form-label">
@@ -51,9 +52,6 @@ const ModalOne = ({
 
       </label>
 
-<div className="modal-divider-container">
-<div className="modal-divider" />
-</div>
 
       {/* Subtype */}
       <div className="form-label">
@@ -62,7 +60,7 @@ const ModalOne = ({
 
           <div className="upload-suggestions">
 
-            <div className="subtype-grid">
+            <div className="selection-grid">
               {subtypeSuggestions.map(suggestion => (
                 
                 <button
@@ -70,8 +68,8 @@ const ModalOne = ({
                   type="button"
                   className={
                     formData.subtype === suggestion.name
-                      ? "subtype-button selected"
-                      : "subtype-button"
+                      ? "selection-button selected"
+                      : "selection-button"
                   }
                   onClick={() =>
                     handleSubtypeChange({
@@ -84,10 +82,10 @@ const ModalOne = ({
                   <img
                     src={suggestion.icon}
                     alt={suggestion.name}
-                    className="subtype-icon"
+                    className="selection-img"
                   />
 
-                  <span>
+                  <span className="selection-title">
                     {suggestion.name}
                   </span>
                 </button>
@@ -102,16 +100,16 @@ const ModalOne = ({
 
 
 
-        <div className="subtype-container">
+        <div className="selection-container">
 
           {Object.entries(groupedTypes).map(
             ([category, subtypes]) => (
 
               <div
                 key={category}
-                className="subtype-category"
+                className="selection-category"
               >
-                <div className="subtype-grid">
+                <div className="selection-grid">
 
                   {subtypes.map(subtype => (
 
@@ -120,8 +118,8 @@ const ModalOne = ({
                       key={subtype.name}
                       className={
                         formData.subtype === subtype.name
-                          ? "subtype-button selected"
-                          : "subtype-button"
+                          ? "selection-button selected"
+                          : "selection-button"
                       }
                       onClick={() =>
                         handleSubtypeChange({
@@ -135,11 +133,11 @@ const ModalOne = ({
                       <img
                         src={subtype.icon}
                         alt={subtype.name}
-                        className="subtype-icon"
+                        className="selection-img"
                       />
 
 
-                      <span>
+                      <span className="selection-title">
                         {subtype.name}
                       </span>
 
@@ -158,9 +156,6 @@ const ModalOne = ({
 
       </div>
 
-<div className="modal-divider-container">
-<div className="modal-divider" />
-</div>
 
       {/* Image */}
       <div>

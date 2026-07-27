@@ -175,7 +175,7 @@ const typeOptions = [
   // onepiece
   {
     type: "onepiece",
-    name: "Formal Dress/Jumpsuit",
+    name: "Formal Onepiece",
     icon: formal_dress,
     season: ["Spring", "Summer", "Autumn", "Winter"],
     tags: ["Party", "Date Night", "Wedding", "Dinner"],
@@ -184,7 +184,7 @@ const typeOptions = [
   },
   {
     type: "onepiece",
-    name: "Party Dress/Jumpsuit",
+    name: "Party Onepiece",
     icon: party_dress,
     season: ["Spring", "Summer", "Autumn", "Winter"],
     tags: ["Party", "Date Night", "Wedding", "Dinner"],
@@ -193,7 +193,7 @@ const typeOptions = [
   },
   {
     type: "onepiece",
-    name: "Summer Dress/Jumpsuit",
+    name: "Summer Onepiece",
     icon: summer_dress,
     season: ["Spring", "Summer"],
     tags: ["Everyday", "Beach", "Date Night"],
@@ -202,7 +202,7 @@ const typeOptions = [
   },
   {
     type: "onepiece",
-    name: "Warm Dress/Jumpsuit",
+    name: "Warm Onepiece",
     icon: warm_dress,
     season: ["Autumn", "Winter"],
     tags: ["Everyday", "Work", "Date Night"],

@@ -1,6 +1,7 @@
 import React from "react";
 import DeleteMatches from "./deleteMatches";
 import "./viewMatchesCard.css";
+import { tagOptions } from "../../constants/optionsBank";
 
 const ViewMatchesCard = ({
   match,
@@ -12,8 +13,39 @@ const ViewMatchesCard = ({
   setEditingMatch,
   onDeleteError,
 }) => {
+
+  const renderMatchTags = () => {
+  if (!match.tags?.length) return null;
+
+        return (
+          <div className="match-tags">
+            {match.tags.map((tagName) => {
+              const tag = tagOptions.find(
+                (option) => option.name === tagName
+              );
+
+              return (
+                tag && (
+                  <img
+                    key={tagName}
+                    src={tag.image}
+                    alt={tagName}
+                    title={tagName}
+                    className="match-tag-icon"
+                  />
+                )
+              );
+            })}
+          </div>
+        );
+    };
+
+
+
   return (
     <div className="match-card">
+
+      {/* Images */}
       <div className="match-images">
         {(match.clothes || []).map((item) => (
           <React.Fragment key={item._id}>
@@ -22,8 +54,10 @@ const ViewMatchesCard = ({
         ))}
       </div>
 
+      {/* Match info */}
       <div className="match-info">
         <div className="item-info">
+
           <div>
             {match.min_temp}° - {match.max_temp}°
           </div>
@@ -34,6 +68,12 @@ const ViewMatchesCard = ({
               .map(capitalize)
               .join(", ") || "N/A"}
           </div>
+          
+          <div>
+            {renderMatchTags()}
+          </div>
+
+
         </div>
 
         <div className="match-items-button-row">

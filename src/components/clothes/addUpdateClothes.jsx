@@ -11,7 +11,7 @@ import ModalThree from "./uploadComponents/modalThree";
 import { useClothingForm } from "./uploadComponents/useClothingForm";
 import { useClothingDetection } from "./uploadComponents/useClothingDetection";
 
-import "./addUpdateClothes.css";
+import '../../styles/modal.css'
 
 const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
@@ -124,7 +124,7 @@ const handleSubmit = async (e) => {
 
   return (
     <div className="modal-backdrop">
-      <div className="add-update-modal">
+      <div className="modal-wrapper">
 
         <button
           className="close-modal"
@@ -142,7 +142,6 @@ const handleSubmit = async (e) => {
                 ? "Update Clothing Item"
                 : "Add Clothing Item"}
             </div>
-
 
             <form
               className="update-form"

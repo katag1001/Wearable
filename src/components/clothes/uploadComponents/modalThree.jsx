@@ -5,6 +5,8 @@ import {
   tagOptions
 } from "../../../constants/optionsBank";
 
+import '../../../styles/modal.css' 
+
 const ModalThree = ({
   formData,
   toggleColor,
@@ -84,11 +86,7 @@ const ModalThree = ({
         </div>
 
       </div>
-
-<div className="modal-divider-container">
-<div className="modal-divider" />
-</div>     
-
+   
     {/* Tags */}
       <div className="tags-section">
 
@@ -96,12 +94,12 @@ const ModalThree = ({
           Tags
         </div>
 
-        <div className="tag-grid">
+        <div className="selection-grid">
 
           {tagOptions.map(tag => (
 
             <div
-              className="tag-item"
+              className="selection-item"
               key={tag.name}
             >
 
@@ -109,8 +107,8 @@ const ModalThree = ({
                 type="button"
                 className={
                   formData.tags.includes(tag.name)
-                    ? "tag-button selected"
-                    : "tag-button"
+                    ? "selection-button selected"
+                    : "selection-button"
                 }
                 onClick={() => toggleTag(tag.name)}
               >
@@ -118,9 +116,10 @@ const ModalThree = ({
                 <img
                   src={tag.image}
                   alt={tag.name}
+                  className="selection-img"
                 />
 
-                <span>
+                <span className="selection-title">
                   {tag.name}
                 </span>
 
@@ -133,8 +132,6 @@ const ModalThree = ({
         </div>
 
       </div>
-
-
 
 
     </div>

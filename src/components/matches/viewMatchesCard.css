@@ -35,6 +35,20 @@
   margin-top: auto; 
 }
 
+.match-tags {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.match-tag-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
 /* Button row */
 .match-items-button-row {
   display: flex;
