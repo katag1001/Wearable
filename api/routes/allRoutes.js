@@ -14,7 +14,7 @@ router.get("/clothing/", authMiddleware, allControllers.getAllItems);
 router.get("/clothing/:id", authMiddleware, allControllers.getItemById);
 router.put("/clothing/:id", authMiddleware, allControllers.updateItem);
 router.delete("/clothing/:id", authMiddleware, allControllers.deleteItem);
-router.get("/clothing/:type/:name", authMiddleware, allControllers.getItemByName);
+/*router.get("/clothing/:type/:name", authMiddleware, allControllers.getItemByName);*/
 
 /* MATCH ROUTES */
 router.post("/match/matches", authMiddleware, allControllers.createMatch);

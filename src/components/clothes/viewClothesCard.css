@@ -85,6 +85,21 @@
   margin-top: auto;
 }
 
+.clothing-tags {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.clothing-tag-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+
 .clothing-card-button-row {
   font-size: 0.8rem;
   gap: 10px;
@@ -97,28 +112,6 @@
   font-size: 0.8rem;
 }
 
-
-/* Section styling 
-.clothing-section {
-  position: relative;
-  width: 100%;
-}
-
-.section-wrapper {
-  position: relative;
-  width: 100%;
-  padding:10px;
-}
-
-.section-title-viewclothes {
-  font-family: 'Helvetica Neue', sans-serif;
-  color: black;
-  margin: 0px;
-  padding: 0rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}*/
 
 /* Text button style */
 .clothing-text-button {
@@ -160,4 +153,5 @@
 .clothing-text-button.active::after {
   right: 0;
 }
+
 

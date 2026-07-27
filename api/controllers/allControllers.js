@@ -190,7 +190,7 @@ return res.status(500).json({ error: error.message });
 }
 };
 
-exports.getItemByName = async (req, res) => {
+/*exports.getItemByName = async (req, res) => {
   const userId = req.user?.userId;
   const { type, name } = req.params;
 
@@ -211,7 +211,7 @@ exports.getItemByName = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-};
+};*/
 
 exports.updateItem = async (req, res) => {
 const userId = req.user?.userId;

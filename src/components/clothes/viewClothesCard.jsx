@@ -1,5 +1,6 @@
 import React from "react";
 import "./viewClothesCard.css";
+import { tagOptions } from "../../constants/optionsBank";
 
 const ViewClothesCard = ({
   item,
@@ -8,8 +9,21 @@ const ViewClothesCard = ({
   onEdit,
   onDelete,
 }) => {
+
+  const tagImageMap = Object.fromEntries(
+  tagOptions.map(tag => [tag.name, tag.image])
+);
+
+console.log({
+  name: item.name,
+  tags: item.tags,
+  item
+});
+
   return (
     <div className="clothing-card-viewclothes">
+
+      {/* Image */}
       {item.imageUrl && (
         <img
           src={item.imageUrl}
@@ -18,11 +32,15 @@ const ViewClothesCard = ({
         />
       )}
 
+      {/* Details*/}
       <div className="clothing-details-viewclothes">
+
+        {/* Name */}
         <div className="clothing-item-name">
           {item.name}
         </div>
 
+        {/* Item info */}
         <div className="clothing-item-info">
           <div>
             {getSeasons(item)}
@@ -31,8 +49,28 @@ const ViewClothesCard = ({
           <div>
             {item.min_temp}° - {item.max_temp}°
           </div>
+
+          <div>
+            {item.tags?.length > 0 && (
+              <div className="clothing-tags">
+                {item.tags.map(tag => (
+                  tagImageMap[tag] && (
+                    <img
+                      key={tag}
+                      src={tagImageMap[tag]}
+                      alt={tag}
+                      title={tag}
+                      className="clothing-tag-icon"
+                    />
+                  )
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
 
+        {/* Buttons*/}
         <div className="clothing-card-button-row">
           <button
             className="clothing-text-button"
@@ -48,6 +86,8 @@ const ViewClothesCard = ({
             Delete
           </button>
         </div>
+
+
       </div>
     </div>
   );
