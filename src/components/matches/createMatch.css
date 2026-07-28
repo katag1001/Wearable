@@ -7,7 +7,6 @@
 
 .create-matches-container {
     width: 100%;
-
 }
 
 .buildmatch-layout {
@@ -139,6 +138,8 @@
     background: white;
     border: 1px solid rgba(0, 0, 0, 0.315);
     padding: 20px;
+    width: 70vh;
+    width: 97%;
 }
 
 .selected-title {
@@ -239,23 +240,127 @@
     }
 }
 
-/* ---------- Responsive ---------- */
+/* ==========================================
+   Responsive Layout
+   ========================================== */
 
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
+
     .buildmatch-layout {
+        display: flex;
         flex-direction: column;
+        gap: 20px;
+        padding: 15px;
     }
 
+    /* Full width */
+    .buildmatch-left,
     .buildmatch-right {
+        max-width: 100%;
         width: 100%;
+        flex: none;
+    }
+
+    /* Search stays at the top while scrolling */
+    .buildmatch-search {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: white;
+        padding: 10px 0;
+        margin-bottom: 10px;
+    }
+
+    .buildmatch-search-input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Selected outfit appears under search */
+    .buildmatch-right {
         position: static;
+        order: -1;
     }
 
     .selected-outfit-box {
-        margin-top: 20px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        height: 35vh;
+    }
+
+    /* Smaller grid */
+    .selected-items {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 10px;
     }
 
     .selected-card {
-        height: 160px;
+        height: 110px;
     }
+
+    /* Clothing cards smaller */
+    .buildmatch-small {
+        width: 90px;
+        height: 120px;
+    }
+
+    /* Slightly smaller arrows */
+    .scroll-arrow {
+        font-size: 1.3rem;
+        width: 18px;
+    }
+
+    .section-title-viewclothes {
+        font-size: 18px;
+    }
+
+    .selected-title {
+        font-size: 20px;
+    }
+
+    .top-area-wrapper {
+        margin-bottom: 15px;
+    }
+
 }
+
+
+/* Small phones */
+
+@media (max-width: 600px) {
+
+    .buildmatch-layout {
+        padding: 10px;
+        gap: 15px;
+    }
+
+    .buildmatch-small {
+        width: 80px;
+        height: 110px;
+    }
+
+    .selected-items {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .selected-card {
+        height: 100px;
+    }
+
+    .scroll-container {
+        padding: 6px 0;
+    }
+
+    .scroll-arrow {
+        font-size: 1.2rem;
+        width: 16px;
+    }
+
+    .match-popup {
+        width: 90%;
+        padding: 25px;
+    }
+
+}
+

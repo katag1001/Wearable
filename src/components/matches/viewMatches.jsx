@@ -9,7 +9,9 @@ import ViewMatchesTop from "./viewMatchesTop";
 import Filter from "../general/filter.jsx";
 
 import "./viewMatchesCard.css"; /*.match-image for renderItemImage */
+
 import '../../styles/pagesBottom.css'
+import '../../styles/pages.css'
 
 const ViewMatches = ({ mode = "active" }) => {
 
@@ -205,10 +207,6 @@ const ViewMatches = ({ mode = "active" }) => {
 
     }
 
-
-
-
-
     if (filters.seasons.length > 0) {
 
       if (
@@ -219,10 +217,6 @@ const ViewMatches = ({ mode = "active" }) => {
         return false;
 
     }
-
-
-
-
 
     if (filters.colors.length > 0) {
 
@@ -237,9 +231,6 @@ const ViewMatches = ({ mode = "active" }) => {
     }
 
 
-
-
-
     if (filters.styles.length > 0) {
 
       if (
@@ -251,10 +242,6 @@ const ViewMatches = ({ mode = "active" }) => {
         return false;
 
     }
-
-
-
-
 
     if (filters.tags.length > 0) {
 
@@ -268,30 +255,18 @@ const ViewMatches = ({ mode = "active" }) => {
 
     }
 
-
-
-
-
     if (
       filters.minTemp !== null &&
       match.max_temp < filters.minTemp
     )
       return false;
 
-
-
-
     if (
       filters.maxTemp !== null &&
       match.min_temp > filters.maxTemp
     )
       return false;
-
-
-
-
     return true;
-
 
   });
 
@@ -309,6 +284,12 @@ const ViewMatches = ({ mode = "active" }) => {
   return (
 
     <div className="main-container">
+
+      <Link to="/buildmatches" className="top-action-button">
+        <button className="top-action-button">
+          Build Outfits
+        </button>
+      </Link>
 
       <ViewMatchesTop
         mode={mode}

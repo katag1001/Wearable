@@ -295,20 +295,21 @@ const CreateMatch = () => {
 
   return (
     <div className="main-container">
+        <button type="button" onClick={handleSubmit} className="top-action-button">
+          Submit Outfit
+        </button>
 
       {showPopup && (
         <div className="match-popup-overlay">
           <div className="match-popup">
-            <h3>✓ Outfit Submitted!</h3>
+            <h3>Outfit Submitted!</h3>
             <p>Your outfit has been successfully added to the matches database.</p>
           </div>
         </div>
       )}
 
       <div className="top-area-wrapper">
-        <button type="button" onClick={handleSubmit} className="top-action-button">
-          Submit Outfit
-        </button>
+
       </div>
       <div className="create-matches-container">
       <div className="buildmatch-layout">
@@ -337,7 +338,7 @@ const CreateMatch = () => {
 
             {selectedItems.length === 0 ? (
               <div className="selected-empty">
-                Select clothing items from the left to build an outfit.
+                Select clothing items to build an outfit.
               </div>
             ) : (
               <div className="selected-items">

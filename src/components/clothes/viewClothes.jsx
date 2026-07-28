@@ -9,6 +9,7 @@ import ViewClothesTop from "./viewClothesTop.jsx";
 import ViewClothesCard from "./viewClothesCard.jsx";
 
 import '../../styles/pagesBottom.css'
+import '../../styles/pages.css'
 
 import { URL } from "../../config";
 
@@ -282,9 +283,14 @@ const ViewClothes = () => {
   };
 
   return (
-
-
     <div className="main-container">
+
+      <button
+          className="top-action-button"
+          onClick={handleAddItem}
+        >
+          Add Item
+      </button>
 
       {error && (
 

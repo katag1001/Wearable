@@ -5,7 +5,6 @@ import '../../styles/pagesTop.css'
 const ViewClothesTop = ({
   searchTerm,
   setSearchTerm,
-  handleAddItem,
   clothingTypes,
   typeTitles,
   selectedType,
@@ -15,15 +14,6 @@ const ViewClothesTop = ({
 
   return (
     <div className="top-area-wrapper">
-
-
-      <button
-        className="top-action-button"
-        onClick={handleAddItem}
-      >
-        Add Item
-      </button>
-
 
       <div className="top-selection-area">
 

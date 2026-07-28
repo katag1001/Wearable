@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import '../../styles/pagesTop.css'
+import '../../styles/pages.css'
 
 const ViewMatchesTop = ({
   mode,
@@ -21,12 +22,6 @@ const ViewMatchesTop = ({
 
   return (
     <div className="top-area-wrapper">
-
-      <Link to="/buildmatches" className="top-action-link">
-        <button className="top-action-button">
-          Build Outfits
-        </button>
-      </Link>
 
       <div className="top-selection-area">
 

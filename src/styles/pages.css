@@ -11,17 +11,18 @@
 
 
 .main-container {
+  width: 100%;
+  max-width: 100vw;
+  padding-top: var(--header-height);
   font-family: 'Helvetica Neue', sans-serif;
   color: #111;
   background-color: #fff;
-  width: 100%;
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
-  padding-top: var(--header-height);
 
-  
 }
 
 .main-container h2 {
@@ -126,24 +127,19 @@
     box-sizing: border-box;
   }
 
-  html, body {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
+
 
   .full-page-container {
     width: 100%;
     max-width: 100%;
     min-height: 100vh;
-    overflow-x: hidden;
+
   }
 
   .main-container {
     width: 100%;
     max-width: 100%;
-    padding-top: var(--header-height);
-    overflow-x: hidden;
+
   }
 
   .page-title {
