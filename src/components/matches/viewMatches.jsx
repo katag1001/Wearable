@@ -289,7 +289,7 @@ const ViewMatches = ({ mode = "active" }) => {
         <button className="top-action-button">
           Build Outfits
         </button>
-      </Link>
+      </Link> 
 
       <ViewMatchesTop
         mode={mode}
@@ -299,7 +299,7 @@ const ViewMatches = ({ mode = "active" }) => {
         toggleSeasonFilter={toggleSeasonFilter}
         setShowFilters={setShowFilters}
         capitalize={capitalize}
-      />
+      /> 
 
 
       {error && (
