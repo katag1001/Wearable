@@ -22,7 +22,9 @@ const Login = ({ login, logout, loggedIn }) => {
           <>
           
             <p>You are logged in</p>
-            <button onClick={logout}>Logout</button>
+            <button 
+            className="logout-button"
+            onClick={logout}>Logout</button>
           </>
         ) : (
           <>

@@ -162,8 +162,8 @@
   }
 
   .logout-button {
-    width: 100%;
-    max-width: 300px;
+    width: 50%;
+    max-width: 50px;
   }
 
   .not-logged-in-container {

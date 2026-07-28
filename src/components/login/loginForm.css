@@ -94,14 +94,45 @@
 }
 
 
-/* Responsive */
-@media (max-width: 480px) {
+/* Small screens */
+@media (max-width: 600px) {
   .login-form-container {
-    padding: 1.5rem;
+    max-width: 100%;
+    padding: 1.25rem;
+    margin: 1rem auto;
+  }
+
+  .login-message {
+    font-size: 0.9rem;
   }
 
   .login-form-container input,
-  .login-form-container button[type="submit"] {
+  .login-form-container button[type="submit"],
+  .register-button {
+    padding: 0.7rem;
     font-size: 0.95rem;
+  }
+
+  .login-form-container .register-link {
+    font-size: 0.9rem;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 375px) {
+  .login-form-container {
+    padding: 1rem;
+  }
+
+  .login-form-container input,
+  .login-form-container button[type="submit"],
+  .register-button {
+    padding: 0.65rem;
+    font-size: 0.9rem;
+  }
+
+  .login-message,
+  .login-form-container .register-link {
+    font-size: 0.85rem;
   }
 }
