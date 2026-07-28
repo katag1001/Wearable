@@ -7,7 +7,7 @@ const jwt_secret = process.env.JWT_SECRET;
 const { User, Match, Today, Clothes } = require("../models/AllModels.js");
 const { processMatches } = require("../services/matchService");
 
-/* -------------------- AUTH HELPERS -------------------- */
+/* -------------------- AUTH HELPER -------------------- */
 
 exports.verify_token = (req, res) => {
 const authHeader = req.headers.authorization;
@@ -293,11 +293,14 @@ exports.createMatch = async (req, res) => {
   }
 
   try {
-    const clothes = (req.body.clothes || []).map((id) => id.toString()).sort();
+    const clothesIds = (req.body.clothes || [])
+      .map((id) => id.toString())
+      .sort();
 
+    // Check if this exact match already exists
     const existingMatches = await Match.find({
       userId,
-      clothes: { $size: clothes.length },
+      clothes: { $size: clothesIds.length },
     }).select("clothes");
 
     const duplicate = existingMatches.find((match) => {
@@ -306,8 +309,8 @@ exports.createMatch = async (req, res) => {
         .sort();
 
       return (
-        existingClothes.length === clothes.length &&
-        existingClothes.every((id, index) => id === clothes[index])
+        existingClothes.length === clothesIds.length &&
+        existingClothes.every((id, index) => id === clothesIds[index])
       );
     });
 
@@ -315,18 +318,51 @@ exports.createMatch = async (req, res) => {
       return res.status(409).json({ error: "Match already exists." });
     }
 
+    // Get clothing items so we can calculate match tags
+    const clothes = await Clothes.find({
+      _id: { $in: clothesIds },
+      userId,
+    });
+
+    if (clothes.length !== clothesIds.length) {
+      return res.status(400).json({
+        error: "One or more clothing items could not be found.",
+      });
+    }
+
+    // Calculate match tags
+    const tagCounts = {};
+
+    clothes.forEach((item) => {
+      (item.tags || []).forEach((tag) => {
+        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+      });
+    });
+
+    const matchTags = Object.keys(tagCounts).filter(
+      (tag) => tagCounts[tag] >= clothes.length / 2
+    );
+
+    // If no tags reach >=50%, keep all unique tags
+    const tags =
+      matchTags.length > 0 ? matchTags : Object.keys(tagCounts);
+
     const match = new Match({
       ...req.body,
+      clothes: clothesIds,
+      tags,
       userId,
     });
 
     await match.save();
 
     return res.json(match);
+
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
+
 
 /*exports.createMatchesBulk = async (req, res) => {
   const userId = req.user?.userId;

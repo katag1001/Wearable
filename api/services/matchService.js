@@ -1,6 +1,33 @@
 const { Clothes, Match } = require("../models/AllModels.js");
 const { colorPalettes } = require("../utils/colorPalettes.js");
 
+async function generateMatchTags(clothesIds) {
+
+  const clothes = await Clothes.find({
+    _id: { $in: clothesIds }
+  });
+
+  if (!clothes.length) {
+    return [];
+  }
+
+  const tagCounts = {};
+
+  clothes.forEach(item => {
+    (item.tags || []).forEach(tag => {
+      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    });
+  });
+
+  const majorityTags = Object.keys(tagCounts).filter(
+    tag => tagCounts[tag] >= clothes.length / 2
+  );
+
+  return majorityTags.length > 0
+    ? majorityTags
+    : Object.keys(tagCounts);
+}
+
 async function getCandidates(newItem) {
 
   console.log("\n==================== getCandidates ====================");
@@ -110,7 +137,7 @@ async function matchPath(newItem, matches) {
       summer: newItem.summer,
       autumn: newItem.autumn,
       winter: newItem.winter,
-      tags: null,
+      tags: newItem.tags || [],
       rejected: false,
       userMade: false,
       lastWornDate: new Date("1925-09-25T00:00:00.000Z")
@@ -241,39 +268,37 @@ async function pushResult(
   max_temp
 ) {
 
-  console.log("\n==================== pushResult ====================");
+  async function createResult(overrides = {}) {
 
-  console.log(
-    `Creating result for ${newItem.name} + ${matchItem.name}`
-  );
+  const result = {
+    clothes: [],
+    userId: newItem.userId || matchItem.userId,
+    colors: combinedColors,
+    min_temp: Number(min_temp.toFixed(1)),
+    max_temp: Number(max_temp.toFixed(1)),
+    type: "match",
+    styles: [...new Set([...newItem.styles, ...matchItem.styles])],
+    tags: [],
+    rejected: false,
+    spring: newItem.spring && matchItem.spring,
+    summer: newItem.summer && matchItem.summer,
+    autumn: newItem.autumn && matchItem.autumn,
+    winter: newItem.winter && matchItem.winter,
+    userMade: false,
+    lastWornDate: new Date("1925-09-25T00:00:00.000Z"),
+    ...overrides
+  };
 
-  function createResult(overrides = {}) {
-
-    const result = {
-        clothes: [],
-        userId: newItem.userId || matchItem.userId,
-        colors: combinedColors,
-        min_temp: Number(min_temp.toFixed(1)),
-        max_temp: Number(max_temp.toFixed(1)),
-        type: "match",
-        styles: [...new Set([...newItem.styles, ...matchItem.styles])],
-        tags: null,
-        rejected: false,
-        spring: newItem.spring && matchItem.spring,
-        summer: newItem.summer && matchItem.summer,
-        autumn: newItem.autumn && matchItem.autumn,
-        winter: newItem.winter && matchItem.winter,
-        userMade: false,
-        lastWornDate: new Date("1925-09-25T00:00:00.000Z"),
-        ...overrides
-      };
-
-    console.log("Generated match:");
-    console.dir(result, { depth: null });
-
-    return result;
-
+  if (result.clothes.length) {
+    result.tags = await generateMatchTags(result.clothes);
   }
+
+  console.log("Generated match:");
+  console.dir(result, { depth: null });
+
+  return result;
+}
+
 
   if (newItem.type === "top" || newItem.type === "bottom") {
 
@@ -289,7 +314,7 @@ async function pushResult(
       clothes.push(newItem._id);
     }
 
-    const result = createResult({ clothes });
+    const result = await createResult({ clothes });
 
     matches.push(result);
 
@@ -304,7 +329,7 @@ async function pushResult(
 
     console.log("Outer + top. Searching for bottom.");
 
-    const result = createResult({
+    const result = await createResult({
       clothes: [
         matchItem._id,
         newItem._id
@@ -321,7 +346,7 @@ async function pushResult(
 
     console.log("Outer + onepiece complete.");
 
-    matches.push(createResult({
+    matches.push(await createResult({
     clothes: [
       matchItem._id,
       newItem._id
@@ -348,7 +373,7 @@ async function pushResult(
 
       console.log("Finishing top+bottom with outer.");
 
-      matches.push(createResult({
+      matches.push(await createResult({
         clothes: [...clothes, matchItem._id]
       }));
 
@@ -360,7 +385,7 @@ async function pushResult(
 
       console.log("Finishing outer+top with bottom.");
 
-      matches.push(createResult({
+      matches.push(await createResult({
         clothes: [...clothes, matchItem._id]
       }));
 
@@ -374,7 +399,7 @@ async function pushResult(
 
     console.log("Onepiece + outer complete.");
 
-    matches.push(createResult({
+    matches.push(await createResult({
     clothes: [
         matchItem._id,
         newItem._id
