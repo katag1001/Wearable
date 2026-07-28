@@ -190,29 +190,6 @@ return res.status(500).json({ error: error.message });
 }
 };
 
-/*exports.getItemByName = async (req, res) => {
-  const userId = req.user?.userId;
-  const { type, name } = req.params;
-
-  try {
-    const item = await Clothes.findOne({
-      name: decodeURIComponent(name),
-      type,
-      userId,
-    });
-
-    if (!item) {
-      return res.json({
-        message: `${type} "${name}" not found for user`,
-      });
-    }
-
-    return res.json(item);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};*/
-
 exports.updateItem = async (req, res) => {
 const userId = req.user?.userId;
 const { id } = req.params;
@@ -363,60 +340,6 @@ exports.createMatch = async (req, res) => {
   }
 };
 
-
-/*exports.createMatchesBulk = async (req, res) => {
-  const userId = req.user?.userId;
-
-  if (!userId) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  try {
-    const matchesToInsert = req.body.map((match) => ({
-      ...match,
-      userId,
-    }));
-
-    const clothesArrays = matchesToInsert.map((match) =>
-      match.clothes.map((id) => id.toString()).sort()
-    );
-
-    const existingMatches = await Match.find({
-      userId,
-      clothes: {
-        $in: matchesToInsert.map((match) => match.clothes),
-      },
-    }).select("clothes");
-
-    const filteredMatches = matchesToInsert.filter((match) => {
-      const clothes = match.clothes.map((id) => id.toString()).sort();
-
-      const alreadyExists = existingMatches.some((existingMatch) => {
-        const existingClothes = existingMatch.clothes
-          .map((id) => id.toString())
-          .sort();
-
-        return (
-          existingClothes.length === clothes.length &&
-          existingClothes.every((id, index) => id === clothes[index])
-        );
-      });
-
-      return !alreadyExists;
-    });
-
-    if (filteredMatches.length === 0) {
-      return res.status(409).json({ error: "All matches already exist." });
-    }
-
-    const matches = await Match.insertMany(filteredMatches);
-
-    return res.json(matches);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-}; */
-
 exports.getAllMatches = async (req, res) => {
 const userId = req.user?.userId;
 
@@ -445,21 +368,51 @@ return res.status(500).json({ error: error.message });
 };
 
 exports.updateMatch = async (req, res) => {
-const userId = req.user?.userId;
+  const userId = req.user?.userId;
 
-try {
-const match = await Match.findOneAndUpdate(
-{ _id: req.params.id, userId },
-req.body,
-{ new: true }
-).populate("clothes");
+  try {
+    const match = await Match.findOne({
+      _id: req.params.id,
+      userId,
+    });
 
-return res.json(match);
+    if (!match) {
+      return res.status(404).json({
+        message: "Match not found",
+      });
+    }
 
-} catch (error) {
-return res.status(500).json({ error: error.message });
-}
+    // Update match fields
+    Object.assign(match, req.body);
+
+    await match.save();
+
+    // If outfit was marked as worn, update all clothes in the outfit
+    if (req.body.lastWornDate) {
+      await Clothes.updateMany(
+        {
+          _id: { $in: match.clothes },
+          userId,
+        },
+        {
+          lastWornDate: req.body.lastWornDate,
+        }
+      );
+    }
+
+    // Return populated match
+    const updatedMatch = await Match.findById(match._id)
+      .populate("clothes");
+
+    return res.json(updatedMatch);
+
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
 };
+
 
 exports.deleteMatch = async (req, res) => {
 const userId = req.user?.userId;
