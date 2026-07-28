@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import '../../styles/modal.css'
 import { URL } from "../../config";
-import TemperatureSlider from "../general/TemperatureSlider";
+import TemperatureSlider from "../general/temperatureSlider";
 import { tagOptions } from "../../constants/optionsBank";
 
 
