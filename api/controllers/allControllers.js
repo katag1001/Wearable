@@ -94,7 +94,7 @@ const token = jwt.sign(
     email: user.email,
   },
   jwt_secret,
-  { expiresIn: "1h" }
+  { expiresIn: "365d" }
 );
 
 return res.json({
