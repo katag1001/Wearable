@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { URL } from "../../config";
 import { Link } from 'react-router-dom';
@@ -14,6 +15,9 @@ import '../../styles/pagesBottom.css'
 import '../../styles/pages.css'
 
 const ViewMatches = ({ mode = "active" }) => {
+
+  const [searchParams] = useSearchParams();
+  const itemFilter = searchParams.get("item");
 
   const [matches, setMatches] = useState([]);
   const [error, setError] = useState(null);
@@ -153,6 +157,16 @@ const ViewMatches = ({ mode = "active" }) => {
 
     const isRejected =
       !!match.rejected;
+
+    if (
+        itemFilter &&
+        !match.clothes?.some(
+          item =>
+            item._id === itemFilter
+        )
+      ) {
+        return false;
+      }
 
     if (
       mode === "active" &&

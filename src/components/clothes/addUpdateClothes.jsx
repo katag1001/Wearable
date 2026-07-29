@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-import ViewNewMatches from "./viewNewMatches";
 import { URL } from "../../config";
 
 import ModalOne from "./uploadComponents/modalOne";
@@ -15,6 +15,8 @@ import '../../styles/modal.css';
 
 
 const AddUpdateClothes = ({ item, onClose, refresh }) => {
+
+  const navigate = useNavigate();
 
   const isUpdate = !!item;
 
@@ -201,6 +203,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
       const saved = response.data;
 
       setJustSavedItem({
+        id: saved._id,
         name: saved.name,
         type: saved.type
       });
@@ -362,17 +365,34 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           </>
 
         ) : (
-          <ViewNewMatches
-            newItemName={justSavedItem.name}
-            newItemType={justSavedItem.type}
-          />
-        )}
 
-        {message && (
-          <p>
-            {message}
-          </p>
-        )}
+          <>
+          
+          {message && (
+            <div className="modal-title">
+              {message}
+            </div>
+          )}
+
+          <div className="view-new-matches-wrapper">
+            <button
+              className="modal-button"
+              onClick={() =>
+                navigate(
+                  `/matches?item=${justSavedItem.id}`
+                )
+              }
+            >
+              View New Matches
+            </button>
+          </div>
+          
+        </>
+
+          )}
+
+
+        
 
       </div>
     </div>

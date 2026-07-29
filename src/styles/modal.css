@@ -387,6 +387,12 @@
 }
 
 
+.view-new-matches-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
 
 /* Matches area inside modal */
 .matches-container {
@@ -400,8 +406,6 @@ body.modal-open {
   overflow: hidden;
 
 }
-
-
 
 
 /* Subtype selection */
@@ -433,6 +437,8 @@ body.modal-open {
 .selection-title {
   font-weight: normal
 }
+
+
 
 /* Mobile modal: full screen */
 @media (max-width: 600px) {
@@ -476,4 +482,13 @@ body.modal-open {
   }
 
 }
+
+.view-new-matches-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 15px;
+    padding: 0 10px;
+  }
+
 
