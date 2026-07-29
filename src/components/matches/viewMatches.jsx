@@ -178,29 +178,31 @@ const ViewMatches = ({ mode = "active" }) => {
         searchTerm.toLowerCase();
 
       const matchesSearch =
-        match.name?.toLowerCase()
-          .includes(search)
+  match.clothes?.some(item =>
+    item.name?.toLowerCase().includes(search)
+  )
 
-        ||
+  ||
 
-        match.colors?.some(color =>
-          color.toLowerCase()
-            .includes(search)
-        )
+  match.colors?.some(color =>
+    color.toLowerCase()
+      .includes(search)
+  )
 
-        ||
+  ||
 
-        match.styles?.some(style =>
-          style.toLowerCase()
-            .includes(search)
-        )
+  match.styles?.some(style =>
+    style.toLowerCase()
+      .includes(search)
+  )
 
-        ||
+  ||
 
-        match.tags?.some(tag =>
-          tag.toLowerCase()
-            .includes(search)
-        );
+  match.tags?.some(tag =>
+    tag.toLowerCase()
+      .includes(search)
+  );
+
 
       if (!matchesSearch)
         return false;
