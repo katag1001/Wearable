@@ -475,11 +475,13 @@ exports.createToday = async (req, res) => {
     seasonFilter[season_today] = true;
 
     const matches = await Match.find({
-      min_temp: { $gte: min_temp_today - 4 },
-      max_temp: { $lte: max_temp_today + 4 },
       rejected: false,
       userId,
       ...seasonFilter,
+
+      // Temperature ranges overlap within a ±4°C tolerance
+      min_temp: { $lte: max_temp_today + 4 },
+      max_temp: { $gte: min_temp_today - 4 },
     });
 
     await Today.deleteMany({ userId });
