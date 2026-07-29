@@ -177,7 +177,7 @@ const CreateMatch = () => {
     ...seasons,
     styles: [],
     type: "match",
-    lastWornDate: new Date(),
+    lastWornDate: null,
     tags: [],
     rejected: false,
     userMade: true,

@@ -140,7 +140,7 @@ async function matchPath(newItem, matches) {
       tags: newItem.tags || [],
       rejected: false,
       userMade: false,
-      lastWornDate: new Date("1925-09-25T00:00:00.000Z")
+      lastWornDate: null,
     });
 
     console.log("Standalone onepiece match added.");
@@ -285,7 +285,7 @@ async function pushResult(
     autumn: newItem.autumn && matchItem.autumn,
     winter: newItem.winter && matchItem.winter,
     userMade: false,
-    lastWornDate: new Date("1925-09-25T00:00:00.000Z"),
+    lastWornDate: null,
     ...overrides
   };
 

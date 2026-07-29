@@ -103,7 +103,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
       ].filter(Boolean),
     },
 
-
     3: {
       valid:
         formData.colors.length > 0,
@@ -115,10 +114,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
   };
 
-
   const currentValidation =
     pageValidation[currentPage];
-
 
   const formatMissingFields = (fields) => {
 
@@ -141,7 +138,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
   };
 
-
   const handleNext = () => {
 
     if (!currentValidation.valid) {
@@ -155,11 +151,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
   };
 
-
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-
 
     if (!currentValidation.valid) {
 
@@ -168,9 +161,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
     }
 
-
     setShowValidation(false);
-
 
     try {
 
@@ -180,9 +171,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
         max_temp: Number(formData.max_temp),
       };
 
-
       let response;
-
 
       if (isUpdate) {
 
@@ -209,9 +198,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
       }
 
-
       const saved = response.data;
-
 
       setJustSavedItem({
         name: saved.name,
@@ -223,13 +210,11 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
         refresh();
       }
 
-
       setMessage(
         isUpdate
           ? "Item updated"
           : "Item created"
       );
-
 
     } catch (err) {
 
@@ -243,24 +228,18 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
         err.response?.data
       );
 
-
       setMessage(
         err.response?.data?.error ||
         "Error saving clothing item"
       );
-
     }
-
   };
-
-
 
   return (
 
     <div className="modal-backdrop">
 
       <div className="modal-wrapper">
-
 
         <button
           className="close-modal"
@@ -269,29 +248,21 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           ×
         </button>
 
-
-
         {!justSavedItem ? (
 
           <>
-
             <div className="modal-title">
-
               {
                 isUpdate
                   ? "Update Clothing Item"
                   : "Add Clothing Item"
               }
-
             </div>
-
-
 
             <form
               className="update-form"
               onSubmit={handleSubmit}
             >
-
 
               {currentPage === 1 && (
 
@@ -304,8 +275,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
               )}
 
-
-
               {currentPage === 2 && (
 
                 <ModalTwo
@@ -315,8 +284,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                 />
 
               )}
-
-
 
               {currentPage === 3 && (
 
@@ -328,7 +295,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                 />
 
               )}
-
 
               {showValidation &&
                 !currentValidation.valid && (
@@ -344,9 +310,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
               )}
 
-
               <div className="modal-navigation">
-
 
                 {currentPage > 1 && (
 
@@ -368,8 +332,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
                 )}
 
-
-
                 {currentPage < 3 && (
 
                   <button
@@ -382,8 +344,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
                 )}
 
-
-
                 {currentPage === 3 && (
 
                   <button
@@ -395,40 +355,27 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
                 )}
 
-
               </div>
-
 
             </form>
 
-
           </>
 
-
         ) : (
-
           <ViewNewMatches
             newItemName={justSavedItem.name}
             newItemType={justSavedItem.type}
           />
-
         )}
 
-
-
         {message && (
-
           <p>
             {message}
           </p>
-
         )}
 
-
       </div>
-
     </div>
-
   );
 
 };

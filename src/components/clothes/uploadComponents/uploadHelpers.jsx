@@ -33,10 +33,7 @@ export const getInitialState = () => ({
   autumn: false,
   winter: false,
   tags: [],
-  lastWornDate: new Date(
-    Date.now() -
-    100 * 365 * 24 * 60 * 60 * 1000
-  )
+  lastWornDate: null
 });
 
 export const detectFromName = (name) => {

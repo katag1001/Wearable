@@ -42,9 +42,9 @@ styles: { type: [String], default: [] },
 tags: { type: [String], required: false },
 
 rejected: { type: Boolean, required: true },
-lastWornDate: { type: Date, required: true },
+lastWornDate: { type: Date, default: null },
 
-userMade: { type: Boolean, required: true },
+userMade: { type: Boolean, default: false },
 });
 
 /* -------------------- CLOTHES -------------------- */
