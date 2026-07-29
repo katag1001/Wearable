@@ -494,9 +494,9 @@ exports.createToday = async (req, res) => {
       });
     }
 
-    const todayOutfits = matches.map((match) => ({
-      ...match.toObject(),
+    const todayOutfits = matches.map((match, index) => ({
       userId,
+      matchId: match._id
     }));
 
     const inserted = await Today.insertMany(todayOutfits);
@@ -520,10 +520,18 @@ exports.getToday = async (req, res) => {
 
   try {
     const outfits = await Today.find({ userId })
-      .populate("clothes", "name imageUrl type");
+      .populate({
+        path: "matchId",
+        populate: {
+          path: "clothes",
+          select: "name imageUrl type",
+        },
+      });
 
     if (!outfits.length) {
-      return res.json({ message: "No outfits found for today." });
+      return res.json({
+        message: "No outfits found for today.",
+      });
     }
 
     return res.json(outfits);
@@ -536,3 +544,5 @@ exports.getToday = async (req, res) => {
     });
   }
 };
+
+

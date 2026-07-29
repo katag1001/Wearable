@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { useGeolocation } from "@uidotdev/usehooks";
-import './autoWeather.css';
+import "./autoWeather.css";
 import { URL } from "../../config";
 
 const AutoWeather = () => {
-  const location = useGeolocation();
-  const [weather, setWeather] = useState(null);
-  const [error, setError] = useState(null);
-
   const STORAGE_KEY = "weather_cache";
+  const TODAY_KEY = "today_created";
+
+  const location = useGeolocation();
 
   const isToday = (dateString) => {
     const today = new Date();
@@ -27,24 +26,47 @@ const AutoWeather = () => {
     if ([2, 3, 4].includes(month)) return "spring";
     if ([5, 6, 7].includes(month)) return "summer";
     if ([8, 9, 10].includes(month)) return "autumn";
-    if ([11, 0, 1].includes(month)) return "winter";
-
-    return "unknown";
+    return "winter";
   };
 
+  const getCachedWeather = () => {
+    const cached = localStorage.getItem(STORAGE_KEY);
+
+    if (!cached) return null;
+
+    try {
+      const parsed = JSON.parse(cached);
+
+      if (parsed.date && isToday(parsed.date)) {
+        return parsed;
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+
+  const cached = getCachedWeather();
+
+  const [weather, setWeather] = useState(
+    cached ? cached.weather : null
+  );
+
+  const [error, setError] = useState(null);
+
+
   const triggerCreateToday = async (min, max, season) => {
+    const alreadyCreated = localStorage.getItem(TODAY_KEY);
+
+    if (alreadyCreated && isToday(alreadyCreated)) {
+      console.log("Today already created.");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
-
-      console.log("========== CREATE TODAY ==========");
-      console.log("Token found:", !!token);
-      console.log("Token:", token);
-      console.log("Sending:");
-      console.log({
-        min_temp_today: min,
-        max_temp_today: max,
-        season_today: season,
-      });
 
       const response = await fetch(`${URL}/today/create`, {
         method: "POST",
@@ -59,118 +81,127 @@ const AutoWeather = () => {
         }),
       });
 
-      console.log("Status:", response.status);
-
       const data = await response.json();
 
-      console.log("Response:");
-      console.log(data);
-      console.log("==============================");
+      console.log("Created today:", data);
+
+      localStorage.setItem(
+        TODAY_KEY,
+        new Date().toISOString()
+      );
 
       return data;
+
     } catch (err) {
-      console.error("[AutoWeather] Error calling /today/create");
-      console.error(err);
-      return null;
+      console.error("Error creating today:", err);
     }
   };
 
-  useEffect(() => {
-    console.log("Location object:", location);
 
-    if (location && location.latitude && location.longitude) {
-      const fetchWeather = async () => {
-        try {
-          console.log("Location acquired:");
-          console.log(location.latitude, location.longitude);
+  const fetchWeather = async (latitude, longitude) => {
+    try {
+      console.log("Fetching new weather...");
 
-          const cached = localStorage.getItem(STORAGE_KEY);
+      const url =
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}` +
+        `&longitude=${longitude}` +
+        `&daily=temperature_2m_max,temperature_2m_min` +
+        `&timezone=auto`;
 
-          if (cached) {
-            const parsed = JSON.parse(cached);
+      const response = await fetch(url);
 
-            console.log("Cached weather:", parsed);
+      const data = await response.json();
 
-            if (parsed.date && isToday(parsed.date)) {
-              console.log("Using cached weather.");
+      if (!data.daily) return;
 
-              setWeather(parsed.weather);
 
-              await triggerCreateToday(
-                parsed.weather.min,
-                parsed.weather.max,
-                getSeason()
-              );
-
-              return;
-            }
-
-            console.log("Cache is outdated.");
-          }
-
-          console.log("Fetching weather from Open Meteo...");
-
-          const url =
-            `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}` +
-            `&longitude=${location.longitude}` +
-            `&daily=temperature_2m_max,temperature_2m_min` +
-            `&timezone=auto`;
-
-          const response = await fetch(url);
-
-          console.log("Weather API status:", response.status);
-
-          const data = await response.json();
-
-          console.log("Weather API response:");
-          console.log(data);
-
-          if (data && data.daily) {
-            const weatherData = {
-              min: data.daily.temperature_2m_min[0],
-              max: data.daily.temperature_2m_max[0],
-            };
-
-            console.log("Today's weather:");
-            console.log(weatherData);
-
-            setWeather(weatherData);
-
-            localStorage.setItem(
-              STORAGE_KEY,
-              JSON.stringify({
-                date: new Date().toISOString(),
-                weather: weatherData,
-              })
-            );
-
-            console.log("Weather cached.");
-
-            await triggerCreateToday(
-              weatherData.min,
-              weatherData.max,
-              getSeason()
-            );
-          }
-        } catch (err) {
-          console.error("Weather fetch failed:");
-          console.error(err);
-
-          setError("Failed to fetch weather data.");
-        }
+      const weatherData = {
+        min: data.daily.temperature_2m_min[0],
+        max: data.daily.temperature_2m_max[0],
       };
 
-      fetchWeather();
+
+      setWeather(weatherData);
+
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          date: new Date().toISOString(),
+
+          location: {
+            latitude,
+            longitude,
+          },
+
+          weather: weatherData,
+        })
+      );
+
+
+      await triggerCreateToday(
+        weatherData.min,
+        weatherData.max,
+        getSeason()
+      );
+
+
+    } catch (err) {
+      console.error("Weather fetch failed:", err);
+      setError("Failed to fetch weather data.");
     }
-  }, [location]);
+  };
+
+
+  useEffect(() => {
+
+    const cached = getCachedWeather();
+
+
+    // Already have today's weather
+    if (cached) {
+
+      console.log("Using cached weather.");
+
+      triggerCreateToday(
+        cached.weather.min,
+        cached.weather.max,
+        getSeason()
+      );
+
+      return;
+    }
+
+
+    // Need fresh weather
+    if (
+      location.latitude &&
+      location.longitude
+    ) {
+
+      fetchWeather(
+        location.latitude,
+        location.longitude
+      );
+
+    }
+
+  }, [
+    location.latitude,
+    location.longitude
+  ]);
+
+
 
   return (
     <div className="weather">
-      {location.loading && (
+
+      {location.loading && !weather && (
         <p className="weather-text">
-          Loading location... (please enable location permissions)
+          Loading location...
         </p>
       )}
+
 
       {location.error && (
         <p className="weather-error">
@@ -178,10 +209,12 @@ const AutoWeather = () => {
         </p>
       )}
 
+
       {weather ? (
         <>
           <p className="weather-text">
-            {getSeason().charAt(0).toUpperCase() + getSeason().slice(1)}
+            {getSeason().charAt(0).toUpperCase() +
+              getSeason().slice(1)}
           </p>
 
           <p className="weather-text">
@@ -189,10 +222,20 @@ const AutoWeather = () => {
           </p>
         </>
       ) : (
-        !error && <p className="weather-text">Loading weather...</p>
+        !error && (
+          <p className="weather-text">
+            Loading weather...
+          </p>
+        )
       )}
 
-      {error && <p className="weather-error">{error}</p>}
+
+      {error && (
+        <p className="weather-error">
+          {error}
+        </p>
+      )}
+
     </div>
   );
 };

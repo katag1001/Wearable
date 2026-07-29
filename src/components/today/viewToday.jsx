@@ -28,6 +28,7 @@ const ViewToday = () => {
         },
       });
 
+      console.log("TODAY RESPONSE:", response.data);
       const data = response.data;
 
       if (!Array.isArray(data)) {
@@ -63,12 +64,16 @@ const ViewToday = () => {
 
   const markAsWornToday = async () => {
     const outfit = outfits[currentIndex];
-    if (!outfit?._id) return;
+
+      const matchId = outfit.matchId?._id;
+
+      if (!matchId) return;
+
 
     try {
       const token = getToken();
 
-      const response = await fetch(`${URL}/match/${outfit._id}`, {
+      const response = await fetch(`${URL}/match/${matchId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -105,7 +110,7 @@ const ViewToday = () => {
     try {
       const token = getToken();
 
-      const response = await fetch(`${URL}/match/${outfit._id}`, {
+      const response = await fetch(`${URL}/match/${matchId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -167,7 +172,7 @@ const ViewToday = () => {
 
   const outfit = outfits[currentIndex];
 
-  const images = (outfit.clothes || [])
+  const images = (outfit.matchId?.clothes || [])
     .map((item) => renderItemImage(item))
     .filter(Boolean);
 

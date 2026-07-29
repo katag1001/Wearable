@@ -84,42 +84,27 @@ winter: { type: Boolean, required: true },
 /* -------------------- TODAY -------------------- */
 
 const todaySchema = new mongoose.Schema({
-clothes: [
-{
-type: mongoose.Schema.Types.ObjectId,
-ref: "Clothes",
-required: true,
-},
-],
 
-userId: {
-type: mongoose.Schema.Types.ObjectId,
-ref: "User",
-required: true,
-index: true,
-},
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    index: true,
+  },
 
-colors: { type: [String], required: true },
-min_temp: { type: Number, required: true },
-max_temp: { type: Number, required: true },
-type: { type: String, required: true },
+  matchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Match",
+    required: true,
+  },
 
-spring: { type: Boolean, required: true },
-summer: { type: Boolean, required: true },
-autumn: { type: Boolean, required: true },
-winter: { type: Boolean, required: true },
+  dateCreated: {
+    type: Date,
+    default: Date.now,
+  },
 
-styles: { type: [String], required: true },
-tags: { type: [String], required: false },
-
-rejected: { type: Boolean, required: true },
-
-lastWornDate: { type: Date, default: null },
-
-rank: { type: Number, default: null },
-
-userMade: { type: Boolean, required: true },
 });
+
 
 /* -------------------- MODELS -------------------- */
 
