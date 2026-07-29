@@ -413,7 +413,6 @@ exports.updateMatch = async (req, res) => {
   }
 };
 
-
 exports.deleteMatch = async (req, res) => {
 const userId = req.user?.userId;
 
@@ -452,68 +451,66 @@ return res.status(500).json({ error: error.message });
 /* -------------------- TODAY CONTROLLERS -------------------- */
 
 exports.createToday = async (req, res) => {
-const userId = req.user?.userId;
+  const userId = req.user?.userId;
 
-try {
-const {
-min_temp_today,
-max_temp_today,
-season_today,
-} = req.body;
+  try {
+    const {
+      min_temp_today,
+      max_temp_today,
+      season_today,
+    } = req.body;
 
-if (
-  typeof min_temp_today !== "number" ||
-  typeof max_temp_today !== "number" ||
-  !["spring", "summer", "autumn", "winter"].includes(season_today)
-) {
-  return res.status(400).json({
-    message: "Invalid input data.",
-    success: false,
-  });
-}
+    if (
+      typeof min_temp_today !== "number" ||
+      typeof max_temp_today !== "number" ||
+      !["spring", "summer", "autumn", "winter"].includes(season_today)
+    ) {
+      return res.status(400).json({
+        message: "Invalid input data.",
+        success: false,
+      });
+    }
 
-const seasonFilter = {};
-seasonFilter[season_today] = true;
+    const seasonFilter = {};
+    seasonFilter[season_today] = true;
 
-const matches = await Match.find({
-  min_temp: { $gte: min_temp_today },
-  max_temp: { $lte: max_temp_today },
-  rejected: false,
-  userId,
-  ...seasonFilter,
-});
+    const matches = await Match.find({
+      min_temp: { $gte: min_temp_today - 4 },
+      max_temp: { $lte: max_temp_today + 4 },
+      rejected: false,
+      userId,
+      ...seasonFilter,
+    });
 
-await Today.deleteMany({ userId });
+    await Today.deleteMany({ userId });
 
-if (!matches.length) {
-  return res.json({
-    message: "No matching outfits found for today.",
-    success: true,
-    matchesFound: false,
-  });
-}
+    if (!matches.length) {
+      return res.json({
+        message: "No matching outfits found for today.",
+        success: true,
+        matchesFound: false,
+      });
+    }
 
-const todayOutfits = matches.map((match) => ({
-  ...match.toObject(),
-  rank: 1,
-  userId,
-}));
+    const todayOutfits = matches.map((match) => ({
+      ...match.toObject(),
+      userId,
+    }));
 
-const inserted = await Today.insertMany(todayOutfits);
+    const inserted = await Today.insertMany(todayOutfits);
 
-return res.json({
-  message: `${inserted.length} outfits saved.`,
-  success: true,
-  matchesFound: true,
-  data: inserted,
-});
-
-} catch (err) {
-return res.status(500).json({
-message: "Internal server error.",
-success: false,
-});
-}
+    return res.json({
+      message: `${inserted.length} outfits saved.`,
+      success: true,
+      matchesFound: true,
+      data: inserted,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: "Internal server error.",
+      success: false,
+    });
+  }
 };
 
 exports.getToday = async (req, res) => {
@@ -521,8 +518,7 @@ exports.getToday = async (req, res) => {
 
   try {
     const outfits = await Today.find({ userId })
-      .populate("clothes", "name imageUrl type")
-      .sort({ rank: 1 });
+      .populate("clothes", "name imageUrl type");
 
     if (!outfits.length) {
       return res.json({ message: "No outfits found for today." });

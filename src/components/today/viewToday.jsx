@@ -5,7 +5,6 @@ import { URL } from "../../config";
 
 const ViewToday = () => {
   const [outfits, setOutfits] = useState([]);
-  const [filteredOutfits, setFilteredOutfits] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
@@ -20,7 +19,6 @@ const ViewToday = () => {
 
       if (!token) {
         setMessage("No user logged in");
-        setLoading(false);
         return;
       }
 
@@ -34,25 +32,10 @@ const ViewToday = () => {
 
       if (!Array.isArray(data)) {
         setMessage(data.message || "Failed to fetch outfits.");
-        setLoading(false);
         return;
       }
 
       setOutfits(data);
-
-      const ranks = data.map((o) => o.rank).filter((r) => r != null);
-      const maxRank = ranks.length ? Math.max(...ranks) : null;
-
-      if (maxRank == null) {
-        setFilteredOutfits([]);
-        setMessage("No outfits with rank found.");
-        setLoading(false);
-        return;
-      }
-
-      const maxRankOutfits = data.filter((o) => o.rank === maxRank);
-
-      setFilteredOutfits(maxRankOutfits);
       setCurrentIndex(0);
     } catch (err) {
       console.error("[ERROR] Failed to fetch outfits:", err);
@@ -67,22 +50,19 @@ const ViewToday = () => {
   }, []);
 
   const goNext = () => {
-    if (filteredOutfits.length > 0) {
-      setCurrentIndex((prev) => (prev + 1) % filteredOutfits.length);
+    if (outfits.length > 0) {
+      setCurrentIndex((prev) => (prev + 1) % outfits.length);
     }
   };
 
   const goPrev = () => {
-    if (filteredOutfits.length > 0) {
-      setCurrentIndex(
-        (prev) =>
-          (prev - 1 + filteredOutfits.length) % filteredOutfits.length
-      );
+    if (outfits.length > 0) {
+      setCurrentIndex((prev) => (prev - 1 + outfits.length) % outfits.length);
     }
   };
 
   const markAsWornToday = async () => {
-    const outfit = filteredOutfits[currentIndex];
+    const outfit = outfits[currentIndex];
     if (!outfit?._id) return;
 
     try {
@@ -94,13 +74,15 @@ const ViewToday = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ lastWornDate: new Date().toISOString() }),
+        body: JSON.stringify({
+          lastWornDate: new Date().toISOString(),
+        }),
       });
 
       if (response.ok) {
         const updated = await response.json();
 
-        setFilteredOutfits((prev) => {
+        setOutfits((prev) => {
           const arr = [...prev];
           arr[currentIndex] = {
             ...arr[currentIndex],
@@ -117,7 +99,7 @@ const ViewToday = () => {
   };
 
   const rejectOutfit = async () => {
-    const outfit = filteredOutfits[currentIndex];
+    const outfit = outfits[currentIndex];
     if (!outfit?._id) return;
 
     try {
@@ -129,19 +111,26 @@ const ViewToday = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ rejected: true }),
+        body: JSON.stringify({
+          rejected: true,
+        }),
       });
 
       if (response.ok) {
-        const updated = await response.json();
+        // Remove the rejected outfit from the list
+        setOutfits((prev) => {
+          const updated = prev.filter((_, index) => index !== currentIndex);
 
-        setFilteredOutfits((prev) => {
-          const arr = [...prev];
-          arr[currentIndex] = {
-            ...arr[currentIndex],
-            rejected: updated.rejected,
-          };
-          return arr;
+          if (updated.length === 0) {
+            setMessage("No outfits available for today.");
+            return [];
+          }
+
+          if (currentIndex >= updated.length) {
+            setCurrentIndex(updated.length - 1);
+          }
+
+          return updated;
         });
 
         alert("Outfit rejected.");
@@ -172,22 +161,17 @@ const ViewToday = () => {
     return <p className="today-message">{message}</p>;
   }
 
-  if (!filteredOutfits.length) {
-    return (
-      <p className="today-message">
-        No outfits saved for today with highest rank.
-      </p>
-    );
+  if (!outfits.length) {
+    return <p className="today-message">No outfits saved for today.</p>;
   }
 
-  const outfit = filteredOutfits[currentIndex];
+  const outfit = outfits[currentIndex];
 
   const images = (outfit.clothes || [])
     .map((item) => renderItemImage(item))
     .filter(Boolean);
 
   return (
-    
     <div className="view-today-container">
       <div className="horizontal-scroll-wrapper">
         <button className="left-right" onClick={goPrev}>
