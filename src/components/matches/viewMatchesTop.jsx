@@ -70,18 +70,6 @@ const ViewMatchesTop = ({
 
       </div>
       
-        <div className="top-wrapper-bottom">
-          <Link
-            to={mode === "active" ? "/oldmatches" : "/matches"}
-            className="top-action-link"
-          >
-            <button className="side-action-button">
-              {mode === "active"
-                ? "View Rejected Outfits"
-                : "View Current Outfits"}
-            </button>
-          </Link>
-        </div>
   
     </div>
   );

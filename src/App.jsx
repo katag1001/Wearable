@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
 import { URL } from "./config";
 import { Analytics } from "@vercel/analytics/react";
@@ -10,7 +10,6 @@ import './App.css'
 /* Pages */
 import Homepage from "./pages/Homepage";
 import BuildMatches from "./pages/BuildMatches";
-import OldMatches from "./pages/OldMatches";
 import Clothes from "./pages/Clothes";
 import Matches from "./pages/Matches";
 import TodayOutfits from "./pages/TodayOutfits";
@@ -134,15 +133,6 @@ const App = () => {
           />
 
           <Route
-            path="/oldmatches"
-            element={
-              <ProtectedRoute loggedIn={loggedIn}>
-                <OldMatches loggedIn={loggedIn} logout={logout} />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
             path="/clothes"
             element={
               <ProtectedRoute loggedIn={loggedIn}>
@@ -177,6 +167,8 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<Navigate to="/" replace />} />
+
         </Routes>
       </Router>
     </>

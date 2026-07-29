@@ -179,7 +179,6 @@ const CreateMatch = () => {
     type: "match",
     lastWornDate: null,
     tags: [],
-    rejected: false,
     userMade: true,
   };
 

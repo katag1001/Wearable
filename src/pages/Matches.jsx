@@ -10,7 +10,7 @@ const Matches = ({ loggedIn, logout }) => {
   <div className="full-page-container">
     
       <Header loggedIn={loggedIn} title="My Outfits" />
-      <ViewMatches mode="active" />
+      <ViewMatches/>
       
   </div>
 

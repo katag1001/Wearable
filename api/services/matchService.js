@@ -138,7 +138,6 @@ async function matchPath(newItem, matches) {
       autumn: newItem.autumn,
       winter: newItem.winter,
       tags: newItem.tags || [],
-      rejected: false,
       userMade: false,
       lastWornDate: null,
     });
@@ -279,7 +278,6 @@ async function pushResult(
     type: "match",
     styles: [...new Set([...newItem.styles, ...matchItem.styles])],
     tags: [],
-    rejected: false,
     spring: newItem.spring && matchItem.spring,
     summer: newItem.summer && matchItem.summer,
     autumn: newItem.autumn && matchItem.autumn,

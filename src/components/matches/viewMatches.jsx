@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import axios from "axios";
 import { URL } from "../../config";
-import { Link } from 'react-router-dom';
 
 import UpdateMatches from "./updateMatches";
-import ViewMatchesCard from "./viewMatchesCard.jsx"; 
+import ViewMatchesCard from "./viewMatchesCard.jsx";
 import ViewMatchesTop from "./viewMatchesTop";
 import Filter from "../general/filter.jsx";
 
-import "./viewMatchesCard.css"; /*.match-image for renderItemImage */
+import "./viewMatchesCard.css";
 
-import '../../styles/pagesBottom.css'
-import '../../styles/pages.css'
+import "../../styles/pagesBottom.css";
+import "../../styles/pages.css";
 
-const ViewMatches = ({ mode = "active" }) => {
+const ViewMatches = () => {
 
   const [searchParams] = useSearchParams();
   const itemFilter = searchParams.get("item");
@@ -27,25 +26,27 @@ const ViewMatches = ({ mode = "active" }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [filters, setFilters] = useState({
-
     seasons: [],
     colors: [],
     styles: [],
     tags: [],
     minTemp: null,
     maxTemp: null
-
   });
+
 
   const getToken = () =>
     localStorage.getItem("token");
 
+
   useEffect(() => {
 
-  const fetchMatches = async () => {
+    const fetchMatches = async () => {
 
       try {
+
         setError(null);
+
         const token = getToken();
 
         if (!token) {
@@ -66,15 +67,19 @@ const ViewMatches = ({ mode = "active" }) => {
         setMatches(response.data);
 
       } catch (err) {
+
         setError(
           "Failed to fetch matches"
         );
+
       }
+
     };
 
     fetchMatches();
 
   }, []);
+
 
   const handleDeleteSuccess = (id) => {
 
@@ -86,6 +91,7 @@ const ViewMatches = ({ mode = "active" }) => {
 
   };
 
+
   const handleUpdateSuccess = (updatedMatch) => {
 
     setMatches(prev =>
@@ -95,46 +101,14 @@ const ViewMatches = ({ mode = "active" }) => {
           : match
       )
     );
+
   };
+
 
   const handleError = (msg) => {
     setError(msg);
   };
 
-  const handleReinstate = async (id) => {
-    try {
-      const token = getToken();
-      const response = await axios.put(
-        `${URL}/match/${id}`,
-        {
-          rejected: false
-        },
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-
-      const updated = response.data;
-      setMatches(prev =>
-        prev.map(match =>
-          match._id === id
-            ? updated
-            : match
-        )
-      );
-
-    } catch (err) {
-
-      setError(
-        "Failed to reinstate match"
-      );
-
-    }
-
-  };
 
   const renderItemImage = (item) => {
 
@@ -142,7 +116,7 @@ const ViewMatches = ({ mode = "active" }) => {
       return null;
 
     return (
-      <div >
+      <div>
         <img
           src={item.imageUrl}
           alt={item.name}
@@ -153,69 +127,60 @@ const ViewMatches = ({ mode = "active" }) => {
 
   };
 
+
   const filteredMatches = matches.filter(match => {
 
-    const isRejected =
-      !!match.rejected;
-
     if (
-        itemFilter &&
-        !match.clothes?.some(
-          item =>
-            item._id === itemFilter
-        )
-      ) {
-        return false;
-      }
-
-    if (
-      mode === "active" &&
-      isRejected
-    )
+      itemFilter &&
+      !match.clothes?.some(
+        item =>
+          item._id === itemFilter
+      )
+    ) {
       return false;
+    }
 
-    if (
-      mode === "rejected" &&
-      !isRejected
-    )
-      return false;
 
     if (
       selectedSeason &&
       !match[selectedSeason]
-    )
+    ) {
       return false;
+    }
+
 
     if (searchTerm.trim()) {
 
       const search =
         searchTerm.toLowerCase();
 
+
       const matchesSearch =
-  match.clothes?.some(item =>
-    item.name?.toLowerCase().includes(search)
-  )
+        match.clothes?.some(item =>
+          item.name?.toLowerCase()
+            .includes(search)
+        )
 
-  ||
+        ||
 
-  match.colors?.some(color =>
-    color.toLowerCase()
-      .includes(search)
-  )
+        match.colors?.some(color =>
+          color.toLowerCase()
+            .includes(search)
+        )
 
-  ||
+        ||
 
-  match.styles?.some(style =>
-    style.toLowerCase()
-      .includes(search)
-  )
+        match.styles?.some(style =>
+          style.toLowerCase()
+            .includes(search)
+        )
 
-  ||
+        ||
 
-  match.tags?.some(tag =>
-    tag.toLowerCase()
-      .includes(search)
-  );
+        match.tags?.some(tag =>
+          tag.toLowerCase()
+            .includes(search)
+        );
 
 
       if (!matchesSearch)
@@ -223,16 +188,19 @@ const ViewMatches = ({ mode = "active" }) => {
 
     }
 
+
     if (filters.seasons.length > 0) {
 
       if (
         !filters.seasons.some(
           season => match[season]
         )
-      )
+      ) {
         return false;
+      }
 
     }
+
 
     if (filters.colors.length > 0) {
 
@@ -241,8 +209,9 @@ const ViewMatches = ({ mode = "active" }) => {
           color =>
             filters.colors.includes(color)
         )
-      )
+      ) {
         return false;
+      }
 
     }
 
@@ -254,10 +223,12 @@ const ViewMatches = ({ mode = "active" }) => {
           style =>
             filters.styles.includes(style)
         )
-      )
+      ) {
         return false;
+      }
 
     }
+
 
     if (filters.tags.length > 0) {
 
@@ -266,56 +237,71 @@ const ViewMatches = ({ mode = "active" }) => {
           tag =>
             filters.tags.includes(tag)
         )
-      )
+      ) {
         return false;
+      }
 
     }
+
 
     if (
       filters.minTemp !== null &&
       match.max_temp < filters.minTemp
-    )
+    ) {
       return false;
+    }
+
 
     if (
       filters.maxTemp !== null &&
       match.min_temp > filters.maxTemp
-    )
+    ) {
       return false;
+    }
+
+
     return true;
 
   });
 
+
   const toggleSeasonFilter = (season) => {
+
     setSelectedSeason(prev =>
       prev === season
         ? null
         : season
     );
+
   };
+
 
   const capitalize = (word) =>
     word.charAt(0).toUpperCase() + word.slice(1);
+
 
   return (
 
     <div className="main-container">
 
-      <Link to="/buildmatches" className="top-action-button">
+      <Link
+        to="/buildmatches"
+        className="top-action-button"
+      >
         <button className="top-action-button">
           Build Outfits
         </button>
-      </Link> 
+      </Link>
+
 
       <ViewMatchesTop
-        mode={mode}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         selectedSeason={selectedSeason}
         toggleSeasonFilter={toggleSeasonFilter}
         setShowFilters={setShowFilters}
         capitalize={capitalize}
-      /> 
+      />
 
 
       {error && (
@@ -326,33 +312,36 @@ const ViewMatches = ({ mode = "active" }) => {
 
 
       {filteredMatches.length === 0 && !error && (
+
         <p className="no-matches-text">
-          {
-            mode === "rejected"
-              ? "No rejected outfits found."
-              : "No outfits found."
-          }
+          No outfits found.
         </p>
+
       )}
 
+
       <div className="bottom-area-wrapper">
+
         <div className="items-grid">
+
           {filteredMatches.map(match => (
 
             <ViewMatchesCard
               key={match._id}
               match={match}
-              mode={mode}
               renderItemImage={renderItemImage}
               capitalize={capitalize}
-              handleReinstate={handleReinstate}
               handleDeleteSuccess={handleDeleteSuccess}
               setEditingMatch={setEditingMatch}
               onDeleteError={handleError}
             />
+
           ))}
+
         </div>
+
       </div>
+
 
       <Filter
         isOpen={showFilters}
@@ -361,6 +350,7 @@ const ViewMatches = ({ mode = "active" }) => {
         }
         filters={filters}
         setFilters={setFilters}
+
         availableColors={[
           ...new Set(
             matches.flatMap(
@@ -389,7 +379,8 @@ const ViewMatches = ({ mode = "active" }) => {
         ]}
       />
 
-      {editingMatch && mode === "active" && (
+
+      {editingMatch && (
 
         <UpdateMatches
           match={editingMatch}
@@ -399,6 +390,7 @@ const ViewMatches = ({ mode = "active" }) => {
           onUpdateSuccess={handleUpdateSuccess}
           onError={handleError}
         />
+
       )}
 
     </div>

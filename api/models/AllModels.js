@@ -41,7 +41,6 @@ winter: { type: Boolean, required: true },
 styles: { type: [String], default: [] },
 tags: { type: [String], required: false },
 
-rejected: { type: Boolean, required: true },
 lastWornDate: { type: Date, default: null },
 
 userMade: { type: Boolean, default: false },

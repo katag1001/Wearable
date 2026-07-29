@@ -475,7 +475,6 @@ exports.createToday = async (req, res) => {
     seasonFilter[season_today] = true;
 
     const matches = await Match.find({
-      rejected: false,
       userId,
       ...seasonFilter,
 
