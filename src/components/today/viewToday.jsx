@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./viewToday.css";
 import { URL } from "../../config";
+import todayOutfitSort from "./todayOutfitSort";
+
 
 const ViewToday = () => {
   const [outfits, setOutfits] = useState([]);
@@ -36,7 +38,7 @@ const ViewToday = () => {
         return;
       }
 
-      setOutfits(data);
+      setOutfits(todayOutfitSort(data));
       setCurrentIndex(0);
     } catch (err) {
       console.error("[ERROR] Failed to fetch outfits:", err);
