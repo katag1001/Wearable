@@ -29,6 +29,10 @@ const CreateMatch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [response, setResponse] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [popupContent, setPopupContent] = useState({
+  title: "",
+  message: "",
+});
 
   const scrollRefs = {
     top: useRef(null),
@@ -207,6 +211,12 @@ const CreateMatch = () => {
     }
 
     setResponse(result);
+
+    setPopupContent({
+  title: "Outfit Submitted!",
+  message: "Your outfit has been successfully added to the matches database.",
+});
+
     setShowPopup(true);
 
 
@@ -220,8 +230,15 @@ const CreateMatch = () => {
     console.error("Submit failed:", err);
 
     setResponse({
-      error: err.message,
-    });
+  error: err.message,
+});
+
+setPopupContent({
+  title: "Unable to Submit Outfit",
+  message: err.message,
+});
+
+setShowPopup(true);
   }
 };
 
@@ -298,8 +315,8 @@ const CreateMatch = () => {
 
       <MessagePopup
           isOpen={showPopup}
-          title="Outfit Submitted!"
-          message="Your outfit has been successfully added to the matches database."
+          title={popupContent.title}
+          message={popupContent.message}
           onClose={() => setShowPopup(false)}
         />
 
