@@ -13,40 +13,44 @@ const ViewToday = () => {
 
   const getToken = () => localStorage.getItem("token");
 
-  const fetchTodayOutfits = async () => {
-    setLoading(true);
+  const fetchTodayOutfits = async (attempt = 0) => {
+  setLoading(true);
 
-    try {
-      const token = getToken();
+  try {
+    const token = getToken();
 
-      if (!token) {
-        setMessage("No user logged in");
+    const response = await axios.get(`${URL}/today/get`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = response.data;
+
+    if (!Array.isArray(data) || data.length === 0) {
+
+      // retry for up to ~10 seconds
+      if (attempt < 10) {
+        setTimeout(() => {
+          fetchTodayOutfits(attempt + 1);
+        }, 1000);
         return;
       }
 
-      const response = await axios.get(`${URL}/today/get`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      console.log("TODAY RESPONSE:", response.data);
-      const data = response.data;
-
-      if (!Array.isArray(data)) {
-        setMessage(data.message || "Failed to fetch outfits.");
-        return;
-      }
-
-      setOutfits(todayOutfitSort(data));
-      setCurrentIndex(0);
-    } catch (err) {
-      console.error("[ERROR] Failed to fetch outfits:", err);
-      setMessage("Error fetching outfits: " + err.message);
-    } finally {
-      setLoading(false);
+      setMessage("No outfits saved for today.");
+      return;
     }
-  };
+
+    setOutfits(todayOutfitSort(data));
+    setCurrentIndex(0);
+
+  } catch (err) {
+    setMessage("Error fetching outfits: " + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchTodayOutfits();

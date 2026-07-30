@@ -3,7 +3,7 @@ import { useGeolocation } from "@uidotdev/usehooks";
 import "./autoWeather.css";
 import { URL } from "../../config";
 
-const AutoWeather = () => {
+const AutoWeather = ({ setTodayReady }) => {
   const STORAGE_KEY = "weather_cache";
   const TODAY_KEY = "today_created";
 
@@ -145,6 +145,8 @@ const AutoWeather = () => {
         getSeason()
       );
 
+      setTodayReady(true);
+      
 
     } catch (err) {
       console.error("Weather fetch failed:", err);
@@ -161,16 +163,23 @@ const AutoWeather = () => {
     // Already have today's weather
     if (cached) {
 
-      console.log("Using cached weather.");
+  console.log("Using cached weather.");
 
-      triggerCreateToday(
-        cached.weather.min,
-        cached.weather.max,
-        getSeason()
-      );
+  const create = async () => {
+    await triggerCreateToday(
+      cached.weather.min,
+      cached.weather.max,
+      getSeason()
+    );
 
-      return;
-    }
+    setTodayReady(true);
+  };
+
+  create();
+
+  return;
+}
+
 
 
     // Need fresh weather

@@ -6,17 +6,17 @@ import '../styles/pages.css';
 
 const TodayOutfits = ({ loggedIn, logout }) => {
 
+  const [todayReady, setTodayReady] = useState(false);
+
   return (
-  <div className="full-page-container" >
-      <Header loggedIn={loggedIn}  title="Today's Outfit"/>
+    <div className="full-page-container">
+      <Header loggedIn={loggedIn} title="Today's Outfit"/>
 
       <div className="main-container">
-        <AutoWeather />
-        <ViewToday />
+        <AutoWeather setTodayReady={setTodayReady} />
+        <ViewToday todayReady={todayReady} />
       </div>
-
-</div>
-
+    </div>
   );
 };
 
