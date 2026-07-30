@@ -6,6 +6,8 @@ const jwt_secret = process.env.JWT_SECRET;
 
 const { User, Match, Today, Clothes } = require("../models/AllModels.js");
 const { processMatches } = require("../services/matchService");
+const { generateMatchTags } = require("../services/helpers.js");
+
 
 /* -------------------- AUTH HELPER -------------------- */
 
@@ -296,40 +298,26 @@ exports.createMatch = async (req, res) => {
     }
 
     // Get clothing items so we can calculate match tags
-    const clothes = await Clothes.find({
-      _id: { $in: clothesIds },
-      userId,
-    });
+        const clothes = await Clothes.find({
+          _id: { $in: clothesIds },
+          userId,
+        });
 
-    if (clothes.length !== clothesIds.length) {
-      return res.status(400).json({
-        error: "One or more clothing items could not be found.",
-      });
-    }
+        if (clothes.length !== clothesIds.length) {
+          return res.status(400).json({
+            error: "One or more clothing items could not be found.",
+          });
+        }
 
-    // Calculate match tags
-    const tagCounts = {};
+        const tags = await generateMatchTags(clothesIds);
 
-    clothes.forEach((item) => {
-      (item.tags || []).forEach((tag) => {
-        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-      });
-    });
+        const match = new Match({
+          ...req.body,
+          clothes: clothesIds,
+          tags,
+          userId,
+        });
 
-    const matchTags = Object.keys(tagCounts).filter(
-      (tag) => tagCounts[tag] >= clothes.length / 2
-    );
-
-    // If no tags reach >=50%, keep all unique tags
-    const tags =
-      matchTags.length > 0 ? matchTags : Object.keys(tagCounts);
-
-    const match = new Match({
-      ...req.body,
-      clothes: clothesIds,
-      tags,
-      userId,
-    });
 
     await match.save();
 

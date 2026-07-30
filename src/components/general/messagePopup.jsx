@@ -12,9 +12,15 @@ const MessagePopup = ({
 }) => {
   if (!isOpen) return null;
 
-  return (
-    <div className="popup-overlay">
+  const handleOverlayClick = (e) => {
+    // Only close when clicking the background overlay
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
+  return (
+    <div className="popup-overlay" onClick={handleOverlayClick}>
       <div className="popup-modal">
 
         <button
@@ -24,20 +30,15 @@ const MessagePopup = ({
           ×
         </button>
 
-
         <div className="popup-header">
           <h2 className="popup-title">
             {title}
           </h2>
         </div>
 
-
         <div className="popup-body">
-          <p>
-            {message}
-          </p>
+          <p>{message}</p>
         </div>
-
 
         <div className="popup-actions">
 
@@ -47,7 +48,6 @@ const MessagePopup = ({
           >
             {cancelText}
           </button>
-
 
           {onConfirm && (
             <button
@@ -61,10 +61,8 @@ const MessagePopup = ({
         </div>
 
       </div>
-
     </div>
   );
 };
-
 
 export default MessagePopup;

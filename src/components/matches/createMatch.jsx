@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./createMatch.css";
 import { URL } from "../../config";
+import MessagePopup from "../general/messagePopup.jsx";
 
 const sectionTitles = {
   top: "Tops",
@@ -208,9 +209,6 @@ const CreateMatch = () => {
     setResponse(result);
     setShowPopup(true);
 
-    setTimeout(() => {
-      setShowPopup(false);
-    }, 2500);
 
     setFormData({
       top: [],
@@ -298,14 +296,12 @@ const CreateMatch = () => {
           Submit Outfit
         </button>
 
-      {showPopup && (
-        <div className="match-popup-overlay">
-          <div className="match-popup">
-            <h3>Outfit Submitted!</h3>
-            <p>Your outfit has been successfully added to the matches database.</p>
-          </div>
-        </div>
-      )}
+      <MessagePopup
+          isOpen={showPopup}
+          title="Outfit Submitted!"
+          message="Your outfit has been successfully added to the matches database."
+          onClose={() => setShowPopup(false)}
+        />
 
       <div className="top-area-wrapper">
 
