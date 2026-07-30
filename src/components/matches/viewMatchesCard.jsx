@@ -1,15 +1,13 @@
 import React from "react";
-import DeleteMatches from "./deleteMatches";
 import "./viewMatchesCard.css";
 import { tagOptions } from "../../constants/optionsBank";
 
 const ViewMatchesCard = ({
-  match,
+match,
   renderItemImage,
   capitalize,
-  handleDeleteSuccess,
+  handleDelete,
   setEditingMatch,
-  onDeleteError,
 }) => {
 
 
@@ -104,12 +102,12 @@ const ViewMatchesCard = ({
         <div className="match-items-button-row">
 
 
-          <DeleteMatches
-            matchId={match._id}
-            onDeleteSuccess={handleDeleteSuccess}
-            onError={onDeleteError}
+          <button
             className="match-text-button"
-          />
+            onClick={() => handleDelete(match._id)}
+          >
+            Delete
+          </button>
 
 
           <button

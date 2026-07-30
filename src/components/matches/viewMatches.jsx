@@ -7,6 +7,7 @@ import UpdateMatches from "./updateMatches";
 import ViewMatchesCard from "./viewMatchesCard.jsx";
 import ViewMatchesTop from "./viewMatchesTop";
 import Filter from "../general/filter.jsx";
+import DeletePopup from "../general/deletePopup.jsx";
 
 import "./viewMatchesCard.css";
 
@@ -24,6 +25,8 @@ const ViewMatches = () => {
   const [selectedSeason, setSelectedSeason] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteMatch, setDeleteMatch] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [filters, setFilters] = useState({
     seasons: [],
@@ -80,6 +83,9 @@ const ViewMatches = () => {
 
   }, []);
 
+  const handleDelete = (id) => {
+  setDeleteMatch(id);
+  };
 
   const handleDeleteSuccess = (id) => {
 
@@ -91,6 +97,49 @@ const ViewMatches = () => {
 
   };
 
+  const confirmDelete = async () => {
+
+  if (!deleteMatch)
+    return;
+
+  setDeleting(true);
+
+  try {
+
+    const token = getToken();
+
+    if (!token) {
+      setError("No user logged in");
+      return;
+    }
+
+    await axios.delete(
+      `${URL}/match/${deleteMatch}`,
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    );
+
+    handleDeleteSuccess(deleteMatch);
+
+    setDeleteMatch(null);
+
+  } catch (err) {
+
+    setError(
+      "Failed to delete match"
+    );
+
+  } finally {
+
+    setDeleting(false);
+
+  }
+
+};
 
   const handleUpdateSuccess = (updatedMatch) => {
 
@@ -104,11 +153,9 @@ const ViewMatches = () => {
 
   };
 
-
   const handleError = (msg) => {
     setError(msg);
   };
-
 
   const renderItemImage = (item) => {
 
@@ -126,7 +173,6 @@ const ViewMatches = () => {
     );
 
   };
-
 
   const filteredMatches = matches.filter(match => {
 
@@ -264,7 +310,6 @@ const ViewMatches = () => {
 
   });
 
-
   const toggleSeasonFilter = (season) => {
 
     setSelectedSeason(prev =>
@@ -275,10 +320,8 @@ const ViewMatches = () => {
 
   };
 
-
   const capitalize = (word) =>
     word.charAt(0).toUpperCase() + word.slice(1);
-
 
   return (
 
@@ -331,9 +374,8 @@ const ViewMatches = () => {
               match={match}
               renderItemImage={renderItemImage}
               capitalize={capitalize}
-              handleDeleteSuccess={handleDeleteSuccess}
+              handleDelete={handleDelete}
               setEditingMatch={setEditingMatch}
-              onDeleteError={handleError}
             />
 
           ))}
@@ -392,6 +434,22 @@ const ViewMatches = () => {
         />
 
       )}
+
+            <DeletePopup
+        isOpen={!!deleteMatch}
+        title="Delete Outfit"
+        message="Are you sure you want to delete this outfit?"
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onClose={() => {
+
+          if (!deleting) {
+            setDeleteMatch(null);
+          }
+
+        }}
+      />
+
 
     </div>
 

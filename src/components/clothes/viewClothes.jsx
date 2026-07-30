@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-import deleteClothes from "./deleteClothes.jsx";
 import AddUpdateClothes from "./addUpdateClothes.jsx";
 import Filter from "../general/filter.jsx";
+import DeletePopup from "../general/deletePopup.jsx";
 
 import ViewClothesTop from "./viewClothesTop.jsx";
 import ViewClothesCard from "./viewClothesCard.jsx";
@@ -23,6 +23,9 @@ const ViewClothes = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState(null);
+  const [deleteItem, setDeleteItem] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
 
   const [filters, setFilters] = useState({
 
@@ -216,31 +219,71 @@ const ViewClothes = () => {
 
   };
 
-  const handleDelete = async (type, id) => {
+  const handleDelete = (type, id) => {
 
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this item?"
-    );
+  setDeleteItem({
+    type,
+    id
+  });
 
-    if (!confirmDelete)
+  };
+
+  const confirmDelete = async () => {
+
+  if (!deleteItem)
+    return;
+
+  setDeleting(true);
+
+  try {
+
+    const token = getToken();
+
+    if (!token) {
+
+      setError("No user logged in");
       return;
 
-    const result = await deleteClothes(
-      type,
-      id
+    }
+
+    const response = await fetch(
+      `${URL}/clothing/${deleteItem.id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
     );
 
-    if (result.error) {
+    const data = await response.json();
 
-      setError(result.error);
+    if (data.error) {
+
+      setError(data.error);
 
     } else {
 
+      setDeleteItem(null);
       fetchAllItems();
 
     }
 
-  };
+  } catch (error) {
+
+    setError(
+      "Failed to delete item"
+    );
+
+  } finally {
+
+    setDeleting(false);
+
+  }
+
+};
+
 
   const handleAddItem = () => {
 
@@ -370,8 +413,23 @@ const ViewClothes = () => {
           )
         ]}
       />
-    </div>
 
+      <DeletePopup
+          isOpen={!!deleteItem}
+          title="Delete Clothing Item"
+          message="Are you sure you want to delete this item?"
+          loading={deleting}
+          onConfirm={confirmDelete}
+          onClose={() => {
+
+            if (!deleting) {
+              setDeleteItem(null);
+            }
+
+          }}
+        />
+
+    </div>
 
   );
 
