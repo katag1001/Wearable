@@ -8,53 +8,76 @@ import todayOutfitSort from "./todayOutfitSort";
 const ViewToday = () => {
   const [outfits, setOutfits] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+
   const [loading, setLoading] = useState(true);
+  const [checkingToday, setCheckingToday] = useState(false);
   const [message, setMessage] = useState(null);
+
 
   const getToken = () => localStorage.getItem("token");
 
+
   const fetchTodayOutfits = async (attempt = 0) => {
-  setLoading(true);
 
-  try {
-    const token = getToken();
+    try {
+      const token = getToken();
 
-    const response = await axios.get(`${URL}/today/get`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const response = await axios.get(`${URL}/today/get`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const data = response.data;
 
-    if (!Array.isArray(data) || data.length === 0) {
+      const data = response.data;
 
-      // retry for up to ~10 seconds
-      if (attempt < 10) {
-        setTimeout(() => {
-          fetchTodayOutfits(attempt + 1);
-        }, 1000);
+
+      // Today is still being created
+      if (!Array.isArray(data) || data.length === 0) {
+
+        if (attempt < 10) {
+          setCheckingToday(true);
+
+          setTimeout(() => {
+            fetchTodayOutfits(attempt + 1);
+          }, 1000);
+
+          return;
+        }
+
+
+        setCheckingToday(false);
+        setMessage("No outfits saved for today.");
+        setLoading(false);
+
         return;
       }
 
-      setMessage("No outfits saved for today.");
-      return;
+
+      // Today outfits are ready
+      setOutfits(todayOutfitSort(data));
+      setCurrentIndex(0);
+
+      setCheckingToday(false);
+      setLoading(false);
+
+
+    } catch (err) {
+
+      console.error("Failed to fetch today's outfits:", err);
+
+      setCheckingToday(false);
+      setLoading(false);
+      setMessage("Error fetching outfits: " + err.message);
     }
-
-    setOutfits(todayOutfitSort(data));
-    setCurrentIndex(0);
-
-  } catch (err) {
-    setMessage("Error fetching outfits: " + err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   useEffect(() => {
     fetchTodayOutfits();
   }, []);
+
+
 
   const goNext = () => {
     if (outfits.length > 0) {
@@ -62,18 +85,23 @@ const ViewToday = () => {
     }
   };
 
+
   const goPrev = () => {
     if (outfits.length > 0) {
-      setCurrentIndex((prev) => (prev - 1 + outfits.length) % outfits.length);
+      setCurrentIndex(
+        (prev) => (prev - 1 + outfits.length) % outfits.length
+      );
     }
   };
+
+
 
   const markAsWornToday = async () => {
     const outfit = outfits[currentIndex];
 
-      const matchId = outfit.matchId?._id;
+    const matchId = outfit.matchId?._id;
 
-      if (!matchId) return;
+    if (!matchId) return;
 
 
     try {
@@ -90,24 +118,33 @@ const ViewToday = () => {
         }),
       });
 
+
       if (response.ok) {
         const updated = await response.json();
 
+
         setOutfits((prev) => {
           const arr = [...prev];
+
           arr[currentIndex] = {
             ...arr[currentIndex],
             lastWornDate: updated.lastWornDate,
           };
+
           return arr;
         });
 
+
         alert("Marked as worn today!");
       }
+
+
     } catch (err) {
       alert("Error updating lastWornDate: " + err.message);
     }
   };
+
+
 
   const renderItemImage = (item) => {
     if (!item?.imageUrl) return null;
@@ -122,47 +159,87 @@ const ViewToday = () => {
     );
   };
 
-  if (loading) {
-    return <p className="today-message">Loading outfits for today...</p>;
+
+
+  // Waiting for today's outfits to be generated
+  if (loading || checkingToday) {
+    return (
+      <p className="today-message">
+        Preparing today's outfits...
+      </p>
+    );
   }
 
+
+  // Finished checking and nothing exists
   if (message) {
-    return <p className="today-message">{message}</p>;
+    return (
+      <p className="today-message">
+        {message}
+      </p>
+    );
   }
+
 
   if (!outfits.length) {
-    return <p className="today-message">No outfits saved for today.</p>;
+    return (
+      <p className="today-message">
+        No outfits saved for today.
+      </p>
+    );
   }
 
+
+
   const outfit = outfits[currentIndex];
+
 
   const images = (outfit.matchId?.clothes || [])
     .map((item) => renderItemImage(item))
     .filter(Boolean);
 
+
+
   return (
     <div className="view-today-container">
+
       <div className="horizontal-scroll-wrapper">
+
         <button className="left-right" onClick={goPrev}>
           ‹
         </button>
 
+
         <div className="clothing-card">
-          <div className="today-image-group">{images}</div>
+
+          <div className="today-image-group">
+            {images}
+          </div>
+
 
           <div className="today-buttons">
-            <button className="regular-button" onClick={markAsWornToday}>
+
+            <button
+              className="regular-button"
+              onClick={markAsWornToday}
+            >
               Mark as Worn Today
             </button>
+
           </div>
+
         </div>
+
 
         <button className="left-right" onClick={goNext}>
           ›
         </button>
+
       </div>
+
     </div>
   );
 };
+
 
 export default ViewToday;
