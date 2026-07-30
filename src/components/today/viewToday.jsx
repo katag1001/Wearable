@@ -3,6 +3,7 @@ import axios from "axios";
 import "./viewToday.css";
 import { URL } from "../../config";
 import todayOutfitSort from "./todayOutfitSort";
+import MessagePopup from "../general/messagePopup.jsx";
 
 
 const ViewToday = () => {
@@ -13,9 +14,7 @@ const ViewToday = () => {
   const [checkingToday, setCheckingToday] = useState(false);
   const [message, setMessage] = useState(null);
 
-
   const getToken = () => localStorage.getItem("token");
-
 
   const fetchTodayOutfits = async (attempt = 0) => {
 
@@ -72,19 +71,21 @@ const ViewToday = () => {
     }
   };
 
+  const [popup, setPopup] = useState({
+      open: false,
+      title: "",
+      message: "",
+    });
 
   useEffect(() => {
     fetchTodayOutfits();
   }, []);
-
-
 
   const goNext = () => {
     if (outfits.length > 0) {
       setCurrentIndex((prev) => (prev + 1) % outfits.length);
     }
   };
-
 
   const goPrev = () => {
     if (outfits.length > 0) {
@@ -94,57 +95,63 @@ const ViewToday = () => {
     }
   };
 
-
-
   const markAsWornToday = async () => {
-    const outfit = outfits[currentIndex];
+      const outfit = outfits[currentIndex];
 
-    const matchId = outfit.matchId?._id;
+      const matchId = outfit.matchId?._id;
 
-    if (!matchId) return;
-
-
-    try {
-      const token = getToken();
-
-      const response = await fetch(`${URL}/match/${matchId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          lastWornDate: new Date().toISOString(),
-        }),
-      });
+      if (!matchId) return;
 
 
-      if (response.ok) {
-        const updated = await response.json();
+      try {
+        const token = getToken();
 
-
-        setOutfits((prev) => {
-          const arr = [...prev];
-
-          arr[currentIndex] = {
-            ...arr[currentIndex],
-            lastWornDate: updated.lastWornDate,
-          };
-
-          return arr;
+        const response = await fetch(`${URL}/match/${matchId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            lastWornDate: new Date().toISOString(),
+          }),
         });
 
 
-        alert("Marked as worn today!");
+        if (response.ok) {
+          const updated = await response.json();
+
+
+          setOutfits((prev) => {
+            const arr = [...prev];
+
+            arr[currentIndex] = {
+              ...arr[currentIndex],
+              lastWornDate: updated.lastWornDate,
+            };
+
+            return arr;
+          });
+
+
+          setPopup({
+            open: true,
+            title: "Success",
+            message: "Marked as worn today!",
+          });
+        }
+
+
+      } catch (err) {
+
+        setPopup({
+          open: true,
+          title: "Error",
+          message: "Error updating lastWornDate: " + err.message,
+        });
+
       }
-
-
-    } catch (err) {
-      alert("Error updating lastWornDate: " + err.message);
-    }
-  };
-
-
+    };
 
   const renderItemImage = (item) => {
     if (!item?.imageUrl) return null;
@@ -159,8 +166,6 @@ const ViewToday = () => {
     );
   };
 
-
-
   // Waiting for today's outfits to be generated
   if (loading || checkingToday) {
     return (
@@ -169,7 +174,6 @@ const ViewToday = () => {
       </p>
     );
   }
-
 
   // Finished checking and nothing exists
   if (message) {
@@ -180,7 +184,6 @@ const ViewToday = () => {
     );
   }
 
-
   if (!outfits.length) {
     return (
       <p className="today-message">
@@ -189,16 +192,11 @@ const ViewToday = () => {
     );
   }
 
-
-
   const outfit = outfits[currentIndex];
-
 
   const images = (outfit.matchId?.clothes || [])
     .map((item) => renderItemImage(item))
     .filter(Boolean);
-
-
 
   return (
     <div className="view-today-container">
@@ -235,7 +233,23 @@ const ViewToday = () => {
           ›
         </button>
 
+        
+
       </div>
+
+      <MessagePopup
+        isOpen={popup.open}
+        title={popup.title}
+        message={popup.message}
+        onClose={() =>
+          setPopup({
+            open: false,
+            title: "",
+            message: "",
+          })
+        }
+      />
+
 
     </div>
   );
