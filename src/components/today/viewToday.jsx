@@ -105,48 +105,6 @@ const ViewToday = () => {
     }
   };
 
-  const rejectOutfit = async () => {
-    const outfit = outfits[currentIndex];
-    if (!outfit?._id) return;
-
-    try {
-      const token = getToken();
-
-      const response = await fetch(`${URL}/match/${matchId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          rejected: true,
-        }),
-      });
-
-      if (response.ok) {
-        // Remove the rejected outfit from the list
-        setOutfits((prev) => {
-          const updated = prev.filter((_, index) => index !== currentIndex);
-
-          if (updated.length === 0) {
-            setMessage("No outfits available for today.");
-            return [];
-          }
-
-          if (currentIndex >= updated.length) {
-            setCurrentIndex(updated.length - 1);
-          }
-
-          return updated;
-        });
-
-        alert("Outfit rejected.");
-      }
-    } catch (err) {
-      alert("Error rejecting outfit: " + err.message);
-    }
-  };
-
   const renderItemImage = (item) => {
     if (!item?.imageUrl) return null;
 
@@ -191,10 +149,6 @@ const ViewToday = () => {
           <div className="today-buttons">
             <button className="regular-button" onClick={markAsWornToday}>
               Mark as Worn Today
-            </button>
-
-            <button className="regular-button" onClick={rejectOutfit}>
-              Reject
             </button>
           </div>
         </div>

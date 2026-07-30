@@ -99,15 +99,21 @@ const Filter = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="filter-overlay">
-      <div className="filter-panel">
-        <button
-          className="close-filter-button"
-          onClick={onClose}
-        >
-          ×
-        </button>
+return (
+  <div
+    className="filter-overlay"
+    onClick={onClose}
+  >
+    <div
+      className="filter-panel"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
+        className="close-filter-button"
+        onClick={onClose}
+      >
+        ×
+      </button>
 
         <h2>Filter</h2>
 
