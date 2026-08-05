@@ -43,14 +43,14 @@ const Header = ({ loggedIn, title }) => {
         <div className={`navbar-right ${menuOpen ? 'open' : ''}`}>
           {loggedIn ? (
             <>
+              <Link to="/" className="nav-link" onClick={closeMenu}>
+                Home
+              </Link>
               <Link to="/clothes" className="nav-link" onClick={closeMenu}>
                 Clothes
               </Link>
               <Link to="/matches" className="nav-link" onClick={closeMenu}>
                 Outfits
-              </Link>
-              <Link to="/today-outfits" className="nav-link" onClick={closeMenu}>
-                Today
               </Link>
               <Link to="/user" className="nav-link" onClick={closeMenu}>
                 User

@@ -12,7 +12,6 @@ import Homepage from "./pages/Homepage";
 import BuildMatches from "./pages/BuildMatches";
 import Clothes from "./pages/Clothes";
 import Matches from "./pages/Matches";
-import TodayOutfits from "./pages/TodayOutfits";
 import User from "./pages/User";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -146,15 +145,6 @@ const App = () => {
             element={
               <ProtectedRoute loggedIn={loggedIn}>
                 <Matches loggedIn={loggedIn} logout={logout} />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/today-outfits"
-            element={
-              <ProtectedRoute loggedIn={loggedIn}>
-                <TodayOutfits loggedIn={loggedIn} logout={logout} />
               </ProtectedRoute>
             }
           />

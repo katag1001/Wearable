@@ -1,21 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+
+
+import AutoWeather from '../components/today/autoWeather';
+import ViewToday from '../components/today/viewToday';
+import ViewMatches from '../components/matches/viewMatches';
+import ViewClothes from '../components/clothes/viewClothes';
+
 import Header from '../components/header';
 import '../styles/pages.css';
 
 
 const Homepage = ({ loggedIn, logout }) => {
+  const [todayReady, setTodayReady] = useState(false);
+
   return (
     <>
       <div className="full-page-container">
       <Header loggedIn={loggedIn} />
       <div className="main-container">
         {loggedIn ? (
+
+
           <>
-          
-            <h2 className="page-title">Welcome</h2>
-            <button  className="logout-button" onClick={logout}>Logout</button>
+        <AutoWeather setTodayReady={setTodayReady} />
+        <ViewToday todayReady={todayReady} />
           </>
+
+
         ) : (
           <div className="not-logged-in-container">
             <p>You are not logged in.</p>
