@@ -131,3 +131,103 @@
   font-style: italic;
   font-size: 1rem;
 }
+
+/* Smaller screen adjustments */
+@media (max-width: 768px) {
+
+  .view-today-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem;
+    overflow-x: hidden;
+  }
+
+  .today-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .horizontal-scroll-wrapper {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .clothing-card {
+    width: 85vw;
+    max-width: 320px;
+    min-width: 0;
+    padding: 8px;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+
+  .left-right {
+    font-size: 1.4rem;
+    width: 22px;
+    flex-shrink: 0;
+  }
+
+
+  .today-image {
+    width: 100%;
+    max-width: 75px;
+    height: auto;
+   
+    object-fit: cover;
+    border: 1px solid #ccc;
+  }
+
+  .today-buttons {
+    gap: 12px;
+    margin: 12px 5px;
+  }
+
+  .regular-button {
+    font-size: 0.9rem;
+    padding: 5px 0;
+  }
+
+  .today-message {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+}
+
+
+/* Extra small phones */
+@media (max-width: 400px) {
+
+  .view-today-container {
+    padding: 0.35rem;
+  }
+
+  .today-title {
+    font-size: 1rem;
+  }
+
+  .horizontal-scroll-wrapper {
+    padding: 0;
+  }
+
+  .clothing-card {
+    width: 78vw;
+    max-width: 280px;
+    padding: 6px;
+  }
+
+  .today-image-group {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.25rem;
+  }
+
+  .today-image {
+    max-width: 58px;
+  }
+
+  .left-right {
+    font-size: 1.2rem;
+    width: 18px;
+  }
+}

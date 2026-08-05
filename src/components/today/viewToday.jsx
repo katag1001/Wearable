@@ -6,7 +6,7 @@ import todayOutfitSort from "./todayOutfitSort";
 import MessagePopup from "../general/messagePopup.jsx";
 
 
-const ViewToday = () => {
+const ViewToday = ({ todayReady }) => {
   const [outfits, setOutfits] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -78,8 +78,10 @@ const ViewToday = () => {
     });
 
   useEffect(() => {
+  if (todayReady) {
     fetchTodayOutfits();
-  }, []);
+  }
+}, [todayReady]);
 
   const goNext = () => {
     if (outfits.length > 0) {
@@ -165,6 +167,14 @@ const ViewToday = () => {
       />
     );
   };
+
+  if (!todayReady) {
+  return (
+    <p className="today-message">
+      Loading outfits...
+    </p>
+  );
+}
 
   // Waiting for today's outfits to be generated
   if (loading || checkingToday) {
