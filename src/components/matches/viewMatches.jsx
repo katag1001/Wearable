@@ -6,7 +6,7 @@ import DeletePopup from "../general/deletePopup.jsx";
 import { tagOptions } from "../../constants/optionsBank";
 import { URL } from "../../config";
 
-import "./viewMatchesCard.css";
+import "./viewMatches.css";
 import "../../styles/pagesBottom.css";
 import "../../styles/pages.css";
 
@@ -61,13 +61,11 @@ const ViewMatches = ({
     if (!item?.imageUrl) return null;
 
     return (
-      <div>
-        <img
-          src={item.imageUrl}
-          alt={item.name}
-          className="match-image"
-        />
-      </div>
+      <img
+        src={item.imageUrl}
+        alt={item.name}
+        className="match-image"
+      />
     );
   };
 
@@ -75,11 +73,10 @@ const ViewMatches = ({
     if (!match.tags?.length) return null;
 
     return (
-      <div className="match-tags">
+      <div className="hover-tags-row">
         {match.tags.map((tagName) => {
           const tag = tagOptions.find(
-            (option) =>
-              option.name === tagName
+            (option) => option.name === tagName
           );
 
           return (
@@ -89,7 +86,7 @@ const ViewMatches = ({
                 src={tag.image}
                 alt={tagName}
                 title={tagName}
-                className="match-tag-icon"
+                className="hover-tag-image"
               />
             )
           );
@@ -110,30 +107,31 @@ const ViewMatches = ({
         </p>
       )}
 
-      <div className="bottom-area-wrapper">
-        <div className="items-grid">
+      <div className="matches-area-wrapper">
+        <div className="matches-grid">
           {matches.map((match) => (
             <div
               className="match-card"
               key={match._id}
+              onClick={() => onEdit(match)}
             >
-              <div className="match-images">
-                {(match.clothes || []).map(
-                  (item) => (
-                    <React.Fragment
-                      key={item._id}
-                    >
+              <div className="match-image-wrapper">
+                <div className="match-image-grid">
+                  {(match.clothes || []).map((item) => (
+                    <React.Fragment key={item._id}>
                       {renderItemImage(item)}
                     </React.Fragment>
-                  )
-                )}
+                  ))}
+                </div>
+
+                {renderMatchTags(match)}
               </div>
+
 
               <div className="match-info">
                 <div className="item-info">
                   <div>
-                    {match.min_temp}° -{" "}
-                    {match.max_temp}°
+                    {match.min_temp}° - {match.max_temp}°
                   </div>
 
                   <div>
@@ -144,35 +142,22 @@ const ViewMatches = ({
                       "winter",
                     ]
                       .filter(
-                        (season) =>
-                          match[season]
+                        (season) => match[season]
                       )
                       .map(capitalize)
                       .join(", ") || "N/A"}
-                  </div>
-
-                  <div>
-                    {renderMatchTags(match)}
                   </div>
                 </div>
 
                 <div className="match-items-button-row">
                   <button
                     className="match-text-button"
-                    onClick={() =>
-                      handleDelete(match._id)
-                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(match._id);
+                    }}
                   >
                     Delete
-                  </button>
-
-                  <button
-                    className="match-text-button"
-                    onClick={() =>
-                      onEdit(match)
-                    }
-                  >
-                    Edit
                   </button>
                 </div>
               </div>

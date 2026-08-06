@@ -1,0 +1,206 @@
+.matches-area-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+/* Pinterest-style masonry layout */
+.matches-grid {
+  column-count: 5;
+  column-gap: 12px;
+  width: 100%;
+}
+
+/* Each match card */
+.match-card {
+  width: 100%;
+  display: inline-flex;
+  flex-direction: column;
+  background: #fff;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.1),
+    0 8px 20px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  margin: 0 0 12px;
+  overflow: hidden;
+
+  /* prevents cards splitting between columns */
+  break-inside: avoid;
+}
+
+/* Responsive masonry columns */
+@media (max-width: 1200px) {
+  .matches-grid {
+    column-count: 4;
+  }
+}
+
+@media (max-width: 900px) {
+  .matches-grid {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 600px) {
+  .matches-grid {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 400px) {
+  .matches-grid {
+    column-count: 1;
+  }
+}
+
+
+/* Image area */
+.match-image-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+
+/*
+  Flexible image gallery:
+  Images naturally wrap and fill available space
+*/
+.match-image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 0;
+}
+
+
+/* Individual images */
+.match-image {
+  flex: 1 1 50%;
+  min-width: 50%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+
+
+/*
+  If there is only one image,
+  allow it to fill the card width
+*/
+.match-image-grid:has(.match-image:only-child) .match-image {
+  flex-basis: 100%;
+  min-width: 100%;
+}
+
+
+/* Match information */
+.match-info {
+  font-size: 0.8rem;
+  width: 100%;
+  padding: 10px 8px;
+  text-align: left;
+  line-height: 1.3;
+  box-sizing: border-box;
+}
+
+
+/* Delete button row */
+.match-items-button-row {
+  width: 100%;
+  padding-top: 8px;
+}
+
+.match-items-button-row button {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+
+/* Text button */
+.match-text-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: #111;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-transform: capitalize;
+  font-family: inherit;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.2s ease;
+  outline: none;
+}
+
+.match-text-button::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: -2px;
+  height: 1px;
+  background-color: #111;
+  transition: right 0.2s ease;
+}
+
+.match-text-button:hover::after {
+  right: 0;
+}
+
+.match-text-button.active {
+  font-weight: bold;
+}
+
+.match-text-button.active::after {
+  right: 0;
+}
+
+
+/* Hover tags */
+.hover-tags-row {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 8px;
+
+  padding: 8px;
+
+  background: rgba(255, 255, 255, 0.85);
+
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  box-sizing: border-box;
+}
+
+.match-card:hover .hover-tags-row {
+  transform: translateY(0);
+}
+
+.hover-tag-image {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+
+/* Error message */
+.error-text {
+  color: red;
+  margin-bottom: 1rem;
+  text-align: center;
+}

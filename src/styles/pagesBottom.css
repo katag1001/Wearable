@@ -6,26 +6,6 @@
   box-sizing: border-box;
 }
 
-.bottom-area-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 0;
-  padding: 15px;
-  margin: 0;
-  width: 100%;
-
-}
-
-
-.items-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: stretch; 
-  gap: 0;
-}
 
 .no-clothing-items {
   text-align: center;

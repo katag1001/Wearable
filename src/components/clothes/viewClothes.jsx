@@ -76,8 +76,8 @@ const ViewClothes = ({
         </p>
       )}
 
-      <div className="bottom-area-wrapper">
-        <div className="items-grid">
+      <div className="clothes-area-wrapper">
+        <div className="clothes-grid">
           {items.map((item) => (
             <div
               key={item._id}
