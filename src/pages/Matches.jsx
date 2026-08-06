@@ -213,6 +213,8 @@ const Matches = ({ loggedIn, logout }) => {
         title="My Outfits"
       />
 
+      <div className="main-container">
+
       <Link
         to="/buildmatches"
         className="top-action-button"
@@ -291,6 +293,7 @@ const Matches = ({ loggedIn, logout }) => {
           onError={handleError}
         />
       )}
+    </div>
     </div>
   );
 };

@@ -197,6 +197,8 @@ const Clothes = ({ loggedIn, logout }) => {
         title="My Clothes"
       />
 
+      <div className="main-container">
+
       <button
         className="top-action-button"
         onClick={handleAddItem}
@@ -258,6 +260,7 @@ const Clothes = ({ loggedIn, logout }) => {
           refresh={fetchAllItems}
         />
       )}
+      </div>
     </div>
   );
 };
