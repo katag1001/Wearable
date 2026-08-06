@@ -1,22 +1,265 @@
-import React from 'react';
-import Header from '../components/header';
-import ViewClothes from '../components/clothes/viewClothes';
-import { Link } from 'react-router-dom';
-import '../styles/pages.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+import Header from "../components/header";
+import ViewClothes from "../components/clothes/viewClothes";
+import ViewClothesTop from "../components/clothes/viewClothesTop";
+import AddUpdateClothes from "../components/clothes/addUpdateClothes";
+import Filter from "../components/general/filter";
+
+import "../styles/pages.css";
+
+import { URL } from "../config";
 
 const Clothes = ({ loggedIn, logout }) => {
-  return (
-    <>
-  <div className="full-page-container">
-   <Header loggedIn={loggedIn} title="My Clothes" />
-    <ViewClothes />
-</div>
-</>
+  const [allItems, setAllItems] = useState([]);
+  const [error, setError] = useState(null);
 
+  const [showClothingModal, setShowClothingModal] =
+    useState(false);
+  const [selectedItem, setSelectedItem] =
+    useState(null);
+
+  const [showFilters, setShowFilters] =
+    useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedType, setSelectedType] =
+    useState(null);
+
+  const [filters, setFilters] = useState({
+    seasons: [],
+    colors: [],
+    styles: [],
+    minTemp: null,
+    maxTemp: null,
+  });
+
+  const clothingTypes = [
+    "top",
+    "outer",
+    "bottom",
+    "onepiece",
+  ];
+
+  const typeTitles = {
+    top: "Top Half",
+    outer: "Outerwear",
+    bottom: "Bottom Half",
+    onepiece: "One-Pieces",
+  };
+
+  const getToken = () =>
+    localStorage.getItem("token");
+
+  const fetchAllItems = async () => {
+    try {
+      setError(null);
+
+      const token = getToken();
+
+      if (!token) {
+        setError("No user logged in");
+        return;
+      }
+
+      const res = await axios.get(
+        `${URL}/clothing/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!Array.isArray(res.data)) {
+        setError(
+          res.data?.error ||
+            "Invalid response from server"
+        );
+        return;
+      }
+
+      setAllItems(res.data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch clothing items");
+    }
+  };
+
+  useEffect(() => {
+    fetchAllItems();
+  }, []);
+
+  const filteredItems = allItems.filter((item) => {
+    if (
+      selectedType &&
+      item.type !== selectedType
+    ) {
+      return false;
+    }
+
+    if (searchTerm.trim()) {
+      const search = searchTerm.toLowerCase();
+
+      const matchesSearch =
+        item.name
+          ?.toLowerCase()
+          .includes(search) ||
+        item.colors?.some((color) =>
+          color
+            .toLowerCase()
+            .includes(search)
+        ) ||
+        item.styles?.some((style) =>
+          style
+            .toLowerCase()
+            .includes(search)
+        );
+
+      if (!matchesSearch) {
+        return false;
+      }
+    }
+
+    if (filters.seasons.length > 0) {
+      const seasonMatch =
+        filters.seasons.some(
+          (season) => item[season]
+        );
+
+      if (!seasonMatch) {
+        return false;
+      }
+    }
+
+    if (filters.colors.length > 0) {
+      const colorMatch =
+        item.colors?.some((color) =>
+          filters.colors.includes(color)
+        );
+
+      if (!colorMatch) {
+        return false;
+      }
+    }
+
+    if (filters.styles.length > 0) {
+      const styleMatch =
+        item.styles?.some((style) =>
+          filters.styles.includes(style)
+        );
+
+      if (!styleMatch) {
+        return false;
+      }
+    }
+
+    if (filters.minTemp !== null) {
+      if (item.max_temp < filters.minTemp) {
+        return false;
+      }
+    }
+
+    if (filters.maxTemp !== null) {
+      if (item.min_temp > filters.maxTemp) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  const toggleTypeFilter = (type) => {
+    setSelectedType((prev) =>
+      prev === type ? null : type
+    );
+  };
+
+  const handleAddItem = () => {
+    setSelectedItem(null);
+    setShowClothingModal(true);
+  };
+
+  const handleEdit = (item) => {
+    setSelectedItem(item);
+    setShowClothingModal(true);
+  };
+
+  const closeModal = () => {
+    setShowClothingModal(false);
+    setSelectedItem(null);
+  };
+
+  return (
+    <div className="full-page-container">
+      <Header
+        loggedIn={loggedIn}
+        title="My Clothes"
+      />
+
+      <button
+        className="top-action-button"
+        onClick={handleAddItem}
+      >
+        Add Item
+      </button>
+
+      {error && (
+        <p className="error-text">
+          Error: {error}
+        </p>
+      )}
+
+      <ViewClothesTop
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        handleAddItem={handleAddItem}
+        clothingTypes={clothingTypes}
+        typeTitles={typeTitles}
+        selectedType={selectedType}
+        toggleTypeFilter={toggleTypeFilter}
+        setShowFilters={setShowFilters}
+      />
+
+      <ViewClothes
+        items={filteredItems}
+        onEdit={handleEdit}
+        refresh={fetchAllItems}
+        setError={setError}
+      />
+
+      <Filter
+        isOpen={showFilters}
+        onClose={() =>
+          setShowFilters(false)
+        }
+        filters={filters}
+        setFilters={setFilters}
+        availableColors={[
+          ...new Set(
+            allItems.flatMap(
+              (item) => item.colors || []
+            )
+          ),
+        ]}
+        availableStyles={[
+          ...new Set(
+            allItems.flatMap(
+              (item) => item.styles || []
+            )
+          ),
+        ]}
+      />
+
+      {showClothingModal && (
+        <AddUpdateClothes
+          item={selectedItem}
+          onClose={closeModal}
+          refresh={fetchAllItems}
+        />
+      )}
+    </div>
   );
 };
 
 export default Clothes;
-
-
-

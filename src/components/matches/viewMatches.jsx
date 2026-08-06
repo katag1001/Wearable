@@ -1,166 +1,64 @@
-import React, { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import React, { useState } from "react";
 import axios from "axios";
-import { URL } from "../../config";
 
-import UpdateMatches from "./updateMatches";
-import ViewMatchesCard from "./viewMatchesCard.jsx";
-import ViewMatchesTop from "./viewMatchesTop";
-import Filter from "../general/filter.jsx";
 import DeletePopup from "../general/deletePopup.jsx";
 
-import "./viewMatchesCard.css";
+import { tagOptions } from "../../constants/optionsBank";
+import { URL } from "../../config";
 
+import "./viewMatchesCard.css";
 import "../../styles/pagesBottom.css";
 import "../../styles/pages.css";
 
-const ViewMatches = () => {
-
-  const [searchParams] = useSearchParams();
-  const itemFilter = searchParams.get("item");
-
-  const [matches, setMatches] = useState([]);
-  const [error, setError] = useState(null);
-  const [editingMatch, setEditingMatch] = useState(null);
-  const [selectedSeason, setSelectedSeason] = useState(null);
-  const [showFilters, setShowFilters] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+const ViewMatches = ({
+  matches = [],
+  onEdit,
+  refresh,
+  setError,
+}) => {
   const [deleteMatch, setDeleteMatch] = useState(null);
   const [deleting, setDeleting] = useState(false);
-
-  const [filters, setFilters] = useState({
-    seasons: [],
-    colors: [],
-    styles: [],
-    tags: [],
-    minTemp: null,
-    maxTemp: null
-  });
-
 
   const getToken = () =>
     localStorage.getItem("token");
 
-
-  useEffect(() => {
-
-    const fetchMatches = async () => {
-
-      try {
-
-        setError(null);
-
-        const token = getToken();
-
-        if (!token) {
-          setError("No user logged in");
-          return;
-        }
-
-        const response = await axios.get(
-          `${URL}/match/`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-        setMatches(response.data);
-
-      } catch (err) {
-
-        setError(
-          "Failed to fetch matches"
-        );
-
-      }
-
-    };
-
-    fetchMatches();
-
-  }, []);
-
   const handleDelete = (id) => {
-  setDeleteMatch(id);
-  };
-
-  const handleDeleteSuccess = (id) => {
-
-    setMatches(prev =>
-      prev.filter(
-        match => match._id !== id
-      )
-    );
-
+    setDeleteMatch(id);
   };
 
   const confirmDelete = async () => {
+    if (!deleteMatch) return;
 
-  if (!deleteMatch)
-    return;
+    setDeleting(true);
 
-  setDeleting(true);
+    try {
+      const token = getToken();
 
-  try {
-
-    const token = getToken();
-
-    if (!token) {
-      setError("No user logged in");
-      return;
-    }
-
-    await axios.delete(
-      `${URL}/match/${deleteMatch}`,
-      {
-        headers: {
-          Authorization:
-            `Bearer ${token}`,
-        },
+      if (!token) {
+        setError?.("No user logged in");
+        return;
       }
-    );
 
-    handleDeleteSuccess(deleteMatch);
+      await axios.delete(
+        `${URL}/match/${deleteMatch}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    setDeleteMatch(null);
-
-  } catch (err) {
-
-    setError(
-      "Failed to delete match"
-    );
-
-  } finally {
-
-    setDeleting(false);
-
-  }
-
-};
-
-  const handleUpdateSuccess = (updatedMatch) => {
-
-    setMatches(prev =>
-      prev.map(match =>
-        match._id === updatedMatch._id
-          ? updatedMatch
-          : match
-      )
-    );
-
-  };
-
-  const handleError = (msg) => {
-    setError(msg);
+      setDeleteMatch(null);
+      refresh();
+    } catch (err) {
+      setError?.("Failed to delete match");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const renderItemImage = (item) => {
-
-    if (!item?.imageUrl)
-      return null;
+    if (!item?.imageUrl) return null;
 
     return (
       <div>
@@ -171,291 +69,132 @@ const ViewMatches = () => {
         />
       </div>
     );
-
   };
 
-  const filteredMatches = matches.filter(match => {
+  const renderMatchTags = (match) => {
+    if (!match.tags?.length) return null;
 
-    if (
-      itemFilter &&
-      !match.clothes?.some(
-        item =>
-          item._id === itemFilter
-      )
-    ) {
-      return false;
-    }
+    return (
+      <div className="match-tags">
+        {match.tags.map((tagName) => {
+          const tag = tagOptions.find(
+            (option) =>
+              option.name === tagName
+          );
 
-
-    if (
-      selectedSeason &&
-      !match[selectedSeason]
-    ) {
-      return false;
-    }
-
-
-    if (searchTerm.trim()) {
-
-      const search =
-        searchTerm.toLowerCase();
-
-
-      const matchesSearch =
-        match.clothes?.some(item =>
-          item.name?.toLowerCase()
-            .includes(search)
-        )
-
-        ||
-
-        match.colors?.some(color =>
-          color.toLowerCase()
-            .includes(search)
-        )
-
-        ||
-
-        match.styles?.some(style =>
-          style.toLowerCase()
-            .includes(search)
-        )
-
-        ||
-
-        match.tags?.some(tag =>
-          tag.toLowerCase()
-            .includes(search)
-        );
-
-
-      if (!matchesSearch)
-        return false;
-
-    }
-
-
-    if (filters.seasons.length > 0) {
-
-      if (
-        !filters.seasons.some(
-          season => match[season]
-        )
-      ) {
-        return false;
-      }
-
-    }
-
-
-    if (filters.colors.length > 0) {
-
-      if (
-        !match.colors?.some(
-          color =>
-            filters.colors.includes(color)
-        )
-      ) {
-        return false;
-      }
-
-    }
-
-
-    if (filters.styles.length > 0) {
-
-      if (
-        !match.styles?.some(
-          style =>
-            filters.styles.includes(style)
-        )
-      ) {
-        return false;
-      }
-
-    }
-
-
-    if (filters.tags.length > 0) {
-
-      if (
-        !(match.tags || []).some(
-          tag =>
-            filters.tags.includes(tag)
-        )
-      ) {
-        return false;
-      }
-
-    }
-
-
-    if (
-      filters.minTemp !== null &&
-      match.max_temp < filters.minTemp
-    ) {
-      return false;
-    }
-
-
-    if (
-      filters.maxTemp !== null &&
-      match.min_temp > filters.maxTemp
-    ) {
-      return false;
-    }
-
-
-    return true;
-
-  });
-
-  const toggleSeasonFilter = (season) => {
-
-    setSelectedSeason(prev =>
-      prev === season
-        ? null
-        : season
+          return (
+            tag && (
+              <img
+                key={tagName}
+                src={tag.image}
+                alt={tagName}
+                title={tagName}
+                className="match-tag-icon"
+              />
+            )
+          );
+        })}
+      </div>
     );
-
   };
 
   const capitalize = (word) =>
-    word.charAt(0).toUpperCase() + word.slice(1);
+    word.charAt(0).toUpperCase() +
+    word.slice(1);
 
   return (
-
-    <div className="main-container">
-
-      <Link
-        to="/buildmatches"
-        className="top-action-button"
-      >
-        <button className="top-action-button">
-          Build Outfits
-        </button>
-      </Link>
-
-
-      <ViewMatchesTop
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        selectedSeason={selectedSeason}
-        toggleSeasonFilter={toggleSeasonFilter}
-        setShowFilters={setShowFilters}
-        capitalize={capitalize}
-      />
-
-
-      {error && (
-        <p className="error-text">
-          {error}
-        </p>
-      )}
-
-
-      {filteredMatches.length === 0 && !error && (
-
+    <>
+      {matches.length === 0 && (
         <p className="no-matches-text">
           No outfits found.
         </p>
-
       )}
-
 
       <div className="bottom-area-wrapper">
-
         <div className="items-grid">
-
-          {filteredMatches.map(match => (
-
-            <ViewMatchesCard
+          {matches.map((match) => (
+            <div
+              className="match-card"
               key={match._id}
-              match={match}
-              renderItemImage={renderItemImage}
-              capitalize={capitalize}
-              handleDelete={handleDelete}
-              setEditingMatch={setEditingMatch}
-            />
+            >
+              <div className="match-images">
+                {(match.clothes || []).map(
+                  (item) => (
+                    <React.Fragment
+                      key={item._id}
+                    >
+                      {renderItemImage(item)}
+                    </React.Fragment>
+                  )
+                )}
+              </div>
 
+              <div className="match-info">
+                <div className="item-info">
+                  <div>
+                    {match.min_temp}° -{" "}
+                    {match.max_temp}°
+                  </div>
+
+                  <div>
+                    {[
+                      "spring",
+                      "summer",
+                      "autumn",
+                      "winter",
+                    ]
+                      .filter(
+                        (season) =>
+                          match[season]
+                      )
+                      .map(capitalize)
+                      .join(", ") || "N/A"}
+                  </div>
+
+                  <div>
+                    {renderMatchTags(match)}
+                  </div>
+                </div>
+
+                <div className="match-items-button-row">
+                  <button
+                    className="match-text-button"
+                    onClick={() =>
+                      handleDelete(match._id)
+                    }
+                  >
+                    Delete
+                  </button>
+
+                  <button
+                    className="match-text-button"
+                    onClick={() =>
+                      onEdit(match)
+                    }
+                  >
+                    Edit
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
-
         </div>
-
       </div>
 
-
-      <Filter
-        isOpen={showFilters}
-        onClose={() =>
-          setShowFilters(false)
-        }
-        filters={filters}
-        setFilters={setFilters}
-
-        availableColors={[
-          ...new Set(
-            matches.flatMap(
-              match =>
-                match.colors || []
-            )
-          )
-        ]}
-
-        availableStyles={[
-          ...new Set(
-            matches.flatMap(
-              match =>
-                match.styles || []
-            )
-          )
-        ]}
-
-        availableTags={[
-          ...new Set(
-            matches.flatMap(
-              match =>
-                match.tags || []
-            )
-          )
-        ]}
-      />
-
-
-      {editingMatch && (
-
-        <UpdateMatches
-          match={editingMatch}
-          onClose={() =>
-            setEditingMatch(null)
-          }
-          onUpdateSuccess={handleUpdateSuccess}
-          onError={handleError}
-        />
-
-      )}
-
-            <DeletePopup
+      <DeletePopup
         isOpen={!!deleteMatch}
         title="Delete Outfit"
         message="Are you sure you want to delete this outfit?"
         loading={deleting}
         onConfirm={confirmDelete}
         onClose={() => {
-
           if (!deleting) {
             setDeleteMatch(null);
           }
-
         }}
       />
-
-
-    </div>
-
+    </>
   );
-
 };
-
 
 export default ViewMatches;

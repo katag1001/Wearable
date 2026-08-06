@@ -1,438 +1,127 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 
-import AddUpdateClothes from "./addUpdateClothes.jsx";
-import Filter from "../general/filter.jsx";
 import DeletePopup from "../general/deletePopup.jsx";
 
-import ViewClothesTop from "./viewClothesTop.jsx";
-import ViewClothesCard from "./viewClothesCard.jsx";
-
-import '../../styles/pagesBottom.css'
-import '../../styles/pages.css'
+import "./viewClothesCard.css";
+import "../../styles/pagesBottom.css";
+import "../../styles/pages.css";
 
 import { URL } from "../../config";
 
-
-const ViewClothes = () => {
-
-  const [allItems, setAllItems] = useState([]);
-  const [error, setError] = useState(null);
-  const [showClothingModal, setShowClothingModal] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [showFilters, setShowFilters] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState(null);
+const ViewClothes = ({
+  items = [],
+  onEdit,
+  refresh,
+  setError,
+}) => {
   const [deleteItem, setDeleteItem] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+  const getToken = () => localStorage.getItem("token");
 
-  const [filters, setFilters] = useState({
-
-    seasons: [],
-    colors: [],
-    styles: [],
-    minTemp: null,
-    maxTemp: null
-
-  });
-
-  const clothingTypes = [
-    "top",
-    "outer",
-    "bottom",
-    "onepiece"
-  ];
-
-  const typeTitles = {
-
-    top: "Top Half",
-    outer: "Outerwear",
-    bottom: "Bottom Half",
-    onepiece: "One-Pieces"
-
+  const handleDelete = (id) => {
+    setDeleteItem(id);
   };
 
-  const getToken = () =>
-    localStorage.getItem("token");
+  const confirmDelete = async () => {
+    if (!deleteItem) return;
 
-  const fetchAllItems = async () => {
+    setDeleting(true);
+
     try {
-      setError(null);
       const token = getToken();
 
       if (!token) {
-
-        setError("No user logged in");
+        setError?.("No user logged in");
         return;
-
       }
 
-      const res = await axios.get(
-        `${URL}/clothing/`,
+      const response = await fetch(
+        `${URL}/clothing/${deleteItem}`,
         {
+          method: "DELETE",
           headers: {
-            Authorization:
-              `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      if (!Array.isArray(res.data)) {
+      const data = await response.json();
 
-        setError(
-          res.data?.error ||
-          "Invalid response from server"
-        );
-
-        return;
-
+      if (data.error) {
+        setError?.(data.error);
+      } else {
+        setDeleteItem(null);
+        refresh();
       }
-
-      setAllItems(res.data);
-
-    } catch (err) {
-
-      console.error(err);
-
-      setError(
-        "Failed to fetch clothing items"
-      );
-
+    } catch (error) {
+      setError?.("Failed to delete item");
+    } finally {
+      setDeleting(false);
     }
-
-  };
-
-  useEffect(() => {
-
-    fetchAllItems();
-
-  }, []);
-
-  const filteredItems = allItems.filter(item => {
-
-    if (
-      selectedType &&
-      item.type !== selectedType
-    ) {
-      return false;
-    }
-
-    if (searchTerm.trim()) {
-
-      const search =
-        searchTerm.toLowerCase();
-
-
-      const matchesSearch =
-
-        item.name
-          ?.toLowerCase()
-          .includes(search)
-
-        ||
-
-        item.colors?.some(color =>
-          color.toLowerCase().includes(search)
-        )
-
-        ||
-
-        item.styles?.some(style =>
-          style.toLowerCase().includes(search)
-        );
-
-      if (!matchesSearch) {
-        return false;
-      }
-
-    }
-
-    if (filters.seasons.length > 0) {
-
-      const seasonMatch =
-        filters.seasons.some(season =>
-          item[season]
-        );
-
-      if (!seasonMatch) {
-        return false;
-      }
-
-    }
-
-    if (filters.colors.length > 0) {
-
-      const colorMatch =
-        item.colors?.some(color =>
-          filters.colors.includes(color)
-        );
-
-
-      if (!colorMatch) {
-        return false;
-      }
-
-    }
-
-    if (filters.styles.length > 0) {
-
-      const styleMatch =
-        item.styles?.some(style =>
-          filters.styles.includes(style)
-        );
-
-
-      if (!styleMatch) {
-        return false;
-      }
-
-    }
-
-    if (filters.minTemp !== null) {
-
-      if (item.max_temp < filters.minTemp) {
-        return false;
-      }
-
-    }
-
-    if (filters.maxTemp !== null) {
-
-      if (item.min_temp > filters.maxTemp) {
-        return false;
-      }
-
-    }
-
-    return true;
-
-  });
-
-  const toggleTypeFilter = (type) => {
-
-    setSelectedType(prev =>
-      prev === type
-        ? null
-        : type
-    );
-
-  };
-
-  const handleDelete = (type, id) => {
-
-  setDeleteItem({
-    type,
-    id
-  });
-
-  };
-
-  const confirmDelete = async () => {
-
-  if (!deleteItem)
-    return;
-
-  setDeleting(true);
-
-  try {
-
-    const token = getToken();
-
-    if (!token) {
-
-      setError("No user logged in");
-      return;
-
-    }
-
-    const response = await fetch(
-      `${URL}/clothing/${deleteItem.id}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization:
-            `Bearer ${token}`,
-        },
-      }
-    );
-
-    const data = await response.json();
-
-    if (data.error) {
-
-      setError(data.error);
-
-    } else {
-
-      setDeleteItem(null);
-      fetchAllItems();
-
-    }
-
-  } catch (error) {
-
-    setError(
-      "Failed to delete item"
-    );
-
-  } finally {
-
-    setDeleting(false);
-
-  }
-
-};
-
-
-  const handleAddItem = () => {
-
-    setSelectedItem(null);
-    setShowClothingModal(true);
-
-  };
-
-  const handleEdit = (item) => {
-
-    setSelectedItem(item);
-    setShowClothingModal(true);
-
-  };
-
-  const closeModal = () => {
-
-    setShowClothingModal(false);
-    setSelectedItem(null);
-
-  };
-
-  const getSeasons = (item) => {
-
-    const seasons = [];
-
-    if (item.spring)
-      seasons.push("Spring");
-    if (item.summer)
-      seasons.push("Summer");
-    if (item.autumn)
-      seasons.push("Autumn");
-    if (item.winter)
-      seasons.push("Winter");
-
-    return seasons.length
-      ? seasons.join(", ")
-      : "None";
-
   };
 
   return (
-    <div className="main-container">
-
-      <button
-          className="top-action-button"
-          onClick={handleAddItem}
-        >
-          Add Item
-      </button>
-
-      {error && (
-
-        <p className="error-text">
-          Error: {error}
-        </p>
-
-      )}
-
-      <ViewClothesTop
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        handleAddItem={handleAddItem}
-        clothingTypes={clothingTypes}
-        typeTitles={typeTitles}
-        selectedType={selectedType}
-        toggleTypeFilter={toggleTypeFilter}
-        setShowFilters={setShowFilters}
-      />
-
-      {filteredItems.length === 0 && !error && (
-
+    <>
+      {items.length === 0 && (
         <p className="no-clothing-items">
           No clothes found.
         </p>
-
       )}
 
       <div className="bottom-area-wrapper">
-          <div className="items-grid">
+        <div className="items-grid">
+          {items.map((item) => (
+            <div
+              key={item._id}
+              className="clothing-card-viewclothes"
+              onClick={() => onEdit(item)}
+            >
+              {/* Name */}
+              <div className="clothing-item-name">
+                {item.name}
+              </div>
 
-            {filteredItems.map(item => (
+              {/* Image */}
+              {item.imageUrl && (
+                <img
+                  src={item.imageUrl}
+                  alt={item.name || "Clothing item"}
+                  className="clothing-image-viewclothes"
+                />
+              )}
 
-              <ViewClothesCard
-                key={item._id}
-                item={item}
-                type={item.type}
-                getSeasons={getSeasons}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-
-            ))}
-
-          </div>
+              {/* Delete Button */}
+              <div className="clothing-card-button-row">
+                <button
+                  className="clothing-text-button delete-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(item._id);
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {showClothingModal && (
-
-        <AddUpdateClothes
-          item={selectedItem}
-          onClose={closeModal}
-          refresh={fetchAllItems}
-        />
-
-      )}
-
-      <Filter
-        isOpen={showFilters}
-        onClose={() =>
-          setShowFilters(false)
-        }
-        filters={filters}
-        setFilters={setFilters}
-        availableColors={[
-          ...new Set(
-            allItems.flatMap(item =>
-              item.colors || []
-            )
-          )
-        ]}
-        availableStyles={[
-          ...new Set(
-            allItems.flatMap(item =>
-              item.styles || []
-            )
-          )
-        ]}
-      />
-
       <DeletePopup
-          isOpen={!!deleteItem}
-          title="Delete Clothing Item"
-          message="Are you sure you want to delete this item?"
-          loading={deleting}
-          onConfirm={confirmDelete}
-          onClose={() => {
-
-            if (!deleting) {
-              setDeleteItem(null);
-            }
-
-          }}
-        />
-
-    </div>
-
+        isOpen={!!deleteItem}
+        title="Delete Clothing Item"
+        message="Are you sure you want to delete this item?"
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onClose={() => {
+          if (!deleting) {
+            setDeleteItem(null);
+          }
+        }}
+      />
+    </>
   );
-
 };
 
 export default ViewClothes;
