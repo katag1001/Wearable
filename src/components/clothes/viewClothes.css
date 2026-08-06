@@ -3,35 +3,38 @@
 
 /* Card styling */
 .clothing-card-viewclothes {
-  flex: 0 0 auto;
   width: 150px;
   height: auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  border: 2px solid black;
+  align-items: flex-start;
+  justify-content: flex-start;
   background-color: white;
-  margin-right: -2px;
-  margin-bottom: -2px;
   cursor: pointer;
+  border: none;
+  padding: 0;
 }
 
-.clothing-item-name {
-
-  font-size: 1rem;
-  padding: 10px;
-  text-align: left;
-}
-
+/* Image styling */
 .clothing-image-viewclothes {
-  max-width: 100px;
+  width: 150px;
+  height: 180px;
   object-fit: cover;
+  display: block;
 }
 
+/* Clothing title styling */
+.clothing-item-name {
+  font-size: 0.8rem;
+  padding: 10px 3px;
+  width: 100%;
+}
+
+/* Delete button row */
 .clothing-card-button-row {
   font-size: 0.8rem;
-  padding: 10px;
-  text-align: right;
+   padding: 0 3px;
+  width: 100%;
 }
 
 .clothing-card-button-row button {
@@ -78,3 +81,57 @@
 .clothing-text-button.active::after {
   right: 0;
 }
+
+.clothing-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+
+.clothing-image-viewclothes {
+  width: 100%;
+  display: block;
+}
+
+
+/* Hidden initially */
+.hover-tags-row {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 8px;
+
+  padding: 8px;
+
+  background: rgba(255, 255, 255, 0.85);
+
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  box-sizing: border-box;
+}
+
+
+
+/* Slide upward */
+.clothing-card-viewclothes:hover .hover-tags-row {
+  transform: translateY(0);
+}
+
+
+.hover-tag-image {
+  width: 32px;
+  height: 32px;
+
+  object-fit: contain;
+
+  border-radius: 50%;
+}
+

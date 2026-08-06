@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { tagOptions } from "../../constants/optionsBank";
 
 import DeletePopup from "../general/deletePopup.jsx";
 
-import "./viewClothesCard.css";
+import "./viewClothes.css";
 import "../../styles/pagesBottom.css";
 import "../../styles/pages.css";
 
@@ -18,6 +19,12 @@ const ViewClothes = ({
   const [deleting, setDeleting] = useState(false);
 
   const getToken = () => localStorage.getItem("token");
+
+  const getTagImages = (tags = []) => {
+    return tagOptions.filter((tag) =>
+      tags.includes(tag.name)
+    );
+  };
 
   const handleDelete = (id) => {
     setDeleteItem(id);
@@ -77,12 +84,10 @@ const ViewClothes = ({
               className="clothing-card-viewclothes"
               onClick={() => onEdit(item)}
             >
-              {/* Name */}
-              <div className="clothing-item-name">
-                {item.name}
-              </div>
 
-              {/* Image */}
+              {/* Image + Hover Tags */}
+            <div className="clothing-image-wrapper">
+
               {item.imageUrl && (
                 <img
                   src={item.imageUrl}
@@ -90,6 +95,25 @@ const ViewClothes = ({
                   className="clothing-image-viewclothes"
                 />
               )}
+
+              <div className="hover-tags-row">
+                {getTagImages(item.tags).map((tag) => (
+                  <img
+                    key={tag.name}
+                    src={tag.image}
+                    alt={tag.name}
+                    className="hover-tag-image"
+                  />
+                ))}
+              </div>
+
+            </div>
+
+
+              {/* Name */}
+              <div className="clothing-item-name">
+                {item.name}
+              </div>
 
               {/* Delete Button */}
               <div className="clothing-card-button-row">
