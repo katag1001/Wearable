@@ -28,4 +28,8 @@ router.delete("/match/:id", authMiddleware, allControllers.deleteMatch);
 router.post("/today/create", authMiddleware, allControllers.createToday);
 router.get("/today/get", authMiddleware, allControllers.getToday);
 
+/* PREFERENCES ROUTES */
+router.get("/preferences", authMiddleware, allControllers.getPreferences);
+router.put("/preferences", authMiddleware, allControllers.updatePreferences);
+
 module.exports = router;

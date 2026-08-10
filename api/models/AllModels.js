@@ -7,8 +7,9 @@ const userSchema = new mongoose.Schema(
 email: { type: String, unique: true, required: true },
 password: { type: String, required: true },
 },
-{ strictQuery: false }
-);
+{ strictQuery: false 
+
+  });
 
 /* -------------------- MATCH -------------------- */
 
@@ -25,6 +26,7 @@ userId: {
 type: mongoose.Schema.Types.ObjectId,
 ref: "User",
 required: true,
+unique: true,
 index: true,
 },
 
@@ -61,6 +63,7 @@ userId: {
 type: mongoose.Schema.Types.ObjectId,
 ref: "User",
 required: true,
+unique: true,
 index: true,
 },
 
@@ -88,6 +91,7 @@ const todaySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
+    unique: true,
     index: true,
   },
 
@@ -104,6 +108,28 @@ const todaySchema = new mongoose.Schema({
 
 });
 
+/* -------------------- PREFERENCES -------------------- */
+
+const preferencesSchema = new mongoose.Schema({
+
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    unique: true,
+    index: true,
+  },
+
+  monday: { type: String, default: null },
+  tuesday: { type: String, default: null },
+  wednesday: { type: String, default: null },
+  thursday: { type: String, default: null },
+  friday: { type: String, default: null },
+  saturday: { type: String, default: null },
+  sunday: { type: String, default: null },
+
+});
+
 
 /* -------------------- MODELS -------------------- */
 
@@ -112,4 +138,5 @@ User: mongoose.model("User", userSchema),
 Match: mongoose.model("Match", matchSchema),
 Today: mongoose.model("Today", todaySchema),
 Clothes: mongoose.model("Clothes", clothesSchema),
+Preferences: mongoose.model("Preferences", preferencesSchema),
 };

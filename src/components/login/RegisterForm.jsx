@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import {URL} from '../../config';
+import { URL } from '../../config';
 
 const RegisterForm = () => {
   const [form, setForm] = useState({
@@ -13,7 +13,10 @@ const RegisterForm = () => {
   const [message, setMessage] = useState('');
 
   const handleChange = (e) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setForm(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -21,20 +24,30 @@ const RegisterForm = () => {
 
     try {
       const res = await axios.post(`${URL}/users/register`, form);
+
       setMessage(res.data.message);
 
       if (res.data.ok) {
-        setForm({ email: '', password: '', password2: '' });
+        setForm({
+          email: '',
+          password: '',
+          password2: '',
+        });
       }
     } catch (error) {
       console.error('❌ Registration error:', error);
-      setMessage('Registration failed');
+
+      // Show the message returned by the backend
+      setMessage(
+        error.response?.data?.message || 'Registration failed'
+      );
     }
   };
 
   return (
-     <div className="login-form-container">
+    <div className="login-form-container">
       {message && <p>{message}</p>}
+
       <form onSubmit={handleSubmit}>
         <input
           name="email"
@@ -43,7 +56,9 @@ const RegisterForm = () => {
           value={form.email}
           onChange={handleChange}
           required
-        /><br/>
+        />
+        <br />
+
         <input
           name="password"
           type="password"
@@ -51,7 +66,9 @@ const RegisterForm = () => {
           value={form.password}
           onChange={handleChange}
           required
-        /><br/>
+        />
+        <br />
+
         <input
           name="password2"
           type="password"
@@ -59,11 +76,15 @@ const RegisterForm = () => {
           value={form.password2}
           onChange={handleChange}
           required
-        /><br/>
+        />
+        <br />
+
         <button type="submit">Register</button>
-        <Link className="register-button" to="/login">Login</Link>
+
+        <Link className="register-button" to="/login">
+          Login
+        </Link>
       </form>
-      
     </div>
   );
 };

@@ -1,233 +1,307 @@
 @import url('https://fonts.googleapis.com/css2?family=Didot&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
 * {
   box-sizing: border-box;
 }
 
+:root {
+  --text: #171717;
+  --muted: #77716a;
+  --border: #ded9d1;
+  --shadow:
+    0 18px 45px rgba(0,0,0,.08),
+    0 4px 12px rgba(0,0,0,.04);
+}
+
+/* Main container */
 .view-today-container {
-  max-width: 100%;
-  font-family: 'Helvetica Neue', sans-serif;
-  color: #111;
-  background-color: #fff;
-  padding: 1rem;
+  width: 100%;
+  min-height: 100%;
+  padding: 2rem 1.5rem;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
   text-align: center;
 }
 
+/* Title */
 .today-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+  margin: 0 0 2.5rem;
+  font-family: 'Didot', serif;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: normal;
+  letter-spacing: .04em;
   text-transform: uppercase;
-  font-family: 'Playfair Display', serif;
-  letter-spacing: 1px;
-  margin-bottom: 2rem;
+  color: var(--text);
 }
 
+/* Horizontal carousel area */
 .horizontal-scroll-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
   width: 100%;
-  padding: 0 1rem;
+  gap: 1.5rem;
 }
 
+
+
+/* Clothing card */
 .clothing-card {
   flex: 0 0 auto;
-  width: 450px;
-  border: 2px solid black;
-  background-color: white;
+  width: min(460px, 90vw);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin-right: -2px;
-  margin-bottom: -2px;
-  padding: 10px;
+  box-shadow: var(--shadow);
+  transition:
+    transform .3s ease,
+    box-shadow .3s ease;
 }
 
+/* Navigation arrows */
 .left-right {
-  background: none;
+  width: 42px;
+  height: 42px;
   border: none;
-  font-size: 2rem;
-  color: #111;
-  width: 30px;
-  height: 100%;
+  background: white;
+  color: var(--text);
+  font-family: 'Didot', serif;
+  font-size: 1.8rem;
+  line-height: 1;
   cursor: pointer;
-  transition: color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  user-select: none;
+
 }
+
 
 .left-right:hover {
-  color: #666;
+  transform: scale(1.05);
 }
 
+/* Images */
 .today-image-group {
-  display: grid;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
   justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .today-image {
-  max-width: 140px;
-  max-height: 140px;
+  width: 140px;
+  height: 140px;
   object-fit: cover;
-  border: 1px solid #ccc;
+  border-radius: 12px;
 }
 
+/* Action buttons */
 .today-buttons {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   align-items: center;
-  margin: 10px;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
+/* Minimal editorial buttons */
 .regular-button {
   all: unset;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 1rem;
-  color: #111;
-  background: none;
-  padding: 0;
-  margin: 0;
-  text-transform: capitalize;
   position: relative;
-  text-decoration: none;
-  transition: color 0.2s ease;
-  outline: none;
+  cursor: pointer;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: .85rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding-bottom: .25rem;
+  transition:
+    color .2s ease;
 }
+
 
 .regular-button::after {
   content: '';
   position: absolute;
+  bottom: 0;
   left: 0;
-  right: 100%;
-  bottom: -2px;
+  width: 0;
   height: 1px;
-  background-color: #111;
-  transition: right 0.2s ease;
+  background: #111;
+  transition:
+    width .3s ease;
 }
+
 
 .regular-button:hover::after,
 .regular-button:focus::after {
-  right: 0;
+  width: 100%;
+}
+
+.regular-button:hover {
+  color: #555;
 }
 
 .regular-button:focus,
 .regular-button:active {
   outline: none;
-  border: none;
 }
 
+/* Message */
 .today-message {
-  text-align: center;
+  margin-top: 2rem;
   padding: 1rem;
+  color: var(--muted);
+  font-family: 'Didot', serif;
+  font-size: 1.15rem;
   font-style: italic;
-  font-size: 1rem;
 }
 
-/* Smaller screen adjustments */
+/* -----------------------------------------------------------------
+   Responsive Layout
+------------------------------------------------------------------ */
+
+/* Tablet */
 @media (max-width: 768px) {
 
   .view-today-container {
-    width: 100%;
-    max-width: 100%;
-    padding: 0.5rem;
+    padding: 1.5rem .75rem;
     overflow-x: hidden;
   }
 
   .today-title {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
+    font-size: 1.8rem;
+    margin-bottom: 1.8rem;
   }
 
   .horizontal-scroll-wrapper {
+    gap: .5rem;
     width: 100%;
-    max-width: 100%;
-    padding: 0;
-    overflow: hidden;
   }
 
   .clothing-card {
-    width: 85vw;
-    max-width: 320px;
-    min-width: 0;
-    padding: 8px;
-    margin: 0 auto;
-    overflow: hidden;
+    width: min(85vw, 360px);
+    padding: 1.25rem;
+    border-radius: 16px;
   }
 
   .left-right {
+    width: 34px;
+    height: 34px;
     font-size: 1.4rem;
-    width: 22px;
     flex-shrink: 0;
   }
 
+  .today-image-group {
+    gap: .65rem;
+    margin-bottom: 1rem;
+  }
 
   .today-image {
-    width: 100%;
-    max-width: 75px;
-    height: auto;
-   
-    object-fit: cover;
-    border: 1px solid #ccc;
+    width: 85px;
+    height: 85px;
+    border-radius: 10px;
   }
 
   .today-buttons {
-    gap: 12px;
-    margin: 12px 5px;
+    gap: .8rem;
+    margin-top: .8rem;
   }
 
   .regular-button {
-    font-size: 0.9rem;
-    padding: 5px 0;
+    font-size: .75rem;
   }
 
   .today-message {
-    font-size: 0.9rem;
-    padding: 0.75rem;
+    font-size: 1rem;
+    padding: .75rem;
   }
 }
 
-
-/* Extra small phones */
+/* Small phones */
 @media (max-width: 400px) {
 
   .view-today-container {
-    padding: 0.35rem;
+    padding: 1rem .5rem;
   }
 
   .today-title {
-    font-size: 1rem;
+    font-size: 1.5rem;
+    letter-spacing: .03em;
   }
 
   .horizontal-scroll-wrapper {
-    padding: 0;
+    gap: .25rem;
   }
 
   .clothing-card {
-    width: 78vw;
-    max-width: 280px;
-    padding: 6px;
-  }
-
-  .today-image-group {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.25rem;
-  }
-
-  .today-image {
-    max-width: 58px;
+    width: 82vw;
+    padding: 1rem;
+    border-radius: 14px;
   }
 
   .left-right {
-    font-size: 1.2rem;
-    width: 18px;
+    width: 28px;
+    height: 28px;
+    font-size: 1.15rem;
   }
+
+  .today-image-group {
+    display: grid;
+    grid-template-columns:
+      repeat(2, 1fr);
+    gap: .5rem;
+  }
+
+  .today-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .regular-button {
+    font-size: .7rem;
+  }
+
+  .today-message {
+    font-size: .9rem;
+  }
+}
+
+/* -----------------------------------------------------------------
+   Accessibility + Interaction Polish
+------------------------------------------------------------------ */
+
+.left-right:focus-visible,
+.regular-button:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 4px;
+}
+
+
+
+/* Cleaner scrollbar where supported */
+.view-today-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.view-today-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.view-today-container::-webkit-scrollbar-thumb {
+  border-radius: 20px;
+}
+
+/* Prevent accidental text selection on controls */
+.left-right,
+.regular-button {
+  user-select: none;
 }

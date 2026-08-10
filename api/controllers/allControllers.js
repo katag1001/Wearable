@@ -4,7 +4,7 @@ const validator = require("validator");
 const cloudinary = require("../cloudinary.js");
 const jwt_secret = process.env.JWT_SECRET;
 
-const { User, Match, Today, Clothes } = require("../models/AllModels.js");
+const { User, Match, Today, Clothes, Preferences } = require("../models/AllModels.js");
 const { processMatches } = require("../services/matchService");
 const { generateMatchTags } = require("../services/helpers.js");
 
@@ -33,40 +33,71 @@ return res.status(401).json({ ok: false, message: "Invalid token" });
 /* -------------------- USER CONTROLLERS -------------------- */
 
 exports.createItemregister = async (req, res) => {
-const { email, password, password2 } = req.body;
+  const { email, password, password2 } = req.body;
 
-if (!email || !password || !password2) {
-return res.status(400).json({ ok: false, message: "All fields required" });
+  if (!email || !password || !password2) {
+    return res.status(400).json({
+      ok: false,
+      message: "All fields required",
+    });
+  }
+
+  if (password !== password2) {
+    return res.status(400).json({
+      ok: false,
+      message: "Passwords must match",
+    });
+  }
+
+  if (!validator.isEmail(email)) {
+    return res.status(400).json({
+      ok: false,
+      message: "Invalid email",
+    });
+  }
+
+  try {
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(409).json({
+        ok: false,
+        message: "User exists!",
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+
+    // Create the user
+    const user = await User.create({
+      email,
+      password: hash,
+    });
+
+    // Create blank preferences for this user
+    await Preferences.create({
+      userId: user._id,
+    });
+
+    return res.json({
+      ok: true,
+      message: "Successfully registered",
+    });
+
+  }  catch (error) {
+  console.error("❌ Registration error:", error);
+
+  return res.status(500).json({
+    ok: false,
+    message: "Registration failed",
+    error: error.message,
+  });
 }
 
-if (password !== password2) {
-return res.status(400).json({ ok: false, message: "Passwords must match" });
-}
 
-if (!validator.isEmail(email)) {
-return res.status(400).json({ ok: false, message: "Invalid email" });
-}
-
-try {
-const existingUser = await User.findOne({ email });
-if (existingUser) {
-return res.status(409).json({ ok: false, message: "User exists!" });
-}
-
-const salt = await bcrypt.genSalt(10);
-const hash = await bcrypt.hash(password, salt);
-
-await User.create({
-  email,
-  password: hash,
-});
-
-return res.json({ ok: true, message: "Successfully registered" });
-
-} catch (error) {
-return res.status(500).json({ ok: false, error: error.message });
-}
 };
+
 
 exports.login = async (req, res) => {
 const { email, password } = req.body;
@@ -531,5 +562,89 @@ exports.getToday = async (req, res) => {
     });
   }
 };
+
+/* -------------------- PREFERENCES CONTROLLERS -------------------- */
+
+exports.getPreferences = async (req, res) => {
+  const userId = req.user?.userId;
+
+  try {
+    const preferences = await Preferences.findOne({ userId });
+
+    if (!preferences) {
+      return res.status(404).json({
+        message: "Preferences not found.",
+        success: false,
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: preferences,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: "Internal server error.",
+      success: false,
+    });
+  }
+};
+
+exports.updatePreferences = async (req, res) => {
+  const userId = req.user?.userId;
+
+  try {
+    const {
+      monday,
+      tuesday,
+      wednesday,
+      thursday,
+      friday,
+      saturday,
+      sunday,
+    } = req.body;
+
+    const preferences = await Preferences.findOneAndUpdate(
+      { userId },
+      {
+        monday,
+        tuesday,
+        wednesday,
+        thursday,
+        friday,
+        saturday,
+        sunday,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!preferences) {
+      return res.status(404).json({
+        message: "Preferences not found.",
+        success: false,
+      });
+    }
+
+    return res.json({
+      message: "Preferences updated successfully.",
+      success: true,
+      data: preferences,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: "Internal server error.",
+      success: false,
+    });
+  }
+};
+
+
 
 
