@@ -3,13 +3,17 @@ import Header from '../components/header';
 import MessagePopup from '../components/general/messagePopup';
 import { URL } from '../config';
 import '../styles/pages.css';
+import '../styles/userPage.css';
 import WeeklyPreferences from '../components/preferences/weeklyPreferences';
 
 const User = ({ loggedIn, logout }) => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-   console.log("URL from config:", URL);
+  const [activeScreen, setActiveScreen] =
+    useState('weekly-preferences');
+
+  console.log("URL from config:", URL);
   console.log("Delete endpoint:", `${URL}/users/delete`);
 
   const handleDeleteAccount = async () => {
@@ -29,7 +33,9 @@ const User = ({ loggedIn, logout }) => {
       const data = text ? JSON.parse(text) : {};
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to delete account.");
+        throw new Error(
+          data.message || "Failed to delete account."
+        );
       }
 
       // Account successfully deleted
@@ -46,31 +52,88 @@ const User = ({ loggedIn, logout }) => {
     }
   };
 
+  const renderActiveScreen = () => {
+    switch (activeScreen) {
+      case 'weekly-preferences':
+        return <WeeklyPreferences />;
+
+      default:
+        return <WeeklyPreferences />;
+    }
+  };
+
   return (
     <>
       <div className="full-page-container">
         <Header loggedIn={loggedIn} />
 
         <div className="main-container">
-          <h2 className="page-title">You are logged in</h2>
 
-          <WeeklyPreferences />
-          
-          <button
-            className="logout-button"
-            onClick={logout}
-          >
-            Logout
-          </button>
+          <div className="user-container">
 
-          <button
-            className="logout-button"
-            onClick={() => setShowDeletePopup(true)}
-          >
-            Delete Account
-          </button>
+            {/* SIDEBAR */}
+
+            <aside className="user-sidebar">
+
+              <nav className="user-sidebar__nav">
+
+                <button
+                  type="button"
+                  className={`user-sidebar__button ${
+                    activeScreen === 'weekly-preferences'
+                      ? 'user-sidebar__button--active'
+                      : ''
+                  }`}
+                  onClick={() =>
+                    setActiveScreen('weekly-preferences')
+                  }
+                >
+                  Weekly Preferences
+                </button>
+
+              </nav>
+
+
+              {/* SIDEBAR BOTTOM ACTIONS */}
+
+              <div className="user-sidebar__bottom">
+
+                <button
+                  type="button"
+                  className="user-sidebar__action"
+                  onClick={logout}
+                >
+                  Logout
+                </button>
+
+                <button
+                  type="button"
+                  className="user-sidebar__action user-sidebar__action--delete"
+                  onClick={() =>
+                    setShowDeletePopup(true)
+                  }
+                >
+                  Delete Account
+                </button>
+
+              </div>
+
+            </aside>
+
+
+            {/* CONTENT */}
+
+            <main className="user-content">
+              {renderActiveScreen()}
+            </main>
+
+          </div>
+
         </div>
       </div>
+
+
+      {/* DELETE ACCOUNT POPUP */}
 
       <MessagePopup
         isOpen={showDeletePopup}
@@ -85,10 +148,19 @@ const User = ({ loggedIn, logout }) => {
             setShowDeletePopup(false);
           }
         }}
-        onConfirm={deleting ? undefined : handleDeleteAccount}
-        confirmText={deleting ? "Deleting..." : "Delete Account"}
+        onConfirm={
+          deleting
+            ? undefined
+            : handleDeleteAccount
+        }
+        confirmText={
+          deleting
+            ? "Deleting..."
+            : "Delete Account"
+        }
         cancelText="Cancel"
       />
+
     </>
   );
 };

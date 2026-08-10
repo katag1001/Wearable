@@ -479,6 +479,89 @@ const WeeklyPreferences = () => {
         </p>
       </div>
 
+            {/* TAG SELECTOR */}
+
+      <div className="tag-selector">
+        <div className="tag-selector__header">
+          <div>
+            <h3>
+              {selectedDayObject?.label}
+            </h3>
+
+            <p>
+              Select a preference for
+              this day.
+            </p>
+          </div>
+
+          {selectedTag && (
+            <button
+              type="button"
+              className="clear-button"
+              onClick={
+                handleClearDay
+              }
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        <div className="tag-grid">
+
+          {tagOptions.map((tag) => {
+            const isSelected =
+              preferences[
+                selectedDay
+              ] === tag.name;
+
+            return (
+              <button
+                key={tag.name}
+                type="button"
+                className={`tag-card ${
+                  isSelected
+                    ? "tag-card--selected"
+                    : ""
+                }`}
+                onClick={() =>
+                  handleTagSelect(
+                    tag.name
+                  )
+                }
+                aria-pressed={
+                  isSelected
+                }
+              >
+                <div className="tag-card__image-wrapper">
+                  <img
+                    src={tag.image}
+                    alt={tag.name}
+                    className="tag-card__image"
+                  />
+                </div>
+
+                <div className="tag-card__content">
+                  <span>
+                    {tag.name}
+                  </span>
+
+                  {isSelected && (
+                    <span
+                      className="tag-card__check"
+                      aria-label="Selected"
+                    >
+                      ✓
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        
+      </div>
+
       {/* WEEK */}
 
       <div className="weekly-preferences__week">
@@ -536,87 +619,6 @@ const WeeklyPreferences = () => {
             </button>
           );
         })}
-      </div>
-
-      {/* TAG SELECTOR */}
-
-      <div className="tag-selector">
-        <div className="tag-selector__header">
-          <div>
-            <h3>
-              {selectedDayObject?.label}
-            </h3>
-
-            <p>
-              Select a preference for
-              this day.
-            </p>
-          </div>
-
-          {selectedTag && (
-            <button
-              type="button"
-              className="clear-button"
-              onClick={
-                handleClearDay
-              }
-            >
-              Clear
-            </button>
-          )}
-        </div>
-
-        <div className="tag-grid">
-          {tagOptions.map((tag) => {
-            const isSelected =
-              preferences[
-                selectedDay
-              ] === tag.name;
-
-            return (
-              <button
-                key={tag.name}
-                type="button"
-                className={`tag-card ${
-                  isSelected
-                    ? "tag-card--selected"
-                    : ""
-                }`}
-                onClick={() =>
-                  handleTagSelect(
-                    tag.name
-                  )
-                }
-                aria-pressed={
-                  isSelected
-                }
-              >
-                <div className="tag-card__image-wrapper">
-                  <img
-                    src={tag.image}
-                    alt={tag.name}
-                    className="tag-card__image"
-                  />
-                </div>
-
-                <div className="tag-card__content">
-                  <span>
-                    {tag.name}
-                  </span>
-
-                  {isSelected && (
-                    <span
-                      className="tag-card__check"
-                      aria-label="Selected"
-                    >
-                      ✓
-                    </span>
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* ERROR */}
