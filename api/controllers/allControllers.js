@@ -70,14 +70,9 @@ exports.createItemregister = async (req, res) => {
     const hash = await bcrypt.hash(password, salt);
 
     // Create the user
-    const user = await User.create({
+    await User.create({
       email,
       password: hash,
-    });
-
-    // Create blank preferences for this user
-    await Preferences.create({
-      userId: user._id,
     });
 
     return res.json({
@@ -85,18 +80,17 @@ exports.createItemregister = async (req, res) => {
       message: "Successfully registered",
     });
 
-  }  catch (error) {
-  console.error("❌ Registration error:", error);
+  } catch (error) {
+    console.error("❌ Registration error:", error);
 
-  return res.status(500).json({
-    ok: false,
-    message: "Registration failed",
-    error: error.message,
-  });
-}
-
-
+    return res.status(500).json({
+      ok: false,
+      message: "Registration failed",
+      error: error.message,
+    });
+  }
 };
+
 
 exports.deleteUser = async (req, res) => {
   const userId = req.user?.userId;
@@ -676,29 +670,29 @@ exports.updatePreferences = async (req, res) => {
     const preferences = await Preferences.findOneAndUpdate(
       { userId },
       {
-        monday,
-        tuesday,
-        wednesday,
-        thursday,
-        friday,
-        saturday,
-        sunday,
+        $set: {
+          monday,
+          tuesday,
+          wednesday,
+          thursday,
+          friday,
+          saturday,
+          sunday,
+        },
+        $setOnInsert: {
+          userId,
+        },
       },
       {
         new: true,
+        upsert: true,
         runValidators: true,
+        setDefaultsOnInsert: true,
       }
     );
 
-    if (!preferences) {
-      return res.status(404).json({
-        message: "Preferences not found.",
-        success: false,
-      });
-    }
-
     return res.json({
-      message: "Preferences updated successfully.",
+      message: "Preferences saved successfully.",
       success: true,
       data: preferences,
     });
@@ -711,6 +705,7 @@ exports.updatePreferences = async (req, res) => {
     });
   }
 };
+
 
 
 

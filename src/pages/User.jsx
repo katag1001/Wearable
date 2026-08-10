@@ -3,6 +3,7 @@ import Header from '../components/header';
 import MessagePopup from '../components/general/messagePopup';
 import { URL } from '../config';
 import '../styles/pages.css';
+import WeeklyPreferences from '../components/preferences/weeklyPreferences';
 
 const User = ({ loggedIn, logout }) => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
@@ -53,6 +54,8 @@ const User = ({ loggedIn, logout }) => {
         <div className="main-container">
           <h2 className="page-title">You are logged in</h2>
 
+          <WeeklyPreferences />
+          
           <button
             className="logout-button"
             onClick={logout}
