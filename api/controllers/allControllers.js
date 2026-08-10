@@ -98,6 +98,73 @@ exports.createItemregister = async (req, res) => {
 
 };
 
+exports.deleteUser = async (req, res) => {
+  const userId = req.user?.userId;
+
+  if (!userId) {
+    return res.status(401).json({
+      ok: false,
+      message: "Unauthorized",
+    });
+  }
+
+  try {
+    // 1. Find all clothing items belonging to the user
+    const clothes = await Clothes.find({ userId }).select(
+      "_id cloudinaryId"
+    );
+
+    // 2. Delete all clothing images from Cloudinary
+    for (const item of clothes) {
+      if (item.cloudinaryId) {
+        try {
+          await cloudinary.uploader.destroy(item.cloudinaryId);
+        } catch (cloudinaryError) {
+          console.error(
+            `Failed to delete Cloudinary image ${item.cloudinaryId}:`,
+            cloudinaryError.message
+          );
+        }
+      }
+    }
+
+    // 3. Delete all matches belonging to the user
+    await Match.deleteMany({ userId });
+
+    // 4. Delete all Today entries belonging to the user
+    await Today.deleteMany({ userId });
+
+    // 5. Delete all clothes belonging to the user
+    await Clothes.deleteMany({ userId });
+
+    // 6. Delete the user's preferences
+    await Preferences.deleteOne({ userId });
+
+    // 7. Finally delete the user
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).json({
+        ok: false,
+        message: "User not found",
+      });
+    }
+
+    return res.json({
+      ok: true,
+      message: "User and all associated data deleted successfully",
+    });
+
+  } catch (error) {
+    console.error("❌ Delete user error:", error);
+
+    return res.status(500).json({
+      ok: false,
+      message: "Failed to delete user",
+      error: error.message,
+    });
+  }
+};
 
 exports.login = async (req, res) => {
 const { email, password } = req.body;

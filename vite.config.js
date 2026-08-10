@@ -6,7 +6,7 @@ export default defineConfig({
   base: "/",  
   build: {
     outDir: "dist",
-    emptyOutDir: true  // Clean the dist folder before building
+    emptyOutDir: true  
   }
 });
 

@@ -7,6 +7,12 @@ const { authMiddleware } = require("../middleware/authMiddleware");
 router.post("/users/register", allControllers.createItemregister);
 router.post("/users/login", allControllers.login);
 router.post("/users/verify_token", allControllers.verify_token);
+router.delete(
+  "/users/delete",
+  authMiddleware,
+  allControllers.deleteUser
+);
+
 
 /* CLOTHING ROUTES */
 router.post("/clothing/", authMiddleware, allControllers.createItem);
