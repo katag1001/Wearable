@@ -1,212 +1,358 @@
 
-.top-area-wrapper {
-  width: 100%;
-  box-sizing: border-box;
-  top: var(--header-height);
-  margin: 0;
-  width: 100%;
-}
-
-
 .top-action-button {
-  width: 100%;
-  height: 48px;
-  background-color: #000;
-  color: #fff;
-  border: none;
-  font-size: 16px;
-  font-weight: 600;
+  z-index: 1000;
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2rem);
+  max-width: 600px;
+  padding: .9rem 1.8rem;
+  border: 1px solid var(--main-color);
+  border-radius: 999px;
+  background: var(--main-color);
+  color: var(--inverse-color);
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: opacity 0.2s ease;
-  position: sticky;
-  top: var(--header-height);
-  left: 0;
-  z-index: 900;
-  margin: 0;
+  transition:
+    background .25s ease,
+    color .25s ease,
+    transform .2s ease;
 }
 
 .top-action-button:hover {
-  opacity: 0.85;
+  background: var(--inverse-color);
+  color: var(--main-color);
+}
+
+.top-action-button:active {
+  transform: translateY(1px);
+}
+
+.top-action-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
 }
 
 
-/* Selected season/type heading */
+/* ----------------------------------------------------------------
+   Top Area
+----------------------------------------------------------------- */
+
+.top-area-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.2rem 2rem 2.5rem;
+
+  color: var(--main-color);
+  font-family: var(--main-font);
+}
+
+
+/* ----------------------------------------------------------------
+   Selection Area
+----------------------------------------------------------------- */
 
 .top-selection-area {
   width: 100%;
-  margin: 28px 0;
-  text-align: center;
+  margin-bottom: 1.5rem;
 }
 
 
-.top-selected-title {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  text-transform: capitalize;
-}
-
-
-/* Season/type options */
+/* ----------------------------------------------------------------
+   Option Row
+----------------------------------------------------------------- */
 
 .top-option-row {
+  width: 100%;
+
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
+
+  gap: .5rem;
+
+  padding-bottom: 1rem;
+
+  border-bottom: 1px solid var(--border-color);
 }
 
+
+/* ----------------------------------------------------------------
+   Option Button
+----------------------------------------------------------------- */
 
 .top-option-button {
-  background: transparent;
-  color: #000;
-  border: 1px solid #d0d0d0;
-  border-radius: 20px;
-  padding: 8px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
+  padding: .65rem 1.15rem;
 
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: var(--card-background);
+
+  color: var(--secondary-color);
+
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+
+  letter-spacing: .1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    transform .2s ease;
+}
 
 .top-option-button:hover {
-  border-color: #000;
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+  color: var(--main-color);
+
+  transform: translateY(-1px);
+}
+
+.top-option-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
 }
 
 
-.top-option-active {
-  background-color: #000;
-  color: #fff;
-  border-color: #000;
+/* ----------------------------------------------------------------
+   Active Option
+----------------------------------------------------------------- */
+
+.top-option-button.top-option-active {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
+}
+
+.top-option-button.top-option-active:hover {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
 }
 
 
-/* Bottom filter/search row */
+/* ----------------------------------------------------------------
+   Search Row
+----------------------------------------------------------------- */
 
 .top-search-row {
   width: 100%;
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  padding: 0 20px;
+
+  gap: .75rem;
 }
 
 
-/* Filters button */
+/* ----------------------------------------------------------------
+   Filter Button
+----------------------------------------------------------------- */
 
 .top-filter-button {
-  display: flex;
+  flex-shrink: 0;
+
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: none;
-  border: none;
-  padding: 0;
+  justify-content: center;
+
+  gap: .5rem;
+
+  min-height: 42px;
+
+  padding: .65rem 1rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: transparent;
+
+  color: var(--secondary-color);
+
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+
+  letter-spacing: .1em;
+  line-height: 1;
+  text-transform: uppercase;
+
   cursor: pointer;
-  font-size: 15px;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    transform .2s ease;
 }
 
+.top-filter-button:hover {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
+
+  transform: translateY(-1px);
+}
+
+.top-filter-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
 
 .top-filter-icon {
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: .9rem;
+  line-height: 1;
 }
 
 
-/* Search */
+/* ----------------------------------------------------------------
+   Search Box
+----------------------------------------------------------------- */
 
 .top-search-box {
-  display: flex;
-  align-items: center;
-  border: 1px solid #d0d0d0;
-  border-radius: 4px;
-  padding: 8px 12px;
-  width: 280px;
-  height: 38px;
-  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
 }
 
+
+/* ----------------------------------------------------------------
+   Search Input
+----------------------------------------------------------------- */
 
 .top-search-input {
-  flex: 1;
-  height: 100%;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  background: transparent;
-}
+  width: 100%;
+  min-height: 42px;
 
+  padding: .65rem 1rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: var(--card-background);
+
+  color: var(--main-color);
+
+  font-family: inherit;
+  font-size: var(--description-font-size);
+  font-weight: 400;
+
+  letter-spacing: .03em;
+
+  outline: none;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
 
 .top-search-input::placeholder {
-  color: #999;
+  color: var(--muted-color);
+  opacity: 1;
+}
+
+.top-search-input:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+}
+
+.top-search-input:focus {
+  background: var(--hover-background);
+  border-color: var(--main-color);
+
+  box-shadow: 0 0 0 1px var(--main-color);
 }
 
 
-.top-search-icon {
-  margin-left: 10px;
-  font-size: 15px;
-}
+/* ----------------------------------------------------------------
+   Responsive
+----------------------------------------------------------------- */
 
+@media (max-width: 600px) {
 
-/* Extra */
+  .top-area-wrapper {
+    padding: 1rem 1rem 2rem;
+  }
 
-.top-wrapper-bottom{
-  padding: 10px 20px;
-}
-
-.side-action-button {
-  display: inline-flex;   /* not flex */
-  align-items: center;
-  gap: 8px;
-  position: relative;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 15px;
-}
-
-.side-action-button::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -2px;
-  width: 100%;
-  height: 0.5px;
-  background: #111;
-
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform .25s ease;
-}
-
-.side-action-button:hover::after {
-  transform: scaleX(1);
-}
-
-
-/* Responsive */
-
-@media (max-width: 700px) {
+  .top-selection-area {
+    margin-bottom: 1.25rem;
+  }
 
   .top-option-row {
-    gap: 8px;
+    justify-content: flex-start;
+
+    overflow-x: auto;
+    flex-wrap: nowrap;
+
+    padding-bottom: .85rem;
+
+    scrollbar-width: none;
   }
 
+  .top-option-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .top-option-button {
+    flex-shrink: 0;
+
+    padding: .6rem .95rem;
+
+    font-size: var(--button-font-size);
+  }
 
   .top-search-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 15px;
+    gap: .5rem;
   }
-
-
-  .top-search-box {
-    width: 100%;
-  }
-
 
   .top-filter-button {
-    width: fit-content;
+    min-height: 40px;
+
+    padding: .6rem .85rem;
   }
 
+  .top-search-input {
+    min-height: 40px;
+
+    padding: .6rem .9rem;
+  }
+}
+
+
+/* ----------------------------------------------------------------
+   Very Small Screens
+----------------------------------------------------------------- */
+
+@media (max-width: 400px) {
+
+  .top-filter-button {
+    font-size: 0;
+    gap: 0;
+
+    width: 42px;
+    padding: 0;
+  }
+
+  .top-filter-icon {
+    font-size: .9rem;
+  }
 }

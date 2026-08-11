@@ -21,19 +21,14 @@
 
 .today-title {
   width: 100%;
-
   margin: 0 0 .65rem;
-
   font-family: var(--title-font);
-  font-size: var(--title-font-size);
+  font-size: var(--section-title-font-size);
   font-weight: 700;
-
   letter-spacing: .04em;
   line-height: 1.2;
-
   text-align: center;
   text-transform: uppercase;
-
   color: var(--main-color);
 }
 

@@ -24,16 +24,20 @@ const TodayBlock = () => {
   return (
     <div className="today-block">
 
-      <h1 className="today-title">
-        Today's Outfit{' '}
-        {todayTag
-          ? `— ${todayTag.charAt(0).toUpperCase()}${todayTag.slice(1)}`
-          : ''}
-      </h1>
+      <div className="today-top">
 
-      <AutoWeather
-        setTodayReady={setTodayReady}
-      />
+        <h1 className="today-title">
+          Today's {' '}
+          {todayTag
+            ? `${todayTag.charAt(0).toUpperCase()}${todayTag.slice(1)}`
+            : ''} Outfit
+        </h1>
+
+        <AutoWeather
+          setTodayReady={setTodayReady}
+        />
+
+      </div>
 
       <ViewToday
         todayReady={todayReady}

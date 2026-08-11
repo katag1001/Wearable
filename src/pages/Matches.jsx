@@ -217,7 +217,6 @@ const Matches = ({ loggedIn, logout }) => {
 
       <Link
         to="/buildmatches"
-        className="top-action-button"
       >
         <button className="top-action-button">
           Build Outfits

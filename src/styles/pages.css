@@ -19,7 +19,7 @@
 
 .main-container {
   width: 100%;
-  padding-top: var(--header-height);
+
   color: #111;
   background: white;
   display: flex;
