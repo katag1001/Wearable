@@ -1,5 +1,11 @@
 :root {
-  --header-height: 64px;
+
+/* --------------------------------------------------------------
+     Sizing
+  -------------------------------------------------------------- */
+
+  --header-height: 60px;
+  --side-padding: 2rem;
 
   /* --------------------------------------------------------------
      Colours
@@ -64,6 +70,8 @@
   /* Delete Account Hover */
   --delete-hover-border-color: #c99d97;
   --delete-hover-color: #7a2f2f;
+
+  
 
 }
 

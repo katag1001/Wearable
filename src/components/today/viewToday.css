@@ -1,47 +1,334 @@
-/* ----------------------------------------------------------------
-   Main Container
------------------------------------------------------------------ */
+/* Container----------------------------------------------------------------- */
 
 .view-today-container {
   width: 100%;
-  max-width: 900px;
-
-  min-height: 100%;
-
-  margin: 0 auto;
-
-  padding: 0 0 2rem;
-
   color: var(--main-color);
   font-family: var(--main-font);
-
-  text-align: center;
-
-  overflow-x: hidden;
 }
+
+/* Top Section----------------------------------------------------------------- */
+
+.today-top-section {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, .8fr);
+  gap: 1.25rem;
+  margin-bottom: 3rem;
+  margin-top: 0;
+}
+
+/* Featured Outfit----------------------------------------------------------------- */
+
+.featured-outfit {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition:
+    background .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease;
+}
+
+.featured-outfit:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+}
+
+/* Featured image area */
+
+.featured-outfit-content {
+  width: 100%;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--image-background);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+
+/* Outfit Image Group----------------------------------------------------------------- */
+
+.today-image-group {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+  align-items: center;
+  justify-items: center;
+}
+
+/* Main outfit images */
+
+.today-image {
+  display: block;
+  width: 100%;
+  max-width: 210px;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease;
+}
+
+
+/* Buttons----------------------------------------------------------------- */
+
+.today-buttons {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+}
+
+.regular-button {
+  width: 100%;
+  padding: .9rem 1.8rem;
+  border: 1px solid var(--main-color);
+  border-radius: 999px;
+  background: var(--main-color);
+  color: var(--inverse-color);
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background .25s ease,
+    color .25s ease,
+    transform .2s ease;
+}
+
+.regular-button:hover {
+  background: transparent;
+  color: var(--main-color);
+}
+
+.regular-button:active {
+  transform: translateY(1px);
+}
+
+.regular-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+
+/* Outfit Selector----------------------------------------------------------------- */
+
+.outfit-selector {
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+
+  transition:
+    background .25s ease,
+    border-color .25s ease;
+}
+
+.outfit-selector:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+}
+
+/* Outfit Selector Content----------------------------------------------------------------- */
+
+.outfit-selector-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  overflow: hidden;
+}
+
+/* Alternative Outfit Grid----------------------------------------------------------------- */
+
+.outfit-options {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  grid-template-rows:
+    repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+  overflow: hidden;
+}
+
+
+/* Alternative Outfit Card----------------------------------------------------------------- */
+
+.outfit-option {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: .55rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-background);
+  color: var(--main-color);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease,
+    transform .2s ease;
+}
+
+.outfit-option:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+  transform: translateY(1px);
+}
+
+.outfit-option:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 2px;
+}
+
+
+/* Alternative Outfit Images----------------------------------------------------------------- */
+
+.today-image-group-small {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: .35rem;
+  align-items: center;
+  justify-items: center;
+  overflow: hidden;
+}
+
+
+.today-image-small {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  object-fit: cover;
+  border-radius: 6px;
+  transition:
+    transform .25s ease;
+}
+
+
+/* ----------------------------------------------------------------
+   Show More / Down Button
+----------------------------------------------------------------- */
+
+.alternative-down-button {
+  flex-shrink: 0;
+
+  width: 100%;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: var(--hover-background);
+  color: var(--secondary-color);
+
+  font-family: var(--plus-font);
+  font-size: 1.25rem;
+  font-weight: 300;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    transform .2s ease;
+}
+
+.alternative-down-button:hover {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
+
+  transform: translateY(-1px);
+}
+
+.alternative-down-button:active {
+  transform: translateY(0);
+}
+
+.alternative-down-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
 
 
 /* ----------------------------------------------------------------
    Tag Selector
 ----------------------------------------------------------------- */
 
+.today-tags-section {
+  width: 100%;
+
+  margin-bottom: 2rem;
+}
+
+
+/* Section title */
+
+.today-tags-title {
+  margin-bottom: 1.25rem;
+  padding-bottom: .9rem;
+
+  border-bottom: 1px solid var(--border-color);
+
+  font-family: var(--title-font);
+  font-size: var(--section-title-font-size);
+  font-weight: 700;
+
+  letter-spacing: .03em;
+  text-transform: uppercase;
+
+  color: var(--main-color);
+}
+
+
+/* ----------------------------------------------------------------
+   Tag Grid
+----------------------------------------------------------------- */
+
 .today-tag-selector {
   width: 100%;
 
   display: grid;
-
-  grid-template-columns:
-    repeat(auto-fit, 80px);
-
+  grid-template-columns: repeat(auto-fit, 80px);
   gap: .5rem;
-
-  margin: 0 0 2rem;
-
-  padding: 0;
-
-  justify-content: start;
-
-  overflow: visible;
 }
 
 
@@ -50,28 +337,17 @@
 ----------------------------------------------------------------- */
 
 .today-tag-option {
-  width: 80px;
   max-width: 80px;
-
   min-width: 0;
-
   padding: 0;
-
   overflow: hidden;
-
   border: 1px solid var(--border-color);
   border-radius: 8px;
-
   background: var(--card-background);
-
   color: var(--main-color);
-
   font: inherit;
-
   text-align: left;
-
   cursor: pointer;
-
   transition:
     background .2s ease,
     border-color .2s ease,
@@ -79,24 +355,28 @@
     transform .2s ease;
 }
 
-
 .today-tag-option:hover {
   background: var(--hover-background);
-
   border-color: var(--hover-border-color);
-
   transform: translateY(-1px);
 }
-
-
-.today-tag-option:active {
-  transform: translateY(0);
-}
-
 
 .today-tag-option:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: 2px;
+}
+
+
+/* Selected tag */
+
+.today-tag-option.selected {
+  background: var(--hover-background);
+  border-color: var(--main-color);
+  box-shadow: 0 0 0 1px var(--main-color);
+}
+
+.today-tag-option.selected:hover {
+  border-color: var(--main-color);
 }
 
 
@@ -112,44 +392,16 @@
   background: var(--image-background);
 }
 
-
 .today-tag-icon {
   display: block;
-
   width: 100%;
-  height: 80px;
-
+  height: 100%;
   object-fit: cover;
-
-  border-radius: 0;
-
-  transition:
-    transform .25s ease;
+  transition: transform 0.25s ease;
 }
 
-
-.today-tag-option:hover
-.today-tag-icon {
+.today-tag-option:hover .today-tag-icon {
   transform: scale(1.02);
-}
-
-
-/* ----------------------------------------------------------------
-   Selected Tag
------------------------------------------------------------------ */
-
-.today-tag-option.selected {
-  background: var(--hover-background);
-
-  border-color: var(--main-color);
-
-  box-shadow:
-    0 0 0 1px var(--main-color);
-}
-
-
-.today-tag-option.selected:hover {
-  border-color: var(--main-color);
 }
 
 
@@ -204,362 +456,10 @@
   border-radius: 50%;
 
   background: var(--main-color);
-
   color: var(--inverse-color);
 
   font-size: var(--check-font-size);
-
   line-height: 1;
-}
-
-/* ----------------------------------------------------------------
-   Featured Outfit
------------------------------------------------------------------ */
-
-.featured-outfit {
-  width: 100%;
-
-  margin: 0 auto;
-
-  padding: 1.5rem;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  background: var(--card-background);
-
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-
-  transition:
-    border-color .25s ease,
-    box-shadow .25s ease,
-    transform .2s ease;
-}
-
-
-.featured-outfit:hover {
-  border-color: var(--hover-border-color);
-
-  box-shadow:
-    0 10px 28px rgba(0, 0, 0, .06);
-}
-
-
-/* ----------------------------------------------------------------
-   Featured Outfit Images
------------------------------------------------------------------ */
-
-.today-image-group {
-  width: 100%;
-
-  display: flex;
-  flex-wrap: wrap;
-
-  justify-content: center;
-  align-items: center;
-
-  gap: .9rem;
-
-  margin-bottom: 1.5rem;
-}
-
-
-.today-image {
-  width: 170px;
-  height: 170px;
-
-  display: block;
-
-  object-fit: cover;
-
-  background: var(--image-background);
-
-  border-radius: 8px;
-
-  transition:
-    transform .25s ease,
-    box-shadow .25s ease;
-}
-
-
-.featured-outfit:hover .today-image {
-  transform: scale(1.01);
-}
-
-
-/* ----------------------------------------------------------------
-   Featured Buttons
------------------------------------------------------------------ */
-
-.today-buttons {
-  width: 100%;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  gap: .75rem;
-
-  margin-top: .25rem;
-}
-
-
-/* ----------------------------------------------------------------
-   Mark As Worn Button
------------------------------------------------------------------ */
-
-.regular-button {
-  position: relative;
-
-  padding: .55rem 0 .3rem;
-
-  border: 0;
-
-  background: transparent;
-
-  color: var(--main-color);
-
-  font-family: var(--main-font);
-
-  font-size: var(--button-font-size);
-  font-weight: 500;
-
-  letter-spacing: .13em;
-
-  text-transform: uppercase;
-
-  cursor: pointer;
-}
-
-
-.regular-button::after {
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  bottom: 0;
-
-  width: 0;
-  height: 1px;
-
-  background: var(--main-color);
-
-  transition:
-    width .25s ease;
-}
-
-
-.regular-button:hover {
-  color: var(--secondary-color);
-}
-
-
-.regular-button:hover::after,
-.regular-button:focus-visible::after {
-  width: 100%;
-}
-
-
-.regular-button:focus-visible {
-  outline: 2px solid var(--main-color);
-  outline-offset: 4px;
-}
-
-
-/* ----------------------------------------------------------------
-   Outfit Selector
------------------------------------------------------------------ */
-
-.outfit-selector {
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: .75rem;
-
-  margin: 1.5rem auto 0;
-}
-
-
-/* ----------------------------------------------------------------
-   Navigation Arrows
------------------------------------------------------------------ */
-
-.left-right {
-  width: 42px;
-  height: 42px;
-
-  flex: 0 0 42px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0;
-
-  border: 1px solid transparent;
-  border-radius: 50%;
-
-  background: transparent;
-
-  color: var(--main-color);
-
-  font-family: var(--plus-font);
-  font-size: var(--plus-font-size);
-
-  line-height: 1;
-
-  cursor: pointer;
-
-  transition:
-    background .2s ease,
-    border-color .2s ease,
-    transform .2s ease,
-    color .2s ease;
-}
-
-
-.left-right:hover {
-  background: var(--image-background);
-
-  border-color: var(--border-color);
-
-  transform: scale(1.05);
-}
-
-
-.left-right:active {
-  transform: scale(.95);
-}
-
-
-.left-right:focus-visible {
-  outline: 2px solid var(--main-color);
-  outline-offset: 3px;
-}
-
-
-/* ----------------------------------------------------------------
-   Outfit Options
------------------------------------------------------------------ */
-
-.outfit-options {
-  flex: 1;
-
-  min-width: 0;
-
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-
-  gap: .6rem;
-
-  overflow: hidden;
-}
-
-
-/* ----------------------------------------------------------------
-   Individual Outfit Option
------------------------------------------------------------------ */
-
-.outfit-option {
-  flex: 1 1 0;
-
-  min-width: 0;
-  max-width: 180px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: .55rem;
-
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-
-  background: var(--card-background);
-
-  color: var(--main-color);
-
-  cursor: pointer;
-
-  transition:
-    border-color .2s ease,
-    background .2s ease,
-    box-shadow .2s ease,
-    transform .2s ease;
-}
-
-
-.outfit-option:hover {
-  background: var(--hover-background);
-
-  border-color: var(--hover-border-color);
-
-  box-shadow:
-    0 5px 16px rgba(0, 0, 0, .05);
-
-  transform: translateY(-2px);
-}
-
-
-.outfit-option:active {
-  transform: translateY(0);
-}
-
-
-.outfit-option:focus-visible {
-  outline: 2px solid var(--main-color);
-  outline-offset: 3px;
-}
-
-
-/* ----------------------------------------------------------------
-   Small Outfit Image Group
------------------------------------------------------------------ */
-
-.today-image-group-small {
-  width: 100%;
-
-  display: flex;
-  flex-wrap: wrap;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: .35rem;
-}
-
-
-/* ----------------------------------------------------------------
-   Small Outfit Images
------------------------------------------------------------------ */
-
-.today-image-small {
-  width: 65px;
-  height: 65px;
-
-  display: block;
-
-  object-fit: cover;
-
-  background: var(--image-background);
-
-  border-radius: 6px;
-
-  transition:
-    transform .2s ease;
-}
-
-
-.outfit-option:hover
-.today-image-small {
-  transform: scale(1.03);
 }
 
 
@@ -570,342 +470,88 @@
 .today-message {
   width: 100%;
 
-  margin: 2rem 0 0;
-
-  padding: .9rem 1rem;
+  margin: 0 auto;
+  padding: 5rem 1rem;
 
   color: var(--secondary-color);
-
-  font-family: var(--main-font);
 
   font-size: var(--description-font-size);
   font-weight: 400;
 
-  letter-spacing: .05em;
-
-  line-height: 1.5;
-
+  letter-spacing: .1em;
   text-align: center;
+  text-transform: uppercase;
 }
 
 
 /* ----------------------------------------------------------------
-   Responsive — Tablet
+   Responsive
 ----------------------------------------------------------------- */
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
 
-  .view-today-container {
-    padding-bottom: 1.5rem;
+  .today-top-section {
+    grid-template-columns: 1fr;
   }
 
-
-  /* Tags */
-
-  .today-tag-selector {
-    justify-content: flex-start;
-
-    gap: .45rem;
-
-    margin-bottom: 1.5rem;
-
-    padding-bottom: .55rem;
+  .featured-outfit-content {
+    min-height: 360px;
   }
-
-
-  .today-tag-option {
-    width: 52px;
-    height: 52px;
-  }
-
-
-  .today-tag-icon {
-    width: 43px;
-    height: 43px;
-  }
-
-
-  /* Featured */
-
-  .featured-outfit {
-    padding: 1.25rem;
-
-    border-radius: 12px;
-  }
-
-
-  .today-image-group {
-    gap: .7rem;
-
-    margin-bottom: 1.25rem;
-  }
-
-
-  .today-image {
-    width: 130px;
-    height: 130px;
-
-    border-radius: 7px;
-  }
-
-
-  /* Selector */
 
   .outfit-selector {
-    margin-top: 1.25rem;
-
-    gap: .4rem;
+    padding: .9rem;
   }
 
-
-  .left-right {
-    width: 36px;
-    height: 36px;
-
-    flex-basis: 36px;
-
-    font-size: 1.35rem;
-  }
-
-
-  .outfit-options {
-    gap: .45rem;
-  }
-
-
-  .outfit-option {
-    padding: .45rem;
-
-    border-radius: 7px;
-  }
-
-
-  .today-image-small {
-    width: 50px;
-    height: 50px;
-
-    border-radius: 5px;
-  }
-
-
-  .today-message {
-    margin-top: 1.5rem;
-  }
 }
 
 
-/* ----------------------------------------------------------------
-   Responsive — Small Phones
------------------------------------------------------------------ */
-
-@media (max-width: 500px) {
+@media (max-width: 600px) {
 
   .view-today-container {
-    padding-bottom: 1rem;
+    padding: 1rem 1rem 3rem;
   }
 
-
-  /* Tags */
-
-  .today-tag-selector {
-    gap: .35rem;
-
-    margin-bottom: 1.25rem;
+  .today-top-section {
+    gap: 1rem;
+    margin-bottom: 2.5rem;
   }
-
-
-  .today-tag-option {
-    width: 45px;
-    height: 45px;
-  }
-
-
-  .today-tag-icon {
-    width: 37px;
-    height: 37px;
-  }
-
-
-  /* Featured */
 
   .featured-outfit {
-    padding: 1rem;
-
-    border-radius: 10px;
-  }
-
-
-  .today-image-group {
-    gap: .45rem;
-
-    margin-bottom: 1rem;
-  }
-
-
-  .today-image {
-    width: 100px;
-    height: 100px;
-
-    border-radius: 6px;
-  }
-
-
-  /* Button */
-
-  .regular-button {
-    font-size: .62rem;
-
-    letter-spacing: .1em;
-  }
-
-
-  /* Selector */
-
-  .outfit-selector {
-    margin-top: 1rem;
-
-    gap: .15rem;
-  }
-
-
-  .left-right {
-    width: 30px;
-    height: 30px;
-
-    flex-basis: 30px;
-
-    font-size: 1.15rem;
-  }
-
-
-  .outfit-options {
-    gap: .3rem;
-  }
-
-
-  .outfit-option {
-    padding: .3rem;
-
-    border-radius: 6px;
-  }
-
-
-  .today-image-group-small {
-    gap: .2rem;
-  }
-
-
-  .today-image-small {
-    width: 38px;
-    height: 38px;
-
-    border-radius: 4px;
-  }
-
-
-  .today-message {
-    margin-top: 1.25rem;
-
     padding: .75rem;
-
-    font-size: .68rem;
-  }
-}
-
-
-/* ----------------------------------------------------------------
-   Responsive — Very Small Phones
------------------------------------------------------------------ */
-
-@media (max-width: 360px) {
-
-  .today-tag-selector {
-    gap: .25rem;
   }
 
-
-  .today-tag-option {
-    width: 40px;
-    height: 40px;
+  .featured-outfit-content {
+    min-height: 300px;
+    padding: .75rem;
   }
-
-
-  .today-tag-icon {
-    width: 33px;
-    height: 33px;
-  }
-
-
-  .featured-outfit {
-    padding: .8rem;
-  }
-
 
   .today-image {
-    width: 85px;
-    height: 85px;
+    height: 210px;
   }
-
-
-  .left-right {
-    width: 26px;
-    height: 26px;
-
-    flex-basis: 26px;
-
-    font-size: 1rem;
-  }
-
 
   .outfit-options {
-    gap: .15rem;
+    gap: .35rem;
   }
-
-
-  .outfit-option {
-    padding: .2rem;
-
-    border-radius: 5px;
-  }
-
 
   .today-image-small {
-    width: 31px;
-    height: 31px;
-
-    border-radius: 3px;
+    height: 80px;
   }
 
-
-  .regular-button {
-    font-size: .58rem;
+  .left-right {
+    width: 34px;
+    height: 34px;
   }
-}
 
-
-/* ----------------------------------------------------------------
-   Accessibility
------------------------------------------------------------------ */
-
-.today-tag-option,
-.left-right,
-.outfit-option,
-.regular-button {
-  user-select: none;
-}
-
-
-@media (prefers-reduced-motion: reduce) {
-
-  .today-tag-option,
-  .today-tag-icon,
-  .featured-outfit,
-  .today-image,
-  .regular-button,
-  .regular-button::after,
-  .left-right,
-  .outfit-option,
-  .today-image-small {
-    transition: none;
+  .today-tag-selector {
+    grid-template-columns: repeat(auto-fit, 75px);
   }
+
+  .today-tag-option {
+    max-width: 75px;
+  }
+
+  .today-tag-icon {
+    height: 75px;
+  }
+
 }

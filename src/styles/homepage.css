@@ -1,129 +1,235 @@
-/* Login */
 
-.logout-button {
-  display: block;
-  width: 300px;
-  padding: .85rem;
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 1rem;
-  font-weight: 500;
-  color: #111;
-  background: transparent;
-  border: 1px solid #111;
-  border-radius: 0;
-  text-decoration: none;
-  transition: .25s ease;
-}
 
-.logout-button:hover {
-  background: #111;
-  color: #fff;
-}
-
-.not-logged-in-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 2rem;
-  text-align: center;
-}
-
-.not-logged-in-container p {
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-}
-
-.not-logged-in-container a {
-  all: unset;
-  cursor: pointer;
-  padding: .85rem 2rem;
-  margin: .5rem;
-  border: 1px solid #111;
-  color: #111;
-  text-align: center;
-  transition: .25s ease;
-}
-
-.not-logged-in-container a:hover {
-  background: #111;
-  color: #fff;
-}
-
-/* Homepage Dashboard */
+/* ----------------------------------------------------------------
+   Bottom Dashboard
+----------------------------------------------------------------- */
 
 .bottom-dashboard {
   width: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 2rem;
-  gap: 2rem;
+  flex-direction: column;
+  gap: 3rem;
+  margin-top: 0;
+  padding-right: var(--side-padding);
+  padding-left: var(--side-padding);
 }
+
+
+/* ----------------------------------------------------------------
+   Dashboard Section
+----------------------------------------------------------------- */
 
 .dashboard-section {
-  width: 45%;
+  width: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  padding: 1rem;
+  border-radius: 12px;
+  color: var(--main-color);
+  transition:
+    background .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease;
 }
 
+.dashboard-section:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+}
+
+
+/* ----------------------------------------------------------------
+   Dashboard Section Header
+----------------------------------------------------------------- */
+
 .dashboard-link {
-  font-size: 1.5rem;
+  align-self: flex-start;
+
+  width: 100%;
+
+  margin-bottom: 1.25rem;
+  padding-bottom: .9rem;
+
+  border-bottom: 1px solid var(--border-color);
+
+  color: var(--main-color);
+
+  font-family: var(--title-font);
+  font-size: var(--section-title-font-size);
   font-weight: 700;
-  letter-spacing: .08em;
+
+  letter-spacing: .03em;
+  line-height: 1.2;
+
   text-decoration: none;
-  margin-bottom: 1rem;
-  text-align: center;
+  text-transform: uppercase;
+
+  transition:
+    color .2s ease,
+    border-color .2s ease;
 }
 
 .dashboard-link:hover {
-  text-decoration: underline;
+  color: var(--secondary-color);
+  border-color: var(--hover-border-color);
 }
 
-@media (max-width: 768px) {
+.dashboard-link:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
 
 
-  .logout-button {
-    width: 100%;
-    max-width: 300px;
-  }
+/* ----------------------------------------------------------------
+   Dashboard Content
+----------------------------------------------------------------- */
 
-  .not-logged-in-container {
-    width: 100%;
-    padding: 0;
-  }
+.dashboard-section > *:not(.dashboard-link) {
+  min-width: 0;
+}
 
-  .not-logged-in-container a {
-    width: 100%;
-    max-width: 300px;
-  }
+
+/* ----------------------------------------------------------------
+   Clothes Section
+----------------------------------------------------------------- */
+
+.dashboard-section:first-child {
+  margin-top: 0;
+}
+
+
+/* ----------------------------------------------------------------
+   Matches Section
+----------------------------------------------------------------- */
+
+.dashboard-section:last-child {
+  margin-bottom: 0;
+}
+
+
+/* ----------------------------------------------------------------
+   Not Logged In
+----------------------------------------------------------------- */
+
+.not-logged-in-container {
+  width: 100%;
+  max-width: 520px;
+
+  margin: 5rem auto 0;
+  padding: 2rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: .75rem;
+
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+
+  color: var(--main-color);
+
+  text-align: center;
+
+  transition:
+    background .25s ease,
+    border-color .25s ease;
+}
+
+.not-logged-in-container:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+}
+
+
+/* ----------------------------------------------------------------
+   Not Logged In Message
+----------------------------------------------------------------- */
+
+.not-logged-in-container p {
+  margin: 0 0 .75rem;
+
+  color: var(--secondary-color);
+
+  font-size: var(--description-font-size);
+  font-weight: 400;
+
+  letter-spacing: .04em;
+}
+
+
+/* ----------------------------------------------------------------
+   Login / Register Links
+----------------------------------------------------------------- */
+
+.not-logged-in-container a {
+  width: 100%;
+
+  padding: .75rem 1.25rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: transparent;
+
+  color: var(--main-color);
+
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+
+  letter-spacing: .1em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    transform .2s ease;
+}
+
+.not-logged-in-container a:hover {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
+
+  transform: translateY(-1px);
+}
+
+.not-logged-in-container a:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+
+/* ----------------------------------------------------------------
+   Responsive
+----------------------------------------------------------------- */
+
+@media (max-width: 600px) {
 
   .bottom-dashboard {
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-    gap: 2rem;
+    gap: 2.5rem;
   }
 
   .dashboard-section {
-    width: 100%;
+    padding: .75rem;
   }
 
   .dashboard-link {
-    font-size: 1.2rem;
-  }
-}
-
-@media (max-width: 480px) {
-
-
-  .dashboard-link {
-    font-size: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: .75rem;
   }
 
-  .bottom-dashboard {
-    padding: .5rem;
+  .not-logged-in-container {
+    margin-top: 3rem;
+    padding: 1.5rem;
   }
+
 }

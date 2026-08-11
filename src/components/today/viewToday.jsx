@@ -11,6 +11,7 @@ import { tagOptions } from "../../constants/optionsBank";
 const ViewToday = ({ todayReady }) => {
   const [outfits, setOutfits] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [alternativePage, setAlternativePage] = useState(0);
 
   const [selectedTag, setSelectedTag] = useState(null);
 
@@ -23,6 +24,8 @@ const ViewToday = ({ todayReady }) => {
     title: "",
     message: "",
   });
+
+  const ALTERNATIVES_PER_PAGE = 4;
 
 
   const getToken = () => {
@@ -45,8 +48,7 @@ const ViewToday = ({ todayReady }) => {
         `${URL}/today/get`,
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -66,12 +68,10 @@ const ViewToday = ({ todayReady }) => {
           setCheckingToday(true);
 
           setTimeout(() => {
-
             fetchTodayOutfits(
               todayTagName,
               attempt + 1
             );
-
           }, 1000);
 
           return;
@@ -99,11 +99,10 @@ const ViewToday = ({ todayReady }) => {
         );
 
 
-      setOutfits(
-        sortedOutfits
-      );
+      setOutfits(sortedOutfits);
 
       setCurrentIndex(0);
+      setAlternativePage(0);
 
       setCheckingToday(false);
       setLoading(false);
@@ -188,13 +187,14 @@ const ViewToday = ({ todayReady }) => {
 
       setSelectedTag(null);
       setCurrentIndex(0);
+      setAlternativePage(0);
 
       return;
     }
 
-
     setSelectedTag(tagName);
     setCurrentIndex(0);
+    setAlternativePage(0);
   };
 
 
@@ -211,6 +211,7 @@ const ViewToday = ({ todayReady }) => {
 
 
     setCurrentIndex(index);
+    setAlternativePage(0);
   };
 
 
@@ -230,6 +231,8 @@ const ViewToday = ({ todayReady }) => {
         (prev + 1) %
         filteredOutfits.length
     );
+
+    setAlternativePage(0);
   };
 
 
@@ -248,10 +251,12 @@ const ViewToday = ({ todayReady }) => {
           filteredOutfits.length) %
         filteredOutfits.length
     );
+
+    setAlternativePage(0);
   };
 
 
-  /* ------------------------- GET ALTERNATIVE OUTFITS ------------------------- */
+  /* ------------------------- ALTERNATIVE OUTFITS ------------------------- */
 
   const getAlternativeOutfits = () => {
 
@@ -265,13 +270,11 @@ const ViewToday = ({ todayReady }) => {
     const alternatives = [];
 
 
+    // Build all outfits except the currently selected one
+
     for (
       let offset = 1;
-      offset <=
-        Math.min(
-          3,
-          filteredOutfits.length - 1
-        );
+      offset < filteredOutfits.length;
       offset++
     ) {
 
@@ -289,7 +292,51 @@ const ViewToday = ({ todayReady }) => {
     }
 
 
-    return alternatives;
+    // Only show the current page
+
+    const start =
+      alternativePage *
+      ALTERNATIVES_PER_PAGE;
+
+
+    return alternatives.slice(
+      start,
+      start + ALTERNATIVES_PER_PAGE
+    );
+  };
+
+
+  const alternativeCount =
+    Math.max(
+      filteredOutfits.length - 1,
+      0
+    );
+
+
+  const totalAlternativePages =
+    Math.ceil(
+      alternativeCount /
+      ALTERNATIVES_PER_PAGE
+    );
+
+
+  const hasMoreAlternativePages =
+    alternativePage <
+    totalAlternativePages - 1;
+
+
+  const goToNextAlternativePage = () => {
+
+    if (
+      !hasMoreAlternativePages
+    ) {
+      return;
+    }
+
+
+    setAlternativePage(
+      (prev) => prev + 1
+    );
   };
 
 
@@ -481,7 +528,6 @@ const ViewToday = ({ todayReady }) => {
     );
   }
 
-
   if (!outfits.length) {
 
     return (
@@ -491,60 +537,66 @@ const ViewToday = ({ todayReady }) => {
     );
   }
 
-
   /* ------------------------- SELECTED OUTFIT ------------------------- */
 
-  const selectedOutfit =
-    filteredOutfits[currentIndex];
-
+const selectedOutfit =
+  filteredOutfits.length > 0
+    ? filteredOutfits[currentIndex]
+    : null;
 
   const alternativeOutfits =
     getAlternativeOutfits();
 
-
   /* ------------------------- MAIN RENDER ------------------------- */
 
-  return (
-    <div className="view-today-container">
+return (
+  <div className="view-today-container">
 
-      {/* NO OUTFITS FOR SELECTED TAG */}
+    {/* TOP SECTION */}
 
-      {!filteredOutfits.length && (
+    <div className="today-top-section">
 
-        <p className="today-message">
-          No outfits found for this tag.
-        </p>
+      {/* FEATURED / MAIN OUTFIT */}
 
-      )}
+      <div className="featured-outfit">
 
+        <div className="featured-outfit-content">
 
-      {/* FEATURED OUTFIT */}
+          {filteredOutfits.length > 0 ? (
 
-      {filteredOutfits.length > 0 && (
+            renderOutfitImages(
+              selectedOutfit
+            )
 
-        <div className="featured-outfit">
+          ) : (
 
-          {renderOutfitImages(
-            selectedOutfit
+            <p className="today-message">
+              No outfits found for this tag.
+            </p>
+
           )}
 
+        </div>
+
+
+        {/* ONLY SHOW BUTTON WHEN AN OUTFIT EXISTS */}
+
+        {filteredOutfits.length > 0 && (
 
           <div className="today-buttons">
 
             <button
               className="regular-button"
-              onClick={
-                markAsWornToday
-              }
+              onClick={markAsWornToday}
             >
               Mark as Worn Today
             </button>
 
           </div>
 
-        </div>
+        )}
 
-      )}
+      </div>
 
 
       {/* ALTERNATIVE OUTFITS */}
@@ -553,141 +605,162 @@ const ViewToday = ({ todayReady }) => {
 
         <div className="outfit-selector">
 
-          <button
-            className="left-right"
-            onClick={goPrev}
-            aria-label="Previous outfit"
-          >
-            ‹
-          </button>
+          <div className="outfit-selector-content">
 
+            <div className="outfit-options">
 
-          <div className="outfit-options">
+              {alternativeOutfits.map(
+                ({
+                  outfit,
+                  index
+                }) => (
 
-            {alternativeOutfits.map(
-              ({
-                outfit,
-                index
-              }) => (
-
-                <button
-                  key={
-                    outfit.matchId?._id ||
-                    index
-                  }
-                  className="outfit-option"
-                  onClick={() =>
-                    selectOutfit(
+                  <button
+                    key={
+                      outfit.matchId?._id ||
                       index
-                    )
-                  }
-                  aria-label={`Select outfit ${
-                    index + 1
-                  }`}
-                >
+                    }
+                    className="outfit-option"
+                    onClick={() =>
+                      selectOutfit(index)
+                    }
+                    aria-label={`Select outfit ${
+                      index + 1
+                    }`}
+                  >
 
-                  {renderOutfitImages(
-                    outfit,
-                    true
-                  )}
+                    {renderOutfitImages(
+                      outfit,
+                      true
+                    )}
 
-                </button>
+                  </button>
 
-              )
+                )
+              )}
+
+            </div>
+
+
+            {/* SHOW MORE */}
+
+            {hasMoreAlternativePages && (
+
+              <button
+                className="alternative-down-button"
+                onClick={
+                  goToNextAlternativePage
+                }
+                aria-label="Show more outfits"
+              >
+                ↓
+              </button>
+
             )}
 
           </div>
-
-
-          <button
-            className="left-right"
-            onClick={goNext}
-            aria-label="Next outfit"
-          >
-            ›
-          </button>
 
         </div>
 
       )}
 
-      
-      {/* TAG SELECTOR */}
+    </div>
 
-        <div className="today-tag-selector">
 
-          {tagOptions.map((tag) => {
+    {/* TAG SELECTOR */}
 
-            const isSelected =
-              selectedTag === tag.name;
+    <div className="today-tags-section">
 
-            return (
-              <button
-                key={tag.name}
-                className={`today-tag-option ${
-                  isSelected
-                    ? "selected"
-                    : ""
-                }`}
-                onClick={() =>
-                  selectTag(tag.name)
-                }
-                aria-label={`Filter by ${tag.name}`}
-                aria-pressed={isSelected}
-              >
+      <div className="today-tags-title">
+        Filter by Tag
+      </div>
 
-                <div className="today-tag-image-wrapper">
 
-                  <img
-                    src={tag.image}
-                    alt={tag.name}
-                    className="today-tag-icon"
-                  />
+      <div className="today-tag-selector">
 
-                </div>
+        {tagOptions.map((tag) => {
 
-                <div className="today-tag-content">
+          const isSelected =
+            selectedTag === tag.name;
 
-                  <span>
-                    {tag.name}
+
+          return (
+
+            <button
+              key={tag.name}
+              className={`today-tag-option ${
+                isSelected
+                  ? "selected"
+                  : ""
+              }`}
+              onClick={() =>
+                selectTag(tag.name)
+              }
+              aria-label={`Filter by ${tag.name}`}
+              aria-pressed={isSelected}
+            >
+
+              <div className="today-tag-image-wrapper">
+
+                <img
+                  src={tag.image}
+                  alt={tag.name}
+                  className="today-tag-icon"
+                />
+
+              </div>
+
+
+              <div className="today-tag-content">
+
+                <span>
+                  {tag.name}
+                </span>
+
+
+                {isSelected && (
+
+                  <span
+                    className="today-tag-check"
+                    aria-label="Selected"
+                  >
+                    ✓
                   </span>
 
-                  {isSelected && (
-                    <span
-                      className="today-tag-check"
-                      aria-label="Selected"
-                    >
-                      ✓
-                    </span>
-                  )}
+                )}
 
-                </div>
+              </div>
 
-              </button>
-            );
-          })}
+            </button>
 
-        </div>
+          );
 
+        })}
 
-      {/* POPUP */}
-
-      <MessagePopup
-        isOpen={popup.open}
-        title={popup.title}
-        message={popup.message}
-        onClose={() =>
-          setPopup({
-            open: false,
-            title: "",
-            message: "",
-          })
-        }
-      />
+      </div>
 
     </div>
-  );
+
+
+    {/* POPUP */}
+
+    <MessagePopup
+      isOpen={popup.open}
+      title={popup.title}
+      message={popup.message}
+      onClose={() =>
+        setPopup({
+          open: false,
+          title: "",
+          message: "",
+        })
+      }
+    />
+
+  </div>
+);
 };
 
 
 export default ViewToday;
+

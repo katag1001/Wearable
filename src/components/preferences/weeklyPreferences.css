@@ -157,7 +157,6 @@
 
 .day-card-tag {
   color: var(--tag-color);
-
   font-size: var(--tag-font-size);
   font-weight: 500;
   letter-spacing: .04em;

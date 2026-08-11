@@ -133,7 +133,7 @@ const Homepage = ({ loggedIn, logout }) => {
                     to="/clothes"
                     className="dashboard-link"
                   >
-                    View Clothes
+                    View All Clothes
                   </Link>
 
                   <ViewClothes
@@ -151,7 +151,7 @@ const Homepage = ({ loggedIn, logout }) => {
                     to="/matches"
                     className="dashboard-link"
                   >
-                    View Matches
+                    View All Matches
                   </Link>
 
                   <ViewMatches
