@@ -547,6 +547,40 @@ const selectedOutfit =
   const alternativeOutfits =
     getAlternativeOutfits();
 
+
+    
+  /* ------------------------- TGAS POPUP ------------------------- */
+
+  const renderMainOutfitTags = (outfit) => {
+    const tags = outfit?.matchId?.tags;
+
+    if (!tags?.length) {
+      return null;
+    }
+
+    return (
+      <div className="today-hover-tags-row">
+        {tags.map((tagName) => {
+          const tag = tagOptions.find(
+            (option) => option.name === tagName
+          );
+
+          return (
+            tag && (
+              <img
+                key={tagName}
+                src={tag.image}
+                alt={tagName}
+                title={tagName}
+                className="today-hover-tag-image"
+              />
+            )
+          );
+        })}
+      </div>
+    );
+  };
+
   /* ------------------------- MAIN RENDER ------------------------- */
 
 return (
@@ -562,21 +596,19 @@ return (
 
         <div className="featured-outfit-content">
 
-          {filteredOutfits.length > 0 ? (
+            {filteredOutfits.length > 0 ? (
+              <>
+                {renderOutfitImages(selectedOutfit)}
+                {renderMainOutfitTags(selectedOutfit)}
+              </>
+            ) : (
+              <p className="today-message">
+                No outfits found for this tag.
+              </p>
+            )}
 
-            renderOutfitImages(
-              selectedOutfit
-            )
+          </div>
 
-          ) : (
-
-            <p className="today-message">
-              No outfits found for this tag.
-            </p>
-
-          )}
-
-        </div>
 
 
         {/* ONLY SHOW BUTTON WHEN AN OUTFIT EXISTS */}
