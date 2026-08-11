@@ -454,7 +454,7 @@ const WeeklyPreferences = () => {
   if (loading) {
     return (
       <div className="weekly-preferences">
-        <div className="weekly-preferences__loading">
+        <div className="weekly-preferences-loading">
           Loading your preferences...
         </div>
       </div>
@@ -468,7 +468,7 @@ const WeeklyPreferences = () => {
     >
       {/* HEADER */}
 
-      <div className="weekly-preferences__header">
+      <div className="weekly-preferences-header">
         <h2>
           Weekly Preferences
         </h2>
@@ -482,7 +482,7 @@ const WeeklyPreferences = () => {
             {/* TAG SELECTOR */}
 
       <div className="tag-selector">
-        <div className="tag-selector__header">
+        <div className="tag-selector-header">
           <div>
             <h3>
               {selectedDayObject?.label}
@@ -533,22 +533,22 @@ const WeeklyPreferences = () => {
                   isSelected
                 }
               >
-                <div className="tag-card__image-wrapper">
+                <div className="tag-card-image-wrapper">
                   <img
                     src={tag.image}
                     alt={tag.name}
-                    className="tag-card__image"
+                    className="tag-card-image"
                   />
                 </div>
 
-                <div className="tag-card__content">
+                <div className="tag-card-content">
                   <span>
                     {tag.name}
                   </span>
 
                   {isSelected && (
                     <span
-                      className="tag-card__check"
+                      className="tag-card-check"
                       aria-label="Selected"
                     >
                       ✓
@@ -564,7 +564,7 @@ const WeeklyPreferences = () => {
 
       {/* WEEK */}
 
-      <div className="weekly-preferences__week">
+      <div className="weekly-preferences-week">
         {days.map((day) => {
           const tag = getTag(
             preferences[day.key]
@@ -589,7 +589,7 @@ const WeeklyPreferences = () => {
               }
               aria-pressed={isActive}
             >
-              <span className="day-card__name">
+              <span className="day-card-name">
                 {day.label}
               </span>
 
@@ -598,16 +598,16 @@ const WeeklyPreferences = () => {
                   <img
                     src={tag.image}
                     alt={tag.name}
-                    className="day-card__image"
+                    className="day-card-image"
                   />
 
-                  <span className="day-card__tag">
+                  <span className="day-card-tag">
                     {tag.name}
                   </span>
                 </>
               ) : (
-                <div className="day-card__empty">
-                  <span className="day-card__plus">
+                <div className="day-card-empty">
+                  <span className="day-card-plus">
                     +
                   </span>
 

@@ -1,5 +1,70 @@
 :root {
   --header-height: 64px;
+
+  /* --------------------------------------------------------------
+     Colours
+  -------------------------------------------------------------- */
+
+  --main-color: #111;
+  --secondary-color: #6f6a63;
+  --tag-color: #171717;
+  --muted-color: #99938b;
+  --inverse-color: #fff;
+
+  --card-background: white;
+  --hover-background: #fff;
+  --border-color: #ddd8d0;
+  --hover-border-color: #aaa39a;
+  --image-background: #f1efeb;
+
+  /* Error */
+  --error-background: #faf0ee;
+  --error-border-color: #e5c9c4;
+  --error-color: #8b3a3a;
+
+  /* Success */
+  --success-background: #f2f5f0;
+  --success-border-color: #d2dccd;
+  --success-color: #53634d;
+
+
+  /* --------------------------------------------------------------
+     Fonts
+  -------------------------------------------------------------- */
+
+  --main-font: 'Inter', 'Helvetica Neue', sans-serif;
+  --title-font: 'Inter', 'Helvetica Neue', sans-serif;
+  --plus-font: 'Didot', serif;
+
+
+  /* --------------------------------------------------------------
+     Font Sizes
+  -------------------------------------------------------------- */
+
+  --title-font-size: 2.2rem;
+  --section-title-font-size: 1.4rem;
+
+  --small-font-size: 0.85rem;
+  --day-name-font-size: 0.68rem;
+  --tag-font-size: 0.72rem;
+  --empty-day-font-size: .65rem;
+  --plus-font-size: 1.5rem;
+
+  --description-font-size: 0.75rem;
+  --button-font-size: 0.65rem;
+  --tag-card-font-size: 0.58rem;
+  --check-font-size: 0.45rem;
+
+    /* User Page */
+  --sidebar-button-font-size: 0.7rem;
+  --mobile-button-font-size: 0.6rem;
+  --mobile-action-font-size: 0.58rem;
+
+
+  /* Delete Account Hover */
+  --delete-hover-border-color: #c99d97;
+  --delete-hover-color: #7a2f2f;
+
 }
 
 

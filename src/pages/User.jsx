@@ -8,6 +8,7 @@ import WeeklyPreferences from '../components/preferences/weeklyPreferences';
 
 const User = ({ loggedIn, logout }) => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const [activeScreen, setActiveScreen] =
@@ -50,6 +51,11 @@ const User = ({ loggedIn, logout }) => {
       setDeleting(false);
       setShowDeletePopup(true);
     }
+  };
+
+  const handleLogout = () => {
+    setShowLogoutPopup(false);
+    logout();
   };
 
   const renderActiveScreen = () => {
@@ -101,7 +107,7 @@ const User = ({ loggedIn, logout }) => {
                 <button
                   type="button"
                   className="user-sidebar__action"
-                  onClick={logout}
+                  onClick={() => setShowLogoutPopup(true)}
                 >
                   Logout
                 </button>
@@ -131,6 +137,19 @@ const User = ({ loggedIn, logout }) => {
 
         </div>
       </div>
+
+
+      {/* LOGOUT POPUP */}
+
+      <MessagePopup
+        isOpen={showLogoutPopup}
+        title="Logout"
+        message="Are you sure you want to log out?"
+        onClose={() => setShowLogoutPopup(false)}
+        onConfirm={handleLogout}
+        confirmText="Logout"
+        cancelText="Cancel"
+      />
 
 
       {/* DELETE ACCOUNT POPUP */}
