@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useGeolocation } from "@uidotdev/usehooks";
 import "./autoWeather.css";
 import { URL } from "../../config";
+import { getTodayDayOfWeek } from "./todayHelpers";
+
 
 const AutoWeather = ({ setTodayReady }) => {
   const STORAGE_KEY = "weather_cache";
   const TODAY_KEY = "today_created";
 
   const location = useGeolocation();
+
 
   const isToday = (dateString) => {
     const today = new Date();
@@ -20,14 +23,17 @@ const AutoWeather = ({ setTodayReady }) => {
     );
   };
 
+
   const getSeason = () => {
     const month = new Date().getMonth();
 
     if ([2, 3, 4].includes(month)) return "spring";
     if ([5, 6, 7].includes(month)) return "summer";
     if ([8, 9, 10].includes(month)) return "autumn";
+
     return "winter";
   };
+
 
   const getCachedWeather = () => {
     const cached = localStorage.getItem(STORAGE_KEY);
@@ -42,6 +48,7 @@ const AutoWeather = ({ setTodayReady }) => {
       }
 
       return null;
+
     } catch {
       return null;
     }
@@ -50,57 +57,105 @@ const AutoWeather = ({ setTodayReady }) => {
 
   const cached = getCachedWeather();
 
+
   const [weather, setWeather] = useState(
     cached ? cached.weather : null
   );
 
+
   const [error, setError] = useState(null);
 
 
-  const triggerCreateToday = async (min, max, season) => {
-    const alreadyCreated = localStorage.getItem(TODAY_KEY);
+  const triggerCreateToday = async (
+    min,
+    max,
+    season
+  ) => {
 
-    if (alreadyCreated && isToday(alreadyCreated)) {
-      console.log("Today already created.");
+    const alreadyCreated =
+      localStorage.getItem(TODAY_KEY);
+
+
+    if (
+      alreadyCreated &&
+      isToday(alreadyCreated)
+    ) {
+
+      console.log(
+        "Today already created."
+      );
+
       return;
     }
 
+
     try {
-      const token = localStorage.getItem("token");
 
-      const response = await fetch(`${URL}/today/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          min_temp_today: min,
-          max_temp_today: max,
-          season_today: season,
-        }),
-      });
+      const token =
+        localStorage.getItem("token");
 
-      const data = await response.json();
 
-      console.log("Created today:", data);
+      const response = await fetch(
+        `${URL}/today/create`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            min_temp_today: min,
+            max_temp_today: max,
+            season_today: season,
+          }),
+        }
+      );
+
+
+      const data =
+        await response.json();
+
+
+      console.log(
+        "Created today:",
+        data
+      );
+
 
       localStorage.setItem(
         TODAY_KEY,
         new Date().toISOString()
       );
 
+
       return data;
 
     } catch (err) {
-      console.error("Error creating today:", err);
+
+      console.error(
+        "Error creating today:",
+        err
+      );
     }
   };
 
 
-  const fetchWeather = async (latitude, longitude) => {
+  const fetchWeather = async (
+    latitude,
+    longitude
+  ) => {
+
     try {
-      console.log("Fetching new weather...");
+
+      console.log(
+        "Fetching new weather..."
+      );
+
 
       const url =
         `https://api.open-meteo.com/v1/forecast?latitude=${latitude}` +
@@ -108,33 +163,49 @@ const AutoWeather = ({ setTodayReady }) => {
         `&daily=temperature_2m_max,temperature_2m_min` +
         `&timezone=auto`;
 
-      const response = await fetch(url);
 
-      const data = await response.json();
+      const response =
+        await fetch(url);
 
-      if (!data.daily) return;
+
+      const data =
+        await response.json();
+
+
+      if (!data.daily) {
+        return;
+      }
 
 
       const weatherData = {
-        min: data.daily.temperature_2m_min[0],
-        max: data.daily.temperature_2m_max[0],
+        min:
+          data.daily
+            .temperature_2m_min[0],
+
+        max:
+          data.daily
+            .temperature_2m_max[0],
       };
 
 
-      setWeather(weatherData);
+      setWeather(
+        weatherData
+      );
 
 
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({
-          date: new Date().toISOString(),
+          date:
+            new Date().toISOString(),
 
           location: {
             latitude,
             longitude,
           },
 
-          weather: weatherData,
+          weather:
+            weatherData,
         })
       );
 
@@ -145,44 +216,56 @@ const AutoWeather = ({ setTodayReady }) => {
         getSeason()
       );
 
+
       setTodayReady(true);
-      
 
     } catch (err) {
-      console.error("Weather fetch failed:", err);
-      setError("Failed to fetch weather data.");
+
+      console.error(
+        "Weather fetch failed:",
+        err
+      );
+
+      setError(
+        "Failed to fetch weather data."
+      );
     }
   };
 
 
   useEffect(() => {
 
-    const cached = getCachedWeather();
+    const cached =
+      getCachedWeather();
 
 
-    // Already have today's weather
     if (cached) {
 
-  console.log("Using cached weather.");
-
-  const create = async () => {
-    await triggerCreateToday(
-      cached.weather.min,
-      cached.weather.max,
-      getSeason()
-    );
-
-    setTodayReady(true);
-  };
-
-  create();
-
-  return;
-}
+      console.log(
+        "Using cached weather."
+      );
 
 
+      const create =
+        async () => {
 
-    // Need fresh weather
+          await triggerCreateToday(
+            cached.weather.min,
+            cached.weather.max,
+            getSeason()
+          );
+
+
+          setTodayReady(true);
+        };
+
+
+      create();
+
+      return;
+    }
+
+
     if (
       location.latitude &&
       location.longitude
@@ -192,7 +275,6 @@ const AutoWeather = ({ setTodayReady }) => {
         location.latitude,
         location.longitude
       );
-
     }
 
   }, [
@@ -201,35 +283,46 @@ const AutoWeather = ({ setTodayReady }) => {
   ]);
 
 
-
   return (
     <div className="weather">
 
-      {location.loading && !weather && (
-        <p className="weather-text">
-          Loading location...
-        </p>
-      )}
+      {location.loading &&
+        !weather && (
+          <p className="weather-text">
+            Loading location...
+          </p>
+        )}
 
 
       {location.error && (
         <p className="weather-error">
-          Unable to access location: {location.error.message}
+          Unable to access location:{" "}
+          {location.error.message}
         </p>
       )}
 
 
       {weather ? (
-        <>
-          <p className="weather-text">
-            {getSeason().charAt(0).toUpperCase() +
-              getSeason().slice(1)}
-          </p>
+        <p className="weather-text">
 
-          <p className="weather-text">
-            {weather.min}°C - {weather.max}°C
-          </p>
-        </>
+          {getTodayDayOfWeek()
+            .charAt(0)
+            .toUpperCase() +
+            getTodayDayOfWeek()
+              .slice(1)}
+
+          {" · "}
+
+          {getSeason()
+            .charAt(0)
+            .toUpperCase() +
+            getSeason().slice(1)}
+
+          {" · "}
+
+          {weather.min}°C - {weather.max}°C
+
+        </p>
       ) : (
         !error && (
           <p className="weather-text">
@@ -248,5 +341,6 @@ const AutoWeather = ({ setTodayReady }) => {
     </div>
   );
 };
+
 
 export default AutoWeather;

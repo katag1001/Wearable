@@ -1,307 +1,911 @@
-@import url('https://fonts.googleapis.com/css2?family=Didot&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+/* ----------------------------------------------------------------
+   Main Container
+----------------------------------------------------------------- */
 
-* {
-  box-sizing: border-box;
-}
-
-:root {
-  --text: #171717;
-  --muted: #77716a;
-  --border: #ded9d1;
-  --shadow:
-    0 18px 45px rgba(0,0,0,.08),
-    0 4px 12px rgba(0,0,0,.04);
-}
-
-/* Main container */
 .view-today-container {
   width: 100%;
+  max-width: 900px;
+
   min-height: 100%;
-  padding: 2rem 1.5rem;
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
+
+  margin: 0 auto;
+
+  padding: 0 0 2rem;
+
+  color: var(--main-color);
+  font-family: var(--main-font);
+
   text-align: center;
+
+  overflow-x: hidden;
 }
 
-/* Title */
-.today-title {
-  margin: 0 0 2.5rem;
-  font-family: 'Didot', serif;
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  font-weight: normal;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--text);
+
+/* ----------------------------------------------------------------
+   Tag Selector
+----------------------------------------------------------------- */
+
+.today-tag-selector {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, 80px);
+
+  gap: .5rem;
+
+  margin: 0 0 2rem;
+
+  padding: 0;
+
+  justify-content: start;
+
+  overflow: visible;
 }
 
-/* Horizontal carousel area */
-.horizontal-scroll-wrapper {
-  position: relative;
+
+/* ----------------------------------------------------------------
+   Tag Card
+----------------------------------------------------------------- */
+
+.today-tag-option {
+  width: 80px;
+  max-width: 80px;
+
+  min-width: 0;
+
+  padding: 0;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+
+  background: var(--card-background);
+
+  color: var(--main-color);
+
+  font: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease,
+    transform .2s ease;
+}
+
+
+.today-tag-option:hover {
+  background: var(--hover-background);
+
+  border-color: var(--hover-border-color);
+
+  transform: translateY(-1px);
+}
+
+
+.today-tag-option:active {
+  transform: translateY(0);
+}
+
+
+.today-tag-option:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 2px;
+}
+
+
+/* ----------------------------------------------------------------
+   Tag Image
+----------------------------------------------------------------- */
+
+.today-tag-image-wrapper {
+  width: 100%;
+
+  overflow: hidden;
+
+  background: var(--image-background);
+}
+
+
+.today-tag-icon {
+  display: block;
+
+  width: 100%;
+  height: 80px;
+
+  object-fit: cover;
+
+  border-radius: 0;
+
+  transition:
+    transform .25s ease;
+}
+
+
+.today-tag-option:hover
+.today-tag-icon {
+  transform: scale(1.02);
+}
+
+
+/* ----------------------------------------------------------------
+   Selected Tag
+----------------------------------------------------------------- */
+
+.today-tag-option.selected {
+  background: var(--hover-background);
+
+  border-color: var(--main-color);
+
+  box-shadow:
+    0 0 0 1px var(--main-color);
+}
+
+
+.today-tag-option.selected:hover {
+  border-color: var(--main-color);
+}
+
+
+/* ----------------------------------------------------------------
+   Tag Content
+----------------------------------------------------------------- */
+
+.today-tag-content {
+  min-height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: .25rem;
+
+  padding: .4rem .45rem;
+}
+
+
+/* Tag name */
+
+.today-tag-content > span:first-child {
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: var(--tag-color);
+
+  font-size: var(--tag-card-font-size);
+  font-weight: 500;
+
+  letter-spacing: .03em;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* Selected check */
+
+.today-tag-check {
+  flex-shrink: 0;
+
+  width: 14px;
+  height: 14px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  gap: 1.5rem;
+
+  border-radius: 50%;
+
+  background: var(--main-color);
+
+  color: var(--inverse-color);
+
+  font-size: var(--check-font-size);
+
+  line-height: 1;
 }
 
+/* ----------------------------------------------------------------
+   Featured Outfit
+----------------------------------------------------------------- */
 
+.featured-outfit {
+  width: 100%;
 
-/* Clothing card */
-.clothing-card {
-  flex: 0 0 auto;
-  width: min(460px, 90vw);
-  border: 1px solid var(--border);
-  border-radius: 18px;
+  margin: 0 auto;
+
   padding: 1.5rem;
+
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  box-shadow: var(--shadow);
-  transition:
-    transform .3s ease,
-    box-shadow .3s ease;
-}
-
-/* Navigation arrows */
-.left-right {
-  width: 42px;
-  height: 42px;
-  border: none;
-  background: white;
-  color: var(--text);
-  font-family: 'Didot', serif;
-  font-size: 1.8rem;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
   align-items: center;
-  justify-content: center;
 
+  background: var(--card-background);
+
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+
+  transition:
+    border-color .25s ease,
+    box-shadow .25s ease,
+    transform .2s ease;
 }
 
 
-.left-right:hover {
-  transform: scale(1.05);
+.featured-outfit:hover {
+  border-color: var(--hover-border-color);
+
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, .06);
 }
 
-/* Images */
+
+/* ----------------------------------------------------------------
+   Featured Outfit Images
+----------------------------------------------------------------- */
+
 .today-image-group {
+  width: 100%;
+
   display: flex;
   flex-wrap: wrap;
+
   justify-content: center;
-  gap: 1rem;
+  align-items: center;
+
+  gap: .9rem;
+
   margin-bottom: 1.5rem;
 }
 
+
 .today-image {
-  width: 140px;
-  height: 140px;
+  width: 170px;
+  height: 170px;
+
+  display: block;
+
   object-fit: cover;
-  border-radius: 12px;
+
+  background: var(--image-background);
+
+  border-radius: 8px;
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease;
 }
 
-/* Action buttons */
+
+.featured-outfit:hover .today-image {
+  transform: scale(1.01);
+}
+
+
+/* ----------------------------------------------------------------
+   Featured Buttons
+----------------------------------------------------------------- */
+
 .today-buttons {
+  width: 100%;
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1rem;
+
+  gap: .75rem;
+
+  margin-top: .25rem;
 }
 
-/* Minimal editorial buttons */
+
+/* ----------------------------------------------------------------
+   Mark As Worn Button
+----------------------------------------------------------------- */
+
 .regular-button {
-  all: unset;
   position: relative;
-  cursor: pointer;
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  font-size: .85rem;
+
+  padding: .55rem 0 .3rem;
+
+  border: 0;
+
+  background: transparent;
+
+  color: var(--main-color);
+
+  font-family: var(--main-font);
+
+  font-size: var(--button-font-size);
   font-weight: 500;
-  letter-spacing: .12em;
+
+  letter-spacing: .13em;
+
   text-transform: uppercase;
-  padding-bottom: .25rem;
-  transition:
-    color .2s ease;
+
+  cursor: pointer;
 }
 
 
 .regular-button::after {
-  content: '';
+  content: "";
+
   position: absolute;
-  bottom: 0;
+
   left: 0;
+  bottom: 0;
+
   width: 0;
   height: 1px;
-  background: #111;
+
+  background: var(--main-color);
+
   transition:
-    width .3s ease;
+    width .25s ease;
+}
+
+
+.regular-button:hover {
+  color: var(--secondary-color);
 }
 
 
 .regular-button:hover::after,
-.regular-button:focus::after {
+.regular-button:focus-visible::after {
   width: 100%;
 }
 
-.regular-button:hover {
-  color: #555;
-}
 
-.regular-button:focus,
-.regular-button:active {
-  outline: none;
-}
-
-/* Message */
-.today-message {
-  margin-top: 2rem;
-  padding: 1rem;
-  color: var(--muted);
-  font-family: 'Didot', serif;
-  font-size: 1.15rem;
-  font-style: italic;
-}
-
-/* -----------------------------------------------------------------
-   Responsive Layout
------------------------------------------------------------------- */
-
-/* Tablet */
-@media (max-width: 768px) {
-
-  .view-today-container {
-    padding: 1.5rem .75rem;
-    overflow-x: hidden;
-  }
-
-  .today-title {
-    font-size: 1.8rem;
-    margin-bottom: 1.8rem;
-  }
-
-  .horizontal-scroll-wrapper {
-    gap: .5rem;
-    width: 100%;
-  }
-
-  .clothing-card {
-    width: min(85vw, 360px);
-    padding: 1.25rem;
-    border-radius: 16px;
-  }
-
-  .left-right {
-    width: 34px;
-    height: 34px;
-    font-size: 1.4rem;
-    flex-shrink: 0;
-  }
-
-  .today-image-group {
-    gap: .65rem;
-    margin-bottom: 1rem;
-  }
-
-  .today-image {
-    width: 85px;
-    height: 85px;
-    border-radius: 10px;
-  }
-
-  .today-buttons {
-    gap: .8rem;
-    margin-top: .8rem;
-  }
-
-  .regular-button {
-    font-size: .75rem;
-  }
-
-  .today-message {
-    font-size: 1rem;
-    padding: .75rem;
-  }
-}
-
-/* Small phones */
-@media (max-width: 400px) {
-
-  .view-today-container {
-    padding: 1rem .5rem;
-  }
-
-  .today-title {
-    font-size: 1.5rem;
-    letter-spacing: .03em;
-  }
-
-  .horizontal-scroll-wrapper {
-    gap: .25rem;
-  }
-
-  .clothing-card {
-    width: 82vw;
-    padding: 1rem;
-    border-radius: 14px;
-  }
-
-  .left-right {
-    width: 28px;
-    height: 28px;
-    font-size: 1.15rem;
-  }
-
-  .today-image-group {
-    display: grid;
-    grid-template-columns:
-      repeat(2, 1fr);
-    gap: .5rem;
-  }
-
-  .today-image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
-  }
-
-  .regular-button {
-    font-size: .7rem;
-  }
-
-  .today-message {
-    font-size: .9rem;
-  }
-}
-
-/* -----------------------------------------------------------------
-   Accessibility + Interaction Polish
------------------------------------------------------------------- */
-
-.left-right:focus-visible,
 .regular-button:focus-visible {
-  outline: 2px solid #111;
+  outline: 2px solid var(--main-color);
   outline-offset: 4px;
 }
 
 
+/* ----------------------------------------------------------------
+   Outfit Selector
+----------------------------------------------------------------- */
 
-/* Cleaner scrollbar where supported */
-.view-today-container::-webkit-scrollbar {
-  width: 8px;
+.outfit-selector {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: .75rem;
+
+  margin: 1.5rem auto 0;
 }
 
-.view-today-container::-webkit-scrollbar-track {
+
+/* ----------------------------------------------------------------
+   Navigation Arrows
+----------------------------------------------------------------- */
+
+.left-right {
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid transparent;
+  border-radius: 50%;
+
   background: transparent;
+
+  color: var(--main-color);
+
+  font-family: var(--plus-font);
+  font-size: var(--plus-font-size);
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    transform .2s ease,
+    color .2s ease;
 }
 
-.view-today-container::-webkit-scrollbar-thumb {
-  border-radius: 20px;
+
+.left-right:hover {
+  background: var(--image-background);
+
+  border-color: var(--border-color);
+
+  transform: scale(1.05);
 }
 
-/* Prevent accidental text selection on controls */
+
+.left-right:active {
+  transform: scale(.95);
+}
+
+
+.left-right:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+
+/* ----------------------------------------------------------------
+   Outfit Options
+----------------------------------------------------------------- */
+
+.outfit-options {
+  flex: 1;
+
+  min-width: 0;
+
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+
+  gap: .6rem;
+
+  overflow: hidden;
+}
+
+
+/* ----------------------------------------------------------------
+   Individual Outfit Option
+----------------------------------------------------------------- */
+
+.outfit-option {
+  flex: 1 1 0;
+
+  min-width: 0;
+  max-width: 180px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: .55rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+
+  background: var(--card-background);
+
+  color: var(--main-color);
+
+  cursor: pointer;
+
+  transition:
+    border-color .2s ease,
+    background .2s ease,
+    box-shadow .2s ease,
+    transform .2s ease;
+}
+
+
+.outfit-option:hover {
+  background: var(--hover-background);
+
+  border-color: var(--hover-border-color);
+
+  box-shadow:
+    0 5px 16px rgba(0, 0, 0, .05);
+
+  transform: translateY(-2px);
+}
+
+
+.outfit-option:active {
+  transform: translateY(0);
+}
+
+
+.outfit-option:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+
+/* ----------------------------------------------------------------
+   Small Outfit Image Group
+----------------------------------------------------------------- */
+
+.today-image-group-small {
+  width: 100%;
+
+  display: flex;
+  flex-wrap: wrap;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: .35rem;
+}
+
+
+/* ----------------------------------------------------------------
+   Small Outfit Images
+----------------------------------------------------------------- */
+
+.today-image-small {
+  width: 65px;
+  height: 65px;
+
+  display: block;
+
+  object-fit: cover;
+
+  background: var(--image-background);
+
+  border-radius: 6px;
+
+  transition:
+    transform .2s ease;
+}
+
+
+.outfit-option:hover
+.today-image-small {
+  transform: scale(1.03);
+}
+
+
+/* ----------------------------------------------------------------
+   Messages
+----------------------------------------------------------------- */
+
+.today-message {
+  width: 100%;
+
+  margin: 2rem 0 0;
+
+  padding: .9rem 1rem;
+
+  color: var(--secondary-color);
+
+  font-family: var(--main-font);
+
+  font-size: var(--description-font-size);
+  font-weight: 400;
+
+  letter-spacing: .05em;
+
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+/* ----------------------------------------------------------------
+   Responsive — Tablet
+----------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+
+  .view-today-container {
+    padding-bottom: 1.5rem;
+  }
+
+
+  /* Tags */
+
+  .today-tag-selector {
+    justify-content: flex-start;
+
+    gap: .45rem;
+
+    margin-bottom: 1.5rem;
+
+    padding-bottom: .55rem;
+  }
+
+
+  .today-tag-option {
+    width: 52px;
+    height: 52px;
+  }
+
+
+  .today-tag-icon {
+    width: 43px;
+    height: 43px;
+  }
+
+
+  /* Featured */
+
+  .featured-outfit {
+    padding: 1.25rem;
+
+    border-radius: 12px;
+  }
+
+
+  .today-image-group {
+    gap: .7rem;
+
+    margin-bottom: 1.25rem;
+  }
+
+
+  .today-image {
+    width: 130px;
+    height: 130px;
+
+    border-radius: 7px;
+  }
+
+
+  /* Selector */
+
+  .outfit-selector {
+    margin-top: 1.25rem;
+
+    gap: .4rem;
+  }
+
+
+  .left-right {
+    width: 36px;
+    height: 36px;
+
+    flex-basis: 36px;
+
+    font-size: 1.35rem;
+  }
+
+
+  .outfit-options {
+    gap: .45rem;
+  }
+
+
+  .outfit-option {
+    padding: .45rem;
+
+    border-radius: 7px;
+  }
+
+
+  .today-image-small {
+    width: 50px;
+    height: 50px;
+
+    border-radius: 5px;
+  }
+
+
+  .today-message {
+    margin-top: 1.5rem;
+  }
+}
+
+
+/* ----------------------------------------------------------------
+   Responsive — Small Phones
+----------------------------------------------------------------- */
+
+@media (max-width: 500px) {
+
+  .view-today-container {
+    padding-bottom: 1rem;
+  }
+
+
+  /* Tags */
+
+  .today-tag-selector {
+    gap: .35rem;
+
+    margin-bottom: 1.25rem;
+  }
+
+
+  .today-tag-option {
+    width: 45px;
+    height: 45px;
+  }
+
+
+  .today-tag-icon {
+    width: 37px;
+    height: 37px;
+  }
+
+
+  /* Featured */
+
+  .featured-outfit {
+    padding: 1rem;
+
+    border-radius: 10px;
+  }
+
+
+  .today-image-group {
+    gap: .45rem;
+
+    margin-bottom: 1rem;
+  }
+
+
+  .today-image {
+    width: 100px;
+    height: 100px;
+
+    border-radius: 6px;
+  }
+
+
+  /* Button */
+
+  .regular-button {
+    font-size: .62rem;
+
+    letter-spacing: .1em;
+  }
+
+
+  /* Selector */
+
+  .outfit-selector {
+    margin-top: 1rem;
+
+    gap: .15rem;
+  }
+
+
+  .left-right {
+    width: 30px;
+    height: 30px;
+
+    flex-basis: 30px;
+
+    font-size: 1.15rem;
+  }
+
+
+  .outfit-options {
+    gap: .3rem;
+  }
+
+
+  .outfit-option {
+    padding: .3rem;
+
+    border-radius: 6px;
+  }
+
+
+  .today-image-group-small {
+    gap: .2rem;
+  }
+
+
+  .today-image-small {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 4px;
+  }
+
+
+  .today-message {
+    margin-top: 1.25rem;
+
+    padding: .75rem;
+
+    font-size: .68rem;
+  }
+}
+
+
+/* ----------------------------------------------------------------
+   Responsive — Very Small Phones
+----------------------------------------------------------------- */
+
+@media (max-width: 360px) {
+
+  .today-tag-selector {
+    gap: .25rem;
+  }
+
+
+  .today-tag-option {
+    width: 40px;
+    height: 40px;
+  }
+
+
+  .today-tag-icon {
+    width: 33px;
+    height: 33px;
+  }
+
+
+  .featured-outfit {
+    padding: .8rem;
+  }
+
+
+  .today-image {
+    width: 85px;
+    height: 85px;
+  }
+
+
+  .left-right {
+    width: 26px;
+    height: 26px;
+
+    flex-basis: 26px;
+
+    font-size: 1rem;
+  }
+
+
+  .outfit-options {
+    gap: .15rem;
+  }
+
+
+  .outfit-option {
+    padding: .2rem;
+
+    border-radius: 5px;
+  }
+
+
+  .today-image-small {
+    width: 31px;
+    height: 31px;
+
+    border-radius: 3px;
+  }
+
+
+  .regular-button {
+    font-size: .58rem;
+  }
+}
+
+
+/* ----------------------------------------------------------------
+   Accessibility
+----------------------------------------------------------------- */
+
+.today-tag-option,
 .left-right,
+.outfit-option,
 .regular-button {
   user-select: none;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+  .today-tag-option,
+  .today-tag-icon,
+  .featured-outfit,
+  .today-image,
+  .regular-button,
+  .regular-button::after,
+  .left-right,
+  .outfit-option,
+  .today-image-small {
+    transition: none;
+  }
 }

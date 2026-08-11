@@ -3,17 +3,20 @@ import { Link } from 'react-router-dom';
 import axios from "axios";
 import { URL } from "../config";
 
-import AutoWeather from '../components/today/autoWeather';
-import ViewToday from '../components/today/viewToday';
+import TodayBlock from '../components/today/TodayBlock';
 import ViewMatches from '../components/matches/viewMatches';
 import ViewClothes from '../components/clothes/viewClothes';
 
 import Header from '../components/header';
 import '../styles/pages.css';
+import '../styles/homepage.css';
+
 
 
 const Homepage = ({ loggedIn, logout }) => {
 
+  /*------------------------- Season----------------------------------*/
+ 
   const getCurrentSeason = () => {
     const month = new Date().getMonth();
 
@@ -24,20 +27,14 @@ const Homepage = ({ loggedIn, logout }) => {
     return "winter";
   };
 
-
-  const [todayReady, setTodayReady] = useState(false);
-
   const [currentSeason] = useState(
     getCurrentSeason()
   );
 
+  /*-------------------------Clothes-------------------------*/
+
   const [clothes, setClothes] = useState([]);
   const [clothesError, setClothesError] = useState(null);
-
-  const [matches, setMatches] = useState([]);
-  const [matchesError, setMatchesError] = useState(null);
-
-
 
   const fetchClothes = async () => {
     try {
@@ -64,7 +61,10 @@ const Homepage = ({ loggedIn, logout }) => {
     }
   };
 
+  /*-------------------------Matches-------------------------*/
 
+  const [matches, setMatches] = useState([]);
+  const [matchesError, setMatchesError] = useState(null);
 
   const fetchMatches = async () => {
     try {
@@ -91,7 +91,7 @@ const Homepage = ({ loggedIn, logout }) => {
     }
   };
 
-
+  /*-------------------------Fetch dashboard data-------------------------*/
 
   useEffect(() => {
     if (loggedIn) {
@@ -100,18 +100,15 @@ const Homepage = ({ loggedIn, logout }) => {
     }
   }, [loggedIn]);
 
-
+  /*-------------------------Season filtering -------------------------*/
 
   const seasonClothes = clothes.filter(
     (item) => item[currentSeason]
   );
 
-
   const seasonMatches = matches.filter(
     (match) => match[currentSeason]
   );
-
-
 
   return (
     <>
@@ -119,25 +116,16 @@ const Homepage = ({ loggedIn, logout }) => {
 
         <Header loggedIn={loggedIn} />
 
-
         <div className="main-container">
 
           {loggedIn ? (
-
             <>
-              <AutoWeather
-                setTodayReady={setTodayReady}
-              />
+              {/* Today */}
+              <TodayBlock />
 
-
-              <ViewToday
-                todayReady={todayReady}
-              />
-
-
+              {/* Clothes & Matches */}
 
               <div className="bottom-dashboard">
-
 
                 <div className="dashboard-section">
 
@@ -148,7 +136,6 @@ const Homepage = ({ loggedIn, logout }) => {
                     View Clothes
                   </Link>
 
-
                   <ViewClothes
                     items={seasonClothes}
                     onEdit={() => {}}
@@ -157,9 +144,6 @@ const Homepage = ({ loggedIn, logout }) => {
                   />
 
                 </div>
-
-
-
 
                 <div className="dashboard-section">
 
@@ -170,19 +154,14 @@ const Homepage = ({ loggedIn, logout }) => {
                     View Matches
                   </Link>
 
-
                   <ViewMatches
                     matches={seasonMatches}
                     onEdit={() => {}}
                     refresh={fetchMatches}
                     setError={setMatchesError}
                   />
-
                 </div>
-
-
               </div>
-
             </>
 
           ) : (
@@ -209,6 +188,5 @@ const Homepage = ({ loggedIn, logout }) => {
     </>
   );
 };
-
 
 export default Homepage;

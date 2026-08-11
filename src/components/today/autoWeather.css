@@ -1,31 +1,178 @@
 @import url('https://fonts.googleapis.com/css2?family=Didot&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
-/* Weather container */
+
+/* =========================================================
+   WEATHER
+========================================================= */
+
 .weather {
-  font-family: 'Helvetica Neue', sans-serif;
-  color: #111;
-  background-color: #fff;
-  text-align: center;
+  width: 100%;
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 50px;
+  justify-content: center;
+
+  padding: 0 1rem;
+
+  color: #171717;
+
+  font-family: 'Inter', sans-serif;
+
+  text-align: center;
 }
 
 
-/* Temperature range */
+/* =========================================================
+   WEATHER TEXT
+========================================================= */
+
 .weather-text {
-  font-size: 1rem;
-  text-align: right;
-  line-height: 1.2;
-  margin-top: auto;
+  margin: .35rem 0 0;
+
+  color: #77716a;
+
+  font-family: 'Inter', sans-serif;
+
+  font-size: .78rem;
+  font-weight: 400;
+
+  letter-spacing: .14em;
+
+  line-height: 1.5;
+
+  text-transform: uppercase;
+
+  text-align: center;
 }
 
 
-/* Error message styling */
+/* =========================================================
+   WEATHER ERROR
+========================================================= */
+
 .weather-error {
-  color: red;
-  font-size: 1rem;
-  font-weight: bold;
+  max-width: 500px;
+
+  margin: .75rem auto 0;
+
+  padding: 0 .5rem;
+
+  color: #77716a;
+
+  font-family: 'Inter', sans-serif;
+
+  font-size: .78rem;
+  font-weight: 400;
+
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   DESKTOP
+========================================================= */
+
+@media (min-width: 769px) {
+
+  .weather {
+    padding-top: .15rem;
+  }
+
+
+  .weather-text {
+    font-size: .78rem;
+    letter-spacing: .15em;
+  }
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .weather {
+    padding: 0 .75rem;
+  }
+
+
+  .weather-text {
+    font-size: .72rem;
+
+    letter-spacing: .12em;
+
+    line-height: 1.5;
+  }
+
+
+  .weather-error {
+    font-size: .72rem;
+  }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+========================================================= */
+
+@media (max-width: 500px) {
+
+  .weather {
+    padding: 0 .5rem;
+  }
+
+
+  .weather-text {
+    font-size: .66rem;
+
+    letter-spacing: .1em;
+  }
+
+
+  .weather-error {
+    font-size: .68rem;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 360px) {
+
+  .weather {
+    padding: 0 .35rem;
+  }
+
+
+  .weather-text {
+    font-size: .6rem;
+
+    letter-spacing: .08em;
+  }
+
+
+  .weather-error {
+    font-size: .62rem;
+  }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .weather,
+  .weather-text,
+  .weather-error {
+    transition: none;
+  }
 }

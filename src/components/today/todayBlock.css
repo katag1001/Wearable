@@ -1,0 +1,123 @@
+/* ----------------------------------------------------------------
+   Container
+----------------------------------------------------------------- */
+
+.today-block {
+  width: 100%;
+  max-width: 1200px;
+
+  margin: 0 auto;
+
+  padding: 1.2rem 2rem 4rem;
+
+  color: var(--main-color);
+  font-family: var(--main-font);
+}
+
+
+/* ----------------------------------------------------------------
+   Title
+----------------------------------------------------------------- */
+
+.today-title {
+  width: 100%;
+
+  margin: 0 0 .65rem;
+
+  font-family: var(--title-font);
+  font-size: var(--title-font-size);
+  font-weight: 700;
+
+  letter-spacing: .04em;
+  line-height: 1.2;
+
+  text-align: center;
+  text-transform: uppercase;
+
+  color: var(--main-color);
+}
+
+
+/* ----------------------------------------------------------------
+   Weather
+----------------------------------------------------------------- */
+
+.today-block .weather {
+  width: 100%;
+
+  margin-bottom: 2rem;
+
+  text-align: center;
+}
+
+
+/* Weather text */
+
+.today-block .weather-text {
+  margin: 0;
+
+  color: var(--secondary-color);
+
+  font-size: var(--small-font-size);
+  font-weight: 400;
+
+  letter-spacing: .04em;
+}
+
+
+/* Weather error */
+
+.today-block .weather-error {
+  margin: .5rem 0 0;
+
+  color: var(--error-color);
+
+  font-size: var(--description-font-size);
+  font-weight: 400;
+
+  letter-spacing: .03em;
+}
+
+
+/* ----------------------------------------------------------------
+   Responsive
+----------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+
+  .today-block {
+    padding: 1rem 1rem 3rem;
+  }
+
+  .today-title {
+    margin-bottom: .55rem;
+
+    font-size: 1.8rem;
+
+    letter-spacing: .035em;
+  }
+
+  .today-block .weather {
+    margin-bottom: 1.5rem;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .today-block {
+    padding: .9rem .75rem 2.5rem;
+  }
+
+  .today-title {
+    font-size: 1.5rem;
+
+    letter-spacing: .025em;
+  }
+
+  .today-block .weather-text {
+    font-size: .72rem;
+  }
+
+}

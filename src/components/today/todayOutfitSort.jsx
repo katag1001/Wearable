@@ -48,6 +48,28 @@ const compareClothingDates = (aDates, bDates) => {
   return 0;
 };
 
+
+/* -------------------------
+   TODAY'S TAG
+------------------------- */
+
+const getTagScore = (match, todayTag) => {
+  // If there is no preference for today,
+  // don't give any outfit a tag advantage.
+  if (!todayTag) return 1;
+
+  const normalizedTodayTag = todayTag.trim().toLowerCase();
+
+  const matchTags = (match?.tags || []).map((tag) =>
+    tag.trim().toLowerCase()
+  );
+
+  // 0 = matches today's tag
+  // 1 = does not match today's tag
+  return matchTags.includes(normalizedTodayTag) ? 0 : 1;
+};
+
+
 const getTemperatureScore = (match, weather) => {
   if (!weather) return Number.MAX_SAFE_INTEGER;
 
@@ -57,7 +79,8 @@ const getTemperatureScore = (match, weather) => {
   );
 };
 
-const todayOutfitSort = (outfits) => {
+
+const todayOutfitSort = (outfits, todayTag = null) => {
   if (!Array.isArray(outfits)) return [];
 
   const weather = getCachedWeather();
@@ -66,8 +89,21 @@ const todayOutfitSort = (outfits) => {
     const matchA = a.matchId;
     const matchB = b.matchId;
 
+
     /* -------------------------
-       1. Individual clothing freshness
+       1. TODAY'S TAG
+    ------------------------- */
+
+    const tagScoreA = getTagScore(matchA, todayTag);
+    const tagScoreB = getTagScore(matchB, todayTag);
+
+    if (tagScoreA !== tagScoreB) {
+      return tagScoreA - tagScoreB;
+    }
+
+
+    /* -------------------------
+       2. INDIVIDUAL CLOTHING FRESHNESS
     ------------------------- */
 
     const clothingComparison = compareClothingDates(
@@ -79,8 +115,9 @@ const todayOutfitSort = (outfits) => {
       return clothingComparison;
     }
 
+
     /* -------------------------
-       2. Whole outfit freshness
+       3. WHOLE OUTFIT FRESHNESS
     ------------------------- */
 
     const matchDateA = matchA?.lastWornDate
@@ -91,9 +128,11 @@ const todayOutfitSort = (outfits) => {
       ? new Date(matchB.lastWornDate).getTime()
       : null;
 
+    // Never-worn outfit first
     if (matchDateA === null && matchDateB !== null) return -1;
     if (matchDateA !== null && matchDateB === null) return 1;
 
+    // Older outfit first
     if (
       matchDateA !== null &&
       matchDateB !== null &&
@@ -102,16 +141,18 @@ const todayOutfitSort = (outfits) => {
       return matchDateA - matchDateB;
     }
 
+
     /* -------------------------
-       3. User-created outfits
+       4. USER-CREATED OUTFITS
     ------------------------- */
 
     if (matchA.userMade !== matchB.userMade) {
       return matchA.userMade ? -1 : 1;
     }
 
+
     /* -------------------------
-       4. Temperature accuracy
+       5. TEMPERATURE ACCURACY
     ------------------------- */
 
     return (
@@ -120,5 +161,6 @@ const todayOutfitSort = (outfits) => {
     );
   });
 };
+
 
 export default todayOutfitSort;
