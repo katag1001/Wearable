@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import '../../styles/modal.css'
+import "../../styles/modal.css";
 import { URL } from "../../config";
 import TemperatureSlider from "../general/temperatureSlider";
 import { tagOptions } from "../../constants/optionsBank";
-
 
 const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
   const [updateData, setUpdateData] = useState({
@@ -27,6 +26,7 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
         winter: match.winter || false,
         min_temp: match.min_temp ?? "",
         max_temp: match.max_temp ?? "",
+        tags: match.tags || [],
       });
     }
   }, [match]);
@@ -37,6 +37,15 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
     setUpdateData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const toggleTag = (tagName) => {
+    setUpdateData((prev) => ({
+      ...prev,
+      tags: prev.tags.includes(tagName)
+        ? prev.tags.filter((tag) => tag !== tagName)
+        : [...prev.tags, tagName],
     }));
   };
 
@@ -91,141 +100,131 @@ const UpdateMatches = ({ match, onClose, onUpdateSuccess, onError }) => {
     }
   };
 
-  useEffect(() => {
-  if (match) {
-    setUpdateData({
-      spring: match.spring || false,
-      summer: match.summer || false,
-      autumn: match.autumn || false,
-      winter: match.winter || false,
-      min_temp: match.min_temp ?? "",
-      max_temp: match.max_temp ?? "",
-      tags: match.tags || [],
-    });
-  }
-}, [match]);
-
-const toggleTag = (tagName) => {
-  setUpdateData((prev) => ({
-    ...prev,
-    tags: prev.tags.includes(tagName)
-      ? prev.tags.filter((tag) => tag !== tagName)
-      : [...prev.tags, tagName],
-  }));
-};
-
   return (
-    <div className="modal-backdrop">
-      <div className="modal-wrapper">
-      <button
-          className="close-modal"
+    <div className="match-editor-overlay">
+      <div className="match-editor-container">
+
+        <button
+          className="match-editor-close"
           onClick={onClose}
+          type="button"
         >
           ×
         </button>
 
-        <p className="modal-title">Edit Match</p>
+        <p className="match-editor-heading">
+          Edit Match
+        </p>
 
-        <form className="update-form" onSubmit={handleSubmit}>
+        <form
+          className="match-editor-form"
+          onSubmit={handleSubmit}
+        >
 
-        {/* Season */}
-          <div>
-            <fieldset className="season-group">
-              <label className="form-label">Seasons</label>
+          {/* Seasons */}
+          <div className="match-editor-section">
+            <fieldset className="match-editor-seasons">
+              <label className="match-editor-label">
+                Seasons
+              </label>
 
-              {["spring", "summer", "autumn", "winter"].map((season) => (
-                <label key={season} className="season-label">
-                  <input
-                    type="checkbox"
-                    id={season}
-                    name={season}
-                    checked={updateData[season]}
-                    onChange={handleChange}
-                  />
-                  {" "}
-                  {season.charAt(0).toUpperCase() + season.slice(1)}
-                </label>
-              ))}
+              <div className="match-editor-season-list">
+                {["spring", "summer", "autumn", "winter"].map(
+                  (season) => (
+                    <label
+                      key={season}
+                      className="match-editor-season-option"
+                    >
+                      <input
+                        type="checkbox"
+                        id={`match-${season}`}
+                        name={season}
+                        checked={updateData[season]}
+                        onChange={handleChange}
+                        className="match-editor-season-checkbox"
+                      />
+
+                      <span className="match-editor-season-text">
+                        {season.charAt(0).toUpperCase() +
+                          season.slice(1)}
+                      </span>
+                    </label>
+                  )
+                )}
+              </div>
             </fieldset>
           </div>
 
-
           {/* Temperature */}
-          <div>
-            <label className="form-label">
+          <div className="match-editor-section">
+            <label className="match-editor-label">
               Temperature Range
             </label>
 
-            <TemperatureSlider
-              min={-20}
-              max={50}
-              valueMin={Number(updateData.min_temp)}
-              valueMax={Number(updateData.max_temp)}
-              step={1}
-              onChange={(minTemp, maxTemp) =>
-                setUpdateData((prev) => ({
-                  ...prev,
-                  min_temp: minTemp,
-                  max_temp: maxTemp,
-                }))
-              }
-            />
+            <div className="match-editor-temperature">
+              <TemperatureSlider
+                min={-20}
+                max={50}
+                valueMin={Number(updateData.min_temp)}
+                valueMax={Number(updateData.max_temp)}
+                step={1}
+                onChange={(minTemp, maxTemp) =>
+                  setUpdateData((prev) => ({
+                    ...prev,
+                    min_temp: minTemp,
+                    max_temp: maxTemp,
+                  }))
+                }
+              />
+            </div>
           </div>
 
           {/* Tags */}
-          <div className="tags-section">
+          <div className="match-editor-tags">
+            <div className="match-editor-label">
+              Tags
+            </div>
 
-              <div className="form-label">
-                Tags
-              </div>
-
-              <div className="selection-grid">
-
-                {tagOptions.map((tag) => (
-
-                  <div
-                    className="selection-item"
-                    key={tag.name}
+            <div className="match-editor-tag-grid">
+              {tagOptions.map((tag) => (
+                <div
+                  className="match-editor-tag-item"
+                  key={tag.name}
+                >
+                  <button
+                    type="button"
+                    className={
+                      updateData.tags.includes(tag.name)
+                        ? "match-editor-tag-button match-editor-tag-active"
+                        : "match-editor-tag-button"
+                    }
+                    onClick={() => toggleTag(tag.name)}
                   >
+                    <img
+                      src={tag.image}
+                      alt={tag.name}
+                      className="match-editor-tag-image"
+                    />
 
-                    <button
-                      type="button"
-                      className={
-                        updateData.tags.includes(tag.name)
-                          ? "selection-button selected"
-                          : "selection-button"
-                      }
-                      onClick={() => toggleTag(tag.name)}
-                    >
-
-                      <img
-                        src={tag.image}
-                        alt={tag.name}
-                        className="selection-img"
-                      />
-
-                      <span className="selection-title">
-                        {tag.name}
-                      </span>
-
-                    </button>
-
-                  </div>
-
-                ))}
-
-              </div>
-
+                    <span className="match-editor-tag-name">
+                      {tag.name}
+                    </span>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Nav */}
-          <div className="modal-navigation">
-            <button type="submit" className="modal-button">
+          {/* Navigation */}
+          <div className="match-editor-actions">
+            <button
+              type="submit"
+              className="match-editor-save"
+            >
               Save
             </button>
-
-
           </div>
+
         </form>
       </div>
     </div>

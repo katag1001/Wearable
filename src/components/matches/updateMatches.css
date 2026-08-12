@@ -1,0 +1,209 @@
+.match-editor-overlay {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--card-background);
+  color: var(--main-color);
+  font-family: var(--main-font);
+}
+
+.match-editor-container {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  box-sizing: border-box;
+  overflow-y: auto;
+
+  padding: 2rem;
+
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+
+/* Heading */
+
+.match-editor-heading {
+  margin: 0 0 2rem;
+
+  font-family: var(--title-font);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+
+/* Close */
+
+.match-editor-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+
+  width: 36px;
+  height: 36px;
+
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+
+  background: transparent;
+  color: var(--secondary-color);
+
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.match-editor-close:hover {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
+}
+
+
+/* Sections */
+
+.match-editor-section,
+.match-editor-tags {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+
+  border-bottom: 1px solid var(--border-color);
+}
+
+.match-editor-label {
+  display: block;
+
+  margin-bottom: 1rem;
+
+  font-family: var(--title-font);
+  font-size: var(--section-title-font-size);
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+
+/* Seasons */
+
+.match-editor-season-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .5rem;
+}
+
+.match-editor-season-option {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+
+  padding: .6rem;
+
+  border-radius: 8px;
+
+  color: var(--secondary-color);
+  cursor: pointer;
+}
+
+.match-editor-season-option:hover {
+  background: var(--hover-background);
+  color: var(--main-color);
+}
+
+.match-editor-season-checkbox {
+  accent-color: var(--main-color);
+}
+
+
+/* Tags */
+
+.match-editor-tag-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 80px);
+  gap: .5rem;
+}
+
+.match-editor-tag-button {
+  width: 80px;
+
+  padding: 0;
+  overflow: hidden;
+
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+
+  background: var(--card-background);
+  color: var(--main-color);
+
+  cursor: pointer;
+}
+
+.match-editor-tag-button:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+}
+
+.match-editor-tag-active {
+  background: var(--hover-background);
+  border-color: var(--main-color);
+  box-shadow: 0 0 0 1px var(--main-color);
+}
+
+.match-editor-tag-image {
+  display: block;
+
+  width: 100%;
+  height: 70px;
+
+  object-fit: cover;
+}
+
+.match-editor-tag-name {
+  display: block;
+
+  padding: .4rem;
+
+  overflow: hidden;
+
+  color: var(--tag-color);
+
+  font-size: var(--tag-card-font-size);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* Save */
+
+.match-editor-save {
+  width: 100%;
+
+  padding: .9rem 1.8rem;
+
+  border: 1px solid var(--main-color);
+  border-radius: 999px;
+
+  background: var(--main-color);
+  color: var(--inverse-color);
+
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+
+  letter-spacing: .13em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+}
+
+.match-editor-save:hover {
+  background: transparent;
+  color: var(--main-color);
+}

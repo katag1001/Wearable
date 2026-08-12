@@ -1,74 +1,273 @@
-/* Temperature slider */
+/* ----------------------------------------------------------------
+   Temperature Slider
+----------------------------------------------------------------- */
 
 .temp-slider {
   width: 100%;
+  padding: 0.25rem 0 0.5rem;
+
+  color: var(--main-color);
+  font-family: var(--main-font);
 }
+
+
+/* ----------------------------------------------------------------
+   Values
+----------------------------------------------------------------- */
 
 .slider-values {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+
+  margin-bottom: 1.1rem;
+
+  color: var(--secondary-color);
+
+  font-family: inherit;
+  font-size: var(--description-font-size);
   font-weight: 500;
+
+  letter-spacing: 0.06em;
 }
+
+
+/* ----------------------------------------------------------------
+   Slider Wrapper
+----------------------------------------------------------------- */
 
 .slider-wrapper {
   position: relative;
-  height: 30px;
+
+  width: 100%;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
 }
 
-.slider-track,
-.slider-range {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 6px;
-  border-radius: 3px;
-}
+
+/* ----------------------------------------------------------------
+   Base Track
+----------------------------------------------------------------- */
 
 .slider-track {
-  width: 100%;
-  background: #ddd;
+  position: absolute;
+  left: 0;
+  right: 0;
+
+  height: 4px;
+
+  border-radius: 999px;
+
+  background: var(--border-color);
 }
 
+
+/* ----------------------------------------------------------------
+   Selected Range
+----------------------------------------------------------------- */
+
 .slider-range {
-  background: #4caf50;
+  position: absolute;
+
+  height: 4px;
+
+  border-radius: 999px;
+
+  background: var(--main-color);
+
+  pointer-events: none;
 }
+
+
+/* ----------------------------------------------------------------
+   Range Inputs
+----------------------------------------------------------------- */
 
 .thumb {
   position: absolute;
+
   width: 100%;
-  pointer-events: none;
-  appearance: none;
-  -webkit-appearance: none;
-  background: none;
+  height: 24px;
+
   margin: 0;
-  height: 30px;
-}
 
-.thumb::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
-  pointer-events: all;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #4caf50;
+
+  background: transparent;
+
+  pointer-events: none;
+
   cursor: pointer;
 }
 
-.thumb::-moz-range-thumb {
-  pointer-events: all;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #4caf50;
-  cursor: pointer;
-}
+
+/* ----------------------------------------------------------------
+   WebKit Track
+----------------------------------------------------------------- */
 
 .thumb::-webkit-slider-runnable-track {
+  height: 4px;
+
   background: transparent;
+  border: none;
 }
 
+
+/* ----------------------------------------------------------------
+   WebKit Thumb
+----------------------------------------------------------------- */
+
+.thumb::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+
+  margin-top: -6px;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  border: 1px solid var(--main-color);
+  border-radius: 50%;
+
+  background: var(--card-background);
+
+  box-shadow: 0 0 0 2px var(--card-background);
+
+  pointer-events: auto;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* ----------------------------------------------------------------
+   Firefox Track
+----------------------------------------------------------------- */
+
 .thumb::-moz-range-track {
+  height: 4px;
+
   background: transparent;
+  border: none;
+}
+
+
+/* ----------------------------------------------------------------
+   Firefox Thumb
+----------------------------------------------------------------- */
+
+.thumb::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--main-color);
+  border-radius: 50%;
+
+  background: var(--card-background);
+
+  box-shadow: 0 0 0 2px var(--card-background);
+
+  pointer-events: auto;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* ----------------------------------------------------------------
+   Hover
+----------------------------------------------------------------- */
+
+.thumb:hover::-webkit-slider-thumb {
+  background: var(--main-color);
+
+  transform: scale(1.1);
+}
+
+.thumb:hover::-moz-range-thumb {
+  background: var(--main-color);
+
+  transform: scale(1.1);
+}
+
+
+/* ----------------------------------------------------------------
+   Focus
+----------------------------------------------------------------- */
+
+.thumb:focus-visible {
+  outline: none;
+}
+
+.thumb:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+.thumb:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+
+/* ----------------------------------------------------------------
+   Layering
+----------------------------------------------------------------- */
+
+.thumb-left {
+  z-index: 3;
+}
+
+.thumb-right {
+  z-index: 4;
+}
+
+
+/* ----------------------------------------------------------------
+   Responsive
+----------------------------------------------------------------- */
+
+@media (max-width: 600px) {
+  .temp-slider {
+    padding-top: 0.15rem;
+  }
+
+  .slider-values {
+    margin-bottom: 0.9rem;
+  }
+
+  .slider-wrapper {
+    height: 26px;
+  }
+
+  .thumb {
+    height: 26px;
+  }
+}
+
+
+/* ----------------------------------------------------------------
+   Reduced Motion
+----------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .thumb::-webkit-slider-thumb,
+  .thumb::-moz-range-thumb {
+    transition: none;
+  }
 }

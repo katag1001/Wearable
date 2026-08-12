@@ -52,7 +52,6 @@ match,
 
     <div className="match-card">
 
-
       <div className="match-images">
 
         {(match.clothes || []).map((item) => (
@@ -67,18 +66,9 @@ match,
 
       </div>
 
-
-
       <div className="match-info">
 
-
         <div className="item-info">
-
-
-          <div>
-            {match.min_temp}° - {match.max_temp}°
-          </div>
-
 
           <div>
 
@@ -89,18 +79,13 @@ match,
 
           </div>
 
-
           <div>
             {renderMatchTags()}
           </div>
 
-
         </div>
 
-
-
         <div className="match-items-button-row">
-
 
           <button
             className="match-text-button"
@@ -108,7 +93,6 @@ match,
           >
             Delete
           </button>
-
 
           <button
             className="match-text-button"
@@ -119,18 +103,14 @@ match,
             Edit
           </button>
 
-
         </div>
 
-
       </div>
-
 
     </div>
 
   );
 
 };
-
 
 export default ViewMatchesCard;

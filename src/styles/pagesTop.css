@@ -29,9 +29,7 @@
   color: var(--main-color);
 }
 
-.top-action-button:active {
-  transform: translateY(1px);
-}
+
 
 .top-action-button:focus-visible {
   outline: 2px solid var(--main-color);
@@ -47,7 +45,7 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0rem 2rem 2rem;
+  padding: 0rem 1rem 1rem;
 
   color: var(--main-color);
   font-family: var(--main-font);

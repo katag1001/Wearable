@@ -6,7 +6,7 @@
 .matches-area-wrapper {
   width: 100%;
   box-sizing: border-box;
-  padding: 15px var(--side-padding);
+  padding: 0px var(--side-padding) 75px;
 }
 
 .matches-grid {
