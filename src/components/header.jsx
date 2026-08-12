@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import wearableLogo from '../assets/images/wearable_logo.png';
+/*import wearableLogo from '../assets/images/wearable_logo.png';*/
 import './header.css';
 
-const Header = ({ loggedIn, title }) => {
+const Header = ({ loggedIn }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(prev => !prev);
@@ -11,16 +11,16 @@ const Header = ({ loggedIn, title }) => {
 
   return (
     <header className="header">
-      <nav className={`navbar ${title ? 'has-title' : 'no-title'}`}>
+      <nav className="navbar">
 
         <div className="navbar-left">
-          <Link to="/" onClick={closeMenu} className="navbar-logo-link">
+          {/* <Link to="/" onClick={closeMenu} className="navbar-logo-link">
             <img
               src={wearableLogo}
               alt="Wearable Logo"
               className="navbar-logo"
             />
-          </Link>
+          </Link> */}
 
           {/* Burger menu (mobile only) */}
           <div
@@ -34,11 +34,9 @@ const Header = ({ loggedIn, title }) => {
           </div>
         </div>
 
-        {title && (
-          <div className="navbar-title">
-            <h1>{title}</h1>
-          </div>
-        )}
+        <div className="navbar-title">
+          <h1>LWS</h1>
+        </div>
 
         <div className={`navbar-right ${menuOpen ? 'open' : ''}`}>
           {loggedIn ? (

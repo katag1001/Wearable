@@ -5,7 +5,7 @@ import ViewToday from './viewToday';
 import { fetchTodayInfo } from "./todayHelpers";
 
 import './todayBlock.css';
-
+import '../../styles/pages.css';
 
 const TodayBlock = () => {
 
@@ -26,7 +26,7 @@ const TodayBlock = () => {
 
       <div className="today-top">
 
-        <h1 className="today-title">
+        <h1 className="page-title">
           Today's {' '}
           {todayTag
             ? `${todayTag.charAt(0).toUpperCase()}${todayTag.slice(1)}`

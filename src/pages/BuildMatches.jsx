@@ -7,7 +7,8 @@ const BuildMatches = ({ loggedIn, logout }) => {
   return (
     <>
       <div className="full-page-container">
-      <Header loggedIn={loggedIn} title="Build outfits"/>
+      <Header loggedIn={loggedIn}/>
+      <h2 className="page-title">Build Outfits</h2>
       <CreateMatch />
       </div>
     </>

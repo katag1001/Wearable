@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { tagOptions } from "../../constants/optionsBank";
 import "./weeklyPreferences.css";
+import "../../styles/pages.css";
+
+
 import { URL } from "../../config"
 
 
@@ -469,11 +472,11 @@ const WeeklyPreferences = () => {
       {/* HEADER */}
 
       <div className="weekly-preferences-header">
-        <h2>
+        <h2 className="page-title">
           Weekly Preferences
         </h2>
 
-        <p>
+        <p className="page-subtitle">
           Choose what you'd like to
           wear each day.
         </p>

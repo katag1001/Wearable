@@ -210,10 +210,10 @@ const Matches = ({ loggedIn, logout }) => {
     <div className="full-page-container">
       <Header
         loggedIn={loggedIn}
-        title="My Outfits"
       />
 
       <div className="main-container">
+      <h2 className="page-title">My Outfits</h2>
 
       <Link
         to="/buildmatches"

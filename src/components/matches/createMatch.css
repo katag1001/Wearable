@@ -16,11 +16,9 @@
 .create-matches-container {
   width: 100%;
   max-width: 1200px;
-
   margin: 0 auto;
-
   padding:
-    1.2rem
+    0rem
     var(--side-padding)
     4rem;
 }
@@ -246,18 +244,14 @@
   position: relative;
 
   min-width: 0;
-
+  max-height: 200px;
   overflow: hidden;
-
   aspect-ratio: 3 / 4;
 
   background: var(--card-background);
-
   border: 1px solid var(--border-color);
   border-radius: 8px;
-
   cursor: default;
-
   transition:
     border-color .2s ease,
     transform .2s ease,
@@ -274,10 +268,8 @@
 
 .selected-image {
   display: block;
-
   width: 100%;
   height: 100%;
-
   object-fit: cover;
 }
 

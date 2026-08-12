@@ -71,7 +71,8 @@ const User = ({ loggedIn, logout }) => {
   return (
     <>
       <div className="full-page-container">
-        <Header loggedIn={loggedIn} />
+        <Header 
+        loggedIn={loggedIn}/>
 
         <div className="main-container">
 

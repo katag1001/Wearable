@@ -194,10 +194,10 @@ const Clothes = ({ loggedIn, logout }) => {
     <div className="full-page-container">
       <Header
         loggedIn={loggedIn}
-        title="My Clothes"
       />
 
       <div className="main-container">
+      <h2 className="page-title">My Clothes</h2>
 
       <button
         className="top-action-button"

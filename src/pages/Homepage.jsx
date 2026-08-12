@@ -115,8 +115,7 @@ const Homepage = ({ loggedIn, logout }) => {
       <div className="full-page-container">
 
         <Header 
-        loggedIn={loggedIn}
-        title="Love Wearing" />
+        loggedIn={loggedIn}/>
 
         <div className="main-container">
 
