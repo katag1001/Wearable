@@ -445,12 +445,6 @@ const CreateMatch = () => {
               {sectionTitles[selectedCategory]}
             </p>
 
-            <span className="buildmatch-category-count">
-              {currentItems.length}{" "}
-              {currentItems.length === 1
-                ? "item"
-                : "items"}
-            </span>
           </div>
 
         </div>
