@@ -13,8 +13,24 @@
   background: var(--card-background);
   color: var(--main-color);
 
-  /* Prevent the header from growing beyond --header-height */
   flex-shrink: 0;
+
+  /*
+    Hide/show animation.
+    The header moves upward by its own height when hidden.
+  */
+  transform: translateY(0);
+
+  transition: transform .25s ease;
+
+  will-change: transform;
+}
+
+
+/* Header hidden while scrolling down */
+
+.header.header-hidden {
+  transform: translateY(-100%);
 }
 
 
@@ -409,6 +425,7 @@
 
 @media (prefers-reduced-motion: reduce) {
 
+  .header,
   .nav-link,
   .menu_toggle,
   .menu_toggle span,
