@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 
 import DeletePopup from "../general/deletePopup.jsx";
+import ViewMatchCard from "./viewMatchCard.jsx";
 
-import { tagOptions } from "../../constants/optionsBank";
 import { URL } from "../../config";
 
 import "./viewMatches.css";
@@ -22,10 +22,16 @@ const ViewMatches = ({
   const getToken = () =>
     localStorage.getItem("token");
 
+  /*
+   * Open delete confirmation
+   */
   const handleDelete = (id) => {
     setDeleteMatch(id);
   };
 
+  /*
+   * Confirm delete
+   */
   const confirmDelete = async () => {
     if (!deleteMatch) return;
 
@@ -51,53 +57,12 @@ const ViewMatches = ({
       setDeleteMatch(null);
       refresh();
     } catch (err) {
+      console.error("Delete error:", err);
       setError?.("Failed to delete match");
     } finally {
       setDeleting(false);
     }
   };
-
-  const renderItemImage = (item) => {
-    if (!item?.imageUrl) return null;
-
-    return (
-      <img
-        src={item.imageUrl}
-        alt={item.name}
-        className="match-image"
-      />
-    );
-  };
-
-  const renderMatchTags = (match) => {
-    if (!match.tags?.length) return null;
-
-    return (
-      <div className="hover-tags-row">
-        {match.tags.map((tagName) => {
-          const tag = tagOptions.find(
-            (option) => option.name === tagName
-          );
-
-          return (
-            tag && (
-              <img
-                key={tagName}
-                src={tag.image}
-                alt={tagName}
-                title={tagName}
-                className="hover-tag-image"
-              />
-            )
-          );
-        })}
-      </div>
-    );
-  };
-
-  const capitalize = (word) =>
-    word.charAt(0).toUpperCase() +
-    word.slice(1);
 
   return (
     <>
@@ -110,58 +75,13 @@ const ViewMatches = ({
       <div className="matches-area-wrapper">
         <div className="matches-grid">
           {matches.map((match) => (
-            <div
-              className="match-card"
+            <ViewMatchCard
               key={match._id}
-              onClick={() => onEdit(match)}
-            >
-              <div className="match-image-wrapper">
-                <div className="match-image-grid">
-                  {(match.clothes || []).map((item) => (
-                    <React.Fragment key={item._id}>
-                      {renderItemImage(item)}
-                    </React.Fragment>
-                  ))}
-                </div>
-
-                {renderMatchTags(match)}
-              </div>
-
-
-              <div className="match-info">
-                <div className="item-info">
-                  <div>
-                    {match.min_temp}° - {match.max_temp}°
-                  </div>
-
-                  <div>
-                    {[
-                      "spring",
-                      "summer",
-                      "autumn",
-                      "winter",
-                    ]
-                      .filter(
-                        (season) => match[season]
-                      )
-                      .map(capitalize)
-                      .join(", ") || "N/A"}
-                  </div>
-                </div>
-
-                <div className="match-items-button-row">
-                  <button
-                    className="match-text-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(match._id);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
+              match={match}
+              onDelete={handleDelete}
+              refresh={refresh}
+              setError={setError}
+            />
           ))}
         </div>
       </div>
