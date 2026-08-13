@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 import DeletePopup from "../general/deletePopup.jsx";
-import ViewMatchCard from "./viewMatchCard.jsx";
+import ViewMatchCard from "./viewMatchesCard.jsx";
 
 import { URL } from "../../config";
 

@@ -5,7 +5,6 @@ import { useSearchParams, Link } from "react-router-dom";
 import Header from "../components/header";
 import ViewMatches from "../components/matches/viewMatches";
 import ViewMatchesTop from "../components/matches/viewMatchesTop";
-import UpdateMatches from "../components/matches/updateMatches";
 import Filter from "../components/general/filter";
 
 import { URL } from "../config";
@@ -280,18 +279,6 @@ const Matches = ({ loggedIn, logout }) => {
         ]}
       />
 
-      {editingMatch && (
-        <UpdateMatches
-          match={editingMatch}
-          onClose={() =>
-            setEditingMatch(null)
-          }
-          onUpdateSuccess={
-            handleUpdateSuccess
-          }
-          onError={handleError}
-        />
-      )}
     </div>
     </div>
   );
