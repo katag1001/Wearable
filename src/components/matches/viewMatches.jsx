@@ -14,6 +14,7 @@ const ViewMatches = ({
   matches = [],
   onEdit,
   refresh,
+  editable = true,
   setError,
 }) => {
   const [deleteMatch, setDeleteMatch] = useState(null);
@@ -83,31 +84,28 @@ const ViewMatches = ({
         <div className="matches-grid">
           {matches.map((match) => (
             <ViewMatchesCard
-              key={match._id}
-              match={match}
+                key={match._id}
+                match={match}
+                isExpanded={
+                  editable &&
+                  expandedMatchId === match._id
+                }
+                onExpand={
+                  editable
+                    ? () => setExpandedMatchId(match._id)
+                    : undefined
+                }
+                onCollapse={
+                  editable
+                    ? () => setExpandedMatchId(null)
+                    : undefined
+                }
+                onDelete={handleDelete}
+                refresh={refresh}
+                setError={setError}
+                editable={editable}
+              />
 
-              /*
-               * Only one card can be expanded at a time.
-               * When another card calls onExpand, this ID changes
-               * and the previously expanded card automatically
-               * receives isExpanded={false}.
-               */
-              isExpanded={
-                expandedMatchId === match._id
-              }
-
-              onExpand={() =>
-                setExpandedMatchId(match._id)
-              }
-
-              onCollapse={() =>
-                setExpandedMatchId(null)
-              }
-
-              onDelete={handleDelete}
-              refresh={refresh}
-              setError={setError}
-            />
           ))}
         </div>
       </div>

@@ -156,11 +156,12 @@ const Homepage = ({ loggedIn, logout }) => {
                   </Link>
 
                   <ViewMatches
-                    matches={seasonMatches}
-                    onEdit={() => {}}
-                    refresh={fetchMatches}
-                    setError={setMatchesError}
-                  />
+  matches={seasonMatches}
+  editable={false}
+  refresh={fetchMatches}
+  setError={setMatchesError}
+/>
+
                 </div>
               </div>
             </>

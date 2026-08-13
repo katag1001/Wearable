@@ -19,6 +19,7 @@ const ViewMatchesCard = ({
   onDelete,
   refresh,
   setError,
+  editable = true,
 }) => {
   const [updateData, setUpdateData] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -55,28 +56,28 @@ const ViewMatchesCard = ({
    * Open / close editor
    */
   const handleCardClick = () => {
-    if (isExpanded) {
-      closeEditor();
-      return;
-    }
+  if (!editable) {
+    return;
+  }
 
-    /*
-     * Tell the parent to expand this card.
-     * The parent will automatically collapse
-     * any other expanded card.
-     */
-    onExpand();
+  if (isExpanded) {
+    closeEditor();
+    return;
+  }
 
-    setUpdateData({
-      spring: match.spring || false,
-      summer: match.summer || false,
-      autumn: match.autumn || false,
-      winter: match.winter || false,
-      min_temp: match.min_temp ?? "",
-      max_temp: match.max_temp ?? "",
-      tags: match.tags || [],
-    });
-  };
+  onExpand();
+
+  setUpdateData({
+    spring: match.spring || false,
+    summer: match.summer || false,
+    autumn: match.autumn || false,
+    winter: match.winter || false,
+    min_temp: match.min_temp ?? "",
+    max_temp: match.max_temp ?? "",
+    tags: match.tags || [],
+  });
+};
+
 
   const closeEditor = () => {
     onCollapse();
