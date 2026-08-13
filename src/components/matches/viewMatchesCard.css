@@ -269,20 +269,9 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  text-align: end;
 }
 
-
-/* DELETE BUTTON ROW--------------------------------------------------------------------- */
-
-.match-items-button-row {
-  width: 100%;
-  padding-top: 6px;
-}
-
-.match-items-button-row button {
-  margin: 0;
-  font-size: 0.72rem;
-}
 
 /* TEXT BUTTON----------------------------------------------------------------*/
 
@@ -329,7 +318,7 @@
 
 .match-card.expanded {
   grid-column: 1 / -1;
-  max-height: 80vh;
+  max-height: var(--match-card-height);
   display: grid;
   grid-template-columns: minmax(280px, 42%) minmax(0, 58%);
   width: 100%;
@@ -342,8 +331,8 @@
 
 .match-card.expanded .match-image-wrapper {
   width: 100%;
-  height: 80vh;
-  max-height: 80vh;
+  height: var(--match-card-height);
+  max-height: var(--match-card-height);
   min-height: 0;
   overflow: hidden;
 }
@@ -374,7 +363,7 @@
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  padding: 18px 20px;
+  padding: 1rem 1rem 1rem 0;
   background: #fff;
   height: auto;
   max-height: none;
@@ -449,7 +438,6 @@
   white-space: nowrap;
 }
 
-
 /* TEMPERATURE---------------------------------------------------------------------------- */
 
 .temperature-values {
@@ -461,41 +449,39 @@
   color: #666;
 }
 
+/* Tags Section----------------------------------------------------------------- */
 
-/* TAGS----------------------------------------------------------------------------------- */
-
-.match-editor .selection-grid {
+.tags-section {
   width: 100%;
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  gap: 5px;
-  margin-top: 7px;
-  overflow: visible;
 }
 
-.match-editor .selection-item {
-  flex: 0 0 58px;
-  width: 58px;
-  min-width: 58px;
+.matches-selection-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(50px, 1fr)
+  );
+  gap: 0.4rem;
 }
 
 
-/* TAG CARD----------------------------------------------------------------------------- */
-
-.match-editor .selection-button {
-  width: 58px;
-  max-width: 58px;
+.matches-selection-item {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  width: 100%;
+}
+
+.matches-selection-button {
+  width: 100%;
+  min-width: 0;
   padding: 0;
   overflow: hidden;
-  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #fff;
-  color: #111;
+  background: var(--card-background);
+  color: var(--main-color);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -506,72 +492,62 @@
     transform 0.2s ease;
 }
 
-.match-editor .selection-button:hover {
-  background: #f7f7f7;
-  border-color: #bbb;
+.matches-selection-button:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+
   transform: translateY(-1px);
 }
 
-.match-editor .selection-button:focus-visible {
-  outline: 2px solid #111;
+
+.matches-selection-button:focus-visible {
+  outline: 2px solid var(--main-color);
   outline-offset: 2px;
 }
 
 
-/* SELECTED TAG----------------------------------------------------------------------------*/
-
-.match-editor .selection-button.selected {
-  background: #f5f5f5;
-  border-color: #111;
-  box-shadow: 0 0 0 1px #111;
+.matches-selection-button.selected {
+  background: var(--hover-background);
+  border-color: var(--main-color);
+  box-shadow:
+    0 0 0 1px var(--main-color);
 }
 
-.match-editor .selection-button.selected:hover {
-  border-color: #111;
-  background: #eeeeee;
+
+.matches-selection-button.selected:hover {
+  border-color: var(--main-color);
 }
 
-/* TAG IMAGE--------------------------------------------------------------------------------- */
-
-.match-editor .selection-img {
+.matches-selection-img {
   display: block;
   width: 100%;
-  height: 46px;
+  height: 50px;
   object-fit: cover;
-  border-radius: 0;
+  background: var(--image-background);
   transition: transform 0.25s ease;
 }
 
-.match-editor .selection-button:hover .selection-img {
+.matches-selection-button:hover
+.matches-selection-img {
   transform: scale(1.02);
 }
 
-/* TAG CONTENT------------------------------------------------------------------------------- */
+.matches-selection-title {
+  padding: 0.3rem 0.25rem;
 
-.match-editor .selection-title {
-  width: 100%;
-  min-width: 0;
-  min-height: 23px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  padding: 3px 4px;
-  overflow: hidden;
-  color: #555;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.03em;
-  line-height: 1.1;
-  text-align: center;
-  text-transform: capitalize;
+
+  letter-spacing: 0.02em;
+  text-align: left;
+
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  box-sizing: border-box;
 }
 
-.match-editor .selection-button.selected .selection-title {
-  color: #111;
-}
 
 /* EDITOR BUTTONS----------------------------------------------------------------------------*/
 

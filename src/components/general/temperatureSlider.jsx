@@ -14,10 +14,7 @@ const TemperatureSlider = ({
 
   return (
     <div className="temp-slider">
-      <div className="slider-values">
-        <span>{valueMin}°</span>
-        <span>{valueMax}°</span>
-      </div>
+      
 
       <div className="slider-wrapper">
         <div className="slider-track" />
@@ -58,6 +55,11 @@ const TemperatureSlider = ({
           }
           className="thumb thumb-right"
         />
+      </div>
+
+      <div className="slider-values">
+        <span>{valueMin}°</span>
+        <span>{valueMax}°</span>
       </div>
     </div>
   );

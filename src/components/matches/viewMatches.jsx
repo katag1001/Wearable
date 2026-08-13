@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 import DeletePopup from "../general/deletePopup.jsx";
-import ViewMatchCard from "./viewMatchesCard.jsx";
+import ViewMatchesCard from "./viewMatchesCard.jsx";
 
 import { URL } from "../../config";
 
@@ -75,7 +75,7 @@ const ViewMatches = ({
       <div className="matches-area-wrapper">
         <div className="matches-grid">
           {matches.map((match) => (
-            <ViewMatchCard
+            <ViewMatchesCard
               key={match._id}
               match={match}
               onDelete={handleDelete}

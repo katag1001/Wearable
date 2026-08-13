@@ -7,7 +7,7 @@ import "./viewMatchesCard.css";
 
 import TemperatureSlider from "../general/temperatureSlider";
 
-const ViewMatchCard = ({
+const ViewMatchesCard = ({
   match,
   onDelete,
   refresh,
@@ -224,17 +224,6 @@ const ViewMatchCard = ({
             </div>
           </div>
 
-          <div className="match-items-button-row">
-            <button
-              className="match-text-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(match._id);
-              }}
-            >
-              Delete
-            </button>
-          </div>
         </div>
       )}
 
@@ -246,7 +235,7 @@ const ViewMatchCard = ({
           onClick={(e) => e.stopPropagation()}
         >
           <form
-            className="update-form inline-update-form"
+            className="inline-update-form"
             onSubmit={handleSubmit}
           >
             {/* Close */}
@@ -333,10 +322,10 @@ const ViewMatchCard = ({
                 Tags
               </div>
 
-              <div className="selection-grid">
+              <div className="matches-selection-grid">
                 {tagOptions.map((tag) => (
                   <div
-                    className="selection-item"
+                    className="matches-selection-item"
                     key={tag.name}
                   >
                     <button
@@ -345,8 +334,8 @@ const ViewMatchCard = ({
                         updateData.tags.includes(
                           tag.name
                         )
-                          ? "selection-button selected"
-                          : "selection-button"
+                          ? "matches-selection-button selected"
+                          : "matches-selection-button"
                       }
                       onClick={() =>
                         toggleTag(tag.name)
@@ -355,10 +344,10 @@ const ViewMatchCard = ({
                       <img
                         src={tag.image}
                         alt={tag.name}
-                        className="selection-img"
+                        className="matches-selection-img"
                       />
 
-                      <span className="selection-title">
+                      <span className="matches-selection-title">
                         {tag.name}
                       </span>
                     </button>
@@ -397,4 +386,4 @@ const ViewMatchCard = ({
   );
 };
 
-export default ViewMatchCard;
+export default ViewMatchesCard;
