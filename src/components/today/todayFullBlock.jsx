@@ -4,10 +4,10 @@ import AutoWeather from './autoWeather';
 import ViewToday from './viewToday';
 import { fetchTodayInfo } from "./todayHelpers";
 
-import './todayBlock.css';
+import './todayFullBlock.css';
 import '../../styles/pages.css';
 
-const TodayBlock = () => {
+const TodayFullBlock = () => {
 
   const [todayReady, setTodayReady] = useState(false);
   const [todayTag, setTodayTag] = useState(null);
@@ -48,4 +48,4 @@ const TodayBlock = () => {
 };
 
 
-export default TodayBlock;
+export default TodayFullBlock;

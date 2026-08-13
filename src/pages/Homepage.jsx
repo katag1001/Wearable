@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from "axios";
 import { URL } from "../config";
 
-import TodayBlock from '../components/today/TodayBlock';
+import TodayFullBlock from '../components/today/todayFullBlock';
 import ViewMatches from '../components/matches/viewMatches';
 import ViewClothes from '../components/clothes/viewClothes';
 
@@ -122,7 +122,7 @@ const Homepage = ({ loggedIn, logout }) => {
           {loggedIn ? (
             <>
               {/* Today */}
-              <TodayBlock />
+              <TodayFullBlock />
 
               {/* Clothes & Matches */}
 
