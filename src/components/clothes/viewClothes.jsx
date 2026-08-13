@@ -109,7 +109,8 @@ const ViewClothes = ({
 
             </div>
 
-
+            <div className="clothing-text">
+              
               {/* Name */}
               <div className="clothing-item-name">
                 {item.name}
@@ -126,7 +127,11 @@ const ViewClothes = ({
                 >
                   Delete
                 </button>
-              </div>
+                </div>
+            
+              
+            </div>
+
             </div>
           ))}
         </div>

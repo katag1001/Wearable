@@ -242,7 +242,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
     <div className="modal-backdrop">
 
-      <div className="modal-wrapper">
+      <div className="modal-wrapper open">
 
         <button
           className="close-modal"

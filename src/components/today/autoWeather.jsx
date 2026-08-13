@@ -286,12 +286,7 @@ const AutoWeather = ({ setTodayReady }) => {
   return (
     <div className="weather">
 
-      {location.loading &&
-        !weather && (
-          <p className="weather-text">
-            Loading location...
-          </p>
-        )}
+
 
 
       {location.error && (

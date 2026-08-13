@@ -27,9 +27,108 @@ const ViewToday = ({ todayReady }) => {
 
   const ALTERNATIVES_PER_PAGE = 4;
 
+  const OUTFIT_SORT_CACHE_KEY =
+    "today_outfit_sort_cache";
+
 
   const getToken = () => {
     return localStorage.getItem("token");
+  };
+
+
+  /* ------------------------- CACHE HELPERS ------------------------- */
+
+  const isToday = (dateString) => {
+
+    if (!dateString) {
+      return false;
+    }
+
+    const today = new Date();
+    const storedDate = new Date(dateString);
+
+    return (
+      today.getFullYear() ===
+        storedDate.getFullYear() &&
+      today.getMonth() ===
+        storedDate.getMonth() &&
+      today.getDate() ===
+        storedDate.getDate()
+    );
+  };
+
+
+  const getCachedSortedOutfitIds = () => {
+
+    try {
+
+      const cached =
+        JSON.parse(
+          localStorage.getItem(
+            OUTFIT_SORT_CACHE_KEY
+          )
+        );
+
+
+      if (
+        !cached ||
+        !isToday(cached.date) ||
+        !Array.isArray(
+          cached.outfitIds
+        )
+      ) {
+
+        return null;
+      }
+
+
+      return cached.outfitIds;
+
+    } catch {
+
+      return null;
+    }
+  };
+
+
+  const cacheSortedOutfits = (
+    sortedOutfits
+  ) => {
+
+    try {
+
+      const outfitIds =
+        sortedOutfits
+          .map(
+            (outfit) =>
+              outfit?.matchId?._id
+          )
+          .filter(Boolean);
+
+
+      localStorage.setItem(
+        OUTFIT_SORT_CACHE_KEY,
+        JSON.stringify({
+          date:
+            new Date().toISOString(),
+
+          outfitIds,
+        })
+      );
+
+
+      console.log(
+        "Cached today's outfit order:",
+        outfitIds
+      );
+
+    } catch (err) {
+
+      console.error(
+        "Failed to cache today's outfit order:",
+        err
+      );
+    }
   };
 
 
@@ -42,18 +141,24 @@ const ViewToday = ({ todayReady }) => {
 
     try {
 
-      const token = getToken();
+      const token =
+        getToken();
 
-      const response = await axios.get(
-        `${URL}/today/get`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
 
-      const data = response.data;
+      const response =
+        await axios.get(
+          `${URL}/today/get`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+
+      const data =
+        response.data;
 
 
       // Today is still being created
@@ -68,10 +173,12 @@ const ViewToday = ({ todayReady }) => {
           setCheckingToday(true);
 
           setTimeout(() => {
+
             fetchTodayOutfits(
               todayTagName,
               attempt + 1
             );
+
           }, 1000);
 
           return;
@@ -90,16 +197,93 @@ const ViewToday = ({ todayReady }) => {
       }
 
 
-      // Today outfits are ready
+      /* -------------------------
+         GET CACHED DAILY ORDER
+      ------------------------- */
 
-      const sortedOutfits =
-        todayOutfitSort(
-          data,
-          todayTagName
+      const cachedOutfitIds =
+        getCachedSortedOutfitIds();
+
+
+      let sortedOutfits;
+
+
+      /* -------------------------
+         USE CACHED ORDER
+      ------------------------- */
+
+      if (cachedOutfitIds) {
+
+        console.log(
+          "Using cached today's outfit order."
         );
 
 
-      setOutfits(sortedOutfits);
+        const outfitMap =
+          new Map(
+            data
+              .filter(
+                (outfit) =>
+                  outfit?.matchId?._id
+              )
+              .map(
+                (outfit) => [
+                  outfit.matchId._id,
+                  outfit,
+                ]
+              )
+          );
+
+
+        /*
+         * Reconstruct the outfit list
+         * using the cached order.
+         */
+
+        sortedOutfits =
+          cachedOutfitIds
+            .map(
+              (id) =>
+                outfitMap.get(id)
+            )
+            .filter(Boolean);
+
+
+      } else {
+
+        /* -------------------------
+           CREATE TODAY'S ORDER
+        ------------------------- */
+
+        console.log(
+          "Creating today's outfit order."
+        );
+
+
+        sortedOutfits =
+          todayOutfitSort(
+            data,
+            todayTagName
+          );
+
+
+        /*
+         * Save the sorted order.
+         */
+
+        cacheSortedOutfits(
+          sortedOutfits
+        );
+      }
+
+
+      /* -------------------------
+         SET OUTFITS
+      ------------------------- */
+
+      setOutfits(
+        sortedOutfits
+      );
 
       setCurrentIndex(0);
       setAlternativePage(0);
@@ -147,6 +331,7 @@ const ViewToday = ({ todayReady }) => {
         dayOfWeek
       );
 
+
       console.log(
         "Today's tag:",
         todayTag
@@ -192,6 +377,7 @@ const ViewToday = ({ todayReady }) => {
       return;
     }
 
+
     setSelectedTag(tagName);
     setCurrentIndex(0);
     setAlternativePage(0);
@@ -206,6 +392,7 @@ const ViewToday = ({ todayReady }) => {
       index < 0 ||
       index >= filteredOutfits.length
     ) {
+
       return;
     }
 
@@ -222,6 +409,7 @@ const ViewToday = ({ todayReady }) => {
     if (
       filteredOutfits.length <= 1
     ) {
+
       return;
     }
 
@@ -241,14 +429,18 @@ const ViewToday = ({ todayReady }) => {
     if (
       filteredOutfits.length <= 1
     ) {
+
       return;
     }
 
 
     setCurrentIndex(
       (prev) =>
-        (prev - 1 +
-          filteredOutfits.length) %
+        (
+          prev -
+          1 +
+          filteredOutfits.length
+        ) %
         filteredOutfits.length
     );
 
@@ -263,6 +455,7 @@ const ViewToday = ({ todayReady }) => {
     if (
       filteredOutfits.length <= 1
     ) {
+
       return [];
     }
 
@@ -270,16 +463,21 @@ const ViewToday = ({ todayReady }) => {
     const alternatives = [];
 
 
-    // Build all outfits except the currently selected one
+    // Build all outfits except
+    // the currently selected one
 
     for (
       let offset = 1;
-      offset < filteredOutfits.length;
+      offset <
+      filteredOutfits.length;
       offset++
     ) {
 
       const index =
-        (currentIndex + offset) %
+        (
+          currentIndex +
+          offset
+        ) %
         filteredOutfits.length;
 
 
@@ -301,7 +499,8 @@ const ViewToday = ({ todayReady }) => {
 
     return alternatives.slice(
       start,
-      start + ALTERNATIVES_PER_PAGE
+      start +
+        ALTERNATIVES_PER_PAGE
     );
   };
 
@@ -316,7 +515,7 @@ const ViewToday = ({ todayReady }) => {
   const totalAlternativePages =
     Math.ceil(
       alternativeCount /
-      ALTERNATIVES_PER_PAGE
+        ALTERNATIVES_PER_PAGE
     );
 
 
@@ -330,6 +529,7 @@ const ViewToday = ({ todayReady }) => {
     if (
       !hasMoreAlternativePages
     ) {
+
       return;
     }
 
@@ -345,7 +545,9 @@ const ViewToday = ({ todayReady }) => {
   const markAsWornToday = async () => {
 
     const outfit =
-      filteredOutfits[currentIndex];
+      filteredOutfits[
+        currentIndex
+      ];
 
 
     const matchId =
@@ -390,6 +592,14 @@ const ViewToday = ({ todayReady }) => {
         const updated =
           await response.json();
 
+
+        /*
+         * Update the live outfit data,
+         * but DO NOT re-sort the outfits.
+         *
+         * Today's cached order remains
+         * unchanged.
+         */
 
         setOutfits((prev) => {
 
@@ -528,6 +738,7 @@ const ViewToday = ({ todayReady }) => {
     );
   }
 
+
   if (!outfits.length) {
 
     return (
@@ -537,33 +748,48 @@ const ViewToday = ({ todayReady }) => {
     );
   }
 
+
   /* ------------------------- SELECTED OUTFIT ------------------------- */
 
-const selectedOutfit =
-  filteredOutfits.length > 0
-    ? filteredOutfits[currentIndex]
-    : null;
+  const selectedOutfit =
+    filteredOutfits.length > 0
+      ? filteredOutfits[
+          currentIndex
+        ]
+      : null;
+
 
   const alternativeOutfits =
     getAlternativeOutfits();
 
 
-    
-  /* ------------------------- TGAS POPUP ------------------------- */
+  /* ------------------------- TAGS POPUP ------------------------- */
 
-  const renderMainOutfitTags = (outfit) => {
-    const tags = outfit?.matchId?.tags;
+  const renderMainOutfitTags = (
+    outfit
+  ) => {
+
+    const tags =
+      outfit?.matchId?.tags;
+
 
     if (!tags?.length) {
       return null;
     }
 
+
     return (
       <div className="today-hover-tags-row">
+
         {tags.map((tagName) => {
-          const tag = tagOptions.find(
-            (option) => option.name === tagName
-          );
+
+          const tag =
+            tagOptions.find(
+              (option) =>
+                option.name ===
+                tagName
+            );
+
 
           return (
             tag && (
@@ -576,30 +802,38 @@ const selectedOutfit =
               />
             )
           );
+
         })}
+
       </div>
     );
   };
 
+
   /* ------------------------- MAIN RENDER ------------------------- */
 
-return (
-  <div className="view-today-container">
+  return (
+    <div className="view-today-container">
 
-    {/* TOP SECTION */}
+      {/* TOP SECTION */}
 
-    <div className="today-top-section">
+      <div className="today-top-section">
 
-      {/* FEATURED / MAIN OUTFIT */}
+        {/* FEATURED / MAIN OUTFIT */}
 
-      <div className="featured-outfit">
+        <div className="featured-outfit">
 
-        <div className="featured-outfit-content">
+          <div className="featured-outfit-content">
 
             {filteredOutfits.length > 0 ? (
               <>
-                {renderOutfitImages(selectedOutfit)}
-                {renderMainOutfitTags(selectedOutfit)}
+                {renderOutfitImages(
+                  selectedOutfit
+                )}
+
+                {renderMainOutfitTags(
+                  selectedOutfit
+                )}
               </>
             ) : (
               <p className="today-message">
@@ -610,19 +844,90 @@ return (
           </div>
 
 
+          {/* ONLY SHOW BUTTON WHEN AN OUTFIT EXISTS */}
 
-        {/* ONLY SHOW BUTTON WHEN AN OUTFIT EXISTS */}
+          {filteredOutfits.length > 0 && (
 
-        {filteredOutfits.length > 0 && (
+            <div className="today-buttons">
 
-          <div className="today-buttons">
+              <button
+                className="regular-button"
+                onClick={
+                  markAsWornToday
+                }
+              >
+                Mark as Worn Today
+              </button>
 
-            <button
-              className="regular-button"
-              onClick={markAsWornToday}
-            >
-              Mark as Worn Today
-            </button>
+            </div>
+
+          )}
+
+        </div>
+
+
+        {/* ALTERNATIVE OUTFITS */}
+
+        {filteredOutfits.length > 1 && (
+
+          <div className="outfit-selector">
+
+            <div className="outfit-selector-content">
+
+              <div className="outfit-options">
+
+                {alternativeOutfits.map(
+                  ({
+                    outfit,
+                    index
+                  }) => (
+
+                    <button
+                      key={
+                        outfit.matchId?._id ||
+                        index
+                      }
+                      className="outfit-option"
+                      onClick={() =>
+                        selectOutfit(
+                          index
+                        )
+                      }
+                      aria-label={`Select outfit ${
+                        index + 1
+                      }`}
+                    >
+
+                      {renderOutfitImages(
+                        outfit,
+                        true
+                      )}
+
+                    </button>
+
+                  )
+                )}
+
+              </div>
+
+
+              {/* SHOW MORE */}
+
+              {hasMoreAlternativePages && (
+
+                <button
+                  className="alternative-down-button"
+                  onClick={
+                    goToNextAlternativePage
+                  }
+                  aria-label="Show more outfits"
+                >
+                  ↓
+                </button>
+
+              )}
+
+            </div>
 
           </div>
 
@@ -631,168 +936,104 @@ return (
       </div>
 
 
-      {/* ALTERNATIVE OUTFITS */}
+      {/* TAG SELECTOR */}
 
-      {filteredOutfits.length > 1 && (
+      <div className="today-tags-section">
 
-        <div className="outfit-selector">
-
-          <div className="outfit-selector-content">
-
-            <div className="outfit-options">
-
-              {alternativeOutfits.map(
-                ({
-                  outfit,
-                  index
-                }) => (
-
-                  <button
-                    key={
-                      outfit.matchId?._id ||
-                      index
-                    }
-                    className="outfit-option"
-                    onClick={() =>
-                      selectOutfit(index)
-                    }
-                    aria-label={`Select outfit ${
-                      index + 1
-                    }`}
-                  >
-
-                    {renderOutfitImages(
-                      outfit,
-                      true
-                    )}
-
-                  </button>
-
-                )
-              )}
-
-            </div>
+        <div className="today-tags-title">
+          Filter by Tag
+        </div>
 
 
-            {/* SHOW MORE */}
+        <div className="today-tag-selector">
 
-            {hasMoreAlternativePages && (
+          {tagOptions.map((tag) => {
+
+            const isSelected =
+              selectedTag ===
+              tag.name;
+
+
+            return (
 
               <button
-                className="alternative-down-button"
-                onClick={
-                  goToNextAlternativePage
+                key={tag.name}
+                className={`today-tag-option ${
+                  isSelected
+                    ? "selected"
+                    : ""
+                }`}
+                onClick={() =>
+                  selectTag(
+                    tag.name
+                  )
                 }
-                aria-label="Show more outfits"
+                aria-label={`Filter by ${tag.name}`}
+                aria-pressed={
+                  isSelected
+                }
               >
-                ↓
+
+                <div className="today-tag-image-wrapper">
+
+                  <img
+                    src={tag.image}
+                    alt={tag.name}
+                    className="today-tag-icon"
+                  />
+
+                </div>
+
+
+                <div className="today-tag-content">
+
+                  <span>
+                    {tag.name}
+                  </span>
+
+
+                  {isSelected && (
+
+                    <span
+                      className="today-tag-check"
+                      aria-label="Selected"
+                    >
+                      ✓
+                    </span>
+
+                  )}
+
+                </div>
+
               </button>
 
-            )}
+            );
 
-          </div>
+          })}
 
         </div>
 
-      )}
-
-    </div>
-
-
-    {/* TAG SELECTOR */}
-
-    <div className="today-tags-section">
-
-      <div className="today-tags-title">
-        Filter by Tag
       </div>
 
 
-      <div className="today-tag-selector">
+      {/* POPUP */}
 
-        {tagOptions.map((tag) => {
-
-          const isSelected =
-            selectedTag === tag.name;
-
-
-          return (
-
-            <button
-              key={tag.name}
-              className={`today-tag-option ${
-                isSelected
-                  ? "selected"
-                  : ""
-              }`}
-              onClick={() =>
-                selectTag(tag.name)
-              }
-              aria-label={`Filter by ${tag.name}`}
-              aria-pressed={isSelected}
-            >
-
-              <div className="today-tag-image-wrapper">
-
-                <img
-                  src={tag.image}
-                  alt={tag.name}
-                  className="today-tag-icon"
-                />
-
-              </div>
-
-
-              <div className="today-tag-content">
-
-                <span>
-                  {tag.name}
-                </span>
-
-
-                {isSelected && (
-
-                  <span
-                    className="today-tag-check"
-                    aria-label="Selected"
-                  >
-                    ✓
-                  </span>
-
-                )}
-
-              </div>
-
-            </button>
-
-          );
-
-        })}
-
-      </div>
+      <MessagePopup
+        isOpen={popup.open}
+        title={popup.title}
+        message={popup.message}
+        onClose={() =>
+          setPopup({
+            open: false,
+            title: "",
+            message: "",
+          })
+        }
+      />
 
     </div>
-
-
-    {/* POPUP */}
-
-    <MessagePopup
-      isOpen={popup.open}
-      title={popup.title}
-      message={popup.message}
-      onClose={() =>
-        setPopup({
-          open: false,
-          title: "",
-          message: "",
-        })
-      }
-    />
-
-  </div>
-);
+  );
 };
 
 
 export default ViewToday;
-
