@@ -19,6 +19,9 @@ const ViewMatches = ({
   const [deleteMatch, setDeleteMatch] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Keeps track of the single card that is currently expanded.
+  const [expandedMatchId, setExpandedMatchId] = useState(null);
+
   const getToken = () =>
     localStorage.getItem("token");
 
@@ -55,6 +58,10 @@ const ViewMatches = ({
       );
 
       setDeleteMatch(null);
+
+      // Close any expanded card after deletion.
+      setExpandedMatchId(null);
+
       refresh();
     } catch (err) {
       console.error("Delete error:", err);
@@ -78,6 +85,25 @@ const ViewMatches = ({
             <ViewMatchesCard
               key={match._id}
               match={match}
+
+              /*
+               * Only one card can be expanded at a time.
+               * When another card calls onExpand, this ID changes
+               * and the previously expanded card automatically
+               * receives isExpanded={false}.
+               */
+              isExpanded={
+                expandedMatchId === match._id
+              }
+
+              onExpand={() =>
+                setExpandedMatchId(match._id)
+              }
+
+              onCollapse={() =>
+                setExpandedMatchId(null)
+              }
+
               onDelete={handleDelete}
               refresh={refresh}
               setError={setError}

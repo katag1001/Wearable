@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { tagOptions } from "../../constants/optionsBank";
 import { URL } from "../../config";
@@ -9,13 +13,17 @@ import TemperatureSlider from "../general/temperatureSlider";
 
 const ViewMatchesCard = ({
   match,
+  isExpanded,
+  onExpand,
+  onCollapse,
   onDelete,
   refresh,
   setError,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [updateData, setUpdateData] = useState(null);
   const [saving, setSaving] = useState(false);
+
+  const cardRef = useRef(null);
 
   const getToken = () =>
     localStorage.getItem("token");
@@ -23,13 +31,41 @@ const ViewMatchesCard = ({
   const capitalize = (word) =>
     word.charAt(0).toUpperCase() + word.slice(1);
 
+  /*
+   * Scroll the expanded card into the center
+   * of the viewport after it expands.
+   */
+  useEffect(() => {
+    if (!isExpanded || !cardRef.current) {
+      return;
+    }
+
+    // Wait for the grid to finish reflowing
+    // before calculating the card's position.
+    requestAnimationFrame(() => {
+      cardRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+    });
+  }, [isExpanded]);
+
+  /*
+   * Open / close editor
+   */
   const handleCardClick = () => {
     if (isExpanded) {
       closeEditor();
       return;
     }
 
-    setIsExpanded(true);
+    /*
+     * Tell the parent to expand this card.
+     * The parent will automatically collapse
+     * any other expanded card.
+     */
+    onExpand();
 
     setUpdateData({
       spring: match.spring || false,
@@ -43,10 +79,13 @@ const ViewMatchesCard = ({
   };
 
   const closeEditor = () => {
-    setIsExpanded(false);
+    onCollapse();
     setUpdateData(null);
   };
 
+  /*
+   * Form changes
+   */
   const handleChange = (e) => {
     const {
       name,
@@ -64,6 +103,9 @@ const ViewMatchesCard = ({
     }));
   };
 
+  /*
+   * Toggle tag
+   */
   const toggleTag = (tagName) => {
     setUpdateData((prev) => ({
       ...prev,
@@ -75,6 +117,9 @@ const ViewMatchesCard = ({
     }));
   };
 
+  /*
+   * Save update
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -137,6 +182,9 @@ const ViewMatchesCard = ({
     }
   };
 
+  /*
+   * Render clothing image
+   */
   const renderItemImage = (item) => {
     if (!item?.imageUrl) return null;
 
@@ -149,6 +197,9 @@ const ViewMatchesCard = ({
     );
   };
 
+  /*
+   * Render tags on collapsed card hover
+   */
   const renderMatchTags = () => {
     if (!match.tags?.length) return null;
 
@@ -178,6 +229,7 @@ const ViewMatchesCard = ({
 
   return (
     <div
+      ref={cardRef}
       className={
         isExpanded
           ? "match-card expanded"
@@ -223,7 +275,6 @@ const ViewMatchesCard = ({
                 .join(", ") || "N/A"}
             </div>
           </div>
-
         </div>
       )}
 
@@ -238,7 +289,7 @@ const ViewMatchesCard = ({
             className="inline-update-form"
             onSubmit={handleSubmit}
           >
-            {/* Close */}
+            {/* CLOSE */}
 
             <button
               type="button"
@@ -248,7 +299,7 @@ const ViewMatchesCard = ({
               ×
             </button>
 
-            {/* Seasons */}
+            {/* SEASONS */}
 
             <div className="editor-section">
               <label className="form-label">
@@ -284,7 +335,7 @@ const ViewMatchesCard = ({
               </fieldset>
             </div>
 
-            {/* Temperature */}
+            {/* TEMPERATURE */}
 
             <div className="editor-section">
               <label className="form-label">
@@ -312,10 +363,9 @@ const ViewMatchesCard = ({
                   }))
                 }
               />
-            
             </div>
 
-            {/* Tags */}
+            {/* TAGS */}
 
             <div className="editor-section tags-section">
               <div className="form-label">
@@ -356,7 +406,7 @@ const ViewMatchesCard = ({
               </div>
             </div>
 
-            {/* Buttons */}
+            {/* BUTTONS */}
 
             <div className="inline-editor-actions">
               <button
