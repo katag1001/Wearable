@@ -259,17 +259,25 @@
 .match-info {
   width: 100%;
   box-sizing: border-box;
-  padding: 8px;
-  font-size: 0.75rem;
-  line-height: 1.25;
+  padding: .6rem .65rem;
+  font-family: var(--main-font);
+  font-size: var(--description-font-size);
+  font-weight: 400;
+  letter-spacing: .03em;
+  line-height: 1.3;
   text-align: left;
 }
 
 .item-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  text-align: end;
+  align-items: flex-end;
+  gap: .25rem;
+  color: var(--secondary-color);
+  font-size: var(--tag-font-size);
+  font-weight: 500;
+  letter-spacing: .03em;
+  text-align: right;
 }
 
 
@@ -417,13 +425,15 @@
 /* SEASONS---------------------------------------------------------------------------*/
 
 .match-editor .season-group {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  justify-content: flex-start;
   gap: 4px;
   width: 100%;
   border: none;
   padding: 0;
-  margin: 6px 0 0;
+  margin: 1rem 0 0;
 }
 
 .match-editor .season-label {
