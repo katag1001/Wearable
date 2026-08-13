@@ -126,7 +126,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
     }
 
     if (fields.length === 2) {
-      return `${fields[0]} and a ${fields[1]}`;
+      return `${fields[0]} and ${fields[1]}`;
     }
 
     return (

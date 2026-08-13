@@ -94,12 +94,12 @@ const ModalThree = ({
           Tags
         </div>
 
-        <div className="selection-grid">
+        <div className="tags-selection-grid">
 
           {tagOptions.map(tag => (
 
             <div
-              className="selection-item"
+              className="tags-selection-item"
               key={tag.name}
             >
 
@@ -107,8 +107,8 @@ const ModalThree = ({
                 type="button"
                 className={
                   formData.tags.includes(tag.name)
-                    ? "selection-button selected"
-                    : "selection-button"
+                    ? "tags-selection-button selected"
+                    : "tags-selection-button"
                 }
                 onClick={() => toggleTag(tag.name)}
               >
@@ -116,10 +116,10 @@ const ModalThree = ({
                 <img
                   src={tag.image}
                   alt={tag.name}
-                  className="selection-img"
+                  className="tags-selection-img"
                 />
 
-                <span className="selection-title">
+                <span className="tags-selection-title">
                   {tag.name}
                 </span>
 

@@ -603,7 +603,7 @@ return (
               </>
             ) : (
               <p className="today-message">
-                No outfits found for this tag.
+                No outfits saved for this tag.
               </p>
             )}
 
