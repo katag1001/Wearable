@@ -201,28 +201,164 @@
 }
 
 
+/* ================================================================
+   RESPONSIVE / SMALL SCREENS
+================================================================ */
+
+
 /* ----------------------------------------------------------------
-   Responsive
------------------------------------------------------------------ */
+   TABLET
+---------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+
+  .bottom-dashboard {
+    gap: 2rem;
+
+    padding-left: var(--side-padding);
+    padding-right: var(--side-padding);
+  }
+
+
+  .dashboard-link {
+    margin-bottom: 1rem;
+    padding-bottom: .7rem;
+  }
+
+
+  .not-logged-in-container {
+    margin-top: 3rem;
+  }
+
+}
+
+
+/* ----------------------------------------------------------------
+   MOBILE
+---------------------------------------------------------------- */
 
 @media (max-width: 600px) {
 
   .bottom-dashboard {
-    gap: 2.5rem;
+    width: 100%;
+
+    gap: 1.5rem;
+
+    padding-left: .75rem;
+    padding-right: .75rem;
+
+    box-sizing: border-box;
   }
+
+
+  /* ================================================================
+     DASHBOARD SECTION
+  ================================================================ */
 
   .dashboard-section {
-    padding: .75rem;
+    width: 100%;
+    min-width: 0;
+
+    border-radius: 8px;
   }
+
 
   .dashboard-link {
-    margin-bottom: 1rem;
-    padding-bottom: .75rem;
+    width: 100%;
+
+    margin-bottom: .7rem;
+    padding-bottom: .55rem;
+
+    font-size: var(--section-title-font-size);
+
+    letter-spacing: .025em;
   }
 
+
+  /* ================================================================
+     NOT LOGGED IN
+  ================================================================ */
+
   .not-logged-in-container {
-    margin-top: 3rem;
-    padding: 1.5rem;
+    width: 100%;
+    max-width: none;
+
+    margin: 2rem auto 0;
+    padding: 1.25rem;
+
+    gap: .6rem;
+
+    border-radius: 9px;
+
+    box-sizing: border-box;
+  }
+
+
+  .not-logged-in-container p {
+    margin-bottom: .5rem;
+
+    font-size: var(--description-font-size);
+
+    letter-spacing: .025em;
+  }
+
+
+  .not-logged-in-container a {
+    width: 100%;
+
+    padding: .65rem 1rem;
+
+    font-size: var(--button-font-size);
+
+    letter-spacing: .07em;
+  }
+
+}
+
+
+/* ----------------------------------------------------------------
+   VERY SMALL PHONES
+---------------------------------------------------------------- */
+
+@media (max-width: 400px) {
+
+  .bottom-dashboard {
+    gap: 1.25rem;
+
+    padding-left: .5rem;
+    padding-right: .5rem;
+  }
+
+
+  .dashboard-section {
+    border-radius: 7px;
+  }
+
+
+  .dashboard-link {
+    margin-bottom: .6rem;
+    padding-bottom: .45rem;
+
+    letter-spacing: .02em;
+  }
+
+
+  .not-logged-in-container {
+    margin-top: 1.5rem;
+
+    padding: 1rem;
+
+    border-radius: 8px;
+  }
+
+
+  .not-logged-in-container p {
+    margin-bottom: .4rem;
+  }
+
+
+  .not-logged-in-container a {
+    padding: .6rem .75rem;
   }
 
 }

@@ -12,16 +12,10 @@
   width: 100%;
   max-width: 1400px;
   min-height: calc(100vh - 120px);
-
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);
-
   margin: 0 auto;
-
   background: var(--inverse-color);
-
-
-
   overflow: visible;
 }
 
@@ -523,6 +517,10 @@
 ----------------------------------------------------------------- */
 
 @media (max-width: 480px) {
+
+  body:has(.user-sidebar.user-sidebar--open) {
+  overflow: hidden;
+}
 
   .user-container {
     border-radius: 0;

@@ -49,10 +49,6 @@ const WeeklyPreferences = () => {
   const getToken = () => {
     const token = localStorage.getItem("token");
 
-    console.log(
-      "Authentication token exists:",
-      !!token
-    );
 
     if (!token) {
       console.error(
@@ -65,11 +61,6 @@ const WeeklyPreferences = () => {
 
   const getResponseData = async (response) => {
     const text = await response.text();
-
-    console.log(
-      "Raw response:",
-      text
-    );
 
     if (!text) {
       return null;
@@ -89,16 +80,6 @@ const WeeklyPreferences = () => {
 
   useEffect(() => {
     const fetchPreferences = async () => {
-      console.log("");
-      console.log(
-        "========================================"
-      );
-      console.log(
-        "FETCHING WEEKLY PREFERENCES"
-      );
-      console.log(
-        "========================================"
-      );
 
       const token = getToken();
 
@@ -150,13 +131,6 @@ const WeeklyPreferences = () => {
           "GET result:",
           result
         );
-
-        /*
-          A 404 means the user does not have
-          a preferences document yet.
-
-          This is okay.
-        */
 
         if (response.status === 404) {
           console.log(
@@ -290,16 +264,6 @@ const WeeklyPreferences = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    console.log("");
-    console.log(
-      "========================================"
-    );
-    console.log(
-      "SAVING WEEKLY PREFERENCES"
-    );
-    console.log(
-      "========================================"
-    );
 
     const token = getToken();
 
@@ -313,21 +277,6 @@ const WeeklyPreferences = () => {
 
     const requestUrl =
       `${URL}/preferences`;
-
-    console.log(
-      "PUT URL:",
-      requestUrl
-    );
-
-    console.log(
-      "Preferences:",
-      preferences
-    );
-
-    console.log(
-      "Token present:",
-      !!token
-    );
 
     try {
       setSaving(true);
@@ -351,16 +300,6 @@ const WeeklyPreferences = () => {
             preferences
           ),
         }
-      );
-
-      console.log(
-        "PUT status:",
-        response.status
-      );
-
-      console.log(
-        "PUT response URL:",
-        response.url
       );
 
       const result =
@@ -388,10 +327,6 @@ const WeeklyPreferences = () => {
             `Failed to save preferences (${response.status}).`
         );
       }
-
-      console.log(
-        "Preferences saved successfully."
-      );
 
       if (result?.data) {
         const savedPreferences = {

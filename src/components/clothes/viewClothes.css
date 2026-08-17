@@ -171,3 +171,214 @@
   border-radius: 50%;
 }
 
+
+/* ================================================================
+   RESPONSIVE / SMALL SCREENS
+================================================================ */
+
+
+/* ----------------------------------------------------------------
+   TABLET
+---------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+
+  .clothes-area-wrapper {
+    padding-left: var(--side-padding);
+    padding-right: var(--side-padding);
+  }
+
+
+  .clothes-grid {
+    width: 100%;
+
+    gap: 10px;
+
+    justify-content: center;
+  }
+
+
+  .clothing-card-viewclothes {
+    width: 140px;
+  }
+
+
+  .clothing-image-viewclothes {
+    width: 140px;
+    height: 168px;
+  }
+
+
+  .hover-tags-row {
+    gap: 6px;
+    padding: 6px;
+  }
+
+
+  .hover-tag-image {
+    width: 28px;
+    height: 28px;
+  }
+
+}
+
+
+/* ----------------------------------------------------------------
+   MOBILE
+---------------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+  .clothes-area-wrapper {
+    width: 100%;
+
+    padding-left: .5rem;
+    padding-right: .5rem;
+
+    box-sizing: border-box;
+  }
+
+
+  .clothes-grid {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+
+    justify-content: stretch;
+    align-items: start;
+  }
+
+
+  /* ================================================================
+     CLOTHING CARD
+  ================================================================ */
+
+  .clothing-card-viewclothes {
+    width: 100%;
+    min-width: 0;
+
+    border-radius: 7px;
+  }
+
+
+  /* ================================================================
+     IMAGE
+  ================================================================ */
+
+  .clothing-image-wrapper {
+    width: 100%;
+
+    aspect-ratio: 5 / 6;
+
+    overflow: hidden;
+  }
+
+
+  .clothing-image-viewclothes {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+  }
+
+
+  /* ================================================================
+     TEXT
+  ================================================================ */
+
+  .clothing-text {
+    padding: .5rem .55rem;
+
+    gap: .2rem;
+  }
+
+
+  .clothing-item-name {
+    font-size: var(--tag-font-size);
+
+    line-height: 1.25;
+  }
+
+
+  .clothing-text-button {
+    font-size: var(--tag-font-size);
+  }
+
+
+  /* ================================================================
+     HOVER TAGS
+  ================================================================ */
+
+  .hover-tags-row {
+    gap: 4px;
+
+    padding: 5px;
+
+    background: rgba(255, 255, 255, .9);
+  }
+
+
+  .hover-tag-image {
+    width: 24px;
+    height: 24px;
+  }
+
+}
+
+
+/* ----------------------------------------------------------------
+   VERY SMALL PHONES
+---------------------------------------------------------------- */
+
+@media (max-width: 400px) {
+
+  .clothes-area-wrapper {
+    padding-left: .35rem;
+    padding-right: .35rem;
+  }
+
+
+  .clothes-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 7px;
+  }
+
+
+  .clothing-card-viewclothes {
+    border-radius: 6px;
+  }
+
+
+  .clothing-text {
+    padding: .4rem .45rem;
+
+    gap: .15rem;
+  }
+
+
+  .clothing-item-name,
+  .clothing-text-button {
+    font-size: .55rem;
+  }
+
+
+  .hover-tags-row {
+    gap: 3px;
+    padding: 4px;
+  }
+
+
+  .hover-tag-image {
+    width: 21px;
+    height: 21px;
+  }
+
+}
+

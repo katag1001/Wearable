@@ -99,28 +99,34 @@
 }
 
 
-/* ----------------------------------------------------------------
-   Responsive
------------------------------------------------------------------ */
+/* ================================================================
+   RESPONSIVE / SMALL SCREENS
+================================================================ */
 
-@media (max-width: 768px) {
+
+/* ----------------------------------------------------------------
+   TABLET
+---------------------------------------------------------------- */
+
+@media (max-width: 900px) {
 
   .today-block {
-    height: calc(100vh - var(--header-height));
+    height: auto;
+    min-height: calc(100vh - var(--header-height));
 
-    padding-right: 1rem;
-    padding-left: 1rem;
+    padding-left: var(--side-padding);
+    padding-right: var(--side-padding);
 
-    overflow: hidden;
+    margin-bottom: 1.5rem;
+
+    overflow: visible;
   }
+
 
   .today-title {
     margin-bottom: .35rem;
-
-    font-size: 1.8rem;
-
-    letter-spacing: .035em;
   }
+
 
   .today-block .weather {
     margin-bottom: .75rem;
@@ -130,45 +136,84 @@
 
 
 /* ----------------------------------------------------------------
-   Small Phones
------------------------------------------------------------------ */
+   MOBILE
+---------------------------------------------------------------- */
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
 
   .today-block {
-    height: calc(100vh - var(--header-height));
+    width: 100%;
 
-    padding-right: .75rem;
+    height: auto;
+    min-height: calc(100vh - var(--header-height));
+
     padding-left: .75rem;
+    padding-right: .75rem;
+
+    margin-bottom: 1rem;
+
+    overflow: visible;
   }
 
-  .today-title {
-    margin-bottom: .3rem;
 
-    font-size: 1.5rem;
+  .today-title {
+    margin: 0 0 .3rem;
+
+    font-size: var(--section-title-font-size);
+
+    letter-spacing: .03em;
+  }
+
+
+  .today-block .weather {
+    margin: 0 0 .65rem;
+  }
+
+
+  .today-block .weather-text {
+    font-size: var(--small-font-size);
 
     letter-spacing: .025em;
   }
 
-  .today-block .weather {
-    margin-bottom: .6rem;
+
+  .today-block .weather-error {
+    margin-top: .25rem;
+
+    font-size: var(--description-font-size);
   }
 
-  .today-block .weather-text {
-    font-size: .72rem;
+
+  .today-block > *:last-child {
+    min-height: 0;
   }
 
 }
 
 
 /* ----------------------------------------------------------------
-   Modern Mobile Viewport
------------------------------------------------------------------ */
+   VERY SMALL PHONES
+---------------------------------------------------------------- */
 
-@media (max-width: 600px) {
+@media (max-width: 400px) {
 
   .today-block {
-    height: calc(100dvh - var(--header-height));
+    padding-left: .5rem;
+    padding-right: .5rem;
+
+    margin-bottom: .75rem;
+  }
+
+
+  .today-title {
+    margin-bottom: .25rem;
+
+    letter-spacing: .02em;
+  }
+
+
+  .today-block .weather {
+    margin-bottom: .5rem;
   }
 
 }

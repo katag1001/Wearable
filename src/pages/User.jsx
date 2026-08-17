@@ -16,9 +16,6 @@ const User = ({ loggedIn, logout }) => {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  console.log("URL from config:", URL);
-  console.log("Delete endpoint:", `${URL}/users/delete`);
-
   const handleDeleteAccount = async () => {
     setDeleting(true);
 
