@@ -1,93 +1,437 @@
-/* Container----------------------------------------------------------------- */
+/* ================================================================
+   TODAY PAGE
+================================================================ */
+
+
+/* ----------------------------------------------------------------
+   MAIN CONTAINER
+---------------------------------------------------------------- */
 
 .view-today-container {
   width: 100%;
+  height: 100%;
+
+  min-height: 0;
+
+  box-sizing: border-box;
+
   color: var(--main-color);
   font-family: var(--main-font);
+
+  overflow: hidden;
 }
 
-/* Top Section----------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------
+   TOP SECTION
+---------------------------------------------------------------- */
 
 .today-top-section {
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(280px, .8fr);
-  gap: 1.25rem;
-  margin-bottom: 3rem;
-  margin-top: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem;
+  height: var(--view-today-container);
+  min-height: var(--view-today-container);
+  max-height: var(--view-today-container);
+  
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Featured Outfit----------------------------------------------------------------- */
+
+/* ================================================================
+   FEATURED OUTFIT
+================================================================ */
 
 .featured-outfit {
+  width: 100%;
   min-width: 0;
+  min-height: 0;
+  height: var(--view-today-container);
+  max-height: var(--view-today-container);
   display: flex;
   flex-direction: column;
-  padding: 1rem;
+
+  box-sizing: border-box;
+
+  padding: .75rem;
+
   background: var(--card-background);
+
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 10px;
+
+  overflow: hidden;
+
   transition:
     background .25s ease,
     border-color .25s ease,
     box-shadow .25s ease;
 }
 
+
 .featured-outfit:hover {
   background: var(--hover-background);
   border-color: var(--hover-border-color);
 }
 
-/* Featured image area */
+
+/* ----------------------------------------------------------------
+   FEATURED IMAGE AREA
+---------------------------------------------------------------- */
 
 .featured-outfit-content {
+  position: relative;
+
   width: 100%;
-  min-height: 300px;
+  height: 255px;
+
+  min-width: 0;
+  min-height: 0;
+
+  flex: 1 1 auto;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
-  padding: 1rem;
 
-  border-radius: 8px;
+  margin: 0 0 .55rem;
+
+  padding: .5rem;
+
+  box-sizing: border-box;
+
+  border-radius: 7px;
+
   overflow: hidden;
 }
 
 
-/* Outfit Image Group----------------------------------------------------------------- */
+/* ================================================================
+   EXACT VIEW-MATCHES IMAGE GRID
+================================================================ */
+
+/*
+ * This is intentionally the same base grid as
+ * .match-image-grid.
+ *
+ * 6 columns
+ * 3 rows
+ */
 
 .today-image-group {
   width: 100%;
+  height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  box-sizing: border-box;
+
+  padding: 10px;
+
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.75rem;
+
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+
+  grid-template-rows:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 8px;
+
   align-items: center;
   justify-items: center;
+  align-content: center;
+
+  overflow: hidden;
 }
 
-/* Main outfit images */
+
+/* ================================================================
+   1 IMAGE
+================================================================ */
+
+.today-image-group:not(:has(.today-image:nth-child(2))) {
+  grid-template-rows: 1fr;
+}
+
+
+.today-image-group:not(:has(.today-image:nth-child(2)))
+  .today-image:nth-child(1) {
+  grid-column: 1 / -1;
+}
+
+
+/* ================================================================
+   2 IMAGES
+================================================================ */
+
+.today-image-group:has(.today-image:nth-child(2))
+  :not(:has(.today-image:nth-child(3))) {
+  grid-template-rows: 1fr;
+}
+
+
+/*
+ * NOTE:
+ * The selector above cannot reliably scope the parent
+ * in all browsers, so the explicit parent selector below
+ * is the actual 2-image rule.
+ */
+
+.today-image-group:has(.today-image:nth-child(2)):not(
+  :has(.today-image:nth-child(3))
+) {
+  grid-template-rows: 1fr;
+}
+
+
+.today-image-group:has(.today-image:nth-child(2)):not(
+  :has(.today-image:nth-child(3))
+)
+.today-image:nth-child(1),
+
+.today-image-group:has(.today-image:nth-child(2)):not(
+  :has(.today-image:nth-child(3))
+)
+.today-image:nth-child(2) {
+  grid-column: span 3;
+}
+
+
+/* ================================================================
+   3 IMAGES
+================================================================ */
+
+.today-image-group:has(.today-image:nth-child(3)):not(
+  :has(.today-image:nth-child(4))
+) {
+  grid-template-rows:
+    repeat(2, minmax(0, 1fr));
+}
+
+
+/* Top-left */
+
+.today-image-group:has(.today-image:nth-child(3)):not(
+  :has(.today-image:nth-child(4))
+)
+.today-image:nth-child(1) {
+  grid-column: 2 / span 2;
+  grid-row: 1;
+}
+
+
+/* Top-right */
+
+.today-image-group:has(.today-image:nth-child(3)):not(
+  :has(.today-image:nth-child(4))
+)
+.today-image:nth-child(2) {
+  grid-column: 4 / span 2;
+  grid-row: 1;
+}
+
+
+/* Bottom-center */
+
+.today-image-group:has(.today-image:nth-child(3)):not(
+  :has(.today-image:nth-child(4))
+)
+.today-image:nth-child(3) {
+  grid-column: 3 / span 2;
+  grid-row: 2;
+}
+
+
+/* ================================================================
+   4 IMAGES
+================================================================ */
+
+.today-image-group:has(.today-image:nth-child(4)):not(
+  :has(.today-image:nth-child(5))
+) {
+  grid-template-rows:
+    repeat(2, minmax(0, 1fr));
+}
+
+
+.today-image-group:has(.today-image:nth-child(4)):not(
+  :has(.today-image:nth-child(5))
+)
+.today-image {
+  grid-column: span 3;
+}
+
+
+/* ================================================================
+   5 IMAGES
+================================================================ */
+
+.today-image-group:has(.today-image:nth-child(5)):not(
+  :has(.today-image:nth-child(6))
+) {
+  grid-template-rows:
+    repeat(2, minmax(0, 1fr));
+}
+
+
+.today-image-group:has(.today-image:nth-child(5)):not(
+  :has(.today-image:nth-child(6))
+)
+.today-image {
+  grid-column: span 2;
+}
+
+
+.today-image-group:has(.today-image:nth-child(5)):not(
+  :has(.today-image:nth-child(6))
+)
+.today-image:nth-child(4) {
+  grid-column: 2 / span 2;
+}
+
+
+.today-image-group:has(.today-image:nth-child(5)):not(
+  :has(.today-image:nth-child(6))
+)
+.today-image:nth-child(5) {
+  grid-column: 4 / span 2;
+}
+
+
+/* ================================================================
+   6 IMAGES
+================================================================ */
+
+.today-image-group:has(.today-image:nth-child(6)):not(
+  :has(.today-image:nth-child(7))
+) {
+  grid-template-rows:
+    repeat(2, minmax(0, 1fr));
+}
+
+
+.today-image-group:has(.today-image:nth-child(6)):not(
+  :has(.today-image:nth-child(7))
+)
+.today-image {
+  grid-column: span 2;
+}
+
+
+/* ================================================================
+   7 IMAGES
+================================================================ */
+
+.today-image-group:has(.today-image:nth-child(7)):not(
+  :has(.today-image:nth-child(8))
+) {
+  grid-template-rows:
+    repeat(3, minmax(0, 1fr));
+}
+
+
+.today-image-group:has(.today-image:nth-child(7)):not(
+  :has(.today-image:nth-child(8))
+)
+.today-image {
+  grid-column: span 2;
+}
+
+
+.today-image-group:has(.today-image:nth-child(7)):not(
+  :has(.today-image:nth-child(8))
+)
+.today-image:nth-child(7) {
+  grid-column: 3 / span 2;
+}
+
+
+/* ================================================================
+   8 IMAGES
+================================================================ */
+
+.today-image-group:has(.today-image:nth-child(8)):not(
+  :has(.today-image:nth-child(9))
+) {
+  grid-template-rows:
+    repeat(3, minmax(0, 1fr));
+}
+
+
+.today-image-group:has(.today-image:nth-child(8)):not(
+  :has(.today-image:nth-child(9))
+)
+.today-image {
+  grid-column: span 2;
+}
+
+
+.today-image-group:has(.today-image:nth-child(8)):not(
+  :has(.today-image:nth-child(9))
+)
+.today-image:nth-child(7) {
+  grid-column: 2 / span 2;
+}
+
+
+.today-image-group:has(.today-image:nth-child(8)):not(
+  :has(.today-image:nth-child(9))
+)
+.today-image:nth-child(8) {
+  grid-column: 4 / span 2;
+}
+
+
+/* ================================================================
+   9+ IMAGES
+================================================================ */
+
+.today-image-group:has(.today-image:nth-child(9))
+.today-image {
+  grid-column: span 2;
+}
+
+
+/* ================================================================
+   INDIVIDUAL FEATURED IMAGES
+================================================================ */
 
 .today-image {
   display: block;
-  width: 100%;
-  max-width: 210px;
-  height: 260px;
-  object-fit: cover;
-  border-radius: 8px;
+
+  width: auto;
+  height: auto;
+
+  max-width: 100%;
+  max-height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  object-fit: contain;
+
+  justify-self: center;
+  align-self: center;
+
+  border-radius: 6px;
+
   transition:
     transform .25s ease,
     box-shadow .25s ease;
 }
 
-/* Main outfit tag hover overlay */
 
-.featured-outfit-content {
-  position: relative;
-  overflow: hidden;
-}
+/* ================================================================
+   FEATURED TAG OVERLAY
+================================================================ */
 
 .today-hover-tags-row {
   position: absolute;
+
   bottom: 0;
   left: 0;
 
@@ -95,69 +439,98 @@
 
   display: flex;
   flex-wrap: wrap;
+
   justify-content: center;
-  align-content: center;
-  gap: 8px;
+  align-items: center;
 
-  padding: 8px;
+  gap: 6px;
 
-  background: rgba(255, 255, 255, 0.85);
-
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
+  padding: 7px;
 
   box-sizing: border-box;
+
+  background: rgba(255, 255, 255, .88);
+
+  transform: translateY(100%);
+
+  transition:
+    transform .3s ease;
+
+  z-index: 2;
 }
 
-.featured-outfit-content:hover .today-hover-tags-row {
+
+.featured-outfit-content:hover
+.today-hover-tags-row {
   transform: translateY(0);
 }
 
+
 .today-hover-tag-image {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
+
   object-fit: contain;
+
   border-radius: 50%;
 }
 
 
-
-/* Buttons----------------------------------------------------------------- */
+/* ================================================================
+   BUTTON
+================================================================ */
 
 .today-buttons {
   width: 100%;
+
+  flex-shrink: 0;
+
   display: flex;
   justify-content: center;
+
   margin-top: auto;
 }
 
+
 .regular-button {
   width: 100%;
-  padding: .9rem 1.8rem;
+
+  padding: .55rem 1rem;
+
   border: 1px solid var(--main-color);
   border-radius: 999px;
+
   background: var(--main-color);
   color: var(--inverse-color);
+
   font-family: inherit;
+
   font-size: var(--button-font-size);
   font-weight: 500;
+
   letter-spacing: .1em;
+
   text-transform: uppercase;
+
   cursor: pointer;
+
   transition:
     background .25s ease,
     color .25s ease,
     transform .2s ease;
 }
 
+
 .regular-button:hover {
   background: transparent;
   color: var(--main-color);
 }
 
+
 .regular-button:active {
   transform: translateY(1px);
 }
+
 
 .regular-button:focus-visible {
   outline: 2px solid var(--main-color);
@@ -165,71 +538,115 @@
 }
 
 
-/* Outfit Selector----------------------------------------------------------------- */
+/* ================================================================
+   OUTFIT SELECTOR
+================================================================ */
 
 .outfit-selector {
+  width: 100%;
   min-width: 0;
-  height: 100%;
+  min-height: 0;
+  height: var(--view-today-container);
+  max-height: var(--view-today-container);
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: .75rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 10px;
+
+  overflow: hidden;
 
   transition:
     background .25s ease,
     border-color .25s ease;
 }
 
+
 .outfit-selector:hover {
   background: var(--hover-background);
   border-color: var(--hover-border-color);
 }
 
-/* Outfit Selector Content----------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------
+   SELECTOR CONTENT
+---------------------------------------------------------------- */
 
 .outfit-selector-content {
   width: 100%;
   height: 100%;
+
+  min-height: 0;
+
   display: flex;
   flex-direction: column;
-  gap: .75rem;
+
+  gap: .5rem;
+
   overflow: hidden;
 }
 
-/* Alternative Outfit Grid----------------------------------------------------------------- */
+
+/* ================================================================
+   ALTERNATIVE OUTFIT GRID
+================================================================ */
 
 .outfit-options {
-  flex: 1;
-  min-height: 0;
   width: 100%;
+  height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  flex: 1 1 auto;
+
   display: grid;
+
   grid-template-columns:
     repeat(2, minmax(0, 1fr));
+
   grid-template-rows:
     repeat(2, minmax(0, 1fr));
-  gap: .75rem;
+
+  gap: .5rem;
+
   overflow: hidden;
 }
 
 
-/* Alternative Outfit Card----------------------------------------------------------------- */
+/* ================================================================
+   INDIVIDUAL ALTERNATIVE CARD
+================================================================ */
 
 .outfit-option {
+  width: 100%;
+  height: 100%;
+
   min-width: 0;
   min-height: 0;
+
   display: flex;
+
   align-items: center;
   justify-content: center;
-  padding: .55rem;
+
+  padding: .35rem;
+
+  box-sizing: border-box;
+
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 7px;
+
   background: var(--card-background);
   color: var(--main-color);
+
   cursor: pointer;
+
   overflow: hidden;
+
   transition:
     background .2s ease,
     border-color .2s ease,
@@ -237,11 +654,16 @@
     transform .2s ease;
 }
 
+
 .outfit-option:hover {
   background: var(--hover-background);
-  border-color: var(--hover-border-color);
+
+  border-color:
+    var(--hover-border-color);
+
   transform: translateY(1px);
 }
+
 
 .outfit-option:focus-visible {
   outline: 2px solid var(--main-color);
@@ -249,41 +671,353 @@
 }
 
 
-/* Alternative Outfit Images----------------------------------------------------------------- */
+/* ================================================================
+   SMALL OUTFIT IMAGE GRID
+
+   SAME ARRANGEMENT AS VIEW MATCHES
+================================================================ */
 
 .today-image-group-small {
   width: 100%;
   height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  box-sizing: border-box;
+
+  padding: 4px;
+
   display: grid;
+
   grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-  gap: .35rem;
+    repeat(6, minmax(0, 1fr));
+
+  grid-template-rows:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 4px;
+
   align-items: center;
   justify-items: center;
+  align-content: center;
+
   overflow: hidden;
 }
 
 
-.today-image-small {
-  display: block;
-  width: 100%;
-  min-height: 0;
-  object-fit: cover;
-  border-radius: 6px;
-  transition:
-    transform .25s ease;
+/* ================================================================
+   1 IMAGE
+================================================================ */
+
+.today-image-group-small:not(
+  :has(.today-image-small:nth-child(2))
+) {
+  grid-template-rows: 1fr;
 }
 
 
-/* ----------------------------------------------------------------
-   Show More / Down Button
------------------------------------------------------------------ */
+.today-image-group-small:not(
+  :has(.today-image-small:nth-child(2))
+)
+.today-image-small:nth-child(1) {
+  grid-column: 1 / -1;
+}
+
+
+/* ================================================================
+   2 IMAGES
+================================================================ */
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(2)
+):not(
+  :has(.today-image-small:nth-child(3))
+) {
+  grid-template-rows: 1fr;
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(2)
+):not(
+  :has(.today-image-small:nth-child(3))
+)
+.today-image-small:nth-child(1),
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(2)
+):not(
+  :has(.today-image-small:nth-child(3))
+)
+.today-image-small:nth-child(2) {
+  grid-column: span 3;
+}
+
+
+/* ================================================================
+   3 IMAGES
+================================================================ */
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(3)
+):not(
+  :has(.today-image-small:nth-child(4))
+) {
+  grid-template-rows:
+    repeat(2, minmax(0, 1fr));
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(3)
+):not(
+  :has(.today-image-small:nth-child(4))
+)
+.today-image-small:nth-child(1) {
+  grid-column: 2 / span 2;
+  grid-row: 1;
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(3)
+):not(
+  :has(.today-image-small:nth-child(4))
+)
+.today-image-small:nth-child(2) {
+  grid-column: 4 / span 2;
+  grid-row: 1;
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(3)
+):not(
+  :has(.today-image-small:nth-child(4))
+)
+.today-image-small:nth-child(3) {
+  grid-column: 3 / span 2;
+  grid-row: 2;
+}
+
+
+/* ================================================================
+   4 IMAGES
+================================================================ */
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(4)
+):not(
+  :has(.today-image-small:nth-child(5))
+) {
+  grid-template-rows:
+    repeat(2, minmax(0, 1fr));
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(4)
+):not(
+  :has(.today-image-small:nth-child(5))
+)
+.today-image-small {
+  grid-column: span 3;
+}
+
+
+/* ================================================================
+   5 IMAGES
+================================================================ */
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(5)
+):not(
+  :has(.today-image-small:nth-child(6))
+) {
+  grid-template-rows:
+    repeat(2, minmax(0, 1fr));
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(5)
+):not(
+  :has(.today-image-small:nth-child(6))
+)
+.today-image-small {
+  grid-column: span 2;
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(5)
+):not(
+  :has(.today-image-small:nth-child(6))
+)
+.today-image-small:nth-child(4) {
+  grid-column: 2 / span 2;
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(5)
+):not(
+  :has(.today-image-small:nth-child(6))
+)
+.today-image-small:nth-child(5) {
+  grid-column: 4 / span 2;
+}
+
+
+/* ================================================================
+   6 IMAGES
+================================================================ */
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(6)
+):not(
+  :has(.today-image-small:nth-child(7))
+) {
+  grid-template-rows:
+    repeat(2, minmax(0, 1fr));
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(6)
+):not(
+  :has(.today-image-small:nth-child(7))
+)
+.today-image-small {
+  grid-column: span 2;
+}
+
+
+/* ================================================================
+   7 IMAGES
+================================================================ */
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(7)
+):not(
+  :has(.today-image-small:nth-child(8))
+) {
+  grid-template-rows:
+    repeat(3, minmax(0, 1fr));
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(7)
+):not(
+  :has(.today-image-small:nth-child(8))
+)
+.today-image-small {
+  grid-column: span 2;
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(7)
+):not(
+  :has(.today-image-small:nth-child(8))
+)
+.today-image-small:nth-child(7) {
+  grid-column: 3 / span 2;
+}
+
+
+/* ================================================================
+   8 IMAGES
+================================================================ */
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(8)
+):not(
+  :has(.today-image-small:nth-child(9))
+) {
+  grid-template-rows:
+    repeat(3, minmax(0, 1fr));
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(8)
+):not(
+  :has(.today-image-small:nth-child(9))
+)
+.today-image-small {
+  grid-column: span 2;
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(8)
+):not(
+  :has(.today-image-small:nth-child(9))
+)
+.today-image-small:nth-child(7) {
+  grid-column: 2 / span 2;
+}
+
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(8)
+):not(
+  :has(.today-image-small:nth-child(9))
+)
+.today-image-small:nth-child(8) {
+  grid-column: 4 / span 2;
+}
+
+
+/* ================================================================
+   9+ IMAGES
+================================================================ */
+
+.today-image-group-small:has(
+  .today-image-small:nth-child(9)
+)
+.today-image-small {
+  grid-column: span 2;
+}
+
+
+/* ================================================================
+   SMALL INDIVIDUAL IMAGES
+================================================================ */
+
+.today-image-small {
+  display: block;
+
+  width: auto;
+  height: auto;
+
+  max-width: 100%;
+  max-height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  object-fit: contain;
+
+  justify-self: center;
+  align-self: center;
+
+  border-radius: 5px;
+}
+
+
+/* ================================================================
+   SHOW MORE
+================================================================ */
 
 .alternative-down-button {
   flex-shrink: 0;
 
   width: 100%;
-  height: 36px;
+  height: 28px;
 
   display: flex;
   align-items: center;
@@ -298,7 +1032,7 @@
   color: var(--secondary-color);
 
   font-family: var(--plus-font);
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 300;
 
   line-height: 1;
@@ -312,6 +1046,7 @@
     transform .2s ease;
 }
 
+
 .alternative-down-button:hover {
   background: var(--main-color);
   border-color: var(--main-color);
@@ -320,9 +1055,11 @@
   transform: translateY(-1px);
 }
 
+
 .alternative-down-button:active {
   transform: translateY(0);
 }
+
 
 .alternative-down-button:focus-visible {
   outline: 2px solid var(--main-color);
@@ -330,66 +1067,81 @@
 }
 
 
-
-/* ----------------------------------------------------------------
-   Tag Selector
------------------------------------------------------------------ */
+/* ================================================================
+   TAG SECTION
+================================================================ */
 
 .today-tags-section {
   width: 100%;
-
-  margin-bottom: 2rem;
+  min-height: 0;
+  margin-top: 1rem;
+  box-sizing: border-box;
+  overflow: visible;
+  
 }
 
 
-/* Section title */
+
+/* ----------------------------------------------------------------
+   TAG TITLE
+---------------------------------------------------------------- */
 
 .today-tags-title {
-  margin-bottom: 1.25rem;
-  padding-bottom: .9rem;
-
+  margin: 0 0 .55rem;
+  padding: 0 0 .45rem;
   border-bottom: 1px solid var(--border-color);
-
   font-family: var(--title-font);
-  font-size: var(--section-title-font-size);
+  font-size: .85rem;
   font-weight: 700;
-
   letter-spacing: .03em;
   text-transform: uppercase;
-
   color: var(--main-color);
 }
 
 
-/* ----------------------------------------------------------------
-   Tag Grid
------------------------------------------------------------------ */
+/* ================================================================
+   TAG GRID
+================================================================ */
 
 .today-tag-selector {
   width: 100%;
-
   display: grid;
-  grid-template-columns: repeat(auto-fit, 80px);
-  gap: .5rem;
+  box-sizing: border-box;
+  grid-template-columns: repeat(auto-fit, 65px);
+  gap: .4rem;
+  overflow: visible;
+  padding-top: 2px;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 
-/* ----------------------------------------------------------------
-   Tag Card
------------------------------------------------------------------ */
+/* ================================================================
+   TAG CARD
+================================================================ */
 
 .today-tag-option {
-  max-width: 80px;
+  width: 65px;
+  max-width: 65px;
+
   min-width: 0;
+
   padding: 0;
+
   overflow: hidden;
+
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 7px;
+
   background: var(--card-background);
   color: var(--main-color);
+
   font: inherit;
+
   text-align: left;
+
   cursor: pointer;
+
   transition:
     background .2s ease,
     border-color .2s ease,
@@ -397,11 +1149,16 @@
     transform .2s ease;
 }
 
+
 .today-tag-option:hover {
   background: var(--hover-background);
-  border-color: var(--hover-border-color);
+
+  border-color:
+    var(--hover-border-color);
+
   transform: translateY(-1px);
 }
+
 
 .today-tag-option:focus-visible {
   outline: 2px solid var(--main-color);
@@ -409,58 +1166,73 @@
 }
 
 
-/* Selected tag */
-
 .today-tag-option.selected {
   background: var(--hover-background);
-  border-color: var(--main-color);
-  box-shadow: 0 0 0 1px var(--main-color);
+
+  border-color:
+    var(--main-color);
+
+  box-shadow:
+    0 0 0 1px var(--main-color);
 }
+
 
 .today-tag-option.selected:hover {
   border-color: var(--main-color);
 }
 
 
-/* ----------------------------------------------------------------
-   Tag Image
------------------------------------------------------------------ */
+/* ================================================================
+   TAG IMAGE
+================================================================ */
 
 .today-tag-image-wrapper {
   width: 100%;
+
+  height: 50px;
 
   overflow: hidden;
 
   background: var(--image-background);
 }
 
+
 .today-tag-icon {
   display: block;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
-  transition: transform 0.25s ease;
+
+  transition:
+    transform .25s ease;
 }
 
-.today-tag-option:hover .today-tag-icon {
+
+.today-tag-option:hover
+.today-tag-icon {
   transform: scale(1.02);
 }
 
 
-/* ----------------------------------------------------------------
-   Tag Content
------------------------------------------------------------------ */
+/* ================================================================
+   TAG CONTENT
+================================================================ */
 
 .today-tag-content {
-  min-height: 30px;
+  min-height: 25px;
 
   display: flex;
+
   align-items: center;
   justify-content: space-between;
 
-  gap: .25rem;
+  gap: .2rem;
 
-  padding: .4rem .45rem;
+  padding: .25rem .3rem;
+
+  box-sizing: border-box;
 }
 
 
@@ -473,10 +1245,10 @@
 
   color: var(--tag-color);
 
-  font-size: var(--tag-card-font-size);
+  font-size: .52rem;
   font-weight: 500;
 
-  letter-spacing: .03em;
+  letter-spacing: .02em;
 
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -488,10 +1260,11 @@
 .today-tag-check {
   flex-shrink: 0;
 
-  width: 14px;
-  height: 14px;
+  width: 11px;
+  height: 11px;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -500,20 +1273,24 @@
   background: var(--main-color);
   color: var(--inverse-color);
 
-  font-size: var(--check-font-size);
+  font-size: .38rem;
+
   line-height: 1;
 }
 
 
-/* ----------------------------------------------------------------
-   Messages
------------------------------------------------------------------ */
+/* ================================================================
+   MESSAGES
+================================================================ */
 
 .today-message {
   width: 100%;
 
   margin: 0 auto;
-  padding: 5rem 1rem;
+
+  padding: 2rem 1rem;
+
+  box-sizing: border-box;
 
   color: var(--secondary-color);
 
@@ -521,79 +1298,9 @@
   font-weight: 400;
 
   letter-spacing: .1em;
+
   text-align: center;
+
   text-transform: uppercase;
 }
 
-
-/* ----------------------------------------------------------------
-   Responsive
------------------------------------------------------------------ */
-
-@media (max-width: 900px) {
-
-  .today-top-section {
-    grid-template-columns: 1fr;
-  }
-
-  .featured-outfit-content {
-    min-height: 360px;
-  }
-
-  .outfit-selector {
-    padding: .9rem;
-  }
-
-}
-
-
-@media (max-width: 600px) {
-
-  .view-today-container {
-    padding: 1rem 1rem 3rem;
-  }
-
-  .today-top-section {
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-  }
-
-  .featured-outfit {
-    padding: .75rem;
-  }
-
-  .featured-outfit-content {
-    min-height: 300px;
-    padding: .75rem;
-  }
-
-  .today-image {
-    height: 210px;
-  }
-
-  .outfit-options {
-    gap: .35rem;
-  }
-
-  .today-image-small {
-    height: 80px;
-  }
-
-  .left-right {
-    width: 34px;
-    height: 34px;
-  }
-
-  .today-tag-selector {
-    grid-template-columns: repeat(auto-fit, 75px);
-  }
-
-  .today-tag-option {
-    max-width: 75px;
-  }
-
-  .today-tag-icon {
-    height: 75px;
-  }
-
-}

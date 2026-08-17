@@ -51,6 +51,44 @@
 }
 
 
+.top-action-button {
+  z-index: 1000;
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2rem);
+  max-width: 600px;
+  padding: .9rem 1.8rem;
+  border: 1px solid var(--main-color);
+  border-radius: 999px;
+  background: var(--main-color);
+  color: var(--inverse-color);
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background .25s ease,
+    color .25s ease,
+    transform .2s ease;
+}
+
+.top-action-button:hover {
+  background: var(--inverse-color);
+  color: var(--main-color);
+}
+
+
+
+.top-action-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+
 
 
 /* Mobile */

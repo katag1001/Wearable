@@ -4,13 +4,21 @@
 
 .today-block {
   width: 100%;
-  max-width: 1200px;
+  height: calc(100vh - var(--header-height));
+  min-height: 0;
   margin: 0 auto;
   padding-right: var(--side-padding);
   padding-left: var(--side-padding);
-  padding-bottom: 4rem;
+  margin-bottom: 2rem;
+  box-sizing: border-box;
+
   color: var(--main-color);
   font-family: var(--main-font);
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
 }
 
 
@@ -20,14 +28,21 @@
 
 .today-title {
   width: 100%;
-  margin: 0 0 .65rem;
+
+  flex-shrink: 0;
+
+  margin: 0 0 .4rem;
+
   font-family: var(--title-font);
   font-size: var(--section-title-font-size);
   font-weight: 700;
+
   letter-spacing: .04em;
   line-height: 1.2;
+
   text-align: center;
   text-transform: uppercase;
+
   color: var(--main-color);
 }
 
@@ -39,7 +54,9 @@
 .today-block .weather {
   width: 100%;
 
-  margin-bottom: 2rem;
+  flex-shrink: 0;
+
+  margin: 0 0 1rem;
 
   text-align: center;
 }
@@ -62,7 +79,7 @@
 /* Weather error */
 
 .today-block .weather-error {
-  margin: .5rem 0 0;
+  margin: .35rem 0 0;
 
   color: var(--error-color);
 
@@ -74,17 +91,31 @@
 
 
 /* ----------------------------------------------------------------
+   TODAY CONTENT
+----------------------------------------------------------------- */
+
+.today-block > *:last-child {
+  min-height: 0;
+}
+
+
+/* ----------------------------------------------------------------
    Responsive
 ----------------------------------------------------------------- */
 
 @media (max-width: 768px) {
 
   .today-block {
-    padding: 1rem 1rem 3rem;
+    height: calc(100vh - var(--header-height));
+
+    padding-right: 1rem;
+    padding-left: 1rem;
+
+    overflow: hidden;
   }
 
   .today-title {
-    margin-bottom: .55rem;
+    margin-bottom: .35rem;
 
     font-size: 1.8rem;
 
@@ -92,26 +123,52 @@
   }
 
   .today-block .weather {
-    margin-bottom: 1.5rem;
+    margin-bottom: .75rem;
   }
 
 }
 
 
+/* ----------------------------------------------------------------
+   Small Phones
+----------------------------------------------------------------- */
+
 @media (max-width: 480px) {
 
   .today-block {
-    padding: .9rem .75rem 2.5rem;
+    height: calc(100vh - var(--header-height));
+
+    padding-right: .75rem;
+    padding-left: .75rem;
   }
 
   .today-title {
+    margin-bottom: .3rem;
+
     font-size: 1.5rem;
 
     letter-spacing: .025em;
   }
 
+  .today-block .weather {
+    margin-bottom: .6rem;
+  }
+
   .today-block .weather-text {
     font-size: .72rem;
+  }
+
+}
+
+
+/* ----------------------------------------------------------------
+   Modern Mobile Viewport
+----------------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+  .today-block {
+    height: calc(100dvh - var(--header-height));
   }
 
 }

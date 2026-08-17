@@ -868,70 +868,83 @@ const ViewToday = ({ todayReady }) => {
 
         {/* ALTERNATIVE OUTFITS */}
 
-        {filteredOutfits.length > 1 && (
+        {outfits.length > 0 && (
 
-          <div className="outfit-selector">
+  <div className="outfit-selector">
 
-            <div className="outfit-selector-content">
+    <div className="outfit-selector-content">
 
-              <div className="outfit-options">
+      {alternativeOutfits.length > 0 ? (
 
-                {alternativeOutfits.map(
-                  ({
-                    outfit,
-                    index
-                  }) => (
+        <>
+          <div className="outfit-options">
 
-                    <button
-                      key={
-                        outfit.matchId?._id ||
-                        index
-                      }
-                      className="outfit-option"
-                      onClick={() =>
-                        selectOutfit(
-                          index
-                        )
-                      }
-                      aria-label={`Select outfit ${
-                        index + 1
-                      }`}
-                    >
-
-                      {renderOutfitImages(
-                        outfit,
-                        true
-                      )}
-
-                    </button>
-
-                  )
-                )}
-
-              </div>
-
-
-              {/* SHOW MORE */}
-
-              {hasMoreAlternativePages && (
+            {alternativeOutfits.map(
+              ({
+                outfit,
+                index
+              }) => (
 
                 <button
-                  className="alternative-down-button"
-                  onClick={
-                    goToNextAlternativePage
+                  key={
+                    outfit.matchId?._id ||
+                    index
                   }
-                  aria-label="Show more outfits"
+                  className="outfit-option"
+                  onClick={() =>
+                    selectOutfit(
+                      index
+                    )
+                  }
+                  aria-label={`Select outfit ${
+                    index + 1
+                  }`}
                 >
-                  ↓
+
+                  {renderOutfitImages(
+                    outfit,
+                    true
+                  )}
+
                 </button>
 
-              )}
-
-            </div>
+              )
+            )}
 
           </div>
 
-        )}
+          {/* SHOW MORE */}
+
+          {hasMoreAlternativePages && (
+
+            <button
+              className="alternative-down-button"
+              onClick={
+                goToNextAlternativePage
+              }
+              aria-label="Show more outfits"
+            >
+              ↓
+            </button>
+
+          )}
+
+        </>
+
+      ) : (
+
+        <p className="today-message">
+          No other options for today
+        </p>
+
+      )}
+
+    </div>
+
+  </div>
+
+)}
+
 
       </div>
 

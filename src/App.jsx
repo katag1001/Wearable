@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import axios from "axios";
 import { URL } from "./config";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
-import './App.css'
+import "./App.css";
 
 /* Pages */
 import Homepage from "./pages/Homepage";
@@ -19,6 +25,17 @@ import Login from "./pages/Login";
 /* Components */
 import Enter from "./components/login/Enter";
 import ProtectedRoute from "./components/login/ProtectedRoute";
+
+/* -------------------- SCROLL TO TOP -------------------- */
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -96,6 +113,9 @@ const App = () => {
       <SpeedInsights />
 
       <Router>
+        {/* Reset scroll position whenever the route changes */}
+        <ScrollToTop />
+
         <Routes>
           {/* Public */}
           <Route path="/register" element={<Register />} />
@@ -157,8 +177,8 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="*" element={<Navigate to="/" replace />} />
 
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </>
