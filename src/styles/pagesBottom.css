@@ -6,6 +6,10 @@
   box-sizing: border-box;
 }
 
+.pages-bottom-container{
+  padding-bottom: 2rem;
+}
+
 
 .no-items-text {
   text-align: center;

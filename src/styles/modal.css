@@ -758,17 +758,21 @@
    Modal Buttons
 ----------------------------------------------------------------- */
 
+.modal-button-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
 .modal-button {
   min-width: 120px;
-
   padding: .75rem 1.6rem;
-
   border: 1px solid var(--main-color);
   border-radius: 999px;
-
   background: var(--main-color);
   color: var(--inverse-color);
-
   font-family: inherit;
   font-size: var(--button-font-size);
   font-weight: 500;

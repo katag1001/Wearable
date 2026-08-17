@@ -5,10 +5,19 @@
 .weekly-preferences {
   width: 100%;
   max-width: 1200px;
+
+  min-height: calc(100vh - var(--header-height));
+
   margin: 0 auto;
-  padding: 0rem 2rem 4rem;
+  padding: 0 2rem 2rem;
+
+  box-sizing: border-box;
+
   color: var(--main-color);
   font-family: var(--main-font);
+
+  display: flex;
+  flex-direction: column;
 }
 
 
@@ -18,8 +27,12 @@
 
 .weekly-preferences-header {
   width: 100%;
-  margin-bottom: 2rem;
+
+  margin-bottom: 1rem;
+
   text-align: center;
+
+  flex-shrink: 0;
 }
 
 
@@ -30,9 +43,14 @@
 .weekly-preferences-week {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 0.75rem;
+
+  gap: 0.6rem;
+
   width: 100%;
-  margin-bottom: 3.5rem;
+
+  margin-bottom: 1.5rem;
+
+  flex-shrink: 0;
 }
 
 
@@ -42,19 +60,23 @@
 
 .day-card {
   position: relative;
+  z-index: 1;
 
   min-width: 0;
-  min-height: 190px;
+  min-height: 135px;
+  height: 135px;
 
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  padding: .85rem;
+  padding: 0.65rem;
+
+  box-sizing: border-box;
 
   background: var(--card-background);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 10px;
 
   color: var(--main-color);
   font: inherit;
@@ -62,91 +84,134 @@
   cursor: pointer;
 
   transition:
-    border-color .25s ease,
-    background .25s ease,
-    box-shadow .25s ease,
-    transform .2s ease;
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .day-card:hover {
+  z-index: 2;
+
   background: var(--hover-background);
   border-color: var(--hover-border-color);
-  transform: translateY(-2px);
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
 .day-card:focus-visible {
+  z-index: 3;
+
   outline: 2px solid var(--main-color);
   outline-offset: 3px;
 }
 
 
-/* Selected day */
+/* ----------------------------------------------------------------
+   Selected Day
+----------------------------------------------------------------- */
 
 .day-card--active {
+  z-index: 3;
+
   background: var(--hover-background);
+
   border-color: var(--main-color);
-  box-shadow: 0 0 0 1px var(--main-color);
+
+  /*
+    Use an inset shadow instead of an outer shadow.
+    This keeps the visual size of the card unchanged and
+    prevents the selected card from covering neighboring borders.
+  */
+  box-shadow: inset 0 0 0 1px var(--main-color);
 }
 
 .day-card--active:hover {
   border-color: var(--main-color);
+
+  box-shadow:
+    inset 0 0 0 1px var(--main-color),
+    0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
 
-/* Day name */
+/* ----------------------------------------------------------------
+   Day Name
+----------------------------------------------------------------- */
 
 .day-card-name {
-  margin-bottom: .9rem;
+  margin-bottom: 0.5rem;
+
   color: var(--secondary-color);
+
   font-size: var(--day-name-font-size);
   font-weight: 500;
-  letter-spacing: 0.13em;
+
+  letter-spacing: 0.1em;
   line-height: 1.2;
+
   text-transform: uppercase;
+
+  flex-shrink: 0;
 }
-
-
-/* Selected day name */
 
 .day-card--active .day-card-name {
   color: var(--main-color);
 }
 
 
-/* Day image */
+/* ----------------------------------------------------------------
+   Day Image
+----------------------------------------------------------------- */
 
 .day-card-image {
   width: 100%;
-  height: 105px;
-
+  height: 70px;
+  width: auto;
   display: block;
 
-  margin-bottom: .75rem;
+  margin-bottom: 0.45rem;
 
   object-fit: cover;
 
-  border-radius: 8px;
+  border-radius: 6px;
 
-  transition: transform .25s ease;
+  transition: opacity 0.2s ease;
+  
 }
+
 
 .day-card:hover .day-card-image {
-  transform: scale(1.02);
+  opacity: 0.94;
 }
 
 
-/* Tag name */
+/* ----------------------------------------------------------------
+   Tag Name
+----------------------------------------------------------------- */
 
 .day-card-tag {
   color: var(--tag-color);
+
   font-size: var(--tag-font-size);
   font-weight: 500;
-  letter-spacing: .04em;
+
+  letter-spacing: 0.03em;
+
+  line-height: 1.2;
+
   text-align: center;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  max-width: 100%;
 }
 
 
-/* Empty day */
+/* ----------------------------------------------------------------
+   Empty Day
+----------------------------------------------------------------- */
 
 .day-card-empty {
   flex: 1;
@@ -158,25 +223,33 @@
   align-items: center;
   justify-content: center;
 
-  gap: .7rem;
+  gap: 0.45rem;
 
   color: var(--muted-color);
 
   font-size: var(--empty-day-font-size);
-  letter-spacing: .06em;
+
+  letter-spacing: 0.04em;
+
   text-transform: uppercase;
+
+  text-align: center;
 }
 
 
-/* Plus circle */
+/* ----------------------------------------------------------------
+   Plus Circle
+----------------------------------------------------------------- */
 
 .day-card-plus {
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
 
   display: flex;
   align-items: center;
   justify-content: center;
+
+  box-sizing: border-box;
 
   border: 1px solid var(--border-color);
   border-radius: 50%;
@@ -190,9 +263,9 @@
   font-weight: 300;
 
   transition:
-    border-color .2s ease,
-    background .2s ease,
-    color .2s ease;
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .day-card:hover .day-card-plus {
@@ -207,43 +280,56 @@
 
 .tag-selector {
   width: 100%;
-  margin-bottom: 2rem;
+
+  margin-bottom: 1rem;
+
+  flex-shrink: 0;
 }
 
 
-/* Selector header */
+/* ----------------------------------------------------------------
+   Selector Header
+----------------------------------------------------------------- */
 
 .tag-selector-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
 
   gap: 1rem;
 
-  margin-bottom: 1.25rem;
-
-  padding-bottom: .9rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.65rem;
 
   border-bottom: 1px solid var(--border-color);
 }
 
 
-/* Selector heading */
+/* ----------------------------------------------------------------
+   Selector Heading
+----------------------------------------------------------------- */
 
-.tag-selector-header h3 {
-  margin: 0 0 .35rem;
-
+.tag-selector-header-name {
   font-family: var(--title-font);
+
   font-size: var(--section-title-font-size);
   font-weight: 700;
-  letter-spacing: .03em;
+
+  letter-spacing: 0.03em;
+
   text-transform: uppercase;
 
   color: var(--main-color);
 }
 
+.tag-selector-header-name h3 {
+  margin: 0 0 0.15rem;
+}
 
-/* Selector description */
+
+/* ----------------------------------------------------------------
+   Selector Description
+----------------------------------------------------------------- */
 
 .tag-selector-header p {
   margin: 0;
@@ -252,7 +338,8 @@
 
   font-size: var(--description-font-size);
   font-weight: 400;
-  letter-spacing: .03em;
+
+  letter-spacing: 0.03em;
 }
 
 
@@ -263,7 +350,7 @@
 .clear-button {
   flex-shrink: 0;
 
-  padding: .55rem 1rem;
+  padding: 0.4rem 0.85rem;
 
   border: 1px solid var(--border-color);
   border-radius: 999px;
@@ -273,24 +360,31 @@
   color: var(--secondary-color);
 
   font-family: inherit;
+
   font-size: var(--button-font-size);
   font-weight: 500;
 
-  letter-spacing: .1em;
+  letter-spacing: 0.08em;
+
   text-transform: uppercase;
 
   cursor: pointer;
 
   transition:
-    background .2s ease,
-    border-color .2s ease,
-    color .2s ease;
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .clear-button:hover {
   background: var(--main-color);
   border-color: var(--main-color);
   color: var(--inverse-color);
+}
+
+.clear-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 2px;
 }
 
 
@@ -300,11 +394,15 @@
 
 .tag-grid {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, 80px);
-  gap: 0.5rem;
-  margin: 0 auto;
 
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 76px);
+
+  gap: 0.45rem;
+
+  margin: 0;
+
+  justify-content: start;
 }
 
 
@@ -313,28 +411,40 @@
 ----------------------------------------------------------------- */
 
 .tag-card {
-  max-width: 80px;
+  width: 76px;
+  max-width: 76px;
   min-width: 0;
+
   padding: 0;
+
   overflow: hidden;
+
+  box-sizing: border-box;
+
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 7px;
+
   background: var(--card-background);
+
   color: var(--main-color);
   font: inherit;
+
   text-align: left;
+
   cursor: pointer;
+
   transition:
-    background .2s ease,
-    border-color .2s ease,
-    box-shadow .2s ease,
-    transform .2s ease;
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .tag-card:hover {
   background: var(--hover-background);
+
   border-color: var(--hover-border-color);
-  transform: translateY(-1px);
+
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.07);
 }
 
 .tag-card:focus-visible {
@@ -343,18 +453,20 @@
 }
 
 
-/* Selected tag */
+/* ----------------------------------------------------------------
+   Selected Tag
+----------------------------------------------------------------- */
 
 .tag-card--selected {
   background: var(--hover-background);
   border-color: var(--main-color);
-  box-shadow: 0 0 0 1px var(--main-color);
+  box-shadow: none;
 }
 
 .tag-card--selected:hover {
   border-color: var(--main-color);
+  box-shadow: none;
 }
-
 
 /* ----------------------------------------------------------------
    Tag Image
@@ -362,20 +474,25 @@
 
 .tag-card-image-wrapper {
   width: 100%;
+  height: 72px;
+
   overflow: hidden;
-  background: var(--image-background);
+
 }
 
 .tag-card-image {
   display: block;
+
   width: 100%;
-  height: 100%;
+  
+
   object-fit: cover;
-  transition: transform 0.25s ease;
+
+  transition: opacity 0.2s ease;
 }
 
 .tag-card:hover .tag-card-image {
-  transform: scale(1.02);
+  opacity: 0.94;
 }
 
 
@@ -384,19 +501,23 @@
 ----------------------------------------------------------------- */
 
 .tag-card-content {
-  min-height: 30px;
+  min-height: 28px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  gap: .25rem;
+  gap: 0.2rem;
 
-  padding: .4rem .45rem;
+  padding: 0rem 0.4rem;
+
+  box-sizing: border-box;
 }
 
 
-/* Tag name */
+/* ----------------------------------------------------------------
+   Tag Name
+----------------------------------------------------------------- */
 
 .tag-card-content > span:first-child {
   min-width: 0;
@@ -408,20 +529,22 @@
   font-size: var(--tag-card-font-size);
   font-weight: 500;
 
-  letter-spacing: .03em;
+  letter-spacing: 0.02em;
 
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 
-/* Selected check */
+/* ----------------------------------------------------------------
+   Selected Check
+----------------------------------------------------------------- */
 
 .tag-card-check {
   flex-shrink: 0;
 
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
 
   display: flex;
   align-items: center;
@@ -433,6 +556,7 @@
   color: var(--inverse-color);
 
   font-size: var(--check-font-size);
+
   line-height: 1;
 }
 
@@ -444,26 +568,35 @@
 .preferences-message {
   width: 100%;
 
-  margin-bottom: 1rem;
-  padding: .8rem 1rem;
+  margin-bottom: 0.65rem;
 
-  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+
+  box-sizing: border-box;
+
+  border-radius: 7px;
 
   font-size: var(--description-font-size);
   font-weight: 400;
 
   text-align: center;
+
+  flex-shrink: 0;
 }
 
 .preferences-message--error {
   background: var(--error-background);
+
   border: 1px solid var(--error-border-color);
+
   color: var(--error-color);
 }
 
 .preferences-message--success {
   background: var(--success-background);
+
   border: 1px solid var(--success-border-color);
+
   color: var(--success-color);
 }
 
@@ -474,21 +607,34 @@
 
 .save-button {
   width: 100%;
-  padding: .9rem 1.8rem;
+
+  padding: 0.7rem 1.5rem;
+
+  box-sizing: border-box;
+
   border: 1px solid var(--main-color);
   border-radius: 999px;
+
   background: var(--main-color);
   color: var(--inverse-color);
+
   font-family: inherit;
+
   font-size: var(--button-font-size);
   font-weight: 500;
-  letter-spacing: .13em;
+
+  letter-spacing: 0.12em;
+
   text-transform: uppercase;
+
   cursor: pointer;
+
   transition:
-    background .25s ease,
-    color .25s ease,
-    transform .2s ease;
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.15s ease;
+
+  flex-shrink: 0;
 }
 
 .save-button:hover {
@@ -506,7 +652,7 @@
 }
 
 .save-button:disabled {
-  opacity: .55;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
@@ -523,14 +669,366 @@
 .weekly-preferences-loading {
   width: 100%;
 
-  padding: 5rem 1rem;
+  min-height: calc(100vh - var(--header-height));
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2rem 1rem;
+
+  box-sizing: border-box;
 
   color: var(--secondary-color);
 
   font-size: var(--description-font-size);
   font-weight: 400;
 
-  letter-spacing: .1em;
+  letter-spacing: 0.1em;
+
   text-align: center;
   text-transform: uppercase;
+}
+
+
+/* ================================================================
+   MEDIA ADJUSTMENTS
+================================================================ */
+
+
+/* ----------------------------------------------------------------
+   Tablet
+----------------------------------------------------------------- */
+
+@media (max-width: 1000px) {
+
+  .weekly-preferences {
+    padding: 0 1.5rem 1.5rem;
+  }
+
+
+  /* Week */
+
+  .weekly-preferences-week {
+    grid-template-columns: repeat(7, minmax(105px, 1fr));
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.4rem;
+
+    scrollbar-width: thin;
+  }
+
+
+  .day-card {
+    height: 125px;
+    max-height: 125px;
+    padding: 0.6rem;
+  }
+
+
+  .day-card-name {
+    margin-bottom: 0.45rem;
+  }
+
+
+  .day-card-image {
+    height: 72px;
+    margin-bottom: 0.4rem;
+  }
+
+
+  .day-card-plus {
+    width: 32px;
+    height: 32px;
+  }
+
+
+  /* Tags */
+
+  .tag-grid {
+    grid-template-columns: repeat(auto-fit, 72px);
+
+    gap: 0.4rem;
+  }
+
+
+  .tag-card {
+    width: 72px;
+    max-width: 72px;
+  }
+
+
+  .tag-card-image-wrapper {
+    height: 72px;
+  }
+
+}
+
+
+/* ----------------------------------------------------------------
+   Mobile
+----------------------------------------------------------------- */
+
+@media (max-width: 700px) {
+
+  .weekly-preferences {
+    min-height: calc(100vh - var(--header-height));
+
+    padding: 0 1rem 1.25rem;
+  }
+
+
+  /* Header */
+
+  .weekly-preferences-header {
+    margin-bottom: 1rem;
+  }
+
+
+  /* Week */
+
+  .weekly-preferences-week {
+    grid-template-columns: repeat(7, 105px);
+
+    gap: 0.45rem;
+
+    margin-bottom: 1.25rem;
+
+    overflow-x: auto;
+
+    overscroll-behavior-x: contain;
+
+    padding-bottom: 0.45rem;
+
+    scrollbar-width: thin;
+  }
+
+
+  .day-card {
+    width: 105px;
+
+    height: 120px;
+    min-height: 120px;
+
+    padding: 0.55rem;
+
+    border-radius: 9px;
+  }
+
+
+  .day-card-name {
+    margin-bottom: 0.4rem;
+  }
+
+
+  .day-card-image {
+    height: 62px;
+
+    margin-bottom: 0.35rem;
+
+    border-radius: 5px;
+  }
+
+
+  .day-card-plus {
+    width: 31px;
+    height: 31px;
+  }
+
+
+  /* Tag Selector */
+
+  .tag-selector {
+    margin-bottom: 0.9rem;
+  }
+
+
+  .tag-selector-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 0.5rem;
+
+    margin-bottom: 0.75rem;
+
+    padding-bottom: 0.6rem;
+  }
+
+
+  .tag-selector-header h3 {
+    margin-bottom: 0.15rem;
+  }
+
+
+  .clear-button {
+    align-self: flex-start;
+
+    padding: 0.35rem 0.8rem;
+  }
+
+
+  /* Tags */
+
+  .tag-grid {
+    grid-template-columns: repeat(auto-fill, minmax(68px, 72px));
+
+    justify-content: start;
+
+    gap: 0.4rem;
+  }
+
+
+  .tag-card {
+    width: 72px;
+    max-width: 72px;
+  }
+
+
+  .tag-card-image-wrapper {
+    height: 72px;
+  }
+
+
+  /* Messages */
+
+  .preferences-message {
+    padding: 0.6rem 0.75rem;
+  }
+
+
+  /* Save */
+
+  .save-button {
+    padding: 0.7rem 1.15rem;
+  }
+
+
+  /* Loading */
+
+  .weekly-preferences-loading {
+    min-height: calc(100vh - var(--header-height));
+
+    padding: 3rem 0.75rem;
+  }
+
+}
+
+
+/* ----------------------------------------------------------------
+   Small Mobile
+----------------------------------------------------------------- */
+
+@media (max-width: 480px) {
+
+  .weekly-preferences {
+    padding: 0 0.75rem 1rem;
+  }
+
+
+  /* Week */
+
+  .weekly-preferences-week {
+    grid-template-columns: repeat(7, 95px);
+
+    gap: 0.4rem;
+
+    margin-bottom: 1rem;
+  }
+
+
+  .day-card {
+    width: 95px;
+
+    height: 112px;
+    min-height: 112px;
+
+    padding: 0.5rem;
+
+    border-radius: 8px;
+  }
+
+
+  .day-card-name {
+    margin-bottom: 0.35rem;
+  }
+
+
+  .day-card-image {
+    height: 57px;
+
+    margin-bottom: 0.3rem;
+
+    border-radius: 5px;
+  }
+
+
+  .day-card-plus {
+    width: 29px;
+    height: 29px;
+  }
+
+
+  /* Tag Selector */
+
+  .tag-selector-header {
+    gap: 0.45rem;
+
+    margin-bottom: 0.65rem;
+  }
+
+
+  .tag-selector-header h3 {
+    font-size: var(--section-title-font-size);
+
+    text-align: left;
+  }
+
+
+  /* Tags */
+
+  .tag-grid {
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+
+    gap: 0.35rem;
+  }
+
+
+  .tag-card {
+    width: 100%;
+    max-width: none;
+
+    border-radius: 6px;
+  }
+
+
+  .tag-card-image-wrapper {
+    height: auto;
+
+    aspect-ratio: 1 / 1;
+  }
+
+
+  .tag-card-content {
+    min-height: 26px;
+
+    padding: 0.3rem 0.35rem;
+  }
+
+
+  /* Messages */
+
+  .preferences-message {
+    margin-bottom: 0.55rem;
+
+    padding: 0.55rem 0.7rem;
+  }
+
+
+  /* Save */
+
+  .save-button {
+    padding: 0.65rem 1rem;
+  }
+
 }

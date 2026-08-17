@@ -256,16 +256,6 @@
     margin-bottom: 1.25rem;
   }
 
-  .top-option-row {
-    justify-content: flex-start;
-
-    overflow-x: auto;
-    flex-wrap: nowrap;
-
-    padding-bottom: .85rem;
-
-    scrollbar-width: none;
-  }
 
   .top-option-row::-webkit-scrollbar {
     display: none;

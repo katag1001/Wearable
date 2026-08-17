@@ -482,11 +482,70 @@ const WeeklyPreferences = () => {
         </p>
       </div>
 
-            {/* TAG SELECTOR */}
+      {/* WEEK */}
+
+      <div className="weekly-preferences-week">
+        {days.map((day) => {
+          const tag = getTag(
+            preferences[day.key]
+          );
+
+          const isActive =
+            selectedDay === day.key;
+
+          return (
+            <button
+              key={day.key}
+              type="button"
+              className={`day-card ${
+                isActive
+                  ? "day-card--active"
+                  : ""
+              }`}
+              onClick={() =>
+                handleDaySelect(
+                  day.key
+                )
+              }
+              aria-pressed={isActive}
+            >
+              <span className="day-card-name">
+                {day.label}
+              </span>
+
+              {tag ? (
+                <>
+                  <img
+                    src={tag.image}
+                    alt={tag.name}
+                    className="day-card-image"
+                  />
+
+                  <span className="day-card-tag">
+                    {tag.name}
+                  </span>
+                </>
+              ) : (
+                <div className="day-card-empty">
+                  <span className="day-card-plus">
+                    +
+                  </span>
+
+                  <span>
+                    No preference
+                  </span>
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* TAG SELECTOR */}
 
       <div className="tag-selector">
         <div className="tag-selector-header">
-          <div>
+          <div className="tag-selector-header-name">
             <h3>
               {selectedDayObject?.label}
             </h3>
@@ -565,64 +624,7 @@ const WeeklyPreferences = () => {
         
       </div>
 
-      {/* WEEK */}
-
-      <div className="weekly-preferences-week">
-        {days.map((day) => {
-          const tag = getTag(
-            preferences[day.key]
-          );
-
-          const isActive =
-            selectedDay === day.key;
-
-          return (
-            <button
-              key={day.key}
-              type="button"
-              className={`day-card ${
-                isActive
-                  ? "day-card--active"
-                  : ""
-              }`}
-              onClick={() =>
-                handleDaySelect(
-                  day.key
-                )
-              }
-              aria-pressed={isActive}
-            >
-              <span className="day-card-name">
-                {day.label}
-              </span>
-
-              {tag ? (
-                <>
-                  <img
-                    src={tag.image}
-                    alt={tag.name}
-                    className="day-card-image"
-                  />
-
-                  <span className="day-card-tag">
-                    {tag.name}
-                  </span>
-                </>
-              ) : (
-                <div className="day-card-empty">
-                  <span className="day-card-plus">
-                    +
-                  </span>
-
-                  <span>
-                    No preference
-                  </span>
-                </div>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      
 
       {/* ERROR */}
 

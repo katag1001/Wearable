@@ -20,8 +20,7 @@
 
   background: var(--inverse-color);
 
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
+
 
   overflow: visible;
 }
@@ -34,13 +33,19 @@
 .user-sidebar {
   position: sticky;
   top: var(--header-height);
+
   height: calc(100vh - var(--header-height));
   min-height: 500px;
+
   display: flex;
   flex-direction: column;
+
   padding: 1.5rem;
+
   background: var(--card-background);
+
   border-right: 1px solid var(--border-color);
+
   align-self: start;
 }
 
@@ -60,20 +65,30 @@
 
 .user-sidebar__button {
   width: 100%;
+
   display: flex;
   align-items: center;
+
   padding: .8rem 1rem;
+
   border: 1px solid transparent;
   border-radius: 8px;
+
   background: transparent;
+
   color: var(--secondary-color);
+
   font-family: var(--main-font);
   font-size: var(--sidebar-button-font-size);
   font-weight: 500;
+
   letter-spacing: .08em;
+
   text-align: left;
   text-transform: uppercase;
+
   cursor: pointer;
+
   transition:
     background .2s ease,
     border-color .2s ease,
@@ -120,10 +135,14 @@
 
 .user-sidebar__bottom {
   margin-top: auto;
+
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+
+  gap: .6rem;
+
   padding-top: 2rem;
+
   border-top: 1px solid var(--border-color);
 }
 
@@ -149,6 +168,7 @@
   font-weight: 500;
 
   letter-spacing: .1em;
+
   text-align: left;
   text-transform: uppercase;
 
@@ -208,97 +228,291 @@
 }
 
 
+/* ================================================================
+   MOBILE SIDEBAR CONTROLS
+================================================================ */
+
+
+/* Hidden on desktop */
+
+.user-sidebar-toggle,
+.user-sidebar__close,
+.user-sidebar-overlay {
+  display: none;
+}
+
+
 /* ----------------------------------------------------------------
    Tablet
 ----------------------------------------------------------------- */
 
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
 
   .user-container {
     grid-template-columns: 210px minmax(0, 1fr);
   }
 
+
   .user-sidebar {
     padding: 1.25rem;
+  }
+
+
+  .user-sidebar__button,
+  .user-sidebar__action {
+    padding: .7rem .85rem;
   }
 
 }
 
 
 /* ----------------------------------------------------------------
-   Mobile
+   Mobile Sidebar
 ----------------------------------------------------------------- */
 
-@media (max-width: 768px) {
+@media (max-width: 700px) {
+
+  /* --------------------------------------------------------------
+     Container
+  -------------------------------------------------------------- */
 
   .user-container {
-    display: flex;
-    flex-direction: column;
+    position: relative;
 
-    min-height: auto;
+    display: block;
+
+    min-height: calc(100vh - 120px);
 
     border-radius: 10px;
 
-    overflow: visible;
+    overflow: hidden;
   }
 
 
-  /* Sidebar becomes sticky horizontal navigation */
+  /* --------------------------------------------------------------
+     Mobile Menu Button
+  -------------------------------------------------------------- */
 
-  .user-sidebar {
-    position: sticky;
-    top: 0;
+  .user-sidebar-toggle {
+    position: relative;
+    z-index: 10;
 
-    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: fit-content;
+
+    margin: 1rem;
+
+    padding: .65rem 1rem;
+
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+
+    background: var(--card-background);
+
+    color: var(--secondary-color);
+
+    font-family: var(--main-font);
+    font-size: var(--button-font-size);
+    font-weight: 500;
+
+    letter-spacing: .1em;
+
+    text-transform: uppercase;
+
+    cursor: pointer;
+
+    transition:
+      background .2s ease,
+      border-color .2s ease,
+      color .2s ease;
+  }
+
+
+  .user-sidebar-toggle:hover {
+    background: var(--hover-background);
+
+    border-color: var(--hover-border-color);
+
+    color: var(--main-color);
+  }
+
+
+  .user-sidebar-toggle:focus-visible {
+    outline: 2px solid var(--main-color);
+    outline-offset: 3px;
+  }
+
+
+  /* --------------------------------------------------------------
+     Overlay
+  -------------------------------------------------------------- */
+
+  .user-sidebar-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 999;
+
+    display: block;
 
     width: 100%;
-    height: auto;
-    min-height: auto;
+    height: 100%;
 
-    padding: .75rem;
+    padding: 0;
 
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
+    border: 0;
+
+    background: rgba(0, 0, 0, .45);
+
+    cursor: pointer;
   }
 
 
-  .user-sidebar__nav {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* --------------------------------------------------------------
+     Sidebar Drawer
+  -------------------------------------------------------------- */
 
-    gap: .5rem;
+  .user-sidebar {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    z-index: 1000;
+
+    width: min(300px, 85vw);
+    height: 100vh;
+
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 4.5rem 1.25rem 1.25rem;
+
+    background: var(--card-background);
+
+    border: 0;
+    border-right: 1px solid var(--border-color);
+
+    box-shadow: 8px 0 30px rgba(0, 0, 0, .15);
+
+    transform: translateX(-100%);
+
+    transition: transform .3s ease;
+
+    overflow-y: auto;
+
+    align-self: auto;
+  }
+
+
+  /* Open Drawer */
+
+  .user-sidebar--open {
+    transform: translateX(0);
+  }
+
+
+  /* --------------------------------------------------------------
+     Close Button
+  -------------------------------------------------------------- */
+
+  .user-sidebar__close {
+    position: absolute;
+
+    top: 1rem;
+    right: 1rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    padding: 0;
+
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: var(--secondary-color);
+
+    font-family: var(--main-font);
+    font-size: 1.5rem;
+    font-weight: 300;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+      background .2s ease,
+      border-color .2s ease,
+      color .2s ease;
+  }
+
+
+  .user-sidebar__close:hover {
+    background: var(--hover-background);
+
+    border-color: var(--hover-border-color);
+
+    color: var(--main-color);
+  }
+
+
+  .user-sidebar__close:focus-visible {
+    outline: 2px solid var(--main-color);
+    outline-offset: 3px;
+  }
+
+
+  /* --------------------------------------------------------------
+     Sidebar Navigation
+  -------------------------------------------------------------- */
+
+  .user-sidebar__nav {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
   }
 
 
   .user-sidebar__button {
-    padding: .7rem .75rem;
-
-    font-size: var(--mobile-button-font-size);
+    padding: .8rem 1rem;
   }
 
 
-  /* Actions */
+  /* --------------------------------------------------------------
+     Sidebar Bottom Actions
+  -------------------------------------------------------------- */
 
   .user-sidebar__bottom {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: auto;
 
-    gap: .5rem;
+    display: flex;
+    flex-direction: column;
 
-    margin-top: .75rem;
-    padding-top: .75rem;
+    gap: .6rem;
+
+    padding-top: 1.5rem;
   }
 
 
-  .user-sidebar__action {
-    padding: .7rem .75rem;
-
-    font-size: var(--mobile-action-font-size);
-  }
-
+  /* --------------------------------------------------------------
+     Content
+  -------------------------------------------------------------- */
 
   .user-content {
     width: 100%;
+    min-height: 100%;
   }
 
 }
@@ -313,37 +527,26 @@
   .user-container {
     border-radius: 0;
 
-    border-left: none;
-    border-right: none;
+    border-left: 0;
+    border-right: 0;
   }
 
 
   .user-sidebar {
-    padding: .65rem;
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
 
-  .user-sidebar__nav {
-    grid-template-columns: 1fr;
+  .user-sidebar-toggle {
+    margin: .75rem;
   }
 
 
-  .user-sidebar__button {
-    padding: .65rem .75rem;
-
-    font-size: var(--small-mobile-button-font-size);
-  }
-
-
-  .user-sidebar__bottom {
-    grid-template-columns: 1fr;
-  }
-
-
+  .user-sidebar__button,
   .user-sidebar__action {
-    padding: .65rem .75rem;
-
-    font-size: var(--small-mobile-action-font-size);
+    padding: .7rem .85rem;
   }
 
 }

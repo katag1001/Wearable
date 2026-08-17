@@ -1,31 +1,350 @@
-/* Filter section styling */
+ /* ----------------------------------------------------------------
+    Filter Overlay
+ ----------------------------------------------------------------- */
 
 .filter-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 1001;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  justify-content: flex-end;
+
+  background: rgba(0, 0, 0, .35);
+
+  animation: filter-overlay-in .25s ease forwards;
 }
+
+
+/* ----------------------------------------------------------------
+   Filter Panel
+----------------------------------------------------------------- */
 
 .filter-panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 350px;
-  height: 100%;
-  background: white;
-  padding: 25px;
+  position: relative;
+
+  width: min(360px, 60vw);
+  height: 100vh;
+
+  padding: 2rem;
+
+  display: flex;
+  flex-direction: column;
+
   overflow-y: auto;
-  box-shadow: -4px 0 12px rgba(0,0,0,0.2);
-  animation: slideIn 0.3s ease forwards;
+
+  background: var(--card-background);
+  border-left: 1px solid var(--border-color);
+
+  color: var(--main-color);
+
+  box-shadow: -12px 0 35px rgba(0, 0, 0, .12);
+
+  animation: filter-panel-in .3s ease forwards;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.filter-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filter-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.filter-panel::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 999px;
 }
 
 
-@keyframes slideIn {
+/* ----------------------------------------------------------------
+   Filter Header
+----------------------------------------------------------------- */
 
+.filter-panel h2 {
+  width: 100%;
+
+  margin: 0 0 1.5rem;
+  padding-bottom: .9rem;
+
+  border-bottom: 1px solid var(--border-color);
+
+  color: var(--main-color);
+
+  font-family: var(--title-font);
+  font-size: var(--section-title-font-size);
+  font-weight: 700;
+
+  letter-spacing: .03em;
+  line-height: 1.2;
+
+  text-transform: uppercase;
+}
+
+
+/* ----------------------------------------------------------------
+   Close Button
+----------------------------------------------------------------- */
+
+.close-filter-button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+
+  width: 2.25rem;
+  height: 2.25rem;
+
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+
+  background: transparent;
+  color: var(--main-color);
+
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    transform .2s ease;
+}
+
+.close-filter-button:hover {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
+
+  transform: rotate(90deg);
+}
+
+.close-filter-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+
+/* ----------------------------------------------------------------
+   Filter Sections
+----------------------------------------------------------------- */
+
+.filter-section {
+  width: 100%;
+
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+
+  border-bottom: 1px solid var(--border-color);
+}
+
+.filter-section:last-of-type {
+  margin-bottom: 0;
+}
+
+
+/* ----------------------------------------------------------------
+   Filter Section Headers
+----------------------------------------------------------------- */
+
+.filter-section h3 {
+  margin: 0 0 1rem;
+
+  color: var(--main-color);
+
+  font-family: var(--title-font);
+  font-size: var(--button-font-size);
+  font-weight: 700;
+
+  letter-spacing: .08em;
+  line-height: 1.3;
+
+  text-transform: uppercase;
+}
+
+
+/* ----------------------------------------------------------------
+   Filter Options
+----------------------------------------------------------------- */
+
+.filter-section label {
+  width: 100%;
+
+  margin: 0;
+
+  padding: .55rem .65rem;
+
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+
+  border-radius: 8px;
+
+  color: var(--secondary-color);
+
+  font-size: var(--description-font-size);
+  font-weight: 400;
+
+  letter-spacing: .03em;
+  line-height: 1.4;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    color .2s ease;
+}
+
+.filter-section label:hover {
+  background: var(--hover-background);
+  color: var(--main-color);
+}
+
+
+/* ----------------------------------------------------------------
+   Round Selection Buttons
+----------------------------------------------------------------- */
+
+.filter-section input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+
+  flex: 0 0 auto;
+
+  margin: 0;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    transform .15s ease;
+}
+
+.filter-section input[type="checkbox"]:hover {
+  border-color: var(--main-color);
+}
+
+.filter-section input[type="checkbox"]:checked {
+  border-color: var(--main-color);
+  background: var(--main-color);
+
+  transform: scale(.92);
+}
+
+.filter-section input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+
+/* ----------------------------------------------------------------
+   Filter Buttons
+----------------------------------------------------------------- */
+
+.filter-buttons {
+  width: 100%;
+
+  margin-top: auto;
+  padding-top: 1.5rem;
+
+  display: flex;
+  gap: .75rem;
+}
+
+.filter-buttons button {
+  flex: 1;
+
+  min-height: 2.75rem;
+
+  padding: .7rem 1.25rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: transparent;
+
+  color: var(--main-color);
+
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+
+  letter-spacing: .1em;
+  line-height: 1;
+
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    transform .2s ease;
+}
+
+.filter-buttons button:hover {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
+
+  transform: translateY(-1px);
+}
+
+.filter-buttons button:last-child {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
+}
+
+.filter-buttons button:last-child:hover {
+  background: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: var(--inverse-color);
+}
+
+.filter-buttons button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+
+/* ----------------------------------------------------------------
+   Animations
+----------------------------------------------------------------- */
+
+@keyframes filter-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes filter-panel-in {
   from {
     transform: translateX(100%);
   }
@@ -35,140 +354,95 @@
   }
 }
 
-.close-filter-button {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  border: none;
-  background: none;
-  font-size: 30px;
-  cursor: pointer;
-}
 
-.filter-panel h2 {
-  margin-top: 10px;
-  margin-bottom: 25px;
-  font-size: 24px;
-}
+/* ----------------------------------------------------------------
+   Small Screens
+----------------------------------------------------------------- */
 
-.filter-section {
-  margin-bottom: 25px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+@media (max-width: 600px) {
 
-.filter-section h3 {
-  margin-bottom: 8px;
-  font-size: 18px;
-}
+  /*
+     The filter becomes a full-screen modal.
+     The panel no longer leaves any of the underlying
+     page visible.
+  */
 
-.filter-section label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  cursor: pointer;
-}
+  .filter-overlay {
+    justify-content: stretch;
 
-.filter-section input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-}
+    background: var(--card-background);
+  }
 
-.temperature-inputs {
-  display: flex;
-  gap: 10px;
-}
-
-.temperature-inputs input {
-  width: 50%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.filter-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 30px;
-}
-
-.filter-buttons button {
-  padding: 10px 25px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-size: 15px;
-}
-
-.filter-buttons button:first-child {
-  background: #e5e5e5;
-}
-
-
-.filter-buttons button:last-child {
-  background: #222;
-  color: white;
-}
-
-/* ---------- Mobile / Tablet ---------- */
-@media (max-width: 768px) {
   .filter-panel {
-    position: fixed;
-    inset: 0;
     width: 100%;
-    height: 100%;
-    padding: 20px;
-    border-radius: 0;
-    box-sizing: border-box;
-  }
+    height: 100vh;
+    max-height: none;
 
-  .filter-panel h2 {
-    font-size: 22px;
-    margin-bottom: 20px;
-  }
+    padding: 1.5rem;
 
-  .filter-section {
-    margin-bottom: 20px;
-    gap: 12px;
-  }
-
-  .filter-section h3 {
-    font-size: 17px;
-  }
-
-  .filter-section label {
-    font-size: 16px;
-  }
-
-  .filter-section input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
+    border-left: 0;
+    box-shadow: none;
   }
 
   .close-filter-button {
-    top: 15px;
-    right: 15px;
-    font-size: 32px;
+    top: 1.25rem;
+    right: 1.25rem;
+  }
+
+  .filter-panel h2 {
+    margin-bottom: 1.25rem;
+    padding-bottom: .75rem;
+  }
+
+  .filter-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .filter-section label {
+    padding: .6rem .5rem;
   }
 
   .filter-buttons {
-    position: sticky;
-    bottom: 0;
-    background: white;
-    padding-top: 16px;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
-    margin-top: 24px;
-    gap: 12px;
+    padding-top: 1.25rem;
   }
 
-  .filter-buttons button {
-    flex: 1;
-    padding: 14px;
-    font-size: 16px;
-  }
 }
 
 
+/* ----------------------------------------------------------------
+   Prevent Background Scrolling
+----------------------------------------------------------------- */
 
+body.filter-open {
+  overflow: hidden;
+}
+
+
+/* ----------------------------------------------------------------
+   Reduced Motion
+----------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .filter-overlay,
+  .filter-panel {
+    animation: none;
+  }
+
+  .filter-overlay {
+    opacity: 1;
+  }
+
+  .filter-panel {
+    transform: translateX(0);
+  }
+
+  .close-filter-button,
+  .filter-section label,
+  .filter-section input[type="checkbox"],
+  .filter-buttons button {
+    transition: none;
+  }
+
+}

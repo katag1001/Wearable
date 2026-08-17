@@ -14,6 +14,8 @@ const User = ({ loggedIn, logout }) => {
   const [activeScreen, setActiveScreen] =
     useState('weekly-preferences');
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   console.log("URL from config:", URL);
   console.log("Delete endpoint:", `${URL}/users/delete`);
 
@@ -55,7 +57,13 @@ const User = ({ loggedIn, logout }) => {
 
   const handleLogout = () => {
     setShowLogoutPopup(false);
+    setSidebarOpen(false);
     logout();
+  };
+
+  const handleScreenChange = (screen) => {
+    setActiveScreen(screen);
+    setSidebarOpen(false);
   };
 
   const renderActiveScreen = () => {
@@ -71,16 +79,59 @@ const User = ({ loggedIn, logout }) => {
   return (
     <>
       <div className="full-page-container">
-        <Header 
-        loggedIn={loggedIn}/>
+
+        <Header loggedIn={loggedIn} />
 
         <div className="main-container">
 
           <div className="user-container">
 
+            {/* MOBILE MENU BUTTON */}
+
+            <button
+              type="button"
+              className="user-sidebar-toggle"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open user menu"
+              aria-expanded={sidebarOpen}
+            >
+              Menu
+            </button>
+
+
+            {/* MOBILE SIDEBAR OVERLAY */}
+
+            {sidebarOpen && (
+              <button
+                type="button"
+                className="user-sidebar-overlay"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close user menu"
+              />
+            )}
+
+
             {/* SIDEBAR */}
 
-            <aside className="user-sidebar">
+            <aside
+              className={`user-sidebar ${
+                sidebarOpen ? 'user-sidebar--open' : ''
+              }`}
+            >
+
+              {/* MOBILE CLOSE BUTTON */}
+
+              <button
+                type="button"
+                className="user-sidebar__close"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close user menu"
+              >
+                ×
+              </button>
+
+
+              {/* SIDEBAR NAVIGATION */}
 
               <nav className="user-sidebar__nav">
 
@@ -92,7 +143,7 @@ const User = ({ loggedIn, logout }) => {
                       : ''
                   }`}
                   onClick={() =>
-                    setActiveScreen('weekly-preferences')
+                    handleScreenChange('weekly-preferences')
                   }
                 >
                   Weekly Preferences
@@ -108,7 +159,10 @@ const User = ({ loggedIn, logout }) => {
                 <button
                   type="button"
                   className="user-sidebar__action"
-                  onClick={() => setShowLogoutPopup(true)}
+                  onClick={() => {
+                    setShowLogoutPopup(true);
+                    setSidebarOpen(false);
+                  }}
                 >
                   Logout
                 </button>
@@ -116,9 +170,10 @@ const User = ({ loggedIn, logout }) => {
                 <button
                   type="button"
                   className="user-sidebar__action user-sidebar__action--delete"
-                  onClick={() =>
-                    setShowDeletePopup(true)
-                  }
+                  onClick={() => {
+                    setShowDeletePopup(true);
+                    setSidebarOpen(false);
+                  }}
                 >
                   Delete Account
                 </button>

@@ -105,6 +105,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
       ].filter(Boolean),
     },
 
+
     3: {
       valid:
         formData.colors.length > 0,
@@ -116,8 +117,10 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
   };
 
+
   const currentValidation =
     pageValidation[currentPage];
+
 
   const formatMissingFields = (fields) => {
 
@@ -140,6 +143,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
   };
 
+
   const handleNext = () => {
 
     if (!currentValidation.valid) {
@@ -152,6 +156,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
     setCurrentPage(prev => prev + 1);
 
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -213,6 +218,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
         refresh();
       }
 
+
       setMessage(
         isUpdate
           ? "Item updated"
@@ -238,6 +244,15 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
     }
   };
 
+
+  const handleAddAnotherItem = () => {
+    setJustSavedItem(null);
+    setCurrentPage(1);
+    setShowValidation(false);
+    setMessage("");
+  };
+
+
   return (
 
     <div className="modal-backdrop">
@@ -251,9 +266,11 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           ×
         </button>
 
+
         {!justSavedItem ? (
 
           <>
+
             <div className="modal-title">
               {
                 isUpdate
@@ -261,6 +278,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                   : "Add Clothing Item"
               }
             </div>
+
 
             <form
               className="update-form"
@@ -278,6 +296,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
               )}
 
+
               {currentPage === 2 && (
 
                 <ModalTwo
@@ -287,6 +306,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                 />
 
               )}
+
 
               {currentPage === 3 && (
 
@@ -299,6 +319,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
               )}
 
+
               {showValidation &&
                 !currentValidation.valid && (
 
@@ -309,9 +330,11 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                     currentValidation.missing
                   )}
                   .
+
                 </p>
 
               )}
+
 
               <div className="modal-navigation">
 
@@ -335,6 +358,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
                 )}
 
+
                 {currentPage < 3 && (
 
                   <button
@@ -346,6 +370,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                   </button>
 
                 )}
+
 
                 {currentPage === 3 && (
 
@@ -367,34 +392,47 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
         ) : (
 
           <>
-          
-          {message && (
-            <div className="modal-title">
-              {message}
+
+            {message && (
+              <div className="modal-title">
+                {message}
+              </div>
+            )}
+
+
+            <div className="view-new-matches-wrapper">
+            
+            <div className="modal-button-row">
+  <button
+    className="modal-button"
+    onClick={() =>
+      navigate(
+        `/matches?item=${justSavedItem.id}`
+      )
+    }
+  >
+    View New Matches
+  </button>
+
+  {!isUpdate && (
+    <button
+      className="modal-button"
+      onClick={handleAddAnotherItem}
+    >
+      Add Another Item
+    </button>
+  )}
+</div>
+
+
             </div>
-          )}
 
-          <div className="view-new-matches-wrapper">
-            <button
-              className="modal-button"
-              onClick={() =>
-                navigate(
-                  `/matches?item=${justSavedItem.id}`
-                )
-              }
-            >
-              View New Matches
-            </button>
-          </div>
-          
-        </>
+          </>
 
-          )}
-
-
-        
+        )}
 
       </div>
+
     </div>
   );
 

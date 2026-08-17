@@ -223,12 +223,14 @@ const Clothes = ({ loggedIn, logout }) => {
         setShowFilters={setShowFilters}
       />
 
+      <div className="page-bottom-container">
       <ViewClothes
         items={filteredItems}
         onEdit={handleEdit}
         refresh={fetchAllItems}
         setError={setError}
       />
+      </div>
 
       <Filter
         isOpen={showFilters}

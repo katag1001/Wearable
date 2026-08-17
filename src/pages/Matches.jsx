@@ -239,12 +239,15 @@ const Matches = ({ loggedIn, logout }) => {
         </p>
       )}
 
-      <ViewMatches
+    
+      <div className="page-bottom-container">
+        <ViewMatches
         matches={filteredMatches}
         onEdit={setEditingMatch}
         refresh={fetchMatches}
         setError={setError}
       />
+      </div>
 
       <Filter
         isOpen={showFilters}
