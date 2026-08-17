@@ -661,7 +661,6 @@
   border-color:
     var(--hover-border-color);
 
-  transform: translateY(1px);
 }
 
 
@@ -1013,6 +1012,15 @@
    SHOW MORE
 ================================================================ */
 
+.alternative-pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+
+.alternative-up-button,
 .alternative-down-button {
   flex-shrink: 0;
 
@@ -1040,13 +1048,14 @@
   cursor: pointer;
 
   transition:
-    background .2s ease,
-    border-color .2s ease,
-    color .2s ease,
-    transform .2s ease;
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 
+.alternative-up-button:hover,
 .alternative-down-button:hover {
   background: var(--main-color);
   border-color: var(--main-color);
@@ -1056,11 +1065,13 @@
 }
 
 
+.alternative-up-button:active,
 .alternative-down-button:active {
   transform: translateY(0);
 }
 
 
+.alternative-up-button:focus-visible,
 .alternative-down-button:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: 3px;

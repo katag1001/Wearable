@@ -400,7 +400,6 @@ const ViewToday = ({ todayReady }) => {
 
 
     setCurrentIndex(index);
-    setAlternativePage(0);
   };
 
 
@@ -526,6 +525,10 @@ const ViewToday = ({ todayReady }) => {
     totalAlternativePages - 1;
 
 
+  const hasPreviousAlternativePages =
+    alternativePage > 0;
+
+
   const goToNextAlternativePage = () => {
 
     if (
@@ -538,6 +541,22 @@ const ViewToday = ({ todayReady }) => {
 
     setAlternativePage(
       (prev) => prev + 1
+    );
+  };
+
+
+  const goToPreviousAlternativePage = () => {
+
+    if (
+      !hasPreviousAlternativePages
+    ) {
+
+      return;
+    }
+
+
+    setAlternativePage(
+      (prev) => prev - 1
     );
   };
 
@@ -864,81 +883,110 @@ const ViewToday = ({ todayReady }) => {
 
         {/* ALTERNATIVE OUTFITS */}
 
-        <div className="outfit-selector">
+<div className="outfit-selector">
 
-          <div className="outfit-selector-content">
+  <div className="outfit-selector-content">
 
-            {alternativeOutfits.length > 0 ? (
+    {alternativeOutfits.length > 0 ? (
 
-              <>
-                <div className="outfit-options">
+      <>
 
-                  {alternativeOutfits.map(
-                    ({
-                      outfit,
-                      index
-                    }) => (
+        {/* UP / PREVIOUS BUTTON */}
 
-                      <button
-                        key={
-                          outfit.matchId?._id ||
-                          index
-                        }
-                        className="outfit-option"
-                        onClick={() =>
-                          selectOutfit(
-                            index
-                          )
-                        }
-                        aria-label={`Select outfit ${
-                          index + 1
-                        }`}
-                      >
+        {hasPreviousAlternativePages && (
 
-                        {renderOutfitImages(
-                          outfit,
-                          true
-                        )}
+          <div className="alternative-pagination">
 
-                      </button>
-
-                    )
-                  )}
-
-                </div>
-
-
-                {/* SHOW MORE */}
-
-                {hasMoreAlternativePages && (
-
-                  <button
-                    className="alternative-down-button"
-                    onClick={
-                      goToNextAlternativePage
-                    }
-                    aria-label="Show more outfits"
-                  >
-                    ↓
-                  </button>
-
-                )}
-
-              </>
-
-            ) : (
-
-              <p className="today-message">
-                {outfits.length === 0
-                  ? "No outfits saved for today."
-                  : "No other options for today"}
-              </p>
-
-            )}
+            <button
+              className="alternative-up-button"
+              onClick={
+                goToPreviousAlternativePage
+              }
+              aria-label="Show previous outfits"
+            >
+              ↑
+            </button>
 
           </div>
 
+        )}
+
+
+        {/* OUTFIT SELECTION BUTTONS */}
+
+        <div className="outfit-options">
+
+          {alternativeOutfits.map(
+            ({
+              outfit,
+              index
+            }) => (
+
+              <button
+                key={
+                  outfit.matchId?._id ||
+                  index
+                }
+                className="outfit-option"
+                onClick={() =>
+                  selectOutfit(
+                    index
+                  )
+                }
+                aria-label={`Select outfit ${
+                  index + 1
+                }`}
+              >
+
+                {renderOutfitImages(
+                  outfit,
+                  true
+                )}
+
+              </button>
+
+            )
+          )}
+
         </div>
+
+
+        {/* DOWN / NEXT BUTTON */}
+
+        {hasMoreAlternativePages && (
+
+          <div className="alternative-pagination">
+
+            <button
+              className="alternative-down-button"
+              onClick={
+                goToNextAlternativePage
+              }
+              aria-label="Show more outfits"
+            >
+              ↓
+            </button>
+
+          </div>
+
+        )}
+
+      </>
+
+    ) : (
+
+      <p className="today-message">
+        {outfits.length === 0
+          ? "No outfits saved for today."
+          : "No other options for today"}
+      </p>
+
+    )}
+
+  </div>
+
+</div>
+
 
       </div>
 

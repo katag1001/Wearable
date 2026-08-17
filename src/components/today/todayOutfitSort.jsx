@@ -18,7 +18,9 @@ const SCORE_WEIGHTS = {
 
 const getCachedWeather = () => {
   try {
-    const cached = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const cached = JSON.parse(
+      localStorage.getItem(STORAGE_KEY)
+    );
 
     if (!cached?.weather) return null;
 
@@ -33,21 +35,6 @@ const getCachedWeather = () => {
    DATE HELPERS
 ------------------------- */
 
-const getClothingDates = (outfit) => {
-  return (outfit.matchId?.clothes || [])
-    .map((item) =>
-      item.lastWornDate
-        ? new Date(item.lastWornDate).getTime()
-        : null
-    );
-};
-
-
-/*
- * Returns the number of days since a date.
- *
- * Never-worn items return null.
- */
 const getDaysSince = (date) => {
   if (!date) return null;
 
@@ -94,9 +81,6 @@ const getTemperatureScore = (match, weather) => {
    * 0°C total difference = 10 points
    * 10°C total difference = 5 points
    * 20°C total difference = 0 points
-   *
-   * You can make this more/less aggressive by
-   * changing 20 below.
    */
   const score = Math.max(
     0,
@@ -131,7 +115,9 @@ const getClothingFreshnessScore = (outfit) => {
   }
 
   const scores = clothes.map((item) => {
-    const daysSince = getDaysSince(item.lastWornDate);
+    const daysSince = getDaysSince(
+      item.lastWornDate
+    );
 
     // Never worn
     if (daysSince === null) {
@@ -139,12 +125,17 @@ const getClothingFreshnessScore = (outfit) => {
     }
 
     // Cap at 30 days
-    return Math.min(10, (daysSince / 30) * 10);
+    return Math.min(
+      10,
+      (daysSince / 30) * 10
+    );
   });
 
   const score =
-    scores.reduce((sum, value) => sum + value, 0) /
-    scores.length;
+    scores.reduce(
+      (sum, value) => sum + value,
+      0
+    ) / scores.length;
 
   return score;
 };
@@ -164,14 +155,19 @@ const getClothingFreshnessScore = (outfit) => {
 const getOutfitFreshnessScore = (match) => {
   if (!match) return 0;
 
-  const daysSince = getDaysSince(match.lastWornDate);
+  const daysSince = getDaysSince(
+    match.lastWornDate
+  );
 
   // Never worn
   if (daysSince === null) {
     return 10;
   }
 
-  return Math.min(10, (daysSince / 30) * 10);
+  return Math.min(
+    10,
+    (daysSince / 30) * 10
+  );
 };
 
 
@@ -191,21 +187,23 @@ const getUserMadeScore = (match) => {
 /*
  * Tags do NOT contribute to the score.
  *
- * This only determines whether an outfit
- * belongs to today's preferred-tag pool.
+ * A matching tag gives an outfit priority,
+ * but non-matching outfits are still included.
  */
 const hasTodayTag = (match, todayTag) => {
   if (!todayTag) return false;
 
-  const normalizedTodayTag = todayTag
-    .trim()
-    .toLowerCase();
+  const normalizedTodayTag =
+    todayTag.trim().toLowerCase();
 
-  const matchTags = (match?.tags || []).map((tag) =>
-    tag.trim().toLowerCase()
+  const matchTags =
+    (match?.tags || []).map((tag) =>
+      tag.trim().toLowerCase()
+    );
+
+  return matchTags.includes(
+    normalizedTodayTag
   );
-
-  return matchTags.includes(normalizedTodayTag);
 };
 
 
@@ -236,19 +234,30 @@ const scoreOutfit = (outfit, weather) => {
   const match = outfit.matchId;
 
   const scores = {
-    temperature: getTemperatureScore(match, weather),
+    temperature:
+      getTemperatureScore(
+        match,
+        weather
+      ),
 
     clothingFreshness:
-      getClothingFreshnessScore(outfit),
+      getClothingFreshnessScore(
+        outfit
+      ),
 
     outfitFreshness:
-      getOutfitFreshnessScore(match),
+      getOutfitFreshnessScore(
+        match
+      ),
 
     userMade:
-      getUserMadeScore(match),
+      getUserMadeScore(
+        match
+      ),
   };
 
-  const overall = getOverallScore(scores);
+  const overall =
+    getOverallScore(scores);
 
   return {
     ...scores,
@@ -261,50 +270,93 @@ const scoreOutfit = (outfit, weather) => {
    TODAY OUTFIT SORT
 ------------------------- */
 
-const todayOutfitSort = (outfits, todayTag = null) => {
-  if (!Array.isArray(outfits)) return [];
+const todayOutfitSort = (
+  outfits,
+  todayTag = null
+) => {
+  if (!Array.isArray(outfits)) {
+    return [];
+  }
 
-  const weather = getCachedWeather();
+  const weather =
+    getCachedWeather();
+
 
   /*
    * -----------------------------------------
-   * 1. TAG FILTER
+   * 1. SPLIT BY TODAY'S TAG
    * -----------------------------------------
    *
-   * Tags don't affect the score.
-   *
-   * If at least one outfit matches today's tag,
-   * ONLY those outfits are considered.
-   *
-   * If none match, all outfits are considered.
+   * Matching outfits get priority.
+   * Non-matching outfits are still included.
    */
-  let candidates = [...outfits];
+
+  let taggedOutfits = [
+    ...outfits,
+  ];
+
+  let nonTaggedOutfits = [];
+
 
   if (todayTag) {
-    const taggedOutfits = candidates.filter((outfit) =>
-      hasTodayTag(outfit.matchId, todayTag)
-    );
 
-    if (taggedOutfits.length > 0) {
-      candidates = taggedOutfits;
-    }
+    taggedOutfits =
+      outfits.filter(
+        (outfit) =>
+          hasTodayTag(
+            outfit.matchId,
+            todayTag
+          )
+      );
+
+    nonTaggedOutfits =
+      outfits.filter(
+        (outfit) =>
+          !hasTodayTag(
+            outfit.matchId,
+            todayTag
+          )
+      );
   }
 
 
   /*
    * -----------------------------------------
-   * 2. SCORE EVERY CANDIDATE
+   * 2. SCORE OUTFITS
    * -----------------------------------------
    */
 
-  const scoredOutfits = candidates.map((outfit) => {
-    const scores = scoreOutfit(outfit, weather);
+  const scoreOutfits = (
+    outfitsToScore
+  ) => {
 
-    return {
-      outfit,
-      scores,
-    };
-  });
+    return outfitsToScore.map(
+      (outfit) => {
+
+        const scores =
+          scoreOutfit(
+            outfit,
+            weather
+          );
+
+        return {
+          outfit,
+          scores,
+        };
+      }
+    );
+  };
+
+
+  const scoredTaggedOutfits =
+    scoreOutfits(
+      taggedOutfits
+    );
+
+  const scoredNonTaggedOutfits =
+    scoreOutfits(
+      nonTaggedOutfits
+    );
 
 
   /*
@@ -313,61 +365,115 @@ const todayOutfitSort = (outfits, todayTag = null) => {
    * -----------------------------------------
    */
 
-  scoredOutfits.forEach(({ outfit, scores }) => {
-    const match = outfit.matchId;
+  [
+    ...scoredTaggedOutfits,
+    ...scoredNonTaggedOutfits,
+  ].forEach(
+    ({
+      outfit,
+      scores,
+    }) => {
 
-    console.log(
-      "OUTFIT SCORE",
-      match?._id || match?.id || "unknown"
-    );
+      const match =
+        outfit.matchId;
 
-    console.log(
-      "temp-score:",
-      scores.temperature.toFixed(1)
-    );
+      console.log(
+        "OUTFIT SCORE",
+        match?._id ||
+          match?.id ||
+          "unknown"
+      );
 
-    console.log(
-      "clothing-freshness-score:",
-      scores.clothingFreshness.toFixed(1)
-    );
+      console.log(
+        "today-tag-match:",
+        hasTodayTag(
+          match,
+          todayTag
+        )
+      );
 
-    console.log(
-      "outfit-freshness-score:",
-      scores.outfitFreshness.toFixed(1)
-    );
+      console.log(
+        "temp-score:",
+        scores.temperature.toFixed(
+          1
+        )
+      );
 
-    console.log(
-      "user-made-score:",
-      scores.userMade.toFixed(1)
-    );
+      console.log(
+        "clothing-freshness-score:",
+        scores.clothingFreshness.toFixed(
+          1
+        )
+      );
 
-    console.log(
-      "overall-score:",
-      scores.overall.toFixed(1)
-    );
+      console.log(
+        "outfit-freshness-score:",
+        scores.outfitFreshness.toFixed(
+          1
+        )
+      );
 
-    console.log("-------------------------");
-  });
+      console.log(
+        "user-made-score:",
+        scores.userMade.toFixed(
+          1
+        )
+      );
 
+      console.log(
+        "overall-score:",
+        scores.overall.toFixed(
+          1
+        )
+      );
 
-  /*
-   * -----------------------------------------
-   * 4. SORT BY OVERALL SCORE
-   * -----------------------------------------
-   */
-
-  scoredOutfits.sort(
-    (a, b) => b.scores.overall - a.scores.overall
+      console.log(
+        "-------------------------"
+      );
+    }
   );
 
 
   /*
    * -----------------------------------------
-   * 5. RETURN ORIGINAL OUTFIT OBJECTS
+   * 4. SORT EACH GROUP
    * -----------------------------------------
+   *
+   * Each group is sorted by its normal
+   * overall score.
    */
 
-  return scoredOutfits.map(({ outfit }) => outfit);
+  scoredTaggedOutfits.sort(
+    (a, b) =>
+      b.scores.overall -
+      a.scores.overall
+  );
+
+  scoredNonTaggedOutfits.sort(
+    (a, b) =>
+      b.scores.overall -
+      a.scores.overall
+  );
+
+
+  /*
+   * -----------------------------------------
+   * 5. RETURN ALL OUTFITS
+   * -----------------------------------------
+   *
+   * Matching outfits come first.
+   * Non-matching outfits come afterward.
+   */
+
+  return [
+    ...scoredTaggedOutfits.map(
+      ({ outfit }) => outfit
+    ),
+
+    ...scoredNonTaggedOutfits.map(
+      ({ outfit }) => outfit
+    ),
+  ];
 };
 
 
