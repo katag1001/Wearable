@@ -187,10 +187,12 @@ const ViewToday = ({ todayReady }) => {
 
         setCheckingToday(false);
 
-        setMessage(
-          "No outfits saved for today."
-        );
+        // Keep the empty outfit boxes visible.
+        // Do not set a message that replaces the component.
 
+        setOutfits([]);
+        setCurrentIndex(0);
+        setAlternativePage(0);
         setLoading(false);
 
         return;
@@ -739,16 +741,6 @@ const ViewToday = ({ todayReady }) => {
   }
 
 
-  if (!outfits.length) {
-
-    return (
-      <p className="today-message">
-        No outfits saved for today.
-      </p>
-    );
-  }
-
-
   /* ------------------------- SELECTED OUTFIT ------------------------- */
 
   const selectedOutfit =
@@ -836,9 +828,13 @@ const ViewToday = ({ todayReady }) => {
                 )}
               </>
             ) : (
+
               <p className="today-message">
-                No outfits saved for this tag.
+                {outfits.length === 0
+                  ? "No outfits saved for today."
+                  : "No outfits saved for this tag."}
               </p>
+
             )}
 
           </div>
@@ -868,83 +864,81 @@ const ViewToday = ({ todayReady }) => {
 
         {/* ALTERNATIVE OUTFITS */}
 
-        {outfits.length > 0 && (
+        <div className="outfit-selector">
 
-  <div className="outfit-selector">
+          <div className="outfit-selector-content">
 
-    <div className="outfit-selector-content">
+            {alternativeOutfits.length > 0 ? (
 
-      {alternativeOutfits.length > 0 ? (
+              <>
+                <div className="outfit-options">
 
-        <>
-          <div className="outfit-options">
-
-            {alternativeOutfits.map(
-              ({
-                outfit,
-                index
-              }) => (
-
-                <button
-                  key={
-                    outfit.matchId?._id ||
-                    index
-                  }
-                  className="outfit-option"
-                  onClick={() =>
-                    selectOutfit(
+                  {alternativeOutfits.map(
+                    ({
+                      outfit,
                       index
-                    )
-                  }
-                  aria-label={`Select outfit ${
-                    index + 1
-                  }`}
-                >
+                    }) => (
 
-                  {renderOutfitImages(
-                    outfit,
-                    true
+                      <button
+                        key={
+                          outfit.matchId?._id ||
+                          index
+                        }
+                        className="outfit-option"
+                        onClick={() =>
+                          selectOutfit(
+                            index
+                          )
+                        }
+                        aria-label={`Select outfit ${
+                          index + 1
+                        }`}
+                      >
+
+                        {renderOutfitImages(
+                          outfit,
+                          true
+                        )}
+
+                      </button>
+
+                    )
                   )}
 
-                </button>
+                </div>
 
-              )
+
+                {/* SHOW MORE */}
+
+                {hasMoreAlternativePages && (
+
+                  <button
+                    className="alternative-down-button"
+                    onClick={
+                      goToNextAlternativePage
+                    }
+                    aria-label="Show more outfits"
+                  >
+                    ↓
+                  </button>
+
+                )}
+
+              </>
+
+            ) : (
+
+              <p className="today-message">
+                {outfits.length === 0
+                  ? "No outfits saved for today."
+                  : "No other options for today"}
+              </p>
+
             )}
 
           </div>
 
-          {/* SHOW MORE */}
-
-          {hasMoreAlternativePages && (
-
-            <button
-              className="alternative-down-button"
-              onClick={
-                goToNextAlternativePage
-              }
-              aria-label="Show more outfits"
-            >
-              ↓
-            </button>
-
-          )}
-
-        </>
-
-      ) : (
-
-        <p className="today-message">
-          No other options for today
-        </p>
-
-      )}
-
-    </div>
-
-  </div>
-
-)}
-
+        </div>
 
       </div>
 

@@ -7,10 +7,11 @@
 }
 
 
-.no-clothing-items {
+.no-items-text {
   text-align: center;
   padding: 1rem;
   font-style: italic;
+  color: var(--muted-color)
 }
 
 

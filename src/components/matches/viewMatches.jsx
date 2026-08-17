@@ -75,7 +75,7 @@ const ViewMatches = ({
   return (
     <>
       {matches.length === 0 && (
-        <p className="no-matches-text">
+        <p className="no-items-text">
           No outfits found.
         </p>
       )}

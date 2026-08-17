@@ -71,7 +71,7 @@ const ViewClothes = ({
   return (
     <>
       {items.length === 0 && (
-        <p className="no-clothing-items">
+        <p className="no-items-text">
           No clothes found.
         </p>
       )}
