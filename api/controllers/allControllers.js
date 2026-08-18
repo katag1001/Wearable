@@ -320,6 +320,7 @@ exports.deleteItem = async (req, res) => {
   const { id } = req.params;
 
   console.log("DELETE CLOTHING");
+  console.log("New api key");
   console.log("id:", id);
   console.log("userId:", userId);
 
