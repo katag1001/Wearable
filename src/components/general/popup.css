@@ -17,7 +17,7 @@
 
   padding: 1rem;
 
-  background: rgba(0, 0, 0, .42);
+  background: var(--overlay-backdrop);
   backdrop-filter: blur(4px);
 
   z-index: 1055;
@@ -45,9 +45,7 @@
   color: var(--main-color);
   font-family: var(--main-font);
 
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, .12),
-    0 4px 15px rgba(0, 0, 0, .06);
+  box-shadow: var(--shadow-float);
 
   scrollbar-width: thin;
 }

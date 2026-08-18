@@ -449,7 +449,7 @@
 
   box-sizing: border-box;
 
-  background: rgba(255, 255, 255, .88);
+  background: var(--overlay-light-surface);
 
   transform: translateY(100%);
 
@@ -1444,7 +1444,7 @@
 
     gap: 4px;
 
-    background: rgba(255, 255, 255, .92);
+    background: var(--overlay-light-surface-strong);
   }
 
 
@@ -1691,5 +1691,4 @@
   }
 
 }
-
 

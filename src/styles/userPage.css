@@ -360,7 +360,7 @@
 
     border: 0;
 
-    background: rgba(0, 0, 0, .45);
+    background: var(--overlay-backdrop-strong);
 
     cursor: pointer;
   }
@@ -393,7 +393,7 @@
     border: 0;
     border-right: 1px solid var(--border-color);
 
-    box-shadow: 8px 0 30px rgba(0, 0, 0, .15);
+    box-shadow: var(--shadow-drawer-strong);
 
     transform: translateX(-100%);
 

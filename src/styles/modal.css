@@ -8,7 +8,7 @@
   position: fixed;
   inset: 0;
 
-  background: rgba(0, 0, 0, .42);
+  background: var(--overlay-backdrop);
   backdrop-filter: blur(4px);
 
   z-index: 1055;
@@ -31,9 +31,7 @@
   border-radius: 12px;
   color: var(--main-color);
   font-family: var(--main-font);
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, .12),
-    0 4px 15px rgba(0, 0, 0, .06);
+  box-shadow: var(--shadow-float);
 
   z-index: 1060;
   scrollbar-width: thin;
@@ -267,7 +265,7 @@
 
 .selection-button.selected {
   border-color: var(--main-color);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+  box-shadow: var(--shadow-soft);
 }
 
 .selection-button.selected:hover {
@@ -503,7 +501,7 @@
 .color-square {
   width: 38px;
   height: 38px;
-  border: 1px solid rgba(0, 0, 0, .15);
+  border: 1px solid var(--border-contrast-soft);
   border-radius: 50%;
   transition:
     transform .2s ease,

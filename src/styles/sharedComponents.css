@@ -1,0 +1,53 @@
+.top-action-button,
+.top-option-button,
+.top-filter-button,
+.filter-buttons button,
+.upload-button,
+.regular-button,
+.save-button,
+.modal-button,
+.modal-wrapper .save-button,
+.login-form-container button,
+.login-form-container .register-button,
+.not-logged-in-container a,
+.nav-link,
+.buildmatch-type-button,
+.clear-button,
+.user-sidebar-toggle {
+  border-radius: var(--radius-pill);
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.popup-modal,
+.modal-wrapper,
+.login-form-container,
+.upload,
+.buildmatch-panel,
+.not-logged-in-container,
+.featured-outfit,
+.outfit-selector,
+.selection-button,
+.tag-card,
+.today-tag-option,
+.matches-selection-button,
+.tags-selection-button,
+.buildmatch-clothing-card,
+.clothing-card-viewclothes,
+.match-card {
+  background: var(--card-background);
+  color: var(--main-color);
+}
+
+.popup-title,
+.modal-title,
+.page-title,
+.today-title,
+.dashboard-link,
+.buildmatch-panel-title {
+  letter-spacing: var(--tracking-normal);
+  text-transform: uppercase;
+}

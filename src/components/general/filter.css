@@ -10,7 +10,7 @@
   display: flex;
   justify-content: flex-end;
 
-  background: rgba(0, 0, 0, .35);
+  background: var(--overlay-backdrop-soft);
 
   animation: filter-overlay-in .25s ease forwards;
 }
@@ -38,7 +38,7 @@
 
   color: var(--main-color);
 
-  box-shadow: -12px 0 35px rgba(0, 0, 0, .12);
+  box-shadow: var(--shadow-drawer);
 
   animation: filter-panel-in .3s ease forwards;
 

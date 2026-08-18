@@ -12,6 +12,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import "./App.css";
+import "./styles/sharedComponents.css";
 
 /* Pages */
 import Homepage from "./pages/Homepage";
