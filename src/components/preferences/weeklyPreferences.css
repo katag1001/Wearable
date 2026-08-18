@@ -567,20 +567,13 @@
 
 .preferences-message {
   width: 100%;
-
-  margin-bottom: 0.65rem;
-
+  margin-top: 0.65rem;
   padding: 0.6rem 0.8rem;
-
   box-sizing: border-box;
-
-  border-radius: 7px;
-
+  border-radius: 999px;
   font-size: var(--description-font-size);
   font-weight: 400;
-
   text-align: center;
-
   flex-shrink: 0;
 }
 

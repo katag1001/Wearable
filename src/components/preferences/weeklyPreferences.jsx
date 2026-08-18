@@ -357,9 +357,13 @@ const WeeklyPreferences = () => {
         );
       }
 
-      setSuccess(
-        "Preferences saved successfully."
-      );
+     setSuccess("Preferences saved successfully.");
+
+setTimeout(() => {
+  setSuccess("");
+}, 3000);
+
+
     } catch (err) {
       console.error(
         "Error saving preferences:",
@@ -559,7 +563,17 @@ const WeeklyPreferences = () => {
         
       </div>
 
-      
+      {/* SAVE */}
+
+      <button
+        type="submit"
+        className="save-button"
+        disabled={saving}
+      >
+        {saving
+          ? "Saving..."
+          : "Save Preferences"}
+      </button>
 
       {/* ERROR */}
 
@@ -583,17 +597,8 @@ const WeeklyPreferences = () => {
         </div>
       )}
 
-      {/* SAVE */}
+      
 
-      <button
-        type="submit"
-        className="save-button"
-        disabled={saving}
-      >
-        {saving
-          ? "Saving..."
-          : "Save Preferences"}
-      </button>
     </form>
   );
 };

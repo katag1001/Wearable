@@ -11,7 +11,7 @@ import ModalThree from "./uploadComponents/modalThree";
 import { useClothingForm } from "./uploadComponents/useClothingForm";
 import { useClothingDetection } from "./uploadComponents/useClothingDetection";
 
-import '../../styles/modal.css';
+import "../../styles/modal.css";
 
 
 const AddUpdateClothes = ({ item, onClose, refresh }) => {
@@ -23,6 +23,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   const {
     formData,
     setFormData,
+    resetForm,
     updateField,
     toggleColor,
     toggleTag,
@@ -38,6 +39,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   const [message, setMessage] = useState("");
   const [showValidation, setShowValidation] = useState(false);
 
+  const [uploadedImages, setUploadedImages] = useState([]);
+
   useClothingDetection(
     formData.name,
     formData.subtype,
@@ -45,7 +48,9 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
     manualTempOverride
   );
 
+
   useEffect(() => {
+
     const nextStyle =
       formData.colors.length > 1
         ? "Patterned"
@@ -159,6 +164,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     if (!currentValidation.valid) {
@@ -241,15 +247,21 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
         err.response?.data?.error ||
         "Error saving clothing item"
       );
+
     }
+
   };
 
 
   const handleAddAnotherItem = () => {
+
+    resetForm();
+
     setJustSavedItem(null);
     setCurrentPage(1);
     setShowValidation(false);
     setMessage("");
+
   };
 
 
@@ -292,6 +304,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                   setFormData={setFormData}
                   updateField={updateField}
                   handleSubtypeChange={handleSubtypeChange}
+                  setUploadedImages={setUploadedImages}
                 />
 
               )}
@@ -401,29 +414,33 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
 
             <div className="view-new-matches-wrapper">
-            
-            <div className="modal-button-row">
-  <button
-    className="modal-button"
-    onClick={() =>
-      navigate(
-        `/matches?item=${justSavedItem.id}`
-      )
-    }
-  >
-    View New Matches
-  </button>
 
-  {!isUpdate && (
-    <button
-      className="modal-button"
-      onClick={handleAddAnotherItem}
-    >
-      Add Another Item
-    </button>
-  )}
-</div>
+              <div className="modal-button-row">
 
+                <button
+                  className="modal-button"
+                  onClick={() =>
+                    navigate(
+                      `/matches?item=${justSavedItem.id}`
+                    )
+                  }
+                >
+                  View New Matches
+                </button>
+
+
+                {!isUpdate && (
+
+                  <button
+                    className="modal-button"
+                    onClick={handleAddAnotherItem}
+                  >
+                    Add Another Item
+                  </button>
+
+                )}
+
+              </div>
 
             </div>
 
@@ -434,6 +451,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
       </div>
 
     </div>
+
   );
 
 };

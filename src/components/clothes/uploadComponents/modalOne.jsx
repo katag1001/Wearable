@@ -9,7 +9,8 @@ const ModalOne = ({
   formData,
   setFormData,
   updateField,
-  handleSubtypeChange
+  handleSubtypeChange,
+  setUploadedImages
 }) => {
 
 
@@ -51,6 +52,16 @@ const ModalOne = ({
         />
 
       </label>
+
+      {/* Image */}
+      <div>
+        <label className="form-label">Image</label>
+        <UploadImages
+          setFormData={setFormData}
+          formData={formData}
+          setUploadedImages={setUploadedImages}
+        />
+      </div>
 
 
       {/* Subtype */}
@@ -163,16 +174,6 @@ const ModalOne = ({
 </div>
 
 
-      </div>
-
-
-      {/* Image */}
-      <div>
-        <label className="form-label">Image</label>
-        <UploadImages
-          setFormData={setFormData}
-          formData={formData}
-        />
       </div>
 
 

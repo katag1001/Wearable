@@ -22,6 +22,8 @@ import User from "./pages/User";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 
+import  "./styles/pages.css";
+
 /* Components */
 import Enter from "./components/login/Enter";
 import ProtectedRoute from "./components/login/ProtectedRoute";
@@ -104,7 +106,7 @@ const App = () => {
   };
 
   if (isCheckingToken) {
-    return <div>Loading...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   return (

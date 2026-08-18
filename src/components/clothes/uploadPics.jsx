@@ -1,11 +1,26 @@
-const UploadImages = ({ setFormData, formData }) => {
+const UploadImages = ({
+  setFormData,
+  formData,
+  setUploadedImages
+}) => {
 
   const addImageData = (url, publicId) => {
+
+    // The image currently selected for the clothing item
     setFormData(prev => ({
       ...prev,
       imageUrl: url,
       cloudinaryId: publicId
     }));
+
+    // Remember every image uploaded during this form session
+    setUploadedImages(prev => [
+      ...prev,
+      {
+        url,
+        publicId
+      }
+    ]);
   };
 
 
@@ -17,16 +32,25 @@ const UploadImages = ({ setFormData, formData }) => {
         upload_preset: import.meta.env.VITE_UPLOAD_PRESET,
         api_key: import.meta.env.VITE_CLOUD_API_KEY,
         tags: ["user"],
-        sources: ["local", "url", "camera", "image_search"],
+        sources: [
+          "local",
+          "url",
+          "camera",
+          "image_search"
+        ],
       },
 
       (error, result) => {
 
         if (error) {
-          console.log("Cloudinary Widget Error: ", error);
-        } 
-        
-        else if (result.event === "success") {
+          console.log(
+            "Cloudinary Widget Error: ",
+            error
+          );
+          return;
+        }
+
+        if (result.event === "success") {
 
           console.log(result.info);
 
@@ -47,9 +71,9 @@ const UploadImages = ({ setFormData, formData }) => {
 
       <div className="upload">
 
-        <button 
-          type="button" 
-          className="upload-button" 
+        <button
+          type="button"
+          className="upload-button"
           onClick={uploadWidget}
         >
           Upload Image

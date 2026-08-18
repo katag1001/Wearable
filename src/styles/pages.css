@@ -88,6 +88,35 @@
   outline-offset: 3px;
 }
 
+.loading {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--secondary-color);
+  font-family: var(--title-font);
+  font-size: var(--description-font-size);
+  font-weight: 500;
+
+  letter-spacing: .12em;
+  text-transform: uppercase;
+
+  animation: loading-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-pulse {
+  0%,
+  100% {
+    opacity: .45;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
 
 
 
