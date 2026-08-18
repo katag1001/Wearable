@@ -319,40 +319,59 @@ exports.deleteItem = async (req, res) => {
   const userId = req.user?.userId;
   const { id } = req.params;
 
+  console.log("DELETE CLOTHING");
+  console.log("id:", id);
+  console.log("userId:", userId);
+
   try {
     const item = await Clothes.findOne({
       _id: id,
       userId,
     });
 
+    console.log("item found:", !!item);
+
     if (!item) {
-      return res.json({ message: "Item not found" });
+      return res.status(404).json({
+        error: "Item not found",
+      });
     }
 
+    console.log("cloudinaryId:", item.cloudinaryId);
 
     if (item.cloudinaryId) {
-      await cloudinary.uploader.destroy(item.cloudinaryId);
+      console.log("Deleting from Cloudinary...");
+      const result = await cloudinary.uploader.destroy(
+        item.cloudinaryId
+      );
+      console.log("Cloudinary result:", result);
     }
 
-
+    console.log("Deleting matches...");
     await Match.deleteMany({ clothes: item._id });
 
+    console.log("Deleting clothing...");
     await Clothes.deleteOne({
       _id: id,
       userId,
     });
 
+    console.log("DELETE SUCCESS");
 
     return res.json({
       message: "Item, image, and related matches deleted successfully",
     });
 
   } catch (error) {
+    console.error("DELETE CLOTHING ERROR:", error);
+    console.error("Stack:", error.stack);
+
     return res.status(500).json({
-      error: error.message
+      error: error.message,
     });
   }
 };
+
 
 /* -------------------- MATCH CONTROLLERS -------------------- */
 
