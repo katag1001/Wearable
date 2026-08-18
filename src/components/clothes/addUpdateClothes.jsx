@@ -39,7 +39,10 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   const [message, setMessage] = useState("");
   const [showValidation, setShowValidation] = useState(false);
 
-  const [uploadedImages, setUploadedImages] = useState([]);
+  // This stores the actual File selected by the user.
+  // It is NOT uploaded to Cloudinary yet.
+  const [selectedImage, setSelectedImage] = useState(null);
+
 
   useClothingDetection(
     formData.name,
@@ -73,12 +76,14 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
       valid:
         formData.name.trim() !== "" &&
         formData.subtype.trim() !== "" &&
-        !!formData.imageUrl,
+        (!!formData.imageUrl || !!selectedImage),
 
       missing: [
         !formData.name.trim() && "a name",
         !formData.subtype.trim() && "a type",
-        !formData.imageUrl && "an image",
+        !formData.imageUrl &&
+          !selectedImage &&
+          "an image",
       ].filter(Boolean),
     },
 
@@ -116,7 +121,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
         formData.colors.length > 0,
 
       missing: [
-        formData.colors.length === 0 && "at least one colour",
+        formData.colors.length === 0 &&
+          "at least one colour",
       ].filter(Boolean),
     }
 
@@ -163,34 +169,165 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   };
 
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
 
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!currentValidation.valid) {
+  if (!currentValidation.valid) {
 
-      setShowValidation(true);
-      return;
+    setShowValidation(true);
+    return;
+
+  }
+
+  setShowValidation(false);
+
+
+  // Keep this outside the try block so the catch
+  // can clean up a Cloudinary upload if needed.
+  let cloudinaryData = null;
+
+
+  try {
+
+    // ------------------------------------------
+    // 1. Upload selected image to Cloudinary
+    // ------------------------------------------
+
+    if (selectedImage) {
+
+      const cloudinaryFormData = new FormData();
+
+      cloudinaryFormData.append(
+        "file",
+        selectedImage
+      );
+
+      cloudinaryFormData.append(
+        "upload_preset",
+        import.meta.env.VITE_UPLOAD_PRESET
+      );
+
+
+      // Use fetch here so Axios interceptors/default
+      // Authorization headers are NOT sent to Cloudinary.
+      const cloudinaryResponse = await fetch(
+        `https://api.cloudinary.com/v1_1/${
+          import.meta.env.VITE_CLOUD_NAME
+        }/image/upload`,
+        {
+          method: "POST",
+          body: cloudinaryFormData
+        }
+      );
+
+
+      if (!cloudinaryResponse.ok) {
+
+        const errorText =
+          await cloudinaryResponse.text();
+
+        throw new Error(
+          `Cloudinary upload failed: ${errorText}`
+        );
+
+      }
+
+
+      cloudinaryData =
+        await cloudinaryResponse.json();
 
     }
 
-    setShowValidation(false);
 
-    try {
+    // ------------------------------------------
+    // 2. Build clothing payload
+    // ------------------------------------------
 
-      const payload = {
-        ...formData,
-        min_temp: Number(formData.min_temp),
-        max_temp: Number(formData.max_temp),
-      };
+    const payload = {
 
-      let response;
+      ...formData,
 
-      if (isUpdate) {
+      min_temp:
+        Number(formData.min_temp),
 
-        response = await axios.put(
-          `${URL}/clothing/${item._id}`,
-          payload,
+      max_temp:
+        Number(formData.max_temp),
+
+
+      // Only replace image data if a new image
+      // was selected and successfully uploaded.
+      ...(cloudinaryData && {
+
+        imageUrl:
+          cloudinaryData.secure_url,
+
+        cloudinaryId:
+          cloudinaryData.public_id
+
+      })
+
+    };
+
+
+    // ------------------------------------------
+    // 3. Save clothing item
+    // ------------------------------------------
+
+    let response;
+
+
+    if (isUpdate) {
+
+      response = await axios.put(
+        `${URL}/clothing/${item._id}`,
+        payload,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${localStorage.getItem("token")}`
+          }
+        }
+      );
+
+    } else {
+
+      response = await axios.post(
+        `${URL}/clothing`,
+        {
+          ...payload,
+          username:
+            localStorage.getItem("user")
+        }
+      );
+
+    }
+
+
+    const saved = response.data;
+
+
+    // ------------------------------------------
+    // 4. If updating with a new image,
+    //    delete the OLD Cloudinary image
+    // ------------------------------------------
+
+    if (
+      isUpdate &&
+      selectedImage &&
+      item.cloudinaryId &&
+      cloudinaryData?.public_id &&
+      item.cloudinaryId !== cloudinaryData.public_id
+    ) {
+
+      try {
+
+        await axios.post(
+          `${URL}/cloudinary/delete`,
+          {
+            publicId:
+              item.cloudinaryId
+          },
           {
             headers: {
               Authorization:
@@ -199,63 +336,111 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           }
         );
 
-      } else {
+      } catch (deleteError) {
 
-        response = await axios.post(
-          `${URL}/clothing`,
-          {
-            ...payload,
-            username: localStorage.getItem("user")
-          }
+        console.error(
+          "Failed to delete old Cloudinary image:",
+          deleteError
         );
 
       }
 
-      const saved = response.data;
-
-      setJustSavedItem({
-        id: saved._id,
-        name: saved.name,
-        type: saved.type
-      });
+    }
 
 
-      if (refresh) {
-        refresh();
+    // ------------------------------------------
+    // 5. Successful save
+    // ------------------------------------------
+
+    setJustSavedItem({
+      id: saved._id,
+      name: saved.name,
+      type: saved.type
+    });
+
+
+    if (refresh) {
+      refresh();
+    }
+
+
+    setMessage(
+      isUpdate
+        ? "Item updated"
+        : "Item created"
+    );
+
+
+    setSelectedImage(null);
+
+
+  } catch (err) {
+
+    console.error(
+      "Save clothing error:",
+      err
+    );
+
+    console.error(
+      "Response:",
+      err.response?.data
+    );
+
+
+    // ------------------------------------------
+    // 6. IMPORTANT:
+    //    If Cloudinary uploaded successfully
+    //    but the clothing save failed, delete
+    //    the newly uploaded image.
+    // ------------------------------------------
+
+    if (cloudinaryData?.public_id) {
+
+      try {
+
+        await axios.post(
+          `${URL}/cloudinary/delete`,
+          {
+            publicId:
+              cloudinaryData.public_id
+          },
+          {
+            headers: {
+              Authorization:
+                `Bearer ${localStorage.getItem("token")}`
+            }
+          }
+        );
+
+      } catch (cleanupError) {
+
+        console.error(
+          "Failed to clean up Cloudinary image after save failure:",
+          cleanupError
+        );
+
       }
-
-
-      setMessage(
-        isUpdate
-          ? "Item updated"
-          : "Item created"
-      );
-
-    } catch (err) {
-
-      console.error(
-        "Save clothing error:",
-        err
-      );
-
-      console.error(
-        "Response:",
-        err.response?.data
-      );
-
-      setMessage(
-        err.response?.data?.error ||
-        "Error saving clothing item"
-      );
 
     }
 
-  };
+
+    setMessage(
+      err.response?.data?.error ||
+      err.message ||
+      "Error saving clothing item"
+    );
+
+  }
+
+};
+
 
 
   const handleAddAnotherItem = () => {
 
     resetForm();
+
+    setSelectedImage(null);
 
     setJustSavedItem(null);
     setCurrentPage(1);
@@ -271,6 +456,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
       <div className="modal-wrapper open">
 
+
         <button
           className="close-modal"
           onClick={onClose}
@@ -284,11 +470,13 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           <>
 
             <div className="modal-title">
+
               {
                 isUpdate
                   ? "Update Clothing Item"
                   : "Add Clothing Item"
               }
+
             </div>
 
 
@@ -297,14 +485,19 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
               onSubmit={handleSubmit}
             >
 
+
               {currentPage === 1 && (
 
                 <ModalOne
                   formData={formData}
                   setFormData={setFormData}
                   updateField={updateField}
-                  handleSubtypeChange={handleSubtypeChange}
-                  setUploadedImages={setUploadedImages}
+                  handleSubtypeChange={
+                    handleSubtypeChange
+                  }
+                  setSelectedImage={
+                    setSelectedImage
+                  }
                 />
 
               )}
@@ -315,7 +508,9 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                 <ModalTwo
                   formData={formData}
                   toggleSeason={toggleSeason}
-                  handleTempChange={handleTempChange}
+                  handleTempChange={
+                    handleTempChange
+                  }
                 />
 
               )}
@@ -339,9 +534,11 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                 <p className="validation-message">
 
                   Please enter{" "}
+
                   {formatMissingFields(
                     currentValidation.missing
                   )}
+
                   .
 
                 </p>
@@ -350,6 +547,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
 
               <div className="modal-navigation">
+
 
                 {currentPage > 1 && (
 
@@ -398,6 +596,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
               </div>
 
+
             </form>
 
           </>
@@ -407,15 +606,18 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           <>
 
             {message && (
+
               <div className="modal-title">
                 {message}
               </div>
+
             )}
 
 
             <div className="view-new-matches-wrapper">
 
               <div className="modal-button-row">
+
 
                 <button
                   className="modal-button"
@@ -433,12 +635,15 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
                   <button
                     className="modal-button"
-                    onClick={handleAddAnotherItem}
+                    onClick={
+                      handleAddAnotherItem
+                    }
                   >
                     Add Another Item
                   </button>
 
                 )}
+
 
               </div>
 

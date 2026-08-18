@@ -1,44 +1,51 @@
 import React from "react";
-import UploadImages from "../uploadPics";
+import UploadImages from "../uploadImages";
 import typeOptions from "../../../constants/typeOptions";
 import { suggestSubtypesFromName } from "./uploadHelpers";
-import '../../../styles/modal.css' 
+import "../../../styles/modal.css";
 
 
 const ModalOne = ({
   formData,
-  setFormData,
   updateField,
   handleSubtypeChange,
-  setUploadedImages
+  setSelectedImage
 }) => {
 
 
-  const groupedTypes = typeOptions.reduce((groups, item) => {
+  const groupedTypes = typeOptions.reduce(
+    (groups, item) => {
 
-    if (!groups[item.type]) {
-      groups[item.type] = [];
-    }
+      if (!groups[item.type]) {
+        groups[item.type] = [];
+      }
 
-    groups[item.type].push(item);
+      groups[item.type].push(item);
 
-    return groups;
+      return groups;
 
-  }, {});
-
-
-  const subtypeSuggestions = suggestSubtypesFromName(
-    formData.name,
-    typeOptions
+    },
+    {}
   );
 
 
+  const subtypeSuggestions =
+    suggestSubtypesFromName(
+      formData.name,
+      typeOptions
+    );
+
+
   return (
+
     <div>
 
       {/* Name */}
+
       <label className="form-label">
+
         Name
+
         <input
           className="form-input"
           value={formData.name}
@@ -53,59 +60,78 @@ const ModalOne = ({
 
       </label>
 
+
       {/* Image */}
+
       <div>
-        <label className="form-label">Image</label>
+
+        <label className="form-label">
+          Image
+        </label>
+
         <UploadImages
-          setFormData={setFormData}
-          formData={formData}
-          setUploadedImages={setUploadedImages}
+          setSelectedImage={
+            setSelectedImage
+          }
         />
+
       </div>
 
 
       {/* Subtype */}
+
       <div className="form-label">
+
         Type
+
+
         {subtypeSuggestions.length > 0 && (
 
           <div className="upload-suggestions">
 
             <h3 className="selection-category-title">
-                Suggested type
-              </h3>
+              Suggested type
+            </h3>
+
 
             <div className="selection-grid">
-              {subtypeSuggestions.map(suggestion => (
-                
-                <button
-                  key={suggestion.name}
-                  type="button"
-                  className={
-                    formData.subtype === suggestion.name
-                      ? "selection-button selected"
-                      : "selection-button"
-                  }
-                  onClick={() =>
-                    handleSubtypeChange({
-                      target: {
-                        value: suggestion.name
-                      }
-                    })
-                  }
-                >
-                  <img
-                    src={suggestion.icon}
-                    alt={suggestion.name}
-                    className="selection-img"
-                  />
 
-                  <span className="selection-title">
-                    {suggestion.name}
-                  </span>
-                </button>
+              {subtypeSuggestions.map(
+                suggestion => (
 
-              ))}
+                  <button
+                    key={suggestion.name}
+                    type="button"
+                    className={
+                      formData.subtype ===
+                      suggestion.name
+                        ? "selection-button selected"
+                        : "selection-button"
+                    }
+                    onClick={() =>
+                      handleSubtypeChange({
+                        target: {
+                          value:
+                            suggestion.name
+                        }
+                      })
+                    }
+                  >
+
+                    <img
+                      src={suggestion.icon}
+                      alt={suggestion.name}
+                      className="selection-img"
+                    />
+
+                    <span className="selection-title">
+                      {suggestion.name}
+                    </span>
+
+                  </button>
+
+                )
+              )}
 
             </div>
 
@@ -114,70 +140,75 @@ const ModalOne = ({
         )}
 
 
-
         <div className="selection-container">
 
-  {Object.entries(groupedTypes).map(
-    ([category, subtypes]) => (
+          {Object.entries(
+            groupedTypes
+          ).map(
+            ([category, subtypes]) => (
 
-      <div
-        key={category}
-        className="selection-category"
-      >
+              <div
+                key={category}
+                className="selection-category"
+              >
 
-        <h3 className="selection-category-title">
-          {category}
-        </h3>
+                <h3 className="selection-category-title">
+                  {category}
+                </h3>
 
-        <div className="selection-grid">
 
-          {subtypes.map(subtype => (
+                <div className="selection-grid">
 
-            <button
-              type="button"
-              key={subtype.name}
-              className={
-                formData.subtype === subtype.name
-                  ? "selection-button selected"
-                  : "selection-button"
-              }
-              onClick={() =>
-                handleSubtypeChange({
-                  target: {
-                    value: subtype.name
-                  }
-                })
-              }
-            >
+                  {subtypes.map(
+                    subtype => (
 
-              <img
-                src={subtype.icon}
-                alt={subtype.name}
-                className="selection-img"
-              />
+                      <button
+                        type="button"
+                        key={subtype.name}
+                        className={
+                          formData.subtype ===
+                          subtype.name
+                            ? "selection-button selected"
+                            : "selection-button"
+                        }
+                        onClick={() =>
+                          handleSubtypeChange({
+                            target: {
+                              value:
+                                subtype.name
+                            }
+                          })
+                        }
+                      >
 
-              <span className="selection-title">
-                {subtype.name}
-              </span>
+                        <img
+                          src={subtype.icon}
+                          alt={subtype.name}
+                          className="selection-img"
+                        />
 
-            </button>
+                        <span className="selection-title">
+                          {subtype.name}
+                        </span>
 
-          ))}
+                      </button>
+
+                    )
+                  )}
+
+                </div>
+
+              </div>
+
+            )
+          )}
 
         </div>
 
       </div>
 
-    )
-  )}
-
-</div>
-
-
-      </div>
-
-
     </div>
+
   );
 };
 

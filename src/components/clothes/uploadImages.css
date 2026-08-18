@@ -1,0 +1,189 @@
+/* ----------------------------------------------------------------
+   Upload Images
+----------------------------------------------------------------- */
+
+.flex_upload {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* ----------------------------------------------------------------
+   Upload Container
+----------------------------------------------------------------- */
+
+.upload {
+  width: 100%;
+  max-width: 520px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  padding: 1.5rem;
+
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+
+  box-sizing: border-box;
+
+  transition:
+    background .25s ease,
+    border-color .25s ease;
+}
+
+.upload:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+}
+
+
+/* ----------------------------------------------------------------
+   Hide Native File Input
+----------------------------------------------------------------- */
+
+.upload input[type="file"] {
+  display: none !important;
+}
+
+
+/* ----------------------------------------------------------------
+   Custom Upload Button
+----------------------------------------------------------------- */
+
+.upload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: .75rem 1.5rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: transparent;
+  color: var(--main-color);
+
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+
+  letter-spacing: .08em;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    transform .2s ease;
+}
+
+
+/* ----------------------------------------------------------------
+   Custom Button Hover
+----------------------------------------------------------------- */
+
+.upload-button:hover {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
+
+  transform: translateY(-1px);
+}
+
+
+/* ----------------------------------------------------------------
+   Custom Button Focus
+----------------------------------------------------------------- */
+
+.upload-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+
+/* ----------------------------------------------------------------
+   TABLET
+----------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+
+  .upload {
+    max-width: 480px;
+    padding: 1.35rem;
+  }
+
+}
+
+
+/* ----------------------------------------------------------------
+   MOBILE
+----------------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+  .flex_upload {
+    width: 100%;
+  }
+
+
+  .upload {
+    width: 100%;
+    max-width: none;
+
+    padding: 1.25rem;
+
+    gap: .75rem;
+
+    border-radius: 9px;
+  }
+
+
+  .upload-button {
+    width: 100%;
+
+    padding: .65rem 1rem;
+
+    font-size: var(--button-font-size);
+
+    letter-spacing: .07em;
+
+    box-sizing: border-box;
+  }
+
+
+}
+
+
+/* ----------------------------------------------------------------
+   VERY SMALL PHONES
+----------------------------------------------------------------- */
+
+@media (max-width: 400px) {
+
+  .upload {
+    padding: 1rem;
+
+    gap: .65rem;
+
+    border-radius: 8px;
+  }
+
+
+  .upload-button {
+    padding: .6rem .75rem;
+
+    letter-spacing: .05em;
+  }
+
+
+
+}
