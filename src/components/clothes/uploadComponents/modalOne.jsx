@@ -69,11 +69,14 @@ const ModalOne = ({
           Image
         </label>
 
+        <div className="gap"></div>
+
         <UploadImages
           setSelectedImage={
             setSelectedImage
           }
         />
+        <div className="gap"></div>
 
       </div>
 

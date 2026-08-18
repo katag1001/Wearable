@@ -59,16 +59,16 @@ const UploadImages = ({
         {previewUrl && (
 
             <img
-    src={previewUrl}
-    alt="Selected clothing"
-    className="selected-clothing"
-    style={{
-      margin: "30px",
-      height: "400px",
-      objectFit: "contain",
-      display: "block"
-    }}
-  />
+              src={previewUrl}
+              alt="Selected clothing"
+              className="selected-clothing"
+              style={{
+                margin: "30px",
+                height: "400px",
+                objectFit: "contain",
+                display: "block"
+              }}
+            />
 
         )}
 
