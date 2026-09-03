@@ -1,9 +1,5 @@
 const STORAGE_KEY = "weather_cache";
 
-/* -------------------------
-   SCORING CONFIG
-------------------------- */
-
 const SCORE_WEIGHTS = {
   temperature: 0.10,
   clothingFreshness: 0.30,
@@ -11,10 +7,6 @@ const SCORE_WEIGHTS = {
   userMade: 0.45,
 };
 
-
-/* -------------------------
-   WEATHER
-------------------------- */
 
 const getCachedWeather = () => {
   try {
@@ -30,10 +22,6 @@ const getCachedWeather = () => {
   }
 };
 
-
-/* -------------------------
-   DATE HELPERS
-------------------------- */
 
 const getDaysSince = (date) => {
   if (!date) return null;
@@ -51,62 +39,37 @@ const getDaysSince = (date) => {
 };
 
 
-/* -------------------------
-   TEMPERATURE SCORE
-------------------------- */
-
-/*
- * 10 = perfect temperature match
- * 0 = very poor temperature match
- *
- * The score is based on how far the outfit's
- * min/max temperatures are from today's
- * actual min/max temperatures.
- */
 const getTemperatureScore = (match, weather) => {
   if (!weather || !match) return 0;
 
-  const minDifference = Math.abs(
+  const overflowBelow = Math.max(
+    0,
     match.min_temp - weather.min
   );
 
-  const maxDifference = Math.abs(
-    match.max_temp - weather.max
-  );
-
-  const totalDifference =
-    minDifference + maxDifference;
-
-  /*
-   * 0°C total difference = 10 points
-   * 10°C total difference = 5 points
-   * 20°C total difference = 0 points
-   */
-  const score = Math.max(
+  const overflowAbove = Math.max(
     0,
-    10 - (totalDifference / 20) * 10
+    weather.max - match.max_temp
   );
+
+  const totalOverflow =
+    overflowBelow + overflowAbove;
+
+  let score = Math.max(
+    0,
+    10 - (totalOverflow / 20) * 10
+  );
+
+  // Prefer the lighter outfit when an outer layer isn't needed to fit today's weather.
+  if (match.hasOuter) {
+    score = Math.max(0, score - 1);
+  }
 
   return score;
 };
 
 
-/* -------------------------
-   CLOTHING FRESHNESS SCORE
-------------------------- */
 
-/*
- * Scores the individual clothing items.
- *
- * Never worn = 10
- *
- * Otherwise:
- * 0 days ago   = 0
- * 30+ days ago = 10
- *
- * The outfit score is the average of all its
- * clothing items.
- */
 const getClothingFreshnessScore = (outfit) => {
   const clothes = outfit.matchId?.clothes || [];
 
@@ -141,17 +104,6 @@ const getClothingFreshnessScore = (outfit) => {
 };
 
 
-/* -------------------------
-   WHOLE OUTFIT FRESHNESS
-------------------------- */
-
-/*
- * Never worn = 10
- *
- * Otherwise:
- * 0 days ago   = 0
- * 30+ days ago = 10
- */
 const getOutfitFreshnessScore = (match) => {
   if (!match) return 0;
 
@@ -170,26 +122,11 @@ const getOutfitFreshnessScore = (match) => {
   );
 };
 
-
-/* -------------------------
-   USER-MADE SCORE
-------------------------- */
-
 const getUserMadeScore = (match) => {
   return match?.userMade ? 10 : 0;
 };
 
 
-/* -------------------------
-   TAG MATCH
-------------------------- */
-
-/*
- * Tags do NOT contribute to the score.
- *
- * A matching tag gives an outfit priority,
- * but non-matching outfits are still included.
- */
 const hasTodayTag = (match, todayTag) => {
   if (!todayTag) return false;
 
@@ -207,10 +144,6 @@ const hasTodayTag = (match, todayTag) => {
 };
 
 
-/* -------------------------
-   OVERALL SCORE
-------------------------- */
-
 const getOverallScore = (scores) => {
   const score =
     scores.temperature *
@@ -225,10 +158,6 @@ const getOverallScore = (scores) => {
   return score;
 };
 
-
-/* -------------------------
-   SCORE OUTFIT
-------------------------- */
 
 const scoreOutfit = (outfit, weather) => {
   const match = outfit.matchId;
@@ -266,10 +195,6 @@ const scoreOutfit = (outfit, weather) => {
 };
 
 
-/* -------------------------
-   TODAY OUTFIT SORT
-------------------------- */
-
 const todayOutfitSort = (
   outfits,
   todayTag = null
@@ -280,16 +205,6 @@ const todayOutfitSort = (
 
   const weather =
     getCachedWeather();
-
-
-  /*
-   * -----------------------------------------
-   * 1. SPLIT BY TODAY'S TAG
-   * -----------------------------------------
-   *
-   * Matching outfits get priority.
-   * Non-matching outfits are still included.
-   */
 
   let taggedOutfits = [
     ...outfits,
@@ -318,13 +233,6 @@ const todayOutfitSort = (
           )
       );
   }
-
-
-  /*
-   * -----------------------------------------
-   * 2. SCORE OUTFITS
-   * -----------------------------------------
-   */
 
   const scoreOutfits = (
     outfitsToScore
@@ -358,12 +266,6 @@ const todayOutfitSort = (
       nonTaggedOutfits
     );
 
-
-  /*
-   * -----------------------------------------
-   * 3. CONSOLE LOG SCORES
-   * -----------------------------------------
-   */
 
   [
     ...scoredTaggedOutfits,
@@ -433,16 +335,6 @@ const todayOutfitSort = (
     }
   );
 
-
-  /*
-   * -----------------------------------------
-   * 4. SORT EACH GROUP
-   * -----------------------------------------
-   *
-   * Each group is sorted by its normal
-   * overall score.
-   */
-
   scoredTaggedOutfits.sort(
     (a, b) =>
       b.scores.overall -
@@ -455,15 +347,6 @@ const todayOutfitSort = (
       a.scores.overall
   );
 
-
-  /*
-   * -----------------------------------------
-   * 5. RETURN ALL OUTFITS
-   * -----------------------------------------
-   *
-   * Matching outfits come first.
-   * Non-matching outfits come afterward.
-   */
 
   return [
     ...scoredTaggedOutfits.map(

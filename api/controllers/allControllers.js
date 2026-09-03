@@ -6,7 +6,7 @@ const jwt_secret = process.env.JWT_SECRET;
 
 const { User, Match, Today, Clothes, Preferences } = require("../models/AllModels.js");
 const { processMatches } = require("../services/matchService");
-const { generateMatchTags } = require("../services/helpers.js");
+const { generateMatchTags, calculateTempRange } = require("../services/helpers.js");
 
 
 /* -------------------- AUTH HELPER -------------------- */
@@ -416,11 +416,16 @@ exports.createMatch = async (req, res) => {
         }
 
         const tags = await generateMatchTags(clothesIds);
+        const { min_temp, max_temp } = await calculateTempRange(clothesIds);
+        const hasOuter = clothes.some((c) => c.type === "outer");
 
         const match = new Match({
           ...req.body,
           clothes: clothesIds,
           tags,
+          min_temp,
+          max_temp,
+          hasOuter,
           userId,
         });
 

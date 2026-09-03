@@ -26,7 +26,6 @@ userId: {
 type: mongoose.Schema.Types.ObjectId,
 ref: "User",
 required: true,
-unique: true,
 index: true,
 },
 
@@ -34,6 +33,7 @@ colors: { type: [String], required: true },
 min_temp: { type: Number, required: true },
 max_temp: { type: Number, required: true },
 type: { type: String, required: true },
+hasOuter: { type: Boolean, default: false },
 
 spring: { type: Boolean, required: true },
 summer: { type: Boolean, required: true },
@@ -63,7 +63,6 @@ userId: {
 type: mongoose.Schema.Types.ObjectId,
 ref: "User",
 required: true,
-unique: true,
 index: true,
 },
 

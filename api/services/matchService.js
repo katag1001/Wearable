@@ -1,6 +1,6 @@
 const { Clothes, Match } = require("../models/AllModels.js");
 const { colorPalettes } = require("../utils/colorPalettes.js");
-const { generateMatchTags } = require("./helpers.js");
+const { generateMatchTags, calculateTempRange } = require("./helpers.js");
 
 
 async function getCandidates(newItem) {
@@ -11,6 +11,39 @@ console.log("Input item:", {
   type: newItem.type,
   userId: newItem.userId
 });
+
+  if (newItem.type === "outer") {
+
+    console.log("Looking for existing outer-less matches.");
+
+    const matchQuery = {
+      userId: newItem.userId,
+      hasOuter: false,
+
+      min_temp: { $lte: newItem.max_temp },
+      max_temp: { $gte: newItem.min_temp },
+
+      $or: [
+        { spring: newItem.spring },
+        { summer: newItem.summer },
+        { autumn: newItem.autumn },
+        { winter: newItem.winter }
+      ]
+    };
+
+    console.log("Mongo query:");
+    console.dir(matchQuery, { depth: null });
+
+    const matchCandidates = await Match.find(matchQuery);
+
+    console.log(`Found ${matchCandidates.length} candidates:`);
+
+    matchCandidates.forEach(c => {
+      console.log(`- match ${c._id} (${c.clothes.length} items)`);
+    });
+
+    return matchCandidates;
+  }
 
   let types = [];
 
@@ -31,11 +64,6 @@ console.log("Input item:", {
       console.log("Looking for outers.");
       break;
 
-    case "outer":
-      types = ["top", "onepiece"];
-      console.log("Looking for tops or onepieces.");
-      break;
-
 case "match": {
   const clothes = await Clothes.find({
     _id: { $in: newItem.clothes }
@@ -43,12 +71,9 @@ case "match": {
 
   const hasTop = clothes.some(c => c.type === "top");
   const hasBottom = clothes.some(c => c.type === "bottom");
-  const hasOuter = clothes.some(c => c.type === "outer");
 
-  if (hasTop && hasBottom && !hasOuter) {
+  if (hasTop && hasBottom) {
     types = ["outer"];
-  } else if (hasOuter && hasTop && !hasBottom) {
-    types = ["bottom"];
   }
 
       break;
@@ -113,6 +138,7 @@ async function matchPath(newItem, matches) {
       autumn: newItem.autumn,
       winter: newItem.winter,
       tags: newItem.tags || [],
+      hasOuter: false,
       userMade: false,
       lastWornDate: null,
     });
@@ -216,11 +242,12 @@ async function tempMatch(
     return;
   }
 
-  const min_temp =
-    (newItem.min_temp + matchItem.min_temp) / 2;
+  const clothesIds = [
+    ...(newItem.clothes || [newItem._id]),
+    ...(matchItem.clothes || [matchItem._id])
+  ];
 
-  const max_temp =
-    (newItem.max_temp + matchItem.max_temp) / 2;
+  const { min_temp, max_temp } = await calculateTempRange(clothesIds);
 
   await pushResult(
     newItem,
@@ -257,6 +284,7 @@ async function pushResult(
     summer: newItem.summer && matchItem.summer,
     autumn: newItem.autumn && matchItem.autumn,
     winter: newItem.winter && matchItem.winter,
+    hasOuter: false,
     userMade: false,
     lastWornDate: null,
     ...overrides
@@ -287,7 +315,7 @@ async function pushResult(
       clothes.push(newItem._id);
     }
 
-    const result = await createResult({ clothes });
+    const result = await createResult({ clothes, hasOuter: false });
 
     matches.push(result);
 
@@ -298,32 +326,13 @@ async function pushResult(
 
   }
 
-  if (newItem.type === "outer" && matchItem.type === "top") {
+  if (newItem.type === "outer") {
 
-    console.log("Outer + top. Searching for bottom.");
-
-    const result = await createResult({
-      clothes: [
-        matchItem._id,
-        newItem._id
-      ]
-    });
-
-    await matchPath(result, matches);
-
-    return;
-
-  }
-
-  if (newItem.type === "outer" && matchItem.type === "onepiece") {
-
-    console.log("Outer + onepiece complete.");
+    console.log("Outer completing an existing outer-less match.");
 
     matches.push(await createResult({
-    clothes: [
-      matchItem._id,
-      newItem._id
-    ]
+      clothes: [...matchItem.clothes, newItem._id],
+      hasOuter: true
     }));
 
     return;
@@ -340,26 +349,14 @@ async function pushResult(
 
     const hasTop = clothingDocs.some(c => c.type === "top");
     const hasBottom = clothingDocs.some(c => c.type === "bottom");
-    const hasOuter = clothingDocs.some(c => c.type === "outer");
 
-    if (hasTop && hasBottom && !hasOuter) {
+    if (hasTop && hasBottom) {
 
       console.log("Finishing top+bottom with outer.");
 
       matches.push(await createResult({
-        clothes: [...clothes, matchItem._id]
-      }));
-
-      return;
-
-    }
-
-    if (hasOuter && hasTop && !hasBottom) {
-
-      console.log("Finishing outer+top with bottom.");
-
-      matches.push(await createResult({
-        clothes: [...clothes, matchItem._id]
+        clothes: [...clothes, matchItem._id],
+        hasOuter: true
       }));
 
       return;
@@ -376,7 +373,8 @@ async function pushResult(
     clothes: [
         matchItem._id,
         newItem._id
-      ]
+      ],
+      hasOuter: true
     }));
 
   }
