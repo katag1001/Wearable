@@ -5,6 +5,7 @@ import { URL } from '../config';
 import '../styles/pages.css';
 import '../styles/userPage.css';
 import WeeklyPreferences from '../components/preferences/weeklyPreferences';
+import Stats from '../components/stats/stats';
 
 const User = ({ loggedIn, logout }) => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
@@ -67,6 +68,9 @@ const User = ({ loggedIn, logout }) => {
     switch (activeScreen) {
       case 'weekly-preferences':
         return <WeeklyPreferences />;
+
+      case 'stats':
+        return <Stats />;
 
       default:
         return <WeeklyPreferences />;
@@ -144,6 +148,20 @@ const User = ({ loggedIn, logout }) => {
                   }
                 >
                   Weekly Preferences
+                </button>
+
+                <button
+                  type="button"
+                  className={`user-sidebar__button ${
+                    activeScreen === 'stats'
+                      ? 'user-sidebar__button--active'
+                      : ''
+                  }`}
+                  onClick={() =>
+                    handleScreenChange('stats')
+                  }
+                >
+                  Stats
                 </button>
 
               </nav>

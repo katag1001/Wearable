@@ -484,18 +484,52 @@ exports.updateMatch = async (req, res) => {
     // Update match fields
     Object.assign(match, req.body);
 
+    // If outfit was marked as worn, update its wear counts
+    if (req.body.lastWornDate) {
+      const wornYear = new Date(req.body.lastWornDate).getFullYear();
+
+      match.timesWorn = (match.timesWorn || 0) + 1;
+
+      match.timesWornThisYear =
+        match.wornYear === wornYear
+          ? (match.timesWornThisYear || 0) + 1
+          : 1;
+
+      match.wornYear = wornYear;
+    }
+
     await match.save();
 
     // If outfit was marked as worn, update all clothes in the outfit
     if (req.body.lastWornDate) {
+      const wornYear = new Date(req.body.lastWornDate).getFullYear();
+
       await Clothes.updateMany(
         {
           _id: { $in: match.clothes },
           userId,
         },
-        {
-          lastWornDate: req.body.lastWornDate,
-        }
+        [
+          {
+            $set: {
+              lastWornDate: req.body.lastWornDate,
+
+              timesWorn: {
+                $add: [{ $ifNull: ["$timesWorn", 0] }, 1],
+              },
+
+              timesWornThisYear: {
+                $cond: [
+                  { $eq: ["$wornYear", wornYear] },
+                  { $add: [{ $ifNull: ["$timesWornThisYear", 0] }, 1] },
+                  1,
+                ],
+              },
+
+              wornYear,
+            },
+          },
+        ]
       );
     }
 

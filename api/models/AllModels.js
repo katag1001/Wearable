@@ -45,6 +45,10 @@ tags: { type: [String], required: false },
 
 lastWornDate: { type: Date, default: null },
 
+timesWorn: { type: Number, default: 0 },
+timesWornThisYear: { type: Number, default: 0 },
+wornYear: { type: Number, default: null },
+
 userMade: { type: Boolean, default: false },
 });
 
@@ -75,6 +79,10 @@ subtype: { type: String, required: true },
 
 lastWornDate: { type: Date, default: null },
 tags: { type: [String], required: false },
+
+timesWorn: { type: Number, default: 0 },
+timesWornThisYear: { type: Number, default: 0 },
+wornYear: { type: Number, default: null },
 
 spring: { type: Boolean, required: true },
 summer: { type: Boolean, required: true },

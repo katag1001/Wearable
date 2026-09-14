@@ -1,0 +1,348 @@
+/* ================================================================
+   STATS PAGE
+================================================================ */
+
+
+.stats {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 1.5rem;
+
+  color: var(--main-color);
+  font-family: var(--main-font);
+}
+
+
+/* ----------------------------------------------------------------
+   HEADER
+---------------------------------------------------------------- */
+
+.stats-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: .75rem;
+
+  margin-bottom: 1.5rem;
+}
+
+
+.stats-header .page-title {
+  margin-top: 0;
+}
+
+
+/* ----------------------------------------------------------------
+   TOGGLE
+---------------------------------------------------------------- */
+
+.stats-toggle {
+  display: inline-flex;
+
+  padding: .25rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: var(--card-background);
+}
+
+
+.stats-toggle-button {
+  padding: .5rem 1.1rem;
+
+  border: none;
+  border-radius: 999px;
+
+  background: transparent;
+  color: var(--secondary-color);
+
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+
+  letter-spacing: .08em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    color .2s ease;
+}
+
+
+.stats-toggle-button:hover {
+  color: var(--main-color);
+}
+
+
+.stats-toggle-button--active,
+.stats-toggle-button--active:hover {
+  background: var(--main-color);
+  color: var(--inverse-color);
+}
+
+
+.stats-toggle-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 2px;
+}
+
+
+/* ----------------------------------------------------------------
+   SECTIONS
+---------------------------------------------------------------- */
+
+.stats-section {
+  width: 100%;
+
+  margin-bottom: 2rem;
+}
+
+
+.stats-section-title {
+  margin: 0 0 .85rem;
+  padding: 0 0 .5rem;
+
+  border-bottom: 1px solid var(--border-color);
+
+  font-family: var(--title-font);
+  font-size: .95rem;
+  font-weight: 700;
+
+  letter-spacing: .03em;
+  text-transform: uppercase;
+
+  color: var(--main-color);
+}
+
+
+/* ----------------------------------------------------------------
+   OUTFIT GRID
+---------------------------------------------------------------- */
+
+.stats-outfit-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 1rem;
+}
+
+
+.stats-outfit-card {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: .5rem;
+
+  padding: .85rem;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  background: var(--card-background);
+
+  transition:
+    background .2s ease,
+    border-color .2s ease;
+}
+
+
+.stats-outfit-card:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+}
+
+
+.stats-outfit-images {
+  width: 100%;
+
+  min-height: 120px;
+
+  display: flex;
+  flex-wrap: wrap;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: .35rem;
+}
+
+
+.stats-outfit-image {
+  max-width: 70px;
+  max-height: 70px;
+
+  object-fit: contain;
+
+  border-radius: 6px;
+}
+
+
+/* ----------------------------------------------------------------
+   CLOTHES GRID
+---------------------------------------------------------------- */
+
+.stats-clothes-grid {
+  display: grid;
+
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+
+  gap: 1rem;
+}
+
+
+.stats-clothing-card {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: .35rem;
+
+  padding: .75rem;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  background: var(--card-background);
+
+  text-align: center;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease;
+}
+
+
+.stats-clothing-card:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+}
+
+
+.stats-clothing-image {
+  width: 100%;
+
+  max-height: 90px;
+
+  object-fit: contain;
+
+  border-radius: 6px;
+}
+
+
+.stats-clothing-name {
+  width: 100%;
+
+  overflow: hidden;
+
+  color: var(--main-color);
+
+  font-size: var(--small-font-size);
+  font-weight: 500;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* ----------------------------------------------------------------
+   SHARED CARD ELEMENTS
+---------------------------------------------------------------- */
+
+.stats-rank-badge {
+  position: absolute;
+
+  top: .5rem;
+  left: .5rem;
+
+  min-width: 20px;
+
+  padding: .15rem .4rem;
+
+  border-radius: 999px;
+
+  background: var(--main-color);
+  color: var(--inverse-color);
+
+  font-size: .65rem;
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  text-align: center;
+}
+
+
+.stats-count-label {
+  color: var(--secondary-color);
+
+  font-size: .7rem;
+  font-weight: 500;
+
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+
+.stats-empty-message {
+  width: 100%;
+
+  padding: 1.5rem 1rem;
+
+  box-sizing: border-box;
+
+  color: var(--secondary-color);
+
+  font-size: var(--description-font-size);
+  font-weight: 400;
+
+  letter-spacing: .08em;
+
+  text-align: center;
+  text-transform: uppercase;
+}
+
+
+/* ================================================================
+   RESPONSIVE
+================================================================ */
+
+@media (max-width: 900px) {
+
+  .stats-clothes-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .stats {
+    padding: 1rem;
+  }
+
+  .stats-outfit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-clothes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
