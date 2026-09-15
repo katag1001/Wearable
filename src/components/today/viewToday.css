@@ -34,9 +34,39 @@
   height: var(--view-today-container);
   min-height: var(--view-today-container);
   max-height: var(--view-today-container);
-  
+
   padding: 0;
   box-sizing: border-box;
+}
+
+
+/* ----------------------------------------------------------------
+   WORN CARD SECTION
+
+   Shown instead of .today-top-section once an outfit has been
+   marked worn today - a single centered card, not the two-column
+   grid, so no empty space is left where the other boxes were.
+---------------------------------------------------------------- */
+
+.today-worn-section {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+.today-worn-section .featured-outfit {
+  width: 100%;
+  max-width: 480px;
+
+  height: 100%;
+  max-height: none;
 }
 
 
@@ -1337,6 +1367,13 @@
   }
 
 
+  .today-worn-section {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+
   .featured-outfit,
   .outfit-selector {
     height: auto;
@@ -1390,6 +1427,13 @@
     max-height: none;
 
     gap: .65rem;
+  }
+
+
+  .today-worn-section {
+    height: auto;
+    min-height: 0;
+    max-height: none;
   }
 
 

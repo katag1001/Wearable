@@ -19,6 +19,13 @@ const ViewToday = ({ todayReady }) => {
   const [checkingToday, setCheckingToday] = useState(false);
   const [message, setMessage] = useState(null);
 
+  // The outfit currently marked "worn today", plus the snapshot needed to
+  // undo it if a different outfit is marked worn later in the same session.
+  const [wornToday, setWornToday] = useState(null);
+
+  // Whether the full outfit-selection UI is showing, vs just the worn card.
+  const [showSelector, setShowSelector] = useState(true);
+
   const [popup, setPopup] = useState({
     open: false,
     title: "",
@@ -563,6 +570,104 @@ const ViewToday = ({ todayReady }) => {
 
   /* ------------------------- MARK AS WORN ------------------------- */
 
+  // Restore a previously-worn match (and its clothes) to the exact
+  // values they held before they were marked worn today.
+  const revertMatchToSnapshot = async (snapshot) => {
+
+    if (!snapshot) {
+      return;
+    }
+
+
+    try {
+
+      const token =
+        getToken();
+
+
+      await fetch(
+        `${URL}/match/${snapshot.matchId}`,
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            restoreSnapshot: true,
+            ...snapshot.matchSnapshot,
+            clothesSnapshots:
+              snapshot.clothesSnapshots,
+          }),
+        }
+      );
+
+
+      // Reflect the reverted values back into local state so a later
+      // re-selection of this outfit snapshots the correct baseline.
+
+      setOutfits((prev) =>
+        prev.map((outfit) => {
+
+          if (
+            outfit.matchId?._id !==
+            snapshot.matchId
+          ) {
+
+            return outfit;
+          }
+
+
+          const revertedClothes =
+            (
+              outfit.matchId.clothes ||
+              []
+            ).map((item) => {
+
+              const clothesSnapshot =
+                snapshot.clothesSnapshots.find(
+                  (entry) =>
+                    entry.clothesId ===
+                    item._id
+                );
+
+
+              return clothesSnapshot
+                ? {
+                    ...item,
+                    ...clothesSnapshot,
+                  }
+                : item;
+            });
+
+
+          return {
+            ...outfit,
+
+            matchId: {
+              ...outfit.matchId,
+              ...snapshot.matchSnapshot,
+              clothes: revertedClothes,
+            },
+          };
+        })
+      );
+
+    } catch (err) {
+
+      console.error(
+        "Failed to revert previous worn outfit:",
+        err
+      );
+    }
+  };
+
+
   const markAsWornToday = async () => {
 
     const outfit =
@@ -580,7 +685,70 @@ const ViewToday = ({ todayReady }) => {
     }
 
 
+    // Already the active worn-today selection - just show its card.
+
+    if (
+      wornToday?.matchId ===
+      matchId
+    ) {
+
+      setShowSelector(false);
+
+      return;
+    }
+
+
     try {
+
+      // Undo the previous worn-today selection, if any,
+      // before applying the new one.
+
+      if (wornToday) {
+
+        await revertMatchToSnapshot(
+          wornToday
+        );
+      }
+
+
+      const matchSnapshot = {
+        lastWornDate:
+          outfit.matchId.lastWornDate ??
+          null,
+
+        timesWorn:
+          outfit.matchId.timesWorn ??
+          0,
+
+        timesWornThisYear:
+          outfit.matchId
+            .timesWornThisYear ?? 0,
+
+        wornYear:
+          outfit.matchId.wornYear ??
+          null,
+      };
+
+
+      const clothesSnapshots = (
+        outfit.matchId.clothes || []
+      ).map((item) => ({
+        clothesId: item._id,
+
+        lastWornDate:
+          item.lastWornDate ?? null,
+
+        timesWorn:
+          item.timesWorn ?? 0,
+
+        timesWornThisYear:
+          item.timesWornThisYear ??
+          0,
+
+        wornYear:
+          item.wornYear ?? null,
+      }));
+
 
       const token =
         getToken();
@@ -635,8 +803,19 @@ const ViewToday = ({ todayReady }) => {
                 return {
                   ...outfit,
 
-                  lastWornDate:
-                    updated.lastWornDate,
+                  matchId: {
+                    ...outfit.matchId,
+                    lastWornDate:
+                      updated.lastWornDate,
+                    timesWorn:
+                      updated.timesWorn,
+                    timesWornThisYear:
+                      updated.timesWornThisYear,
+                    wornYear:
+                      updated.wornYear,
+                    clothes:
+                      updated.clothes,
+                  },
                 };
               }
 
@@ -645,6 +824,16 @@ const ViewToday = ({ todayReady }) => {
             }
           );
         });
+
+
+        setWornToday({
+          matchId,
+          outfit,
+          matchSnapshot,
+          clothesSnapshots,
+        });
+
+        setShowSelector(false);
 
 
         setPopup({
@@ -774,6 +963,18 @@ const ViewToday = ({ todayReady }) => {
     getAlternativeOutfits();
 
 
+  /* ------------------------- WORN OUTFIT ------------------------- */
+
+  const wornOutfit =
+    wornToday
+      ? outfits.find(
+          (outfit) =>
+            outfit.matchId?._id ===
+            wornToday.matchId
+        ) || wornToday.outfit
+      : null;
+
+
   /* ------------------------- TAGS POPUP ------------------------- */
 
   const renderMainOutfitTags = (
@@ -825,6 +1026,48 @@ const ViewToday = ({ todayReady }) => {
 
   return (
     <div className="view-today-container">
+
+      {wornToday && !showSelector ? (
+
+        /* ------------------------- WORN CARD VIEW ------------------------- */
+
+        <div className="today-worn-section">
+
+          <div className="featured-outfit">
+
+            <div className="featured-outfit-content">
+
+              {renderOutfitImages(
+                wornOutfit
+              )}
+
+              {renderMainOutfitTags(
+                wornOutfit
+              )}
+
+            </div>
+
+
+            <div className="today-buttons">
+
+              <button
+                className="regular-button"
+                onClick={() =>
+                  setShowSelector(true)
+                }
+              >
+                Select a different outfit
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      ) : (
+
+      <>
 
       {/* TOP SECTION */}
 
@@ -1069,6 +1312,10 @@ const ViewToday = ({ todayReady }) => {
         </div>
 
       </div>
+
+      </>
+
+      )}
 
 
       {/* POPUP */}

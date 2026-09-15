@@ -481,56 +481,79 @@ exports.updateMatch = async (req, res) => {
       });
     }
 
+    const { restoreSnapshot, clothesSnapshots, ...matchFields } = req.body;
+
     // Update match fields
-    Object.assign(match, req.body);
+    Object.assign(match, matchFields);
 
-    // If outfit was marked as worn, update its wear counts
-    if (req.body.lastWornDate) {
-      const wornYear = new Date(req.body.lastWornDate).getFullYear();
+    if (restoreSnapshot) {
 
-      match.timesWorn = (match.timesWorn || 0) + 1;
+      // Restore the exact prior values for the match (no increment)
+      await match.save();
 
-      match.timesWornThisYear =
-        match.wornYear === wornYear
-          ? (match.timesWornThisYear || 0) + 1
-          : 1;
+      // Restore the exact prior values for each affected clothing item
+      if (Array.isArray(clothesSnapshots) && clothesSnapshots.length) {
 
-      match.wornYear = wornYear;
-    }
+        await Promise.all(
+          clothesSnapshots.map(({ clothesId, ...snapshot }) =>
+            Clothes.updateOne(
+              { _id: clothesId, userId },
+              { $set: snapshot }
+            )
+          )
+        );
+      }
 
-    await match.save();
+    } else {
 
-    // If outfit was marked as worn, update all clothes in the outfit
-    if (req.body.lastWornDate) {
-      const wornYear = new Date(req.body.lastWornDate).getFullYear();
+      // If outfit was marked as worn, update its wear counts
+      if (req.body.lastWornDate) {
+        const wornYear = new Date(req.body.lastWornDate).getFullYear();
 
-      await Clothes.updateMany(
-        {
-          _id: { $in: match.clothes },
-          userId,
-        },
-        [
+        match.timesWorn = (match.timesWorn || 0) + 1;
+
+        match.timesWornThisYear =
+          match.wornYear === wornYear
+            ? (match.timesWornThisYear || 0) + 1
+            : 1;
+
+        match.wornYear = wornYear;
+      }
+
+      await match.save();
+
+      // If outfit was marked as worn, update all clothes in the outfit
+      if (req.body.lastWornDate) {
+        const wornYear = new Date(req.body.lastWornDate).getFullYear();
+
+        await Clothes.updateMany(
           {
-            $set: {
-              lastWornDate: req.body.lastWornDate,
-
-              timesWorn: {
-                $add: [{ $ifNull: ["$timesWorn", 0] }, 1],
-              },
-
-              timesWornThisYear: {
-                $cond: [
-                  { $eq: ["$wornYear", wornYear] },
-                  { $add: [{ $ifNull: ["$timesWornThisYear", 0] }, 1] },
-                  1,
-                ],
-              },
-
-              wornYear,
-            },
+            _id: { $in: match.clothes },
+            userId,
           },
-        ]
-      );
+          [
+            {
+              $set: {
+                lastWornDate: req.body.lastWornDate,
+
+                timesWorn: {
+                  $add: [{ $ifNull: ["$timesWorn", 0] }, 1],
+                },
+
+                timesWornThisYear: {
+                  $cond: [
+                    { $eq: ["$wornYear", wornYear] },
+                    { $add: [{ $ifNull: ["$timesWornThisYear", 0] }, 1] },
+                    1,
+                  ],
+                },
+
+                wornYear,
+              },
+            },
+          ]
+        );
+      }
     }
 
     // Return populated match
