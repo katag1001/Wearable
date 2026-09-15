@@ -16,6 +16,7 @@ const ViewMatches = ({
   refresh,
   editable = true,
   setError,
+  onFavouriteToggle,
 }) => {
   const [deleteMatch, setDeleteMatch] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -104,6 +105,7 @@ const ViewMatches = ({
                 refresh={refresh}
                 setError={setError}
                 editable={editable}
+                onFavouriteToggle={onFavouriteToggle}
               />
 
           ))}

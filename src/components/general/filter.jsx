@@ -15,6 +15,7 @@ const defaultFilters = {
   tags: [],
   minTemp: null,
   maxTemp: null,
+  favourite: false,
 };
 
 const Filter = ({
@@ -30,6 +31,7 @@ const Filter = ({
   showStyles = true,
   showTags = true,
   showTemperature = true,
+  showFavourites = false,
 }) => {
   const [localFilters, setLocalFilters] = useState({
     ...defaultFilters,
@@ -116,6 +118,27 @@ return (
       </button>
 
         <h2>Filter</h2>
+
+        {showFavourites && (
+          <div className="filter-section">
+            <h3>Favourites</h3>
+
+            <label>
+              <input
+                type="checkbox"
+                checked={!!localFilters.favourite}
+                onChange={() =>
+                  setLocalFilters((prev) => ({
+                    ...prev,
+                    favourite: !prev.favourite,
+                  }))
+                }
+              />
+
+              Favourites only
+            </label>
+          </div>
+        )}
 
         {showSeasons && (
           <div className="filter-section">

@@ -3,8 +3,9 @@ const STORAGE_KEY = "weather_cache";
 const SCORE_WEIGHTS = {
   temperature: 0.10,
   clothingFreshness: 0.30,
-  outfitFreshness: 0.15,
-  userMade: 0.45,
+  outfitFreshness: 0.30,
+  userMade: 0.10,
+  favourite: 0.20
 };
 
 
@@ -126,6 +127,10 @@ const getUserMadeScore = (match) => {
   return match?.userMade ? 10 : 0;
 };
 
+const getFavouriteScore = (match) => {
+  return match?.favourite ? 10 : 0;
+};
+
 
 const hasTodayTag = (match, todayTag) => {
   if (!todayTag) return false;
@@ -153,7 +158,9 @@ const getOverallScore = (scores) => {
     scores.outfitFreshness *
       SCORE_WEIGHTS.outfitFreshness +
     scores.userMade *
-      SCORE_WEIGHTS.userMade;
+      SCORE_WEIGHTS.userMade +
+    scores.favourite *
+      SCORE_WEIGHTS.favourite;
 
   return score;
 };
@@ -181,6 +188,11 @@ const scoreOutfit = (outfit, weather) => {
 
     userMade:
       getUserMadeScore(
+        match
+      ),
+
+    favourite:
+      getFavouriteScore(
         match
       ),
   };
@@ -318,6 +330,13 @@ const todayOutfitSort = (
       console.log(
         "user-made-score:",
         scores.userMade.toFixed(
+          1
+        )
+      );
+
+      console.log(
+        "favourite-score:",
+        scores.favourite.toFixed(
           1
         )
       );

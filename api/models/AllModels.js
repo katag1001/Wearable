@@ -50,6 +50,7 @@ timesWornThisYear: { type: Number, default: 0 },
 wornYear: { type: Number, default: null },
 
 userMade: { type: Boolean, default: false },
+favourite: { type: Boolean, default: false },
 });
 
 /* -------------------- CLOTHES -------------------- */

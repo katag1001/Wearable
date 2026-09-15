@@ -37,6 +37,7 @@ const Matches = ({ loggedIn, logout }) => {
     tags: [],
     minTemp: null,
     maxTemp: null,
+    favourite: false,
   });
 
   const getToken = () =>
@@ -84,6 +85,16 @@ const Matches = ({ loggedIn, logout }) => {
 
   const handleError = (msg) => {
     setError(msg);
+  };
+
+  const handleFavouriteToggle = (matchId, favourite) => {
+    setMatches((prev) =>
+      prev.map((match) =>
+        match._id === matchId
+          ? { ...match, favourite }
+          : match
+      )
+    );
   };
 
   const toggleSeasonFilter = (season) => {
@@ -144,6 +155,10 @@ const Matches = ({ loggedIn, logout }) => {
         if (!matchesSearch) {
           return false;
         }
+      }
+
+      if (filters.favourite && !match.favourite) {
+        return false;
       }
 
       if (filters.seasons.length > 0) {
@@ -246,6 +261,7 @@ const Matches = ({ loggedIn, logout }) => {
         onEdit={setEditingMatch}
         refresh={fetchMatches}
         setError={setError}
+        onFavouriteToggle={handleFavouriteToggle}
       />
       </div>
 
@@ -256,6 +272,7 @@ const Matches = ({ loggedIn, logout }) => {
         }
         filters={filters}
         setFilters={setFilters}
+        showFavourites
         availableColors={[
           ...new Set(
             matches.flatMap(

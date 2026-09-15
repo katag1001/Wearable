@@ -20,11 +20,13 @@ const ViewMatchesCard = ({
   refresh,
   setError,
   editable = true,
+  onFavouriteToggle,
 }) => {
   const [updateData, setUpdateData] = useState(null);
   const [saving, setSaving] = useState(false);
 
   const cardRef = useRef(null);
+  const togglingFavouriteRef = useRef(false);
 
   const getToken = () =>
     localStorage.getItem("token");
@@ -184,6 +186,113 @@ const ViewMatchesCard = ({
   };
 
   /*
+   * Toggle favourite
+   */
+  const handleToggleFavourite = async (e) => {
+    e.stopPropagation();
+
+    // Ignore rapid repeat clicks while a request is in flight,
+    // without visually disabling the button.
+    if (togglingFavouriteRef.current) {
+      return;
+    }
+
+    const token = getToken();
+
+    if (!token) {
+      setError?.("No user logged in");
+      return;
+    }
+
+    const newValue = !match.favourite;
+
+    // Optimistically reflect the change locally instead of
+    // waiting on (and paying the cost of) a full match refetch.
+    onFavouriteToggle?.(match._id, newValue);
+
+    togglingFavouriteRef.current = true;
+
+    try {
+      const response = await fetch(
+        `${URL}/match/${match._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            favourite: newValue,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Roll back the optimistic update on failure.
+        if (onFavouriteToggle) {
+          onFavouriteToggle(match._id, !newValue);
+        } else {
+          refresh();
+        }
+
+        setError?.(
+          data?.error ||
+            data?.message ||
+            "Failed to update favourite"
+        );
+        return;
+      }
+
+      if (!onFavouriteToggle) {
+        refresh();
+      }
+    } catch (err) {
+      console.error("Favourite toggle error:", err);
+
+      if (onFavouriteToggle) {
+        onFavouriteToggle(match._id, !newValue);
+      } else {
+        refresh();
+      }
+
+      setError?.("Failed to update favourite");
+    } finally {
+      togglingFavouriteRef.current = false;
+    }
+  };
+
+  /*
+   * Render favourite heart button
+   */
+  const renderFavouriteButton = () => (
+    <button
+      type="button"
+      className={
+        match.favourite
+          ? "favourite-heart-button favourited"
+          : "favourite-heart-button"
+      }
+      onClick={handleToggleFavourite}
+      aria-pressed={!!match.favourite}
+      aria-label={
+        match.favourite
+          ? "Remove from favourites"
+          : "Add to favourites"
+      }
+    >
+      <svg
+        className="favourite-heart-icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path d="M12 21s-6.716-4.35-9.428-8.03C.86 10.42 1.02 7.28 3.34 5.34c2.02-1.7 4.86-1.4 6.66.66L12 8.06l2-2.06c1.8-2.06 4.64-2.36 6.66-.66 2.32 1.94 2.48 5.08.77 7.63C18.716 16.65 12 21 12 21z" />
+      </svg>
+    </button>
+  );
+
+  /*
    * Render clothing image
    */
   const renderItemImage = (item) => {
@@ -238,9 +347,13 @@ const ViewMatchesCard = ({
       }
       onClick={handleCardClick}
     >
+      {!isExpanded && renderFavouriteButton()}
+
       {/* IMAGE SECTION */}
 
       <div className="match-image-wrapper">
+        {isExpanded && renderFavouriteButton()}
+
         <div className="match-image-grid">
           {(match.clothes || []).map((item) => (
             <React.Fragment key={item._id}>
