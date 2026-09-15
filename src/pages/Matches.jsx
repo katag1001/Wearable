@@ -38,6 +38,12 @@ const Matches = ({ loggedIn, logout }) => {
     minTemp: null,
     maxTemp: null,
     favourite: false,
+    items: {
+      top: null,
+      bottom: null,
+      outer: null,
+      onepiece: null,
+    },
   });
 
   const getToken = () =>
@@ -202,6 +208,24 @@ const Matches = ({ loggedIn, logout }) => {
         }
       }
 
+      const selectedItemIds = Object.values(
+        filters.items || {}
+      ).filter(Boolean);
+
+      if (selectedItemIds.length > 0) {
+        const matchClothesIds = (match.clothes || []).map(
+          (item) => item._id
+        );
+
+        const hasAllSelectedItems = selectedItemIds.every(
+          (id) => matchClothesIds.includes(id)
+        );
+
+        if (!hasAllSelectedItems) {
+          return false;
+        }
+      }
+
       if (
         filters.minTemp !== null &&
         match.max_temp < filters.minTemp
@@ -219,6 +243,23 @@ const Matches = ({ loggedIn, logout }) => {
       return true;
     }
   );
+
+  const clothesByCategory = { top: [], bottom: [], outer: [], onepiece: [] };
+
+  const seenClothesIds = new Set();
+
+  matches.forEach((match) => {
+    (match.clothes || []).forEach((item) => {
+      if (
+        item?._id &&
+        clothesByCategory[item.type] &&
+        !seenClothesIds.has(item._id)
+      ) {
+        seenClothesIds.add(item._id);
+        clothesByCategory[item.type].push(item);
+      }
+    });
+  });
 
   return (
     <div className="full-page-container">
@@ -273,6 +314,7 @@ const Matches = ({ loggedIn, logout }) => {
         filters={filters}
         setFilters={setFilters}
         showFavourites
+        clothesByCategory={clothesByCategory}
         availableColors={[
           ...new Set(
             matches.flatMap(

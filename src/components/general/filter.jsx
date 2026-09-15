@@ -8,6 +8,20 @@ import {
   tagOptions,
 } from "../../constants/optionsBank";
 
+const itemCategories = [
+  "top",
+  "bottom",
+  "outer",
+  "onepiece",
+];
+
+const itemCategoryLabels = {
+  top: "Tops",
+  bottom: "Bottoms",
+  outer: "Outerwear",
+  onepiece: "One-Pieces",
+};
+
 const defaultFilters = {
   seasons: [],
   colors: [],
@@ -16,6 +30,12 @@ const defaultFilters = {
   minTemp: null,
   maxTemp: null,
   favourite: false,
+  items: {
+    top: null,
+    bottom: null,
+    outer: null,
+    onepiece: null,
+  },
 };
 
 const Filter = ({
@@ -26,6 +46,12 @@ const Filter = ({
   availableColors = [],
   availableStyles = [],
   availableTags = [],
+  clothesByCategory = {
+    top: [],
+    bottom: [],
+    outer: [],
+    onepiece: [],
+  },
   showSeasons = true,
   showColors = true,
   showStyles = true,
@@ -38,12 +64,31 @@ const Filter = ({
     ...filters,
   });
 
+  // "main" shows the standard filters, "items" shows the
+  // filter-by-item carousel menu.
+  const [view, setView] = useState("main");
+
+  const [itemSearchTerm, setItemSearchTerm] = useState("");
+
+  const [categoryIndex, setCategoryIndex] = useState({
+    top: 0,
+    bottom: 0,
+    outer: 0,
+    onepiece: 0,
+  });
+
   useEffect(() => {
     setLocalFilters({
       ...defaultFilters,
       ...filters,
     });
   }, [filters]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setView("main");
+    }
+  }, [isOpen]);
 
   const seasons = seasonOptions;
 
@@ -79,6 +124,64 @@ const Filter = ({
           : [...current, value],
       };
     });
+  };
+
+  const getFilteredCategoryItems = (category) => {
+    const term = itemSearchTerm.trim().toLowerCase();
+    const items = clothesByCategory[category] || [];
+
+    if (!term) {
+      return items;
+    }
+
+    return items.filter((item) =>
+      item.name?.toLowerCase().includes(term)
+    );
+  };
+
+  const getCurrentCategoryItem = (category) => {
+    const items = getFilteredCategoryItems(category);
+
+    if (items.length === 0) {
+      return null;
+    }
+
+    const rawIndex = categoryIndex[category] || 0;
+    const safeIndex =
+      ((rawIndex % items.length) + items.length) % items.length;
+
+    return items[safeIndex];
+  };
+
+  const changeCategoryIndex = (category, direction) => {
+    setCategoryIndex((prev) => ({
+      ...prev,
+      [category]: (prev[category] || 0) + direction,
+    }));
+  };
+
+  const handleItemSearchChange = (value) => {
+    setItemSearchTerm(value);
+
+    setCategoryIndex({
+      top: 0,
+      bottom: 0,
+      outer: 0,
+      onepiece: 0,
+    });
+  };
+
+  const selectCategoryItem = (category, item) => {
+    setLocalFilters((prev) => ({
+      ...prev,
+      items: {
+        ...prev.items,
+        [category]:
+          prev.items[category] === item._id
+            ? null
+            : item._id,
+      },
+    }));
   };
 
   const handleTemperatureChange = (minTemp, maxTemp) => {
@@ -117,9 +220,123 @@ return (
         ×
       </button>
 
-        <h2>Filter</h2>
+        {view === "main" ? (
+          <h2>Filter</h2>
+        ) : (
+          <h2>Filter by Item</h2>
+        )}
 
-        {showFavourites && (
+        {view === "main" && (
+          <button
+            type="button"
+            className="filter-by-item-button"
+            onClick={() => setView("items")}
+          >
+            Filter by Item
+          </button>
+        )}
+
+        {view === "items" && (
+          <button
+            type="button"
+            className="filter-back-button"
+            onClick={() => setView("main")}
+          >
+            ‹ Other Filters
+          </button>
+        )}
+
+        {view === "items" && (
+          <div className="filter-items-view">
+            <input
+              type="text"
+              className="filter-item-search-input"
+              placeholder="Search clothing items..."
+              value={itemSearchTerm}
+              onChange={(e) =>
+                handleItemSearchChange(e.target.value)
+              }
+            />
+
+            {itemCategories.map((category) => {
+              const currentItem =
+                getCurrentCategoryItem(category);
+
+              const selectedId =
+                localFilters.items?.[category] ?? null;
+
+              return (
+                <div
+                  key={category}
+                  className="filter-item-category"
+                >
+                  <h3>{itemCategoryLabels[category]}</h3>
+
+                  <div className="filter-item-carousel">
+                    <button
+                      type="button"
+                      className="filter-item-arrow"
+                      onClick={() =>
+                        changeCategoryIndex(category, -1)
+                      }
+                      disabled={!currentItem}
+                      aria-label={`Previous ${itemCategoryLabels[category]}`}
+                    >
+                      ‹
+                    </button>
+
+                    {currentItem ? (
+                      <button
+                        type="button"
+                        className={`filter-item-card ${
+                          selectedId === currentItem._id
+                            ? "filter-item-card--selected"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          selectCategoryItem(
+                            category,
+                            currentItem
+                          )
+                        }
+                      >
+                        {currentItem.imageUrl && (
+                          <img
+                            src={currentItem.imageUrl}
+                            alt={currentItem.name}
+                            className="filter-item-image"
+                          />
+                        )}
+
+                        <span className="filter-item-name">
+                          {currentItem.name}
+                        </span>
+                      </button>
+                    ) : (
+                      <div className="filter-item-empty">
+                        No items found.
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      className="filter-item-arrow"
+                      onClick={() =>
+                        changeCategoryIndex(category, 1)
+                      }
+                      disabled={!currentItem}
+                      aria-label={`Next ${itemCategoryLabels[category]}`}
+                    >
+                      ›
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {view === "main" && showFavourites && (
           <div className="filter-section">
             <h3>Favourites</h3>
 
@@ -140,7 +357,7 @@ return (
           </div>
         )}
 
-        {showSeasons && (
+        {view === "main" && showSeasons && (
           <div className="filter-section">
             <h3>Season</h3>
 
@@ -160,7 +377,7 @@ return (
           </div>
         )}
 
-        {showColors && (
+        {view === "main" && showColors && (
           <div className="filter-section">
             <h3>Colors</h3>
 
@@ -180,7 +397,7 @@ return (
           </div>
         )}
 
-        {showTemperature && (
+        {view === "main" && showTemperature && (
           <div className="filter-section">
             <h3>Temperature</h3>
 
@@ -195,7 +412,7 @@ return (
           </div>
         )}
 
-        {showStyles && (
+        {view === "main" && showStyles && (
           <div className="filter-section">
             <h3>Styles</h3>
 
@@ -215,7 +432,7 @@ return (
           </div>
         )}
 
-        {showTags && (
+        {view === "main" && showTags && (
           <div className="filter-section">
             <h3>Tags</h3>
 

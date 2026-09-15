@@ -138,6 +138,264 @@
 
 
 /* ----------------------------------------------------------------
+   Filter By Item / Back Buttons
+----------------------------------------------------------------- */
+
+.filter-by-item-button,
+.filter-back-button {
+  width: 100%;
+
+  margin-bottom: 1.5rem;
+
+  padding: .7rem 1rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: transparent;
+
+  color: var(--main-color);
+
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+
+  letter-spacing: .06em;
+  line-height: 1;
+
+  text-transform: uppercase;
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease;
+}
+
+.filter-by-item-button:hover,
+.filter-back-button:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+}
+
+.filter-back-button {
+  text-align: left;
+  text-transform: none;
+  letter-spacing: .02em;
+}
+
+
+/* ----------------------------------------------------------------
+   Filter By Item View
+----------------------------------------------------------------- */
+
+.filter-items-view {
+  width: 100%;
+}
+
+.filter-item-search-input {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  margin-bottom: 1.5rem;
+
+  padding: .7rem .9rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: transparent;
+
+  color: var(--main-color);
+
+  font-family: inherit;
+  font-size: var(--description-font-size);
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.filter-item-search-input::placeholder {
+  color: var(--muted-color);
+}
+
+.filter-item-search-input:focus {
+  outline: none;
+
+  border-color: var(--main-color);
+
+  box-shadow:
+    0 0 0 2px
+    color-mix(
+      in srgb,
+      var(--main-color) 10%,
+      transparent
+    );
+}
+
+.filter-item-category {
+  width: 100%;
+
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+
+  border-bottom: 1px solid var(--border-color);
+}
+
+.filter-item-category:last-of-type {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.filter-item-category h3 {
+  margin: 0 0 1rem;
+
+  color: var(--main-color);
+
+  font-family: var(--title-font);
+  font-size: var(--button-font-size);
+  font-weight: 700;
+
+  letter-spacing: .08em;
+  line-height: 1.3;
+
+  text-transform: uppercase;
+}
+
+.filter-item-carousel {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: .6rem;
+}
+
+.filter-item-arrow {
+  flex-shrink: 0;
+
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: var(--secondary-color);
+
+  font-family: var(--plus-font);
+  font-size: 1.25rem;
+  font-weight: 300;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease;
+}
+
+.filter-item-arrow:hover:not(:disabled) {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+  color: var(--main-color);
+}
+
+.filter-item-arrow:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+.filter-item-card {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+
+  padding: .5rem .65rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  background: transparent;
+
+  color: var(--main-color);
+
+  font-family: inherit;
+  font-size: var(--description-font-size);
+
+  cursor: pointer;
+
+  transition:
+    border-color .2s ease,
+    background .2s ease;
+}
+
+.filter-item-card:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+}
+
+.filter-item-card--selected {
+  border-color: var(--main-color);
+  box-shadow: 0 0 0 1px var(--main-color);
+}
+
+.filter-item-image {
+  flex-shrink: 0;
+
+  width: 44px;
+  height: 44px;
+
+  object-fit: cover;
+
+  border-radius: 6px;
+}
+
+.filter-item-name {
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  text-align: left;
+}
+
+.filter-item-empty {
+  flex: 1;
+
+  padding: .75rem;
+
+  color: var(--muted-color);
+
+  font-size: var(--small-font-size);
+
+  letter-spacing: .04em;
+
+  text-align: center;
+  text-transform: uppercase;
+}
+
+
+/* ----------------------------------------------------------------
    Filter Sections
 ----------------------------------------------------------------- */
 
