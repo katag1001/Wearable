@@ -623,7 +623,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                   className="modal-button"
                   onClick={() =>
                     navigate(
-                      `/matches?item=${justSavedItem.id}`
+                      `/matches?item=${justSavedItem.id}`,
+                      { state: { processing: true } }
                     )
                   }
                 >

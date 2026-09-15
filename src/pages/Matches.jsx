@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, useLocation, Link } from "react-router-dom";
 
 import Header from "../components/header";
 import ViewMatches from "../components/matches/viewMatches";
@@ -15,8 +15,17 @@ const Matches = ({ loggedIn, logout }) => {
   const [searchParams] = useSearchParams();
   const itemFilter = searchParams.get("item");
 
+  const location = useLocation();
+
   const [matches, setMatches] = useState([]);
   const [error, setError] = useState(null);
+
+  // True only when we've just navigated here from "View New Matches"
+  // and the newly created item's matches may still be generating
+  // on the server (match creation is fire-and-forget).
+  const [waitingForNewMatch, setWaitingForNewMatch] = useState(
+    Boolean(location.state?.processing && itemFilter)
+  );
 
   const [editingMatch, setEditingMatch] =
     useState(null);
@@ -76,7 +85,62 @@ const Matches = ({ loggedIn, logout }) => {
   };
 
   useEffect(() => {
-    fetchMatches();
+    if (!waitingForNewMatch) {
+      fetchMatches();
+      return;
+    }
+
+    let attempts = 0;
+    const maxAttempts = 8;
+    let timeoutId;
+
+    const poll = async () => {
+      attempts += 1;
+
+      try {
+        setError(null);
+
+        const token = getToken();
+
+        if (!token) {
+          setError("No user logged in");
+          setWaitingForNewMatch(false);
+          return;
+        }
+
+        const response = await axios.get(
+          `${URL}/match/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setMatches(response.data);
+
+        const found = response.data.some((match) =>
+          match.clothes?.some(
+            (item) => item._id === itemFilter
+          )
+        );
+
+        if (found || attempts >= maxAttempts) {
+          setWaitingForNewMatch(false);
+          return;
+        }
+
+        timeoutId = setTimeout(poll, 1000);
+      } catch (err) {
+        setError("Failed to fetch matches");
+        setWaitingForNewMatch(false);
+      }
+    };
+
+    poll();
+
+    return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleUpdateSuccess = (updatedMatch) => {
@@ -297,13 +361,19 @@ const Matches = ({ loggedIn, logout }) => {
 
     
       <div className="page-bottom-container">
-        <ViewMatches
-        matches={filteredMatches}
-        onEdit={setEditingMatch}
-        refresh={fetchMatches}
-        setError={setError}
-        onFavouriteToggle={handleFavouriteToggle}
-      />
+        {waitingForNewMatch ? (
+          <p className="no-items-text">
+            Finding your new matches...
+          </p>
+        ) : (
+          <ViewMatches
+            matches={filteredMatches}
+            onEdit={setEditingMatch}
+            refresh={fetchMatches}
+            setError={setError}
+            onFavouriteToggle={handleFavouriteToggle}
+          />
+        )}
       </div>
 
       <Filter
