@@ -314,6 +314,7 @@ const Matches = ({ loggedIn, logout }) => {
         filters={filters}
         setFilters={setFilters}
         showFavourites
+        showItemFilter
         clothesByCategory={clothesByCategory}
         availableColors={[
           ...new Set(

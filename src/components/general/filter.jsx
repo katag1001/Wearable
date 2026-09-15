@@ -52,6 +52,7 @@ const Filter = ({
     outer: [],
     onepiece: [],
   },
+  showItemFilter = false,
   showSeasons = true,
   showColors = true,
   showStyles = true,
@@ -220,13 +221,13 @@ return (
         ×
       </button>
 
-        {view === "main" ? (
-          <h2>Filter</h2>
-        ) : (
+        {view === "items" ? (
           <h2>Filter by Item</h2>
+        ) : (
+          <h2>Filter</h2>
         )}
 
-        {view === "main" && (
+        {showItemFilter && view === "main" && (
           <button
             type="button"
             className="filter-by-item-button"
@@ -236,7 +237,7 @@ return (
           </button>
         )}
 
-        {view === "items" && (
+        {showItemFilter && view === "items" && (
           <button
             type="button"
             className="filter-back-button"
@@ -246,7 +247,7 @@ return (
           </button>
         )}
 
-        {view === "items" && (
+        {showItemFilter && view === "items" && (
           <div className="filter-items-view">
             <input
               type="text"
