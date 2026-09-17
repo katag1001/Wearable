@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   genderQuestionOptions,
+  temperatureQuestionOptions,
   styleImageOptions,
 } from "../../constants/styleQuizOptions";
 import { resolveStyleQuiz } from "../../utils/resolveStyleQuiz";
@@ -36,6 +37,7 @@ const getResponseData = async (response) => {
 
 const StylePreferences = () => {
   const [gender, setGender] = useState(null);
+  const [temperature, setTemperature] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -63,6 +65,7 @@ const StylePreferences = () => {
 
         if (response.status === 404) {
           setGender(null);
+          setTemperature(null);
           return;
         }
 
@@ -84,6 +87,7 @@ const StylePreferences = () => {
         const result = await getResponseData(response);
 
         setGender(result?.data?.gender ?? null);
+        setTemperature(result?.data?.temperature ?? null);
       } catch (err) {
         setError(err.message || "Failed to load preferences.");
       } finally {
@@ -96,6 +100,12 @@ const StylePreferences = () => {
 
   const handleGenderSelect = (value) => {
     setGender(value);
+    setError("");
+    setSuccess("");
+  };
+
+  const handleTemperatureSelect = (value) => {
+    setTemperature(value);
     setError("");
     setSuccess("");
   };
@@ -119,7 +129,7 @@ const StylePreferences = () => {
       return;
     }
 
-    const body = { gender };
+    const body = { gender, temperature };
 
     if (selectedImages.length > 0) {
       const { style, colour, pattern } = resolveStyleQuiz(selectedImages);
@@ -199,18 +209,44 @@ const StylePreferences = () => {
           How do you usually dress?
         </h3>
 
-        <div className="style-preferences-gender-options">
+        <div className="style-preferences-choice-options">
           {genderQuestionOptions.map((option) => (
             <button
               key={option.value}
               type="button"
-              className={`style-preferences-gender-card ${
+              className={`style-preferences-choice-card ${
                 gender === option.value
-                  ? "style-preferences-gender-card--selected"
+                  ? "style-preferences-choice-card--selected"
                   : ""
               }`}
               onClick={() => handleGenderSelect(option.value)}
               aria-pressed={gender === option.value}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* TEMPERATURE */}
+
+      <div className="style-preferences-section">
+        <h3 className="style-preferences-section-title">
+          Do you generally feel too cold or too hot?
+        </h3>
+
+        <div className="style-preferences-choice-options">
+          {temperatureQuestionOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={`style-preferences-choice-card ${
+                temperature === option.value
+                  ? "style-preferences-choice-card--selected"
+                  : ""
+              }`}
+              onClick={() => handleTemperatureSelect(option.value)}
+              aria-pressed={temperature === option.value}
             >
               {option.label}
             </button>

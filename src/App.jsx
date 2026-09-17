@@ -57,7 +57,11 @@ const App = () => {
       const prefs = res.data?.data;
 
       const isComplete =
-        prefs?.gender && prefs?.style && prefs?.colour && prefs?.pattern;
+        prefs?.gender &&
+        prefs?.style &&
+        prefs?.colour &&
+        prefs?.pattern &&
+        prefs?.temperature;
 
       setNeedsStyleQuiz(!isComplete);
     } catch (err) {

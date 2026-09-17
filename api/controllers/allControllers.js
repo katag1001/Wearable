@@ -745,6 +745,7 @@ exports.updatePreferences = async (req, res) => {
       style,
       colour,
       pattern,
+      temperature,
     } = req.body;
 
     const preferences = await Preferences.findOneAndUpdate(
@@ -762,6 +763,7 @@ exports.updatePreferences = async (req, res) => {
           style,
           colour,
           pattern,
+          temperature,
         },
         $setOnInsert: {
           userId,

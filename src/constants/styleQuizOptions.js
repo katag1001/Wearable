@@ -22,6 +22,19 @@ export const genderQuestionOptions = [
 ];
 
 /* --------------------------------------------------------------------
+   TEMPERATURE QUESTION
+
+   "Do you generally feel too cold or too hot?" — single-select.
+   `value` is written straight to preferences.temperature.
+-------------------------------------------------------------------- */
+
+export const temperatureQuestionOptions = [
+  { label: "Too cold", value: "cold" },
+  { label: "Too hot", value: "hot" },
+  { label: "Normal", value: "normal" },
+];
+
+/* --------------------------------------------------------------------
    STYLE IMAGE MAPPING
 
    "Select all that apply" — multi-select grid built from every image

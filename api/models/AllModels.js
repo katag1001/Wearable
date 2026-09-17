@@ -140,6 +140,7 @@ const preferencesSchema = new mongoose.Schema({
   style: { type: String, enum: ["fun", "classic", "fashion"], default: null },
   colour: { type: String, enum: ["max", "mid", "min"], default: null },
   pattern: { type: String, enum: ["max", "mid", "min"], default: null },
+  temperature: { type: String, enum: ["cold", "hot", "normal"], default: null },
 
 });
 

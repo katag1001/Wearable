@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   genderQuestionOptions,
+  temperatureQuestionOptions,
   styleImageOptions,
 } from "../../constants/styleQuizOptions";
 import { resolveStyleQuiz } from "../../utils/resolveStyleQuiz";
@@ -33,12 +34,21 @@ const StyleQuizForm = ({ onComplete }) => {
     setError("");
   };
 
-  const handleBack = () => {
-    setStep(1);
+  const handleImagesNext = () => {
+    setStep(3);
     setError("");
   };
 
-  const handleFinish = async () => {
+  const handleBack = () => {
+    setStep((current) => current - 1);
+    setError("");
+  };
+
+  const handleTemperatureSelect = (value) => {
+    handleFinish(value);
+  };
+
+  const handleFinish = async (temperature) => {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -58,7 +68,7 @@ const StyleQuizForm = ({ onComplete }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ gender, style, colour, pattern }),
+        body: JSON.stringify({ gender, style, colour, pattern, temperature }),
       });
 
       if (!response.ok) {
@@ -82,13 +92,13 @@ const StyleQuizForm = ({ onComplete }) => {
             <h2 className="page-title">How do you usually dress?</h2>
           </div>
 
-          <div className="style-quiz-gender-options">
+          <div className="style-quiz-choice-options">
             {genderQuestionOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"
-                className={`style-quiz-gender-card ${
-                  gender === option.value ? "style-quiz-gender-card--selected" : ""
+                className={`style-quiz-choice-card ${
+                  gender === option.value ? "style-quiz-choice-card--selected" : ""
                 }`}
                 onClick={() => handleGenderSelect(option.value)}
               >
@@ -141,7 +151,6 @@ const StyleQuizForm = ({ onComplete }) => {
               type="button"
               className="style-quiz-back-button"
               onClick={handleBack}
-              disabled={saving}
             >
               Back
             </button>
@@ -149,10 +158,45 @@ const StyleQuizForm = ({ onComplete }) => {
             <button
               type="button"
               className="style-quiz-finish-button"
-              onClick={handleFinish}
-              disabled={saving || selectedImages.length === 0}
+              onClick={handleImagesNext}
+              disabled={selectedImages.length === 0}
             >
-              {saving ? "Saving..." : "Finish"}
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="style-quiz-step">
+          <div className="style-quiz-header">
+            <h2 className="page-title">
+              Do you generally feel too cold or too hot?
+            </h2>
+          </div>
+
+          <div className="style-quiz-choice-options">
+            {temperatureQuestionOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className="style-quiz-choice-card"
+                onClick={() => handleTemperatureSelect(option.value)}
+                disabled={saving}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="style-quiz-actions">
+            <button
+              type="button"
+              className="style-quiz-back-button"
+              onClick={handleBack}
+              disabled={saving}
+            >
+              Back
             </button>
           </div>
         </div>

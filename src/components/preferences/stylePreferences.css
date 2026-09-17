@@ -76,17 +76,17 @@
 
 
 /* ----------------------------------------------------------------
-   Gender Options
+   Choice Options (single-select questions: gender, temperature)
 ----------------------------------------------------------------- */
 
-.style-preferences-gender-options {
+.style-preferences-choice-options {
   display: flex;
   flex-wrap: wrap;
 
   gap: 0.6rem;
 }
 
-.style-preferences-gender-card {
+.style-preferences-choice-card {
   padding: 0.65rem 1.3rem;
 
   box-sizing: border-box;
@@ -112,19 +112,19 @@
     box-shadow 0.2s ease;
 }
 
-.style-preferences-gender-card:hover {
+.style-preferences-choice-card:hover {
   background: var(--hover-background);
   border-color: var(--hover-border-color);
 
   box-shadow: var(--shadow-soft);
 }
 
-.style-preferences-gender-card:focus-visible {
+.style-preferences-choice-card:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: 3px;
 }
 
-.style-preferences-gender-card--selected {
+.style-preferences-choice-card--selected {
   background: var(--hover-background);
   border-color: var(--main-color);
 
