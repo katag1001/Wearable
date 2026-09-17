@@ -1,214 +1,3237 @@
-// src/constants/typeOptions.js
+// src/constants/typeOptions.jsx
+//
+// Generated from the LWS Matrix CSVs (context/LWS Matrix - *.csv).
+// Each gender's clothing options: type, category, subtype (name),
+// tags, seasons, and the temperature range they suit.
 
-import fancy_top from "../assets/images/icons/fancy_top.PNG";
-import formal_dress from "../assets/images/icons/formal_dress.PNG";
-import light_jacket from "../assets/images/icons/light_jacket.PNG";
-import light_jumper from "../assets/images/icons/light_jumper.PNG";
-import light_pants from "../assets/images/icons/light_pants.PNG";
-import light_shirt from "../assets/images/icons/light_shirt.PNG";
-import maxi_skirt from "../assets/images/icons/maxi_skirt.PNG";
-import midi_skirt from "../assets/images/icons/midi_skirt.PNG";
-import mini_skirt from "../assets/images/icons/mini_skirt.PNG";
-import party_dress from "../assets/images/icons/party_dress.PNG";
-import shorts from "../assets/images/icons/shorts.PNG";
-import sports_top from "../assets/images/icons/sports_top.PNG";
-import summer_dress from "../assets/images/icons/summer_dress.PNG";
-import t_shirt from "../assets/images/icons/t_shirt.PNG";
-import tank_top from "../assets/images/icons/tank_top.PNG";
-import warm_dress from "../assets/images/icons/warm_dress.PNG";
-import warm_jumper from "../assets/images/icons/warm_jumper.PNG";
-import warm_pants from "../assets/images/icons/warm_pants.PNG";
-import warm_shirt from "../assets/images/icons/warm_shirt.PNG";
-import winter_coat from "../assets/images/icons/winter_coat.PNG";
+const typeOptionsByGender = {
+  "man": [
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Hoodie/sweatshirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 8,
+      "maxTemp": 18
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Warm jumper",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": -5,
+      "maxTemp": 12
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Warm cardigan",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Everyday"
+      ],
+      "minTemp": -5,
+      "maxTemp": 12
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Light jumper",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 12,
+      "maxTemp": 20
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Buttondown shirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 12,
+      "maxTemp": 25
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Linen shirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Work",
+        "Beach",
+        "Wedding",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 35
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Turtleneck",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 5,
+      "maxTemp": 15
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Short t-shirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 35
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Long-tshirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Dinner",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 12,
+      "maxTemp": 22
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Vest",
+      "season": [
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Jeans",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 5,
+      "maxTemp": 22
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Leather trousers",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 0,
+      "maxTemp": 15
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Tailored trousers",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 8,
+      "maxTemp": 22
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Cargo pants",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 8,
+      "maxTemp": 22
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Linen pants",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Sweatpants",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 0,
+      "maxTemp": 18
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Chinos",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 12,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Denim shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Linen shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Cargo shorts",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Skater shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 35
+    },
+    {
+      "type": "onepiece",
+      "category": "Jumpsuits and playsuits",
+      "name": "Playsuit",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "onepiece",
+      "category": "Jumpsuits and playsuits",
+      "name": "Overalls",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 12,
+      "maxTemp": 30
+    },
+    {
+      "type": "outer",
+      "category": "Suits and blazers",
+      "name": "Blazer",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Dinner",
+        "Date night"
+      ],
+      "minTemp": 8,
+      "maxTemp": 18
+    },
+    {
+      "type": "outer",
+      "category": "Suits and blazers",
+      "name": "Waistcoat",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Date night"
+      ],
+      "minTemp": 12,
+      "maxTemp": 22
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Duffle coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": -10,
+      "maxTemp": 8
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Rain coat",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 0,
+      "maxTemp": 18
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Trench coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 8,
+      "maxTemp": 18
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Fur coat",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": -15,
+      "maxTemp": 0
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Puffer coat",
+      "season": [
+        "Winter"
+      ],
+      "tags": [
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": -15,
+      "maxTemp": 5
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Winter Coat",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": -15,
+      "maxTemp": 0
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Jacket",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 8,
+      "maxTemp": 18
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Demin jacket",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Everyday"
+      ],
+      "minTemp": 12,
+      "maxTemp": 22
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Shacket",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 20
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Fleece",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 0,
+      "maxTemp": 12
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Leather jacket",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 8,
+      "maxTemp": 18
+    }
+  ],
+  "woman": [
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Hoodie/sweatshirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 20
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Warm jumper",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 0,
+      "maxTemp": 15
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Warm cardigan",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Everyday"
+      ],
+      "minTemp": 0,
+      "maxTemp": 15
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Light jumper",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 22
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Light cardigan",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Beach",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 22
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Buttondown shirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Linen shirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Work",
+        "Beach",
+        "Wedding",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Floaty blouse",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 30
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Fancy blouse",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Waistcoat",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Short Turtlneck",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 20
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Long turtleneck",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 0,
+      "maxTemp": 15
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Bodysuit",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 30
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Short t-shirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 35
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Long-tshirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Dinner",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Vest",
+      "season": [
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Croptop",
+      "season": [
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 22,
+      "maxTemp": 35
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Off-the-shoulder top",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Beach",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 30
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Tunic",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 28
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Mini skirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Beach",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Maxi skirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Dinner",
+        "Beach",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 30
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Knee-length skirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 30
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Midi-skirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 30
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Low waist midi",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 30
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Cropped jeans",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Flared jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "High waisted jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Low waist jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Skinny jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Boyfriend jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Cropped trousers",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Leather trousers",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 5,
+      "maxTemp": 18
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Wideleg trousers",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 28
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Tailored trousers",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Cargo pants",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Linen pants",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Leggings",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 22
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Sweatpants",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 5,
+      "maxTemp": 20
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Chinos",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 28
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Fancy Shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Gym",
+        "Party",
+        "Dinner",
+        "Date night"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Casual shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Denim shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Linen shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 22,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Cargo shorts",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "onepiece",
+      "category": "Jumpsuits and playsuits",
+      "name": "Jumpsuit",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "onepiece",
+      "category": "Jumpsuits and playsuits",
+      "name": "Playsuit",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 22,
+      "maxTemp": 35
+    },
+    {
+      "type": "onepiece",
+      "category": "Jumpsuits and playsuits",
+      "name": "Romper",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Everyday"
+      ],
+      "minTemp": 22,
+      "maxTemp": 35
+    },
+    {
+      "type": "onepiece",
+      "category": "Jumpsuits and playsuits",
+      "name": "Overalls",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 12,
+      "maxTemp": 30
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Summer dress",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Dinner",
+        "Beach",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 22,
+      "maxTemp": 35
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Wedding guest dress",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Wedding"
+      ],
+      "minTemp": 15,
+      "maxTemp": 30
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Evening dress",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Cocktail dress",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night"
+      ],
+      "minTemp": 18,
+      "maxTemp": 28
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Winter dress",
+      "season": [],
+      "tags": [
+        "Everyday"
+      ],
+      "minTemp": 0,
+      "maxTemp": 15
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Casual dress",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Loungewear",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 30
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Work dress",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Work",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "outer",
+      "category": "Suits and blazers",
+      "name": "Blazer",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Dinner",
+        "Date night"
+      ],
+      "minTemp": 10,
+      "maxTemp": 20
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Poncho",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 18
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Duffle coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": -5,
+      "maxTemp": 10
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Rain coat",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 5,
+      "maxTemp": 20
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Trench coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 20
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Fur coat",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": -10,
+      "maxTemp": 5
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Puffer coat",
+      "season": [
+        "Winter"
+      ],
+      "tags": [
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": -10,
+      "maxTemp": 10
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Winter Coat",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": -10,
+      "maxTemp": 5
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Jacket",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 20
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Demin jacket",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Fleece",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 5,
+      "maxTemp": 15
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Leather jacket",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 20
+    }
+  ],
+  "unisex": [
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Hoodie/sweatshirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 9,
+      "maxTemp": 19
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Warm jumper",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": -2,
+      "maxTemp": 13
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Warm cardigan",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Everyday"
+      ],
+      "minTemp": -2,
+      "maxTemp": 13
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Light jumper",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 13,
+      "maxTemp": 21
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Light cardigan",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Beach",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 13,
+      "maxTemp": 21
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Buttondown shirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 13,
+      "maxTemp": 25
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Linen shirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Work",
+        "Beach",
+        "Wedding",
+        "Everyday"
+      ],
+      "minTemp": 19,
+      "maxTemp": 35
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Floaty blouse",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 30
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Fancy blouse",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Waistcoat",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Wedding",
+        "Everyday"
+      ],
+      "minTemp": 13,
+      "maxTemp": 23
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Short Turtlneck",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 8,
+      "maxTemp": 18
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Long turtleneck",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Outdoor",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 0,
+      "maxTemp": 15
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Bodysuit",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 30
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Short t-shirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 16,
+      "maxTemp": 35
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Long-tshirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Dinner",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 13,
+      "maxTemp": 23
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Vest",
+      "season": [
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 19,
+      "maxTemp": 35
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Croptop",
+      "season": [
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 22,
+      "maxTemp": 35
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Off-the-shoulder top",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Beach",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 30
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Tunic",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 28
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Mini skirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Beach",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Maxi skirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Dinner",
+        "Beach",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 30
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Knee-length skirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 30
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Midi-skirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 30
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Low waist midi",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 30
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Cropped jeans",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Flared jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "High waisted jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Low waist jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Skinny jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Boyfriend jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Cropped trousers",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Leather trousers",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 2,
+      "maxTemp": 16
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Wideleg trousers",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 28
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Tailored trousers",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 9,
+      "maxTemp": 23
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Cargo pants",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 9,
+      "maxTemp": 23
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Linen pants",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 19,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Leggings",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 22
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Sweatpants",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 2,
+      "maxTemp": 19
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Chinos",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 13,
+      "maxTemp": 26
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Fancy Shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Gym",
+        "Party",
+        "Dinner",
+        "Date night"
+      ],
+      "minTemp": 20,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Casual shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 19,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Denim shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 19,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Linen shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 21,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Cargo shorts",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 19,
+      "maxTemp": 35
+    },
+    {
+      "type": "bottom",
+      "category": "Shorts",
+      "name": "Skater shorts",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 35
+    },
+    {
+      "type": "onepiece",
+      "category": "Jumpsuits and playsuits",
+      "name": "Jumpsuit",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "onepiece",
+      "category": "Jumpsuits and playsuits",
+      "name": "Playsuit",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 21,
+      "maxTemp": 35
+    },
+    {
+      "type": "onepiece",
+      "category": "Jumpsuits and playsuits",
+      "name": "Romper",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Everyday"
+      ],
+      "minTemp": 22,
+      "maxTemp": 35
+    },
+    {
+      "type": "onepiece",
+      "category": "Jumpsuits and playsuits",
+      "name": "Overalls",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 12,
+      "maxTemp": 30
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Summer dress",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Dinner",
+        "Beach",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 22,
+      "maxTemp": 35
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Wedding guest dress",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Wedding"
+      ],
+      "minTemp": 15,
+      "maxTemp": 30
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Evening dress",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Cocktail dress",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night"
+      ],
+      "minTemp": 18,
+      "maxTemp": 28
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Winter dress",
+      "season": [],
+      "tags": [
+        "Everyday"
+      ],
+      "minTemp": 0,
+      "maxTemp": 15
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Casual dress",
+      "season": [
+        "Spring",
+        "Summer"
+      ],
+      "tags": [
+        "Loungewear",
+        "Everyday"
+      ],
+      "minTemp": 18,
+      "maxTemp": 30
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Work dress",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Work",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "outer",
+      "category": "Suits and blazers",
+      "name": "Blazer",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Dinner",
+        "Wedding",
+        "Date night"
+      ],
+      "minTemp": 9,
+      "maxTemp": 19
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Poncho",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Loungewear",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 18
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Duffle coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": -7,
+      "maxTemp": 9
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Rain coat",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Beach",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 2,
+      "maxTemp": 19
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Trench coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 9,
+      "maxTemp": 19
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Fur coat",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": -12,
+      "maxTemp": 2
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Puffer coat",
+      "season": [
+        "Winter"
+      ],
+      "tags": [
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": -12,
+      "maxTemp": 7
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Winter Coat",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": -12,
+      "maxTemp": 2
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Jacket",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 9,
+      "maxTemp": 19
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Demin jacket",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Everyday"
+      ],
+      "minTemp": 13,
+      "maxTemp": 23
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Shacket",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 20
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Fleece",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Gym",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 2,
+      "maxTemp": 13
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Leather jacket",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Outdoor",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 9,
+      "maxTemp": 19
+    }
+  ]
+};
 
-const typeOptions = [
-  // bottom
-  {
-    type: "bottom",
-    name: "Light Pants",
-    icon: light_pants,
-    season: ["Spring", "Summer"],
-    tags: ["Work", "Everyday", "Beach", "Dinner", "Loungewear"],
-    minTemp: 18,
-    maxTemp: 30,
-  },
-  {
-    type: "bottom",
-    name: "Warm Pants",
-    icon: warm_pants,
-    season: ["Autumn", "Winter"],
-    tags: ["Work", "Everyday", "Beach", "Dinner"],
-    minTemp: -5,
-    maxTemp: 18,
-  },
-  {
-    type: "bottom",
-    name: "Maxi Skirt",
-    icon: maxi_skirt,
-    season: ["Spring", "Summer"],
-    tags: ["Everyday", "Beach", "Work", "Date Night"],
-    minTemp: 18,
-    maxTemp: 32,
-  },
-  {
-    type: "bottom",
-    name: "Shorts",
-    icon: shorts,
-    season: ["Spring", "Summer"],
-    tags: ["Everyday", "Beach", "Outdoor", "Sports"],
-    minTemp: 22,
-    maxTemp: 40,
-  },
-  {
-    type: "bottom",
-    name: "Mini Skirt",
-    icon: mini_skirt,
-    season: ["Spring", "Summer", "Autumn"],
-    tags: ["Date Night", "Party", "Everyday"],
-    minTemp: 18,
-    maxTemp: 32,
-  },
-  {
-    type: "bottom",
-    name: "Midi Skirt",
-    icon: midi_skirt,
-    season: ["Spring", "Summer", "Autumn", "Winter"],
-    tags: ["Work", "Everyday", "Wedding"],
-    minTemp: 12,
-    maxTemp: 30,
-  },
+export const getTypeOptions = (gender) =>
+  typeOptionsByGender[gender] || typeOptionsByGender.unisex;
 
-  // top
-  {
-    type: "top",
-    name: "T-Shirt",
-    icon: t_shirt,
-    season: ["Spring", "Summer", "Autumn", "Winter"],
-    tags: ["Everyday", "Gym", "Outdoor"],
-    minTemp: 10,
-    maxTemp: 35,
-  },
-  {
-    type: "top",
-    name: "Sports Top",
-    icon: sports_top,
-    season: ["Spring", "Summer", "Autumn", "Winter"],
-    tags: ["Gym", "Outdoor"],
-    minTemp: 15,
-    maxTemp: 35,
-  },
-  {
-    type: "top",
-    name: "Light Shirt",
-    icon: light_shirt,
-    season: ["Spring", "Summer", "Autumn"],
-    tags: ["Work", "Dinner", "Everyday"],
-    minTemp: 16,
-    maxTemp: 28,
-  },
-  {
-    type: "top",
-    name: "Warm Shirt",
-    icon: warm_shirt,
-    season: ["Autumn", "Winter"],
-    tags: ["Work", "Dinner", "Everyday"],
-    minTemp: 5,
-    maxTemp: 18,
-  },
-  {
-    type: "top",
-    name: "Tank Top",
-    icon: tank_top,
-    season: ["Spring", "Summer"],
-    tags: ["Everyday", "Gym", "Outdoor"],
-    minTemp: 22,
-    maxTemp: 40,
-  },
-  {
-    type: "top",
-    name: "Light Jumper",
-    icon: light_jumper,
-    season: ["Spring", "Autumn"],
-    tags: ["Everyday", "Work", "Outdoor", "Dinner"],
-    minTemp: 10,
-    maxTemp: 20,
-  },
-  {
-    type: "top",
-    name: "Warm Jumper",
-    icon: warm_jumper,
-    season: ["Autumn", "Winter"],
-    tags: ["Everyday", "Work", "Outdoor", "Dinner"],
-    minTemp: -5,
-    maxTemp: 12,
-  },
-  {
-    type: "top",
-    name: "Fancy Top",
-    icon: fancy_top,
-    season: ["Spring", "Summer", "Autumn", "Winter"],
-    tags: ["Party", "Date Night", "Wedding", "Dinner"],
-    minTemp: 15,
-    maxTemp: 28,
-  },
-
-  // outer
-  {
-    type: "outer",
-    name: "Light Jacket",
-    icon: light_jacket,
-    season: ["Spring", "Autumn"],
-    tags: ["Everyday", "Work", "Outdoor", "Dinner"],
-    minTemp: 10,
-    maxTemp: 20,
-  },
-  {
-    type: "outer",
-    name: "Winter Coat",
-    icon: winter_coat,
-    season: ["Autumn", "Winter"],
-    tags: ["Everyday", "Work", "Outdoor", "Dinner", "Date Night"],
-    minTemp: -15,
-    maxTemp: 10,
-  },
-
-  // onepiece
-  {
-    type: "onepiece",
-    name: "Formal Onepiece",
-    icon: formal_dress,
-    season: ["Spring", "Summer", "Autumn", "Winter"],
-    tags: ["Party", "Date Night", "Wedding", "Dinner"],
-    minTemp: 15,
-    maxTemp: 30,
-  },
-  {
-    type: "onepiece",
-    name: "Party Onepiece",
-    icon: party_dress,
-    season: ["Spring", "Summer", "Autumn", "Winter"],
-    tags: ["Party", "Date Night", "Wedding", "Dinner"],
-    minTemp: 16,
-    maxTemp: 30,
-  },
-  {
-    type: "onepiece",
-    name: "Summer Onepiece",
-    icon: summer_dress,
-    season: ["Spring", "Summer"],
-    tags: ["Everyday", "Beach", "Date Night"],
-    minTemp: 22,
-    maxTemp: 40,
-  },
-  {
-    type: "onepiece",
-    name: "Warm Onepiece",
-    icon: warm_dress,
-    season: ["Autumn", "Winter"],
-    tags: ["Everyday", "Work", "Date Night"],
-    minTemp: 8,
-    maxTemp: 18,
-  },
-];
-
-export default typeOptions;
+export default typeOptionsByGender;

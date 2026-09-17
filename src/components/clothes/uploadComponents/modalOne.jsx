@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
 import UploadImages from "../uploadImages";
-import typeOptions from "../../../constants/typeOptions";
 import { suggestSubtypesFromName } from "./uploadHelpers";
 import "../../../styles/modal.css";
 
@@ -9,23 +8,28 @@ const ModalOne = ({
   formData,
   updateField,
   handleSubtypeChange,
-  setSelectedImage
+  setSelectedImage,
+  typeOptions
 }) => {
 
 
-  const groupedTypes = typeOptions.reduce(
-    (groups, item) => {
+  const [selectedCategory, setSelectedCategory] = useState(
+    () =>
+      typeOptions.find(
+        option => option.name === formData.subtype
+      )?.category || null
+  );
 
-      if (!groups[item.type]) {
-        groups[item.type] = [];
-      }
 
-      groups[item.type].push(item);
+  const categories = [
+    ...new Set(
+      typeOptions.map(option => option.category)
+    )
+  ];
 
-      return groups;
 
-    },
-    {}
+  const subtypesInCategory = typeOptions.filter(
+    option => option.category === selectedCategory
   );
 
 
@@ -111,21 +115,21 @@ const ModalOne = ({
                         ? "selection-button selected"
                         : "selection-button"
                     }
-                    onClick={() =>
+                    onClick={() => {
+
+                      setSelectedCategory(
+                        suggestion.category
+                      );
+
                       handleSubtypeChange({
                         target: {
                           value:
                             suggestion.name
                         }
-                      })
-                    }
-                  >
+                      });
 
-                    <img
-                      src={suggestion.icon}
-                      alt={suggestion.name}
-                      className="selection-img"
-                    />
+                    }}
+                  >
 
                     <span className="selection-title">
                       {suggestion.name}
@@ -145,65 +149,103 @@ const ModalOne = ({
 
         <div className="selection-container">
 
-          {Object.entries(
-            groupedTypes
-          ).map(
-            ([category, subtypes]) => (
+          {!selectedCategory && (
 
-              <div
-                key={category}
-                className="selection-category"
-              >
+            <div className="selection-category">
 
-                <h3 className="selection-category-title">
-                  {category}
-                </h3>
+              <h3 className="selection-category-title">
+                Category
+              </h3>
 
 
-                <div className="selection-grid">
+              <div className="selection-grid">
 
-                  {subtypes.map(
-                    subtype => (
+                {categories.map(
+                  category => (
 
-                      <button
-                        type="button"
-                        key={subtype.name}
-                        className={
-                          formData.subtype ===
-                          subtype.name
-                            ? "selection-button selected"
-                            : "selection-button"
-                        }
-                        onClick={() =>
-                          handleSubtypeChange({
-                            target: {
-                              value:
-                                subtype.name
-                            }
-                          })
-                        }
-                      >
+                    <button
+                      type="button"
+                      key={category}
+                      className="selection-button"
+                      onClick={() =>
+                        setSelectedCategory(category)
+                      }
+                    >
 
-                        <img
-                          src={subtype.icon}
-                          alt={subtype.name}
-                          className="selection-img"
-                        />
+                      <span className="selection-title">
+                        {category}
+                      </span>
 
-                        <span className="selection-title">
-                          {subtype.name}
-                        </span>
+                    </button>
 
-                      </button>
-
-                    )
-                  )}
-
-                </div>
+                  )
+                )}
 
               </div>
 
-            )
+            </div>
+
+          )}
+
+
+          {selectedCategory && (
+
+            <div className="selection-category">
+
+              <button
+                type="button"
+                className="modal-button secondary"
+                onClick={() =>
+                  setSelectedCategory(null)
+                }
+              >
+                ← Back
+              </button>
+
+              <div className="gap"></div>
+
+              <h3 className="selection-category-title">
+                {selectedCategory}
+              </h3>
+
+
+              <div className="selection-grid">
+
+                {subtypesInCategory.map(
+                  subtype => (
+
+                    <button
+                      type="button"
+                      key={subtype.name}
+                      className={
+                        formData.subtype ===
+                        subtype.name
+                          ? "selection-button selected"
+                          : "selection-button"
+                      }
+                      onClick={() =>
+                        handleSubtypeChange({
+                          target: {
+                            value:
+                              subtype.name
+                          }
+                        })
+                      }
+                    >
+
+                      <span className="selection-title">
+                        {subtype.name}
+                      </span>
+
+                    </button>
+
+                  )
+                )}
+
+              </div>
+
+            </div>
+
           )}
 
         </div>

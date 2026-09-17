@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -10,6 +10,7 @@ import ModalThree from "./uploadComponents/modalThree";
 
 import { useClothingForm } from "./uploadComponents/useClothingForm";
 import { useClothingDetection } from "./uploadComponents/useClothingDetection";
+import { getTypeOptions } from "../../constants/typeOptions";
 
 import "../../styles/modal.css";
 
@@ -19,6 +20,52 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   const navigate = useNavigate();
 
   const isUpdate = !!item;
+
+  // Defaults to "unisex" until the user's gender preference loads.
+  const [gender, setGender] = useState("unisex");
+
+  const typeOptions = useMemo(
+    () => getTypeOptions(gender),
+    [gender]
+  );
+
+
+  useEffect(() => {
+
+    const fetchGender = async () => {
+
+      const token = localStorage.getItem("token");
+
+      if (!token) return;
+
+      try {
+
+        const response = await axios.get(
+          `${URL}/preferences`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        const fetchedGender =
+          response.data?.data?.gender;
+
+        if (fetchedGender) {
+          setGender(fetchedGender);
+        }
+
+      } catch {
+        // No preferences saved yet - keep the unisex default.
+      }
+
+    };
+
+    fetchGender();
+
+  }, []);
+
 
   const {
     formData,
@@ -31,7 +78,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
     handleTempChange,
     handleSubtypeChange,
     manualTempOverride
-  } = useClothingForm(item);
+  } = useClothingForm(item, typeOptions);
 
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,7 +95,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
     formData.name,
     formData.subtype,
     setFormData,
-    manualTempOverride
+    manualTempOverride,
+    typeOptions
   );
 
 
@@ -498,6 +546,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                   setSelectedImage={
                     setSelectedImage
                   }
+                  typeOptions={typeOptions}
                 />
 
               )}

@@ -1,0 +1,38 @@
+Type,Category,Subtype,Work,Gym,Loungewear,Party,Dinner,Beach,Outdoor,Wedding,Date night,Everyday,Spring,Summer,Autumn ,Winter,minTemp,Maxtemp
+Top,Jumpers and cardigans,Hoodie/sweatshirt,No,Yes,Yes,No,No,Yes,Yes,No,No,Yes,Yes,No,Yes,Yes,8,18
+Top,Jumpers and cardigans,Warm jumper,Yes,No,Yes,No,No,No,Yes,No,No,Yes,No,No,Yes,Yes,-5,12
+Top,Jumpers and cardigans,Warm cardigan,Yes,No,Yes,No,No,No,No,No,No,Yes,No,No,Yes,Yes,-5,12
+Top,Jumpers and cardigans,Light jumper ,Yes,No,Yes,No,Yes,Yes,Yes,No,Yes,Yes,Yes,Yes,Yes,Yes,12,20
+Top,Shirts/Blouses,Buttondown shirt,Yes,No,No,Yes,Yes,No,No,Yes,Yes,Yes,Yes,No,Yes,Yes,12,25
+Top,Shirts/Blouses,Linen shirt,Yes,No,No,No,No,Yes,No,Yes,No,Yes,Yes,Yes,Yes,No,18,35
+Top,Tops,Turtleneck,Yes,No,Yes,No,Yes,No,No,No,Yes,Yes,Yes,No,Yes,Yes,5,15
+Top,Tops,Short t-shirt,Yes,Yes,Yes,No,Yes,Yes,Yes,No,Yes,Yes,Yes,Yes,Yes,Yes,15,35
+Top,Tops,Long-tshirt,Yes,Yes,Yes,No,Yes,No,Yes,No,Yes,Yes,Yes,No,Yes,Yes,12,22
+Top,Tops,Vest,No,Yes,Yes,Yes,Yes,Yes,Yes,No,Yes,Yes,No,Yes,Yes,No,18,35
+Bottom,Jeans,Jeans,No,No,No,Yes,Yes,No,No,No,Yes,Yes,Yes,Yes,Yes,Yes,5,22
+Bottom,Trousers,Leather trousers,No,No,No,Yes,Yes,No,No,No,Yes,Yes,No,No,Yes,Yes,0,15
+Bottom,Trousers,Tailored trousers,Yes,No,No,Yes,Yes,No,No,No,Yes,Yes,Yes,Yes,Yes,Yes,8,22
+Bottom,Trousers,Cargo pants ,No,Yes,No,No,No,No,Yes,No,No,Yes,Yes,No,Yes,Yes,8,22
+Bottom,Trousers,Linen pants,Yes,No,Yes,No,Yes,Yes,Yes,No,Yes,Yes,Yes,Yes,No,No,18,35
+Bottom,Trousers,Sweatpants,No,Yes,Yes,No,No,No,Yes,No,No,Yes,Yes,Yes,Yes,Yes,0,18
+Bottom,Trousers,Chinos,Yes,No,No,Yes,Yes,No,No,No,Yes,Yes,Yes,Yes,Yes,Yes,12,25
+Bottom,Shorts,Shorts,No,Yes,Yes,No,No,Yes,Yes,No,No,Yes,No,Yes,No,No,18,35
+Bottom,Shorts,Denim shorts,No,No,No,No,No,Yes,Yes,No,No,Yes,No,Yes,No,No,18,35
+Bottom,Shorts,Linen shorts,No,No,No,No,No,Yes,Yes,No,No,Yes,No,Yes,No,No,20,35
+Bottom,Shorts,Cargo shorts,No,Yes,Yes,No,No,Yes,Yes,No,No,Yes,Yes,Yes,No,No,18,35
+Bottom,Shorts,Skater shorts,No,No,Yes,No,No,Yes,Yes,No,No,Yes,No,Yes,No,No,18,35
+Onepiece,Jumpsuits and playsuits,Playsuit,No,No,Yes,Yes,Yes,Yes,No,No,Yes,Yes,Yes,Yes,No,No,20,35
+Onepiece,Jumpsuits and playsuits,Overalls,No,No,Yes,No,No,Yes,Yes,No,No,Yes,Yes,Yes,Yes,No,12,30
+Outer,Suits and blazers,Blazer,Yes,No,No,No,Yes,No,No,No,Yes,No,Yes,Yes,Yes,Yes,8,18
+Outer,Suits and blazers,Waistcoat,Yes,No,No,Yes,Yes,No,No,No,Yes,No,Yes,Yes,Yes,Yes,12,22
+Outer,Coats,Duffle coat,Yes,No,No,No,No,No,Yes,No,No,Yes,Yes,No,Yes,Yes,-10,8
+Outer,Coats,Rain coat,No,Yes,No,No,No,Yes,Yes,No,No,Yes,Yes,Yes,Yes,Yes,0,18
+Outer,Coats,Trench coat,Yes,No,No,Yes,Yes,No,No,No,Yes,Yes,Yes,No,Yes,Yes,8,18
+Outer,Coats,Fur coat,Yes,No,Yes,Yes,Yes,No,No,No,Yes,Yes,No,No,Yes,Yes,-15,0
+Outer,Coats,Puffer coat,No,No,No,No,No,No,Yes,No,No,Yes,No,No,No,Yes,-15,5
+Outer,Coats,Winter Coat,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,No,No,Yes,Yes,-15,0
+Outer,Jackets,Jacket,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,No,Yes,Yes,8,18
+Outer,Jackets,Demin jacket,Yes,No,Yes,No,No,No,No,No,No,Yes,Yes,Yes,Yes,Yes,12,22
+Outer,Jackets,Shacket,No,No,Yes,No,No,No,Yes,No,No,Yes,Yes,Yes,Yes,Yes,10,20
+Outer,Jackets,Fleece,No,Yes,Yes,No,No,No,Yes,No,No,Yes,Yes,No,Yes,Yes,0,12
+Outer,Jackets,Leather jacket,No,No,No,Yes,Yes,No,Yes,No,Yes,Yes,Yes,No,Yes,Yes,8,18

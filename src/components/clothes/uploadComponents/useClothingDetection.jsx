@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { detectFromName } from "./uploadHelpers";
-import typeOptions from "../../../constants/typeOptions";
 
 export const useClothingDetection = (
 name,
 subtype,
 setFormData,
-manualTempOverride
+manualTempOverride,
+typeOptions
 ) => {
 
 useEffect(() => {
@@ -95,7 +95,8 @@ setFormData(prev => {
 name,
 subtype,
 setFormData,
-manualTempOverride
+manualTempOverride,
+typeOptions
 ]);
 
 };

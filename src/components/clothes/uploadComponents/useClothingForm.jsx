@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { getInitialState } from "./uploadHelpers";
-import typeOptions from "../../../constants/typeOptions";
 
-export const useClothingForm = (item) => {
+export const useClothingForm = (item, typeOptions) => {
 
   const [formData, setFormData] = useState(
     item

@@ -206,7 +206,7 @@
   width: 100%;
 
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
 
   gap: .75rem;
 }
@@ -309,9 +309,8 @@
 
 .selection-title {
   width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
   font-size: var(--button-font-size);
   font-weight: 500;
   line-height: 1.25;

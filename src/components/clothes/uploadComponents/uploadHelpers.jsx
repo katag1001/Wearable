@@ -81,6 +81,76 @@ export const detectFromName = (name) => {
 };
 
 
+// Extra keywords for subtypes whose name alone doesn't cover how
+// people actually type them (compound names, alternate spellings,
+// or garments commonly called something else).
+const SUBTYPE_SYNONYMS = {
+  "hoodie/sweatshirt": ["hoodie", "sweatshirt", "hoody"],
+  "warm jumper": ["sweater", "wool jumper", "chunky knit"],
+  "light jumper": ["sweater", "thin knit", "light knit"],
+  "warm cardigan": ["wool cardigan", "chunky cardigan"],
+  "light cardigan": ["thin cardigan", "light knit cardigan"],
+  "buttondown shirt": [
+    "button down shirt",
+    "button-down shirt",
+    "button up shirt",
+    "oxford shirt",
+  ],
+  "short t-shirt": ["tee", "tshirt", "t shirt", "crewneck", "crew neck"],
+  "long-tshirt": ["long tee", "long sleeve tshirt", "long sleeve t-shirt"],
+  "off-the-shoulder top": ["off the shoulder top", "bardot top"],
+  "croptop": ["crop top"],
+  "short turtlneck": ["short turtleneck", "polo neck"],
+  "long turtleneck": ["polo neck", "roll neck"],
+  "demin jacket": ["denim jacket"],
+  "shacket": ["shirt jacket"],
+  "wideleg trousers": [
+    "wide leg trousers",
+    "wide-leg trousers",
+    "wide leg pants",
+  ],
+  "cargo pants": ["cargo trousers"],
+  "linen pants": ["linen trousers"],
+  "sweatpants": ["joggers", "track pants"],
+  "chinos": ["chino"],
+  "leggings": ["tights"],
+  "midi-skirt": ["midi skirt"],
+  "low waist midi": ["low waisted midi skirt"],
+  "low waist jeans": ["low waisted jeans"],
+  "high waisted jeans": ["high waist jeans"],
+  "boyfriend jeans": ["baggy jeans"],
+  "jumpsuit": ["playsuit"],
+  "playsuit": ["jumpsuit", "romper"],
+  "romper": ["playsuit", "jumpsuit"],
+  "wedding guest dress": ["wedding guest outfit"],
+  "duffle coat": ["duffel coat", "duffel"],
+  "rain coat": ["raincoat", "waterproof jacket"],
+  "trench coat": ["trenchcoat"],
+  "fur coat": ["faux fur coat"],
+  "puffer coat": ["puffer jacket", "down coat"],
+  "winter coat": ["parka"],
+  "leather jacket": ["biker jacket"],
+};
+
+const STOPWORDS = new Set(["and", "the", "or", "a", "an", "of"]);
+
+const buildKeywords = (option) => {
+  const optionName = option.name.toLowerCase();
+
+  const baseKeywords = [
+    optionName,
+    optionName.replace(/[/-]/g, " "),
+    optionName.replace(/[/\-\s]/g, ""),
+    ...optionName.split(/[\s/-]+/),
+  ];
+
+  const extraKeywords = SUBTYPE_SYNONYMS[optionName] || [];
+
+  return [...new Set([...baseKeywords, ...extraKeywords])].filter(
+    keyword => keyword.length > 2 && !STOPWORDS.has(keyword)
+  );
+};
+
 export const suggestSubtypesFromName = (name, typeOptions) => {
 
   if (!name) return [];
@@ -90,242 +160,18 @@ export const suggestSubtypesFromName = (name, typeOptions) => {
     .toLowerCase()
     .trim();
 
-
-  const keywordMap = {
-
-    "Light Pants": [
-      "pants",
-      "pant",
-      "trousers",
-      "trouser",
-      "chinos",
-      "chino",
-      "linen pants",
-      "cotton pants",
-      "summer pants",
-      "light pants",
-      "wide leg",
-      "wide-leg",
-      "straight leg",
-      "straight-leg"
-    ],
+  if (!text) return [];
 
 
-    "Warm Pants": [
-      "pants",
-      "pant",
-      "trousers",
-      "trouser",
-      "wool pants",
-      "thermal pants",
-      "fleece pants",
-      "winter pants",
-      "corduroy",
-      "warm pants",
-      "lined pants"
-    ],
+  const matches = typeOptions.filter(option => {
 
+    const keywords = buildKeywords(option);
 
-    "Maxi Skirt": [
-      "skirt",
-      "maxi",
-      "long skirt",
-      "flowy skirt",
-      "boho skirt"
-    ],
+    return keywords.some(keyword =>
+      text.includes(keyword) || keyword.includes(text)
+    );
 
-
-    "Midi Skirt": [
-      "skirt",
-      "midi",
-      "mid length",
-      "mid-length"
-    ],
-
-
-    "Mini Skirt": [
-      "skirt",
-      "mini",
-      "short skirt"
-    ],
-
-
-    "Shorts": [
-      "shorts",
-      "short",
-      "cargo shorts",
-      "swim shorts",
-      "board shorts",
-      "beach shorts"
-    ],
-
-
-    "T-Shirt": [
-      "top",
-      "tshirt",
-      "t-shirt",
-      "tee",
-      "graphic tee",
-      "cotton tee",
-      "crew neck",
-      "crewneck",
-      "oversized tee"
-    ],
-
-
-    "Sports Top": [
-      "sports top",
-      "sport top",
-      "gym top",
-      "workout top",
-      "running top",
-      "activewear"
-    ],
-
-
-    "Light Shirt": [
-      "shirt",
-      "button shirt",
-      "button-up",
-      "button up",
-      "linen shirt",
-      "oxford shirt",
-      "summer shirt",
-      "light shirt",
-      "blouse"
-    ],
-
-
-    "Warm Shirt": [
-      "warm shirt",
-      "flannel",
-      "thermal shirt",
-      "wool shirt",
-      "overshirt",
-      "shacket"
-    ],
-
-
-    "Tank Top": [
-      "tank",
-      "top",
-      "tank top",
-      "camisole",
-      "cami",
-      "sleeveless",
-      "vest"
-    ],
-
-
-    "Light Jumper": [
-      "jumper",
-      "sweater",
-      "cardigan",
-      "light jumper",
-      "thin knit",
-      "light knit",
-      "spring knit"
-    ],
-
-
-    "Warm Jumper": [
-      "jumper",
-      "sweater",
-      "hoodie",
-      "fleece",
-      "wool jumper",
-      "chunky knit",
-      "thick knit",
-      "warm jumper"
-    ],
-
-
-    "Fancy Top": [
-      "fancy top",
-      "party top",
-      "silk top",
-      "satin top",
-      "evening top",
-      "elegant top"
-    ],
-
-
-    "Light Jacket": [
-      "jacket",
-      "light jacket",
-      "denim jacket",
-      "bomber",
-      "windbreaker",
-      "spring jacket"
-    ],
-
-
-    "Winter Coat": [
-      "coat",
-      "winter coat",
-      "parka",
-      "puffer",
-      "down jacket",
-      "winter jacket"
-    ],
-
-
-    "Formal Dress/Jumpsuit": [
-      "dress",
-      "jumpsuit",
-      "formal dress",
-      "wedding dress",
-      "evening dress"
-    ],
-
-
-    "Party Dress/Jumpsuit": [
-      "dress",
-      "jumpsuit",
-      "party dress",
-      "cocktail dress",
-      "celebration dress"
-    ],
-
-
-    "Summer Dress/Jumpsuit": [
-      "dress",
-      "jumpsuit",
-      "summer dress",
-      "floral dress",
-      "beach dress",
-      "linen dress"
-    ],
-
-
-    "Warm Dress/Jumpsuit": [
-      "dress",
-      "jumpsuit",
-      "winter dress",
-      "knit dress",
-      "wool dress",
-      "warm dress"
-    ]
-
-  };
-
-
-  const matches = Object.entries(keywordMap)
-    .filter(([subtype, keywords]) => {
-
-      return keywords.some(keyword =>
-        text.includes(keyword)
-      );
-
-    })
-    .map(([subtype]) => {
-
-      return typeOptions.find(
-        item => item.name === subtype
-      );
-
-    })
-    .filter(Boolean);
+  });
 
 
   return matches.slice(0, 4);
