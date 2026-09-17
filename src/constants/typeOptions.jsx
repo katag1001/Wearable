@@ -1574,20 +1574,6 @@ const typeOptionsByGender = {
     {
       "type": "onepiece",
       "category": "Jumpsuits and playsuits",
-      "name": "Romper",
-      "season": [
-        "Spring",
-        "Summer"
-      ],
-      "tags": [
-        "Everyday"
-      ],
-      "minTemp": 22,
-      "maxTemp": 35
-    },
-    {
-      "type": "onepiece",
-      "category": "Jumpsuits and playsuits",
       "name": "Overalls",
       "season": [
         "Spring",

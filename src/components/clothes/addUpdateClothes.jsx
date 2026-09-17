@@ -6,7 +6,6 @@ import { URL } from "../../config";
 
 import ModalOne from "./uploadComponents/modalOne";
 import ModalTwo from "./uploadComponents/modalTwo";
-import ModalThree from "./uploadComponents/modalThree";
 
 import { useClothingForm } from "./uploadComponents/useClothingForm";
 import { useClothingDetection } from "./uploadComponents/useClothingDetection";
@@ -145,7 +144,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           formData.winter
         ) &&
         formData.min_temp !== "" &&
-        formData.max_temp !== "",
+        formData.max_temp !== "" &&
+        formData.colors.length > 0,
 
       missing: [
         !(
@@ -160,17 +160,9 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           formData.max_temp === ""
         ) && "a temperature range",
 
-      ].filter(Boolean),
-    },
-
-
-    3: {
-      valid:
-        formData.colors.length > 0,
-
-      missing: [
         formData.colors.length === 0 &&
           "at least one colour",
+
       ].filter(Boolean),
     }
 
@@ -560,18 +552,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                   handleTempChange={
                     handleTempChange
                   }
-                />
-
-              )}
-
-
-              {currentPage === 3 && (
-
-                <ModalThree
-                  formData={formData}
                   toggleColor={toggleColor}
                   toggleTag={toggleTag}
-                  updateField={updateField}
                 />
 
               )}
@@ -619,7 +601,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                 )}
 
 
-                {currentPage < 3 && (
+                {currentPage < 2 && (
 
                   <button
                     type="button"
@@ -632,7 +614,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                 )}
 
 
-                {currentPage === 3 && (
+                {currentPage === 2 && (
 
                   <button
                     className="modal-button"

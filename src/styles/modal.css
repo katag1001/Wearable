@@ -25,7 +25,7 @@
   width: min(92%, 680px);
   max-height: 92vh;
   overflow-y: auto;
-  padding: 2rem;
+  padding: 1.5rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: 12px;
@@ -82,7 +82,7 @@
 /* Modal Title----------------------------------------------------------------- */
 
 .modal-title {
-  margin: 0 2.5rem 2rem;
+  margin: 0 2.5rem 1.25rem;
   color: var(--main-color);
   font-family: var(--title-font);
   font-size: var(--section-title-font-size);
@@ -98,18 +98,24 @@
    Form
 ----------------------------------------------------------------- */
 
+.modal-page {
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+}
+
 .update-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: .9rem;
 }
 
 .form-label {
   display: flex;
   flex-direction: column;
-  gap: .65rem;
+  gap: .45rem;
   margin: 0;
-  padding: 1rem 0;
+  padding: .55rem 0;
   color: var(--secondary-color);
   font-size: var(--small-font-size);
   font-weight: 500;
@@ -161,7 +167,7 @@
 .upload-suggestions,
 .selection-container {
   width: 100%;
-  margin-top: 1.25rem;
+  margin-top: .75rem;
 }
 
 
@@ -169,7 +175,7 @@
 
 .selection-category {
   width: 100%;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .selection-category:last-child {
@@ -182,8 +188,8 @@
 ----------------------------------------------------------------- */
 
 .selection-category-title {
-  margin: 0 0 1rem;
-  padding-bottom: .65rem;
+  margin: 0 0 .6rem;
+  padding-bottom: .4rem;
   border-bottom: 1px solid var(--border-color);
   color: var(--main-color);
   font-family: var(--title-font);
@@ -222,8 +228,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: .6rem;
-  padding: 0.9rem 0;
+  gap: .4rem;
+  padding: .55rem 0;
   border: 1px solid var(--border-color);
   border-radius: 12px;
   background: transparent;
@@ -321,7 +327,7 @@
 ----------------------------------------------------------------- */
 
 .upload-suggestions {
-  padding-bottom: 1.5rem;
+  padding-bottom: .9rem;
 
   border-bottom: 1px solid var(--border-color);
 }
@@ -333,7 +339,7 @@
 .season-group {
   border: 0;
   padding: 0;
-  margin: .5rem 0 0;
+  margin: .3rem 0 0;
 }
 
 .season-group legend {
@@ -355,8 +361,8 @@
   display: inline-flex;
   align-items: center;
 
-  gap: .5rem;
-  margin: 0 1rem .8rem 0;
+  gap: .4rem;
+  margin: 0 .8rem .4rem 0;
 
   color: var(--main-color);
 
@@ -426,8 +432,8 @@
 .color-section {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-  margin-bottom: 2rem;
+  gap: .6rem;
+  margin-bottom: 0;
 }
 
 
@@ -436,8 +442,8 @@
 .color-grid {
   display: grid;
   grid-template-columns:
-    repeat(auto-fill, minmax(55px, 1fr));
-  gap: .75rem;
+    repeat(auto-fill, minmax(46px, 1fr));
+  gap: .5rem;
 }
 
 
@@ -454,13 +460,13 @@
 /* Colour Name */
 
 .color-item span {
-  height: 2.5em;
+  height: 1.8em;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--secondary-color);
   font-size: var(--tag-font-size);
-  line-height: 1.2;
+  line-height: 1.1;
   text-align: center;
 }
 
@@ -498,8 +504,8 @@
 /* Colour Circle */
 
 .color-square {
-  width: 38px;
-  height: 38px;
+  width: 30px;
+  height: 30px;
   border: 1px solid var(--border-contrast-soft);
   border-radius: 50%;
   transition:
@@ -625,7 +631,7 @@
   display: block;
 
   width: 100%;
-  height: 50px;
+  height: 36px;
 
   object-fit: cover;
   background: var(--image-background);
@@ -748,8 +754,8 @@
 
   gap: .75rem;
 
-  margin-top: 2.5rem;
-  padding-top: 1.25rem;
+  margin-top: 1.25rem;
+  padding-top: .85rem;
 
   border-top: 1px solid var(--border-color);
 }
@@ -938,7 +944,7 @@
   display: flex;
   flex-direction: column;
 
-  gap: 2rem;
+  gap: 1rem;
 }
 
 
