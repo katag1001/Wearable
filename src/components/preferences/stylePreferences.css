@@ -1,0 +1,365 @@
+/* ----------------------------------------------------------------
+   Container
+----------------------------------------------------------------- */
+
+.style-preferences {
+  width: 100%;
+  max-width: 1200px;
+
+  min-height: calc(100vh - var(--header-height));
+
+  margin: 0 auto;
+  padding: 0 2rem 2rem;
+
+  box-sizing: border-box;
+
+  color: var(--main-color);
+  font-family: var(--main-font);
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ----------------------------------------------------------------
+   Header
+----------------------------------------------------------------- */
+
+.style-preferences-header {
+  width: 100%;
+
+  margin-bottom: 1rem;
+
+  text-align: center;
+
+  flex-shrink: 0;
+}
+
+
+/* ----------------------------------------------------------------
+   Sections
+----------------------------------------------------------------- */
+
+.style-preferences-section {
+  width: 100%;
+
+  margin-bottom: 1.5rem;
+
+  flex-shrink: 0;
+}
+
+.style-preferences-section-title {
+  font-family: var(--title-font);
+
+  font-size: var(--section-title-font-size);
+  font-weight: 700;
+
+  letter-spacing: 0.03em;
+
+  text-transform: uppercase;
+
+  color: var(--main-color);
+
+  margin: 0 0 0.5rem;
+}
+
+.style-preferences-section-description {
+  margin: 0 0 0.75rem;
+
+  color: var(--secondary-color);
+
+  font-size: var(--description-font-size);
+  font-weight: 400;
+
+  letter-spacing: 0.03em;
+}
+
+
+/* ----------------------------------------------------------------
+   Gender Options
+----------------------------------------------------------------- */
+
+.style-preferences-gender-options {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 0.6rem;
+}
+
+.style-preferences-gender-card {
+  padding: 0.65rem 1.3rem;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: var(--card-background);
+
+  color: var(--main-color);
+  font: inherit;
+
+  font-size: var(--button-font-size);
+  font-weight: 500;
+
+  letter-spacing: 0.06em;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.style-preferences-gender-card:hover {
+  background: var(--hover-background);
+  border-color: var(--hover-border-color);
+
+  box-shadow: var(--shadow-soft);
+}
+
+.style-preferences-gender-card:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+.style-preferences-gender-card--selected {
+  background: var(--hover-background);
+  border-color: var(--main-color);
+
+  box-shadow: inset 0 0 0 1px var(--main-color);
+}
+
+
+/* ----------------------------------------------------------------
+   Image Grid
+----------------------------------------------------------------- */
+
+.style-preferences-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 96px);
+
+  gap: 0.6rem;
+
+  justify-content: start;
+}
+
+.style-preferences-image-card {
+  position: relative;
+
+  width: 96px;
+  height: 96px;
+
+  padding: 0;
+
+  overflow: hidden;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  background: var(--card-background);
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.style-preferences-image-card:hover {
+  border-color: var(--hover-border-color);
+
+  box-shadow: var(--shadow-soft);
+}
+
+.style-preferences-image-card:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 2px;
+}
+
+.style-preferences-image-card--selected {
+  border-color: var(--main-color);
+
+  box-shadow: inset 0 0 0 2px var(--main-color);
+}
+
+.style-preferences-image-card-image {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transition: opacity 0.2s ease;
+}
+
+.style-preferences-image-card:hover .style-preferences-image-card-image {
+  opacity: 0.94;
+}
+
+.style-preferences-image-card-check {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+
+  width: 20px;
+  height: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--main-color);
+  color: var(--inverse-color);
+
+  font-size: var(--check-font-size);
+
+  line-height: 1;
+}
+
+
+/* ----------------------------------------------------------------
+   Messages
+----------------------------------------------------------------- */
+
+.style-preferences-message {
+  width: 100%;
+  margin-top: 0.65rem;
+  padding: 0.6rem 0.8rem;
+  box-sizing: border-box;
+  border-radius: 999px;
+  font-size: var(--description-font-size);
+  font-weight: 400;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.style-preferences-message--error {
+  background: var(--error-background);
+
+  border: 1px solid var(--error-border-color);
+
+  color: var(--error-color);
+}
+
+.style-preferences-message--success {
+  background: var(--success-background);
+
+  border: 1px solid var(--success-border-color);
+
+  color: var(--success-color);
+}
+
+
+/* ----------------------------------------------------------------
+   Save Button
+----------------------------------------------------------------- */
+
+.style-preferences-save-button {
+  width: 100%;
+
+  padding: 0.7rem 1.5rem;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--main-color);
+  border-radius: 999px;
+
+  background: var(--main-color);
+  color: var(--inverse-color);
+
+  font-family: inherit;
+
+  font-size: var(--button-font-size);
+  font-weight: 500;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.15s ease;
+
+  flex-shrink: 0;
+}
+
+.style-preferences-save-button:hover {
+  background: transparent;
+  color: var(--main-color);
+}
+
+.style-preferences-save-button:active {
+  transform: translateY(1px);
+}
+
+.style-preferences-save-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+.style-preferences-save-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* ----------------------------------------------------------------
+   Loading
+----------------------------------------------------------------- */
+
+.style-preferences-loading {
+  width: 100%;
+
+  min-height: calc(100vh - var(--header-height));
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2rem 1rem;
+
+  box-sizing: border-box;
+
+  color: var(--secondary-color);
+
+  font-size: var(--description-font-size);
+  font-weight: 400;
+
+  letter-spacing: 0.1em;
+
+  text-align: center;
+  text-transform: uppercase;
+}
+
+
+/* ================================================================
+   MEDIA ADJUSTMENTS
+================================================================ */
+
+@media (max-width: 700px) {
+
+  .style-preferences {
+    padding: 0 1rem 1.25rem;
+  }
+
+  .style-preferences-image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+
+  .style-preferences-image-card {
+    width: 100%;
+    height: auto;
+
+    aspect-ratio: 1 / 1;
+  }
+}

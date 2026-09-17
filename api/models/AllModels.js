@@ -136,6 +136,11 @@ const preferencesSchema = new mongoose.Schema({
   saturday: { type: String, default: null },
   sunday: { type: String, default: null },
 
+  gender: { type: String, enum: ["man", "woman", "unisex"], default: null },
+  style: { type: String, enum: ["fun", "classic", "fashion"], default: null },
+  colour: { type: String, enum: ["max", "mid", "min"], default: null },
+  pattern: { type: String, enum: ["max", "mid", "min"], default: null },
+
 });
 
 

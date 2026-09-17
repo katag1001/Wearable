@@ -5,6 +5,7 @@ import { URL } from '../config';
 import '../styles/pages.css';
 import '../styles/userPage.css';
 import WeeklyPreferences from '../components/preferences/weeklyPreferences';
+import StylePreferences from '../components/preferences/stylePreferences';
 import Stats from '../components/stats/stats';
 
 const User = ({ loggedIn, logout }) => {
@@ -68,6 +69,9 @@ const User = ({ loggedIn, logout }) => {
     switch (activeScreen) {
       case 'weekly-preferences':
         return <WeeklyPreferences />;
+
+      case 'style-preferences':
+        return <StylePreferences />;
 
       case 'stats':
         return <Stats />;
@@ -148,6 +152,20 @@ const User = ({ loggedIn, logout }) => {
                   }
                 >
                   Weekly Preferences
+                </button>
+
+                <button
+                  type="button"
+                  className={`user-sidebar__button ${
+                    activeScreen === 'style-preferences'
+                      ? 'user-sidebar__button--active'
+                      : ''
+                  }`}
+                  onClick={() =>
+                    handleScreenChange('style-preferences')
+                  }
+                >
+                  Style Preferences
                 </button>
 
                 <button
