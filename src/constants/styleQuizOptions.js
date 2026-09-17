@@ -8,6 +8,21 @@ import fashion1 from "../assets/images/styles/fashion1.jpg";
 import fashion2 from "../assets/images/styles/fashion2.jpg";
 import fashion3 from "../assets/images/styles/fashion3.jpg";
 
+
+export const styleImageOptions = [
+  { key: "fun1", image: fun1, style: "fun", colour: "max", pattern: "max", gender: ["woman"] },
+  { key: "fun2", image: fun2, style: "fun", colour: "mid", pattern: "max", gender: ["unisex"] },
+  { key: "fun3", image: fun3, style: "fun", colour: "max", pattern: "mid", gender: ["woman", "man"] },
+
+  { key: "classic1", image: classic1, style: "classic", colour: "min", pattern: "min", gender: ["unisex"] },
+  { key: "classic2", image: classic2, style: "classic", colour: "min", pattern: "mid", gender: ["woman"] },
+  { key: "classic3", image: classic3, style: "classic", colour: "mid", pattern: "min", gender: ["man"] },
+
+  { key: "fashion1", image: fashion1, style: "fashion", colour: "mid", pattern: "mid", gender: ["woman", "unisex"] },
+  { key: "fashion2", image: fashion2, style: "fashion", colour: "max", pattern: "min", gender: ["man"] },
+  { key: "fashion3", image: fashion3, style: "fashion", colour: "min", pattern: "max", gender: ["woman"] },
+];
+
 /* --------------------------------------------------------------------
    GENDER QUESTION
 
@@ -46,21 +61,15 @@ export const temperatureQuestionOptions = [
    style:   "fun" | "classic" | "fashion"
    colour:  "max" | "mid" | "min"
    pattern: "max" | "mid" | "min"
+   gender:  array of one or more of "woman" | "unisex" | "man" — an
+            image is only shown when the gender picked in question 1
+            is included in this list. "unisex" is its own category:
+            it is not implied by "woman" or "man" and vice versa.
+
+   The gender values below were assigned randomly as placeholders —
+   update them to reflect what each image actually shows.
 -------------------------------------------------------------------- */
 
-export const styleImageOptions = [
-  { key: "fun1", image: fun1, style: "fun", colour: "max", pattern: "max" },
-  { key: "fun2", image: fun2, style: "fun", colour: "mid", pattern: "max" },
-  { key: "fun3", image: fun3, style: "fun", colour: "max", pattern: "mid" },
-
-  { key: "classic1", image: classic1, style: "classic", colour: "min", pattern: "min" },
-  { key: "classic2", image: classic2, style: "classic", colour: "min", pattern: "mid" },
-  { key: "classic3", image: classic3, style: "classic", colour: "mid", pattern: "min" },
-
-  { key: "fashion1", image: fashion1, style: "fashion", colour: "mid", pattern: "mid" },
-  { key: "fashion2", image: fashion2, style: "fashion", colour: "max", pattern: "min" },
-  { key: "fashion3", image: fashion3, style: "fashion", colour: "min", pattern: "max" },
-];
 
 /* --------------------------------------------------------------------
    TIE-BREAK PRIORITY

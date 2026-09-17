@@ -117,33 +117,35 @@ const StyleQuizForm = ({ onComplete }) => {
           </div>
 
           <div className="style-quiz-image-grid">
-            {styleImageOptions.map((option) => {
-              const isSelected = selectedImages.includes(option.key);
+            {styleImageOptions
+              .filter((option) => option.gender.includes(gender))
+              .map((option) => {
+                const isSelected = selectedImages.includes(option.key);
 
-              return (
-                <button
-                  key={option.key}
-                  type="button"
-                  className={`style-quiz-image-card ${
-                    isSelected ? "style-quiz-image-card--selected" : ""
-                  }`}
-                  onClick={() => toggleImage(option.key)}
-                  aria-pressed={isSelected}
-                >
-                  <img
-                    src={option.image}
-                    alt={option.key}
-                    className="style-quiz-image-card-image"
-                  />
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    className={`style-quiz-image-card ${
+                      isSelected ? "style-quiz-image-card--selected" : ""
+                    }`}
+                    onClick={() => toggleImage(option.key)}
+                    aria-pressed={isSelected}
+                  >
+                    <img
+                      src={option.image}
+                      alt={option.key}
+                      className="style-quiz-image-card-image"
+                    />
 
-                  {isSelected && (
-                    <span className="style-quiz-image-card-check" aria-label="Selected">
-                      ✓
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+                    {isSelected && (
+                      <span className="style-quiz-image-card-check" aria-label="Selected">
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
           </div>
 
           <div className="style-quiz-actions">
