@@ -35,6 +35,11 @@ max_temp: { type: Number, required: true },
 type: { type: String, required: true },
 hasOuter: { type: Boolean, default: false },
 
+topCount: { type: Number, default: 0 },
+bottomCount: { type: Number, default: 0 },
+onepieceCount: { type: Number, default: 0 },
+outerCount: { type: Number, default: 0 },
+
 spring: { type: Boolean, required: true },
 summer: { type: Boolean, required: true },
 autumn: { type: Boolean, required: true },
@@ -137,12 +142,43 @@ const preferencesSchema = new mongoose.Schema({
   sunday: { type: String, default: null },
 
   gender: { type: String, enum: ["man", "woman", "unisex"], default: null },
-  style: { type: String, enum: ["fun", "classic", "fashion"], default: null },
+  style: { type: String, enum: ["fun", "classic", "fashion", "all"], default: null },
   colour: { type: String, enum: ["max", "mid", "min"], default: null },
   pattern: { type: String, enum: ["max", "mid", "min"], default: null },
   temperature: { type: String, enum: ["cold", "hot", "normal"], default: null },
 
 });
+
+/* -------------------- MATCH SCORE -------------------- */
+//
+// A user's personal compatibility score for one pair of clothing subtypes.
+// Storage is sparse - a document only exists once a user has created or
+// deleted an outfit containing that pair. Any pair with no document here
+// falls back to the shared gender+style baseline in
+// api/constants/matchScoreBaseline.js. subtypeA/subtypeB are always stored
+// in a canonical (alphabetical) order - see matrixService.canonicalPairKey -
+// so a pair is never split across two documents.
+
+const matchScoreSchema = new mongoose.Schema({
+
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    index: true,
+  },
+
+  subtypeA: { type: String, required: true },
+  subtypeB: { type: String, required: true },
+
+  score: { type: Number, required: true },
+
+});
+
+matchScoreSchema.index(
+  { userId: 1, subtypeA: 1, subtypeB: 1 },
+  { unique: true }
+);
 
 
 /* -------------------- MODELS -------------------- */
@@ -153,4 +189,5 @@ Match: mongoose.model("Match", matchSchema),
 Today: mongoose.model("Today", todaySchema),
 Clothes: mongoose.model("Clothes", clothesSchema),
 Preferences: mongoose.model("Preferences", preferencesSchema),
+MatchScore: mongoose.model("MatchScore", matchScoreSchema),
 };

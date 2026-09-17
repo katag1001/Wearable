@@ -56,7 +56,7 @@ const StyleQuizForm = ({ onComplete }) => {
       return;
     }
 
-    const { style, colour, pattern } = resolveStyleQuiz(selectedImages);
+    const { style, colour, pattern } = resolveStyleQuiz(selectedImages, gender);
 
     try {
       setSaving(true);

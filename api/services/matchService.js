@@ -1,478 +1,218 @@
+// api/services/matchService.js
+//
+// Finds every valid outfit that a newly added/updated clothing item can be
+// part of, given the rest of the user's wardrobe, and saves the new ones.
+//
+// Unlike the previous design, this always builds each candidate outfit
+// fresh from the current wardrobe (anchored on the new item) rather than
+// incrementally extending previously-saved matches. That sidesteps the
+// old "can this saved match still take another outer" problem entirely -
+// there is nothing to extend, every candidate is assembled and validated
+// as a complete whole before anything is saved.
+//
+// Search order, cheapest/most-eliminating first:
+//   1. matrix compatibility (matrixService) - pure, in-memory, no DB.
+//   2. temperature + season (outfitEvaluator.describeOutfit) - pure, cheap.
+//   3. colour + pattern (outfitEvaluator.validateOutfit) - pure, cheap.
+// Only item-sets that reach the DB-facing dedupe/insert step ever touch
+// Mongo again.
+
 const { Clothes, Match } = require("../models/AllModels.js");
-const { colorPalettes } = require("../utils/colorPalettes.js");
-const { generateMatchTags, calculateTempRange } = require("./helpers.js");
+const { OUTFIT_SHAPES, ROLES } = require("../constants/outfitShapes.js");
+const { isCliqueValid, canPair } = require("./matrixService.js");
+const { describeOutfit, validateOutfit } = require("./outfitEvaluator.js");
+const { getBaselineMatrixForUser, loadUserScores } = require("./matchScoreService.js");
 
+// Hard caps to keep this bounded regardless of wardrobe size - important on
+// a serverless free tier with a short execution limit. Today, every
+// baseline score is a placeholder 5 (see matchScoreBaseline.js), so the
+// matrix provides no real pruning yet; these caps are the actual guardrail
+// until real per-user/per-archetype scores start doing that job.
+const MAX_POOL_SIZE_PER_ROLE = 60;
+const MAX_COMBINATIONS_EXPLORED = 20000;
 
-async function getCandidates(newItem) {
+function buildRolePools(allItems, newItem) {
+  const pools = { top: [], bottom: [], onepiece: [], outer: [] };
+  const newItemId = String(newItem._id);
 
-  console.log("\n==================== getCandidates ====================");
-console.log("Input item:", {
-  name: newItem.name,
-  type: newItem.type,
-  userId: newItem.userId
-});
+  allItems.forEach((item) => {
+    if (String(item._id) === newItemId) return;
 
-  if (newItem.type === "outer") {
+    const pool = pools[item.type];
 
-    console.log("Looking for existing outer-less matches.");
-
-    const matchQuery = {
-      userId: newItem.userId,
-      hasOuter: false,
-
-      min_temp: { $lte: newItem.max_temp },
-      max_temp: { $gte: newItem.min_temp },
-
-      $or: [
-        { spring: newItem.spring },
-        { summer: newItem.summer },
-        { autumn: newItem.autumn },
-        { winter: newItem.winter }
-      ]
-    };
-
-    console.log("Mongo query:");
-    console.dir(matchQuery, { depth: null });
-
-    const matchCandidates = await Match.find(matchQuery);
-
-    console.log(`Found ${matchCandidates.length} candidates:`);
-
-    matchCandidates.forEach(c => {
-      console.log(`- match ${c._id} (${c.clothes.length} items)`);
-    });
-
-    return matchCandidates;
-  }
-
-  let types = [];
-
-  switch (newItem.type) {
-
-    case "top":
-      types = ["bottom"];
-      console.log("Looking for bottoms.");
-      break;
-
-    case "bottom":
-      types = ["top"];
-      console.log("Looking for tops.");
-      break;
-
-    case "onepiece":
-      types = ["outer"];
-      console.log("Looking for outers.");
-      break;
-
-case "match": {
-  const clothes = await Clothes.find({
-    _id: { $in: newItem.clothes }
+    if (pool && pool.length < MAX_POOL_SIZE_PER_ROLE) {
+      pool.push(item);
+    }
   });
 
-  const hasTop = clothes.some(c => c.type === "top");
-  const hasBottom = clothes.some(c => c.type === "bottom");
+  return pools;
+}
 
-  if (hasTop && hasBottom) {
-    types = ["outer"];
+// Backtracking search across the 4 roles for one shape. Prunes the moment a
+// candidate is incompatible with anything chosen so far (including
+// newItem), so incompatible branches never get built out further. `budget`
+// is shared across every shape in one processMatches run and caps total
+// work done, independent of wardrobe size.
+function findShapeCombinations(newItem, shape, pools, baselineMatrix, personalScores, budget) {
+  const needed = {};
+
+  for (const role of ROLES) {
+    needed[role] = shape[role] - (newItem.type === role ? 1 : 0);
+
+    if (needed[role] < 0) {
+      return [];
+    }
   }
 
-      break;
+  const results = [];
+
+  function pickRole(roleIndex, chosenSoFar) {
+    if (roleIndex === ROLES.length) {
+      const fullSet = [newItem, ...chosenSoFar];
+
+      if (isCliqueValid(fullSet, baselineMatrix, personalScores)) {
+        results.push(fullSet);
+      }
+
+      return;
     }
 
-    default:
-      console.log("Unsupported type:", newItem.type);
-      return [];
+    const role = ROLES[roleIndex];
+    const count = needed[role];
+
+    if (count === 0) {
+      pickRole(roleIndex + 1, chosenSoFar);
+      return;
+    }
+
+    const pool = pools[role];
+
+    function pick(startIndex, remaining, picked) {
+      if (remaining === 0) {
+        pickRole(roleIndex + 1, [...chosenSoFar, ...picked]);
+        return;
+      }
+
+      for (let i = startIndex; i < pool.length; i += 1) {
+        if (budget.remaining <= 0) {
+          return;
+        }
+
+        budget.remaining -= 1;
+
+        const candidate = pool[i];
+        const soFar = [newItem, ...chosenSoFar, ...picked];
+
+        const compatibleWithEverythingSoFar = soFar.every((item) =>
+          canPair(baselineMatrix, personalScores, item.subtype, candidate.subtype)
+        );
+
+        if (!compatibleWithEverythingSoFar) {
+          continue;
+        }
+
+        pick(i + 1, remaining - 1, [...picked, candidate]);
+      }
+    }
+
+    pick(0, count, []);
   }
 
-  const query = {
-    userId: newItem.userId,
+  pickRole(0, []);
 
-    type: { $in: types },
+  return results;
+}
 
-    min_temp: { $lte: newItem.max_temp },
+function findCandidateMatches(newItem, allItems, baselineMatrix, personalScores) {
+  const pools = buildRolePools(allItems, newItem);
+  const budget = { remaining: MAX_COMBINATIONS_EXPLORED };
+  const candidates = [];
 
-    max_temp: { $gte: newItem.min_temp },
+  OUTFIT_SHAPES.forEach((shape) => {
+    if (!shape[newItem.type]) {
+      return;
+    }
 
-    $or: [
-      { spring: newItem.spring },
-      { summer: newItem.summer },
-      { autumn: newItem.autumn },
-      { winter: newItem.winter }
-    ]
-  };
+    const combos = findShapeCombinations(
+      newItem,
+      shape,
+      pools,
+      baselineMatrix,
+      personalScores,
+      budget
+    );
 
-  console.log("Mongo query:");
-  console.dir(query, { depth: null });
+    combos.forEach((itemSet) => {
+      const described = describeOutfit(itemSet, { isUserMade: false });
 
-  const candidates = await Clothes.find(query);
+      if (!described) {
+        return;
+      }
 
-  console.log(`Found ${candidates.length} candidates:`);
+      if (!validateOutfit(itemSet, baselineMatrix, personalScores)) {
+        return;
+      }
 
-  candidates.forEach(c => {
-    console.log(`- ${c.name} (${c.type})`);
+      candidates.push({
+        ...described,
+        userId: newItem.userId,
+        userMade: false,
+        favourite: false,
+        lastWornDate: null,
+      });
+    });
   });
 
   return candidates;
 }
 
-async function matchPath(newItem, matches) {
+function dedupeKey(clothesIds) {
+  return clothesIds.map((id) => id.toString()).sort().join(",");
+}
 
-  console.log("\n==================== matchPath ====================");
-  console.log("Matching:", newItem.name || "(generated match)");
-  console.log("Type:", newItem.type);
-
-  if (newItem.type === "onepiece") {
-
-    console.log("Creating standalone onepiece match.");
-
-    matches.push({
-      clothes: [newItem._id],
-      userId: newItem.userId,
-      colors: newItem.colors,
-      min_temp: newItem.min_temp,
-      max_temp: newItem.max_temp,
-      type: "match",
-      styles: [...newItem.styles],
-      spring: newItem.spring,
-      summer: newItem.summer,
-      autumn: newItem.autumn,
-      winter: newItem.winter,
-      tags: newItem.tags || [],
-      hasOuter: false,
-      userMade: false,
-      lastWornDate: null,
-    });
-
-    console.log("Standalone onepiece match added.");
+async function processMatches(newItem, allItems) {
+  if (!ROLES.includes(newItem.type)) {
+    return;
   }
 
-  const candidates = await getCandidates(newItem);
+  const wardrobe = allItems || (await Clothes.find({ userId: newItem.userId }));
 
-  console.log("Candidate count:", candidates.length);
+  const [baselineMatrix, personalScores] = await Promise.all([
+    getBaselineMatrixForUser(newItem.userId),
+    loadUserScores(newItem.userId),
+  ]);
+
+  const candidates = findCandidateMatches(newItem, wardrobe, baselineMatrix, personalScores);
 
   if (!candidates.length) {
-
-    console.log("No candidates found.");
-    return;
-
-  }
-
-  await matchSeason(newItem, candidates, matches);
-}
-
-async function matchSeason(newItem, candidates, matches) {
-
-  console.log("Matching season:", newItem.name);
-
-  const seasonalMatches = candidates.filter(item =>
-    (item.spring && newItem.spring) ||
-    (item.summer && newItem.summer) ||
-    (item.autumn && newItem.autumn) ||
-    (item.winter && newItem.winter)
-  );
-
-  await matchStyle(newItem, seasonalMatches, matches);
-
-}
-
-async function matchStyle(newItem, candidates, matches) {
-
-  console.log("Matching style:", newItem.name);
-
-  for (const item of candidates) {
-
-    const combinedStyles = [
-      ...newItem.styles,
-      ...item.styles
-    ];
-
-    const patternedCount =
-      combinedStyles.filter(style => style === "patterned").length;
-
-    if (patternedCount <= 1) {
-      await colorMatch(newItem, item, matches);
-    }
-
-  }
-
-}
-
-async function colorMatch(newItem, matchItem, matches) {
-
-  console.log(
-    "Matching colors:",
-    newItem.name,
-    "with",
-    matchItem.name
-  );
-
-  const combinedColors = [
-    ...new Set([
-      ...newItem.colors,
-      ...matchItem.colors
-    ])
-  ];
-
-  const validPalette = colorPalettes.some(palette =>
-    combinedColors.every(color => palette.includes(color))
-  );
-
-  if (!validPalette) return;
-
-  await tempMatch(
-    newItem,
-    matchItem,
-    matches,
-    combinedColors
-  );
-
-}
-
-async function tempMatch(
-  newItem,
-  matchItem,
-  matches,
-  combinedColors
-) {
-
-  if (
-    newItem.min_temp > matchItem.max_temp ||
-    matchItem.min_temp > newItem.max_temp
-  ) {
     return;
   }
 
-  const clothesIds = [
-    ...(newItem.clothes || [newItem._id]),
-    ...(matchItem.clothes || [matchItem._id])
-  ];
-
-  const { min_temp, max_temp } = await calculateTempRange(clothesIds);
-
-  await pushResult(
-    newItem,
-    matchItem,
-    matches,
-    combinedColors,
-    min_temp,
-    max_temp
-  );
-
-}
-
-async function pushResult(
-  newItem,
-  matchItem,
-  matches,
-  combinedColors,
-  min_temp,
-  max_temp
-) {
-
-  async function createResult(overrides = {}) {
-
-  const result = {
-    clothes: [],
-    userId: newItem.userId || matchItem.userId,
-    colors: combinedColors,
-    min_temp: Number(min_temp.toFixed(1)),
-    max_temp: Number(max_temp.toFixed(1)),
-    type: "match",
-    styles: [...new Set([...newItem.styles, ...matchItem.styles])],
-    tags: [],
-    spring: newItem.spring && matchItem.spring,
-    summer: newItem.summer && matchItem.summer,
-    autumn: newItem.autumn && matchItem.autumn,
-    winter: newItem.winter && matchItem.winter,
-    hasOuter: false,
-    userMade: false,
-    lastWornDate: null,
-    ...overrides
-  };
-
-  if (result.clothes.length) {
-    result.tags = await generateMatchTags(result.clothes);
-  }
-
-  console.log("Generated match:");
-  console.dir(result, { depth: null });
-
-  return result;
-}
-
-
-  if (newItem.type === "top" || newItem.type === "bottom") {
-
-    console.log("Creating top+bottom match.");
-
-    const clothes = [];
-
-    if (newItem.type === "top") {
-      clothes.push(newItem._id);
-      clothes.push(matchItem._id);
-    } else {
-      clothes.push(matchItem._id);
-      clothes.push(newItem._id);
-    }
-
-    const result = await createResult({ clothes, hasOuter: false });
-
-    matches.push(result);
-
-    console.log("Recursing to search for outer...");
-    await matchPath(result, matches);
-
-    return;
-
-  }
-
-  if (newItem.type === "outer") {
-
-    console.log("Outer completing an existing outer-less match.");
-
-    matches.push(await createResult({
-      clothes: [...matchItem.clothes, newItem._id],
-      hasOuter: true
-    }));
-
-    return;
-
-  }
-
-  if (newItem.type === "match") {
-
-    const clothes = [...newItem.clothes];
-
-    const clothingDocs = await Clothes.find({
-      _id: { $in: clothes }
-    });
-
-    const hasTop = clothingDocs.some(c => c.type === "top");
-    const hasBottom = clothingDocs.some(c => c.type === "bottom");
-
-    if (hasTop && hasBottom) {
-
-      console.log("Finishing top+bottom with outer.");
-
-      matches.push(await createResult({
-        clothes: [...clothes, matchItem._id],
-        hasOuter: true
-      }));
-
-      return;
-
-    }
-
-  }
-
-  if (newItem.type === "onepiece" && matchItem.type === "outer") {
-
-    console.log("Onepiece + outer complete.");
-
-    matches.push(await createResult({
-    clothes: [
-        matchItem._id,
-        newItem._id
-      ],
-      hasOuter: true
-    }));
-
-  }
-
-}
-
-async function processMatches(newItem) {
-
-  console.log("\n====================================================");
-  console.log("Starting processMatches");
-  console.log("====================================================");
-
-  console.dir(newItem, { depth: null });
-
-  const matches = [];
-
-  await matchPath(newItem, matches);
-
-  console.log("\nFinished matching.");
-  console.log("Total matches:", matches.length);
-
-  console.dir(matches, { depth: null });
-
-  if (!matches.length) {
-
-    console.log("No matches found.");
-    return;
-
-  }
-
-try {
-  console.log("Checking for existing matches before saving...");
-
-  const existingMatches = await Match.find({
-    userId: newItem.userId
-  }).select("clothes");
-
-  const existingKeys = new Set(
-    existingMatches.map((match) =>
-      match.clothes
-        .map((id) => id.toString())
-        .sort()
-        .join(",")
-    )
-  );
-
+  const existingMatches = await Match.find({ userId: newItem.userId }).select("clothes");
+  const existingKeys = new Set(existingMatches.map((match) => dedupeKey(match.clothes)));
   const seenKeys = new Set();
 
-  const filteredMatches = matches.filter((match) => {
-    const key = match.clothes
-      .map((id) => id.toString())
-      .sort()
-      .join(",");
+  const newMatches = candidates.filter((match) => {
+    const key = dedupeKey(match.clothes);
 
-    console.log("Checking match:", key);
-
-    // Already exists in database
-    if (existingKeys.has(key)) {
-      console.log("❌ Skipping existing match:", key);
-      return false;
-    }
-
-    // Duplicate generated in this process
-    if (seenKeys.has(key)) {
-      console.log("❌ Skipping duplicate generated match:", key);
+    if (existingKeys.has(key) || seenKeys.has(key)) {
       return false;
     }
 
     seenKeys.add(key);
-
-    console.log("✅ Match allowed:", key);
     return true;
   });
 
-  console.log(
-    `Before filtering: ${matches.length}, after filtering: ${filteredMatches.length}`
-  );
-
-  if (!filteredMatches.length) {
-    console.log("No new matches to save.");
+  if (!newMatches.length) {
     return;
   }
 
-  console.log("Saving matches...");
-
-  const insertedMatches = await Match.insertMany(filteredMatches);
-
-  console.log("Matches saved successfully.");
-  console.dir(insertedMatches, { depth: null });
-
-} catch (err) {
-  console.error("Failed to save matches.");
-  console.error(err);
-}
-
-
+  await Match.insertMany(newMatches);
 }
 
 module.exports = {
-  processMatches
+  processMatches,
+  findCandidateMatches,
+  buildRolePools,
+  findShapeCombinations,
 };

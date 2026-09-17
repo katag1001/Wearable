@@ -3,6 +3,13 @@
 // Generated from the LWS Matrix CSVs (context/LWS Matrix - *.csv).
 // Each gender's clothing options: type, category, subtype (name),
 // tags, seasons, and the temperature range they suit.
+//
+// IMPORTANT: shared/subtypesByGender.json (used by the backend's
+// api/constants/matchScoreBaseline.js for outfit-matching scores)
+// independently lists these same subtype names per gender. It does NOT read
+// from this file. If a subtype is added, removed, or renamed in EITHER this
+// file or shared/subtypesByGender.json, the other MUST be updated to match,
+// or the two will silently drift apart.
 
 const typeOptionsByGender = {
   "man": [

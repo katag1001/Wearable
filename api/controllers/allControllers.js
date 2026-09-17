@@ -6,7 +6,13 @@ const jwt_secret = process.env.JWT_SECRET;
 
 const { User, Match, Today, Clothes, Preferences } = require("../models/AllModels.js");
 const { processMatches } = require("../services/matchService");
-const { generateMatchTags, calculateTempRange } = require("../services/helpers.js");
+const { describeOutfit } = require("../services/outfitEvaluator.js");
+const {
+  getBaselineMatrixForUser,
+  recordOutfitCreated,
+  wipeUserScores,
+} = require("../services/matchScoreService.js");
+const { deleteMatchesAndDecrementScores } = require("../services/matchLifecycleService.js");
 
 
 /* -------------------- AUTH HELPER -------------------- */
@@ -343,7 +349,7 @@ exports.deleteItem = async (req, res) => {
     }
 
     console.log("Deleting matches...");
-    await Match.deleteMany({ clothes: item._id });
+    await deleteMatchesAndDecrementScores({ clothes: item._id, userId }, userId);
 
     console.log("Deleting clothing...");
     await Clothes.deleteOne({
@@ -403,7 +409,7 @@ exports.createMatch = async (req, res) => {
       return res.status(409).json({ error: "Match already exists." });
     }
 
-    // Get clothing items so we can calculate match tags
+    // Get clothing items so we can describe the finished outfit
         const clothes = await Clothes.find({
           _id: { $in: clothesIds },
           userId,
@@ -415,22 +421,23 @@ exports.createMatch = async (req, res) => {
           });
         }
 
-        const tags = await generateMatchTags(clothesIds);
-        const { min_temp, max_temp } = await calculateTempRange(clothesIds);
-        const hasOuter = clothes.some((c) => c.type === "outer");
+        // Manual outfits are never rejected - describeOutfit only computes
+        // descriptive fields here (temperature, tags, role counts, etc.),
+        // it never validates matrix/colour/pattern compatibility.
+        const described = describeOutfit(clothes, { isUserMade: true });
 
         const match = new Match({
           ...req.body,
-          clothes: clothesIds,
-          tags,
-          min_temp,
-          max_temp,
-          hasOuter,
+          ...described,
           userId,
+          userMade: true,
         });
 
 
     await match.save();
+
+    const baselineMatrix = await getBaselineMatrixForUser(userId);
+    await recordOutfitCreated(userId, clothes, baselineMatrix);
 
     return res.json(match);
 
@@ -573,10 +580,10 @@ exports.deleteMatch = async (req, res) => {
 const userId = req.user?.userId;
 
 try {
-await Match.deleteOne({
-_id: req.params.id,
-userId,
-});
+await deleteMatchesAndDecrementScores(
+  { _id: req.params.id, userId },
+  userId
+);
 
 return res.json({ message: "Match deleted" });
 
@@ -590,13 +597,13 @@ const userId = req.user?.userId;
 const { pieceId } = req.body;
 
 try {
-const result = await Match.deleteMany({
-clothes: pieceId,
-userId,
-});
+const { deletedCount } = await deleteMatchesAndDecrementScores(
+  { clothes: pieceId, userId },
+  userId
+);
 
 return res.json({
-  message: `Deleted ${result.deletedCount} matches`,
+  message: `Deleted ${deletedCount} matches`,
 });
 
 } catch (error) {
@@ -748,6 +755,23 @@ exports.updatePreferences = async (req, res) => {
       temperature,
     } = req.body;
 
+    // A user explicitly resetting their gender or style invalidates their
+    // personal combination scoring (it was learned under a different
+    // subtype universe / starting point) - so it gets wiped and falls back
+    // live to the new gender+style baseline. Changing anything else
+    // (temperature, colour, pattern, day preferences) never wipes it.
+    const existingPreferences = await Preferences.findOne({ userId });
+
+    const genderChanged =
+      !!existingPreferences &&
+      gender !== undefined &&
+      gender !== existingPreferences.gender;
+
+    const styleChanged =
+      !!existingPreferences &&
+      style !== undefined &&
+      style !== existingPreferences.style;
+
     const preferences = await Preferences.findOneAndUpdate(
       { userId },
       {
@@ -776,6 +800,10 @@ exports.updatePreferences = async (req, res) => {
         setDefaultsOnInsert: true,
       }
     );
+
+    if (genderChanged || styleChanged) {
+      await wipeUserScores(userId);
+    }
 
     return res.json({
       message: "Preferences saved successfully.",

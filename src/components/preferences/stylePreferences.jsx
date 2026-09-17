@@ -132,7 +132,7 @@ const StylePreferences = () => {
     const body = { gender, temperature };
 
     if (selectedImages.length > 0) {
-      const { style, colour, pattern } = resolveStyleQuiz(selectedImages);
+      const { style, colour, pattern } = resolveStyleQuiz(selectedImages, gender);
 
       body.style = style;
       body.colour = colour;
