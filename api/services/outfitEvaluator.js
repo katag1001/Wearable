@@ -12,7 +12,10 @@
 //
 //  - validateOutfit: the gate used ONLY for auto-generated candidates -
 //    matrix compatibility (including layering rules) + colour + pattern.
-//    Never called for a user-made outfit.
+//    Never called for a user-made outfit. matchService's search already
+//    prunes on all of this incrementally as it builds a candidate, so by
+//    the time a candidate reaches here it should always pass - this call
+//    stays in as a cheap final safety net, not the primary filter.
 //
 // No DB access here except the (optional) tag computation, which is pure
 // given already-loaded items.
@@ -60,6 +63,14 @@ function computeSeasons(items) {
   return seasons;
 }
 
+// True if there's at least one season every item shares. Monotonic - once
+// false for a partial item-set, adding more items can never make it true
+// again - so this is safe to check early/incrementally during a search, not
+// just on a finished item-set.
+function hasSharedSeason(items) {
+  return SEASONS.some((season) => items.every((item) => item[season]));
+}
+
 function describeOutfit(items, { isUserMade }) {
   const temperature = computeTemperatureRange(items, { isUserMade });
 
@@ -68,9 +79,8 @@ function describeOutfit(items, { isUserMade }) {
   }
 
   const seasons = computeSeasons(items);
-  const hasAnySeason = SEASONS.some((season) => seasons[season]);
 
-  if (!hasAnySeason && !isUserMade) {
+  if (!hasSharedSeason(items) && !isUserMade) {
     return null;
   }
 
@@ -110,4 +120,4 @@ function validateOutfit(items, baselineMatrix, personalScores, requiresLayeringS
   return true;
 }
 
-module.exports = { describeOutfit, validateOutfit, countRoles };
+module.exports = { describeOutfit, validateOutfit, countRoles, hasSharedSeason };

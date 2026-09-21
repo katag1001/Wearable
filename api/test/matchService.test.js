@@ -5,6 +5,7 @@ const {
   buildRolePools,
   findShapeCombinations,
   findCandidateMatches,
+  isStillViable,
 } = require("../services/matchService.js");
 const { OUTFIT_SHAPES } = require("../constants/outfitShapes.js");
 
@@ -61,7 +62,7 @@ test("findShapeCombinations finds a valid top+bottom pair when everything is com
   const shape = OUTFIT_SHAPES.find((s) => s.top === 1 && s.bottom === 1 && s.outer === 0);
 
   const results = findShapeCombinations(
-    newTop, shape, pools, baseline, null, { remaining: 1000 }
+    newTop, shape, pools, baseline, null, { remaining: 1000 }, new Set()
   );
 
   assert.equal(results.length, 1);
@@ -83,7 +84,7 @@ test("findShapeCombinations finds nothing when the pair is incompatible", () => 
   const shape = OUTFIT_SHAPES.find((s) => s.top === 1 && s.bottom === 1 && s.outer === 0);
 
   const results = findShapeCombinations(
-    newTop, shape, pools, baseline, null, { remaining: 1000 }
+    newTop, shape, pools, baseline, null, { remaining: 1000 }, new Set()
   );
 
   assert.equal(results.length, 0);
@@ -96,7 +97,7 @@ test("findCandidateMatches produces a saveable match description for a compatibl
   const allItems = [newTop, jeans];
   const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
 
-  const results = findCandidateMatches(newTop, allItems, baseline, null);
+  const results = findCandidateMatches(newTop, allItems, baseline, null, new Set());
 
   assert.equal(results.length, 1);
   assert.equal(results[0].userMade, false);
@@ -137,7 +138,7 @@ test("the same physical item is never used twice in one outfit, even when a 2nd 
 
   const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
 
-  const results = findCandidateMatches(onlyTshirt, [onlyTshirt, jeans], baseline, null);
+  const results = findCandidateMatches(onlyTshirt, [onlyTshirt, jeans], baseline, null, new Set());
 
   const twoTopCombo = results.find((r) => r.topCount === 2);
   assert.equal(twoTopCombo, undefined);
@@ -154,7 +155,7 @@ test("two distinct physical items of the identical subtype can legitimately both
 
   const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
 
-  const results = findCandidateMatches(tshirtA, [tshirtA, tshirtB, jeans], baseline, null);
+  const results = findCandidateMatches(tshirtA, [tshirtA, tshirtB, jeans], baseline, null, new Set());
 
   const twoTopCombo = results.find((r) => r.topCount === 2);
   assert.notEqual(twoTopCombo, undefined);
@@ -163,4 +164,57 @@ test("two distinct physical items of the identical subtype can legitimately both
     const uniqueIds = new Set(result.clothes.map(String));
     assert.equal(uniqueIds.size, result.clothes.length);
   });
+});
+
+test("isStillViable fails on colour, pattern, or season the same way the final checks would", () => {
+  const cream = clothes({ subtype: "A", colors: ["Cream"], styles: ["plain"] });
+
+  assert.equal(isStillViable([cream]), true);
+
+  const incompatibleColours = clothes({ subtype: "B", colors: ["Neon Green"], styles: ["plain"] });
+  assert.equal(isStillViable([cream, incompatibleColours]), false);
+
+  const twoPatterned = [
+    clothes({ subtype: "C", styles: ["patterned"] }),
+    clothes({ subtype: "D", styles: ["patterned"] }),
+  ];
+  assert.equal(isStillViable(twoPatterned), false);
+
+  const noSharedSeason = [
+    clothes({ subtype: "E", spring: true, summer: false, autumn: false, winter: false }),
+    clothes({ subtype: "F", spring: false, summer: true, autumn: false, winter: false }),
+  ];
+  assert.equal(isStillViable(noSharedSeason), false);
+});
+
+test("findShapeCombinations prunes a colour-incompatible candidate during the search, not just at the end", () => {
+  const newTop = clothes({ subtype: "Short t-shirt", type: "top", colors: ["Cream"], styles: ["plain"] });
+  const jeans = clothes({ subtype: "Jeans", type: "bottom", colors: ["Neon Green"], styles: ["plain"] });
+
+  const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };
+  const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
+  const shape = OUTFIT_SHAPES.find((s) => s.top === 1 && s.bottom === 1 && s.outer === 0);
+
+  const results = findShapeCombinations(
+    newTop, shape, pools, baseline, null, { remaining: 1000 }, new Set()
+  );
+
+  // Matrix-compatible, but colours share no palette - pruned incrementally.
+  assert.equal(results.length, 0);
+});
+
+test("findShapeCombinations rejects a whole shape immediately when newItem alone can't fill a single-slot layerable role", () => {
+  const warmJumper = clothes({ subtype: "Warm jumper", type: "top" });
+  const jeans = clothes({ subtype: "Jeans", type: "bottom" });
+
+  const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };
+  const baseline = fullyOpenBaseline(["Warm jumper", "Jeans"]);
+  const requiresLayeringSet = new Set(["Warm jumper"]);
+  const shape = OUTFIT_SHAPES.find((s) => s.top === 1 && s.bottom === 1 && s.outer === 0);
+
+  const results = findShapeCombinations(
+    warmJumper, shape, pools, baseline, null, { remaining: 1000 }, requiresLayeringSet
+  );
+
+  assert.equal(results.length, 0);
 });
