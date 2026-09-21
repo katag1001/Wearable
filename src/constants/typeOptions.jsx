@@ -425,20 +425,15 @@ const typeOptionsByGender = {
     {
       "type": "onepiece",
       "category": "Jumpsuits and playsuits",
-      "name": "Playsuit",
+      "name": "Romper",
       "season": [
         "Spring",
         "Summer"
       ],
       "tags": [
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Date night",
         "Everyday"
       ],
-      "minTemp": 20,
+      "minTemp": 21,
       "maxTemp": 35
     },
     {
@@ -550,25 +545,6 @@ const typeOptionsByGender = {
       ],
       "minTemp": 8,
       "maxTemp": 18
-    },
-    {
-      "type": "outer",
-      "category": "Coats",
-      "name": "Fur coat",
-      "season": [
-        "Autumn",
-        "Winter"
-      ],
-      "tags": [
-        "Work",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Date night",
-        "Everyday"
-      ],
-      "minTemp": -15,
-      "maxTemp": 0
     },
     {
       "type": "outer",

@@ -19,9 +19,14 @@
 
 const { Clothes, Match } = require("../models/AllModels.js");
 const { OUTFIT_SHAPES, ROLES } = require("../constants/outfitShapes.js");
+const { getRequiresLayeringSet } = require("../constants/requiresLayering.js");
 const { isCliqueValid, canPair } = require("./matrixService.js");
 const { describeOutfit, validateOutfit } = require("./outfitEvaluator.js");
-const { getBaselineMatrixForUser, loadUserScores } = require("./matchScoreService.js");
+const {
+  getUserGenderStyle,
+  getBaselineMatrix,
+  loadUserScores,
+} = require("./matchScoreService.js");
 
 // Hard caps to keep this bounded regardless of wardrobe size - important on
 // a serverless free tier with a short execution limit. Today, every
@@ -53,7 +58,15 @@ function buildRolePools(allItems, newItem) {
 // newItem), so incompatible branches never get built out further. `budget`
 // is shared across every shape in one processMatches run and caps total
 // work done, independent of wardrobe size.
-function findShapeCombinations(newItem, shape, pools, baselineMatrix, personalScores, budget) {
+function findShapeCombinations(
+  newItem,
+  shape,
+  pools,
+  baselineMatrix,
+  personalScores,
+  budget,
+  requiresLayeringSet
+) {
   const needed = {};
 
   for (const role of ROLES) {
@@ -70,7 +83,7 @@ function findShapeCombinations(newItem, shape, pools, baselineMatrix, personalSc
     if (roleIndex === ROLES.length) {
       const fullSet = [newItem, ...chosenSoFar];
 
-      if (isCliqueValid(fullSet, baselineMatrix, personalScores)) {
+      if (isCliqueValid(fullSet, baselineMatrix, personalScores, requiresLayeringSet)) {
         results.push(fullSet);
       }
 
@@ -123,7 +136,13 @@ function findShapeCombinations(newItem, shape, pools, baselineMatrix, personalSc
   return results;
 }
 
-function findCandidateMatches(newItem, allItems, baselineMatrix, personalScores) {
+function findCandidateMatches(
+  newItem,
+  allItems,
+  baselineMatrix,
+  personalScores,
+  requiresLayeringSet
+) {
   const pools = buildRolePools(allItems, newItem);
   const budget = { remaining: MAX_COMBINATIONS_EXPLORED };
   const candidates = [];
@@ -139,7 +158,8 @@ function findCandidateMatches(newItem, allItems, baselineMatrix, personalScores)
       pools,
       baselineMatrix,
       personalScores,
-      budget
+      budget,
+      requiresLayeringSet
     );
 
     combos.forEach((itemSet) => {
@@ -149,7 +169,7 @@ function findCandidateMatches(newItem, allItems, baselineMatrix, personalScores)
         return;
       }
 
-      if (!validateOutfit(itemSet, baselineMatrix, personalScores)) {
+      if (!validateOutfit(itemSet, baselineMatrix, personalScores, requiresLayeringSet)) {
         return;
       }
 
@@ -177,12 +197,21 @@ async function processMatches(newItem, allItems) {
 
   const wardrobe = allItems || (await Clothes.find({ userId: newItem.userId }));
 
-  const [baselineMatrix, personalScores] = await Promise.all([
-    getBaselineMatrixForUser(newItem.userId),
+  const [{ gender, style }, personalScores] = await Promise.all([
+    getUserGenderStyle(newItem.userId),
     loadUserScores(newItem.userId),
   ]);
 
-  const candidates = findCandidateMatches(newItem, wardrobe, baselineMatrix, personalScores);
+  const baselineMatrix = getBaselineMatrix(gender, style);
+  const requiresLayeringSet = getRequiresLayeringSet(gender);
+
+  const candidates = findCandidateMatches(
+    newItem,
+    wardrobe,
+    baselineMatrix,
+    personalScores,
+    requiresLayeringSet
+  );
 
   if (!candidates.length) {
     return;

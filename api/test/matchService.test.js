@@ -103,20 +103,17 @@ test("findCandidateMatches produces a saveable match description for a compatibl
   assert.deepEqual(new Set(results[0].clothes), new Set(["Short t-shirt", "Jeans"]));
 });
 
-test("findCandidateMatches excludes a top that needs layering from the 1-top shapes but includes it in the 2-top shapes", () => {
+test("findCandidateMatches excludes a top on the requires-layering list from the 1-top shapes but includes it in the 2-top shapes", () => {
   const warmJumper = clothes({ subtype: "Warm jumper", type: "top" });
   const tshirt = clothes({ subtype: "Short t-shirt", type: "top" });
   const jeans = clothes({ subtype: "Jeans", type: "bottom" });
 
-  const baseline = {
-    "Warm jumper": { "Warm jumper": 0, "Short t-shirt": 5, Jeans: 5 },
-    "Short t-shirt": { "Warm jumper": 5, "Short t-shirt": 5, Jeans: 5 },
-    Jeans: { Jeans: 5, "Warm jumper": 5, "Short t-shirt": 5 },
-  };
+  const baseline = fullyOpenBaseline(["Warm jumper", "Short t-shirt", "Jeans"]);
+  const requiresLayeringSet = new Set(["Warm jumper"]);
 
   const allItems = [warmJumper, tshirt, jeans];
 
-  const results = findCandidateMatches(warmJumper, allItems, baseline, null);
+  const results = findCandidateMatches(warmJumper, allItems, baseline, null, requiresLayeringSet);
 
   // Should NOT find [Warm jumper, Jeans] alone (needs layering).
   const soloTop = results.find((r) => r.clothes.length === 2);
@@ -129,4 +126,41 @@ test("findCandidateMatches excludes a top that needs layering from the 1-top sha
     new Set(layered.clothes),
     new Set(["Warm jumper", "Short t-shirt", "Jeans"])
   );
+});
+
+test("the same physical item is never used twice in one outfit, even when a 2nd top of the identical subtype is needed but not owned", () => {
+  // Only ONE "Short t-shirt" exists in the wardrobe (it IS the new item).
+  // A 2-top shape needs a second, different top - there's nothing else to
+  // pick, so no 2-top combination should ever be produced from thin air.
+  const onlyTshirt = clothes({ _id: "physical-1", subtype: "Short t-shirt", type: "top" });
+  const jeans = clothes({ _id: "physical-2", subtype: "Jeans", type: "bottom" });
+
+  const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
+
+  const results = findCandidateMatches(onlyTshirt, [onlyTshirt, jeans], baseline, null);
+
+  const twoTopCombo = results.find((r) => r.topCount === 2);
+  assert.equal(twoTopCombo, undefined);
+});
+
+test("two distinct physical items of the identical subtype can legitimately both appear in one outfit", () => {
+  // Two DIFFERENT real garments that happen to be the same subtype -
+  // distinguishable only by _id. This should be allowed (it's two real
+  // t-shirts layered), and every clothes id in any single result must be
+  // unique (no physical item repeated within the same outfit).
+  const tshirtA = clothes({ _id: "physical-1", subtype: "Short t-shirt", type: "top" });
+  const tshirtB = clothes({ _id: "physical-2", subtype: "Short t-shirt", type: "top" });
+  const jeans = clothes({ _id: "physical-3", subtype: "Jeans", type: "bottom" });
+
+  const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
+
+  const results = findCandidateMatches(tshirtA, [tshirtA, tshirtB, jeans], baseline, null);
+
+  const twoTopCombo = results.find((r) => r.topCount === 2);
+  assert.notEqual(twoTopCombo, undefined);
+
+  results.forEach((result) => {
+    const uniqueIds = new Set(result.clothes.map(String));
+    assert.equal(uniqueIds.size, result.clothes.length);
+  });
 });

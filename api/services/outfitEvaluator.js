@@ -94,8 +94,8 @@ function describeOutfit(items, { isUserMade }) {
   };
 }
 
-function validateOutfit(items, baselineMatrix, personalScores) {
-  if (!isCliqueValid(items, baselineMatrix, personalScores)) {
+function validateOutfit(items, baselineMatrix, personalScores, requiresLayeringSet) {
+  if (!isCliqueValid(items, baselineMatrix, personalScores, requiresLayeringSet)) {
     return false;
   }
 

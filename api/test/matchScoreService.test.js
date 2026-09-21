@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 
 const { pairsForItems } = require("../services/matchScoreService.js");
 
-test("pairsForItems lists every cross-item pair, plus a self-pair for each role held alone", () => {
+test("pairsForItems lists every cross-item pair and nothing else, when every item has a distinct subtype", () => {
   const items = [
     { type: "top", subtype: "A" },
     { type: "bottom", subtype: "B" },
@@ -12,26 +12,25 @@ test("pairsForItems lists every cross-item pair, plus a self-pair for each role 
 
   const pairs = pairsForItems(items).map((pair) => pair.join("-"));
 
-  // All three roles are occupied alone here, so each also gets a self-pair.
-  assert.deepEqual(
-    new Set(pairs),
-    new Set(["A-B", "A-C", "B-C", "A-A", "B-B", "C-C"])
-  );
+  // Standalone-eligibility is no longer score-driven (see
+  // api/constants/requiresLayering.js), so no item held alone in its role
+  // ever gets a self-pair anymore, regardless of role.
+  assert.deepEqual(new Set(pairs), new Set(["A-B", "A-C", "B-C"]));
 });
 
-test("pairsForItems adds a self-pair only for a role occupied alone", () => {
+test("pairsForItems still pairs two physically different items that share the same subtype (e.g. two puffer coats)", () => {
   const items = [
-    { type: "top", subtype: "A" },
-    { type: "top", subtype: "B" },
-    { type: "bottom", subtype: "C" },
+    { type: "outer", subtype: "Puffer coat" },
+    { type: "outer", subtype: "Puffer coat" },
+    { type: "bottom", subtype: "Jeans" },
   ];
 
   const pairs = pairsForItems(items).map((pair) => pair.join("-"));
 
-  // Bottom "C" is alone in its role, so it gets a self-pair.
-  // The two tops are not alone, so neither gets a self-pair.
-  assert.deepEqual(
-    new Set(pairs),
-    new Set(["A-B", "A-C", "B-C", "C-C"])
+  // This is an ordinary cross-item pair (i < j), not a "self-pair for a
+  // role held alone" - it exists because two real items share a subtype.
+  assert.equal(
+    pairs.filter((p) => p === "Puffer coat-Puffer coat").length,
+    1
   );
 });

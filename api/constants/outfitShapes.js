@@ -20,4 +20,12 @@ const OUTFIT_SHAPES = [
 
 const ROLES = ["top", "bottom", "onepiece", "outer"];
 
-module.exports = { OUTFIT_SHAPES, ROLES };
+// Roles that can ever appear twice in a shape - only these can meaningfully
+// be asked "does this item need a layering partner", since only they ever
+// have a same-role partner available. Derived from the shapes themselves
+// (rather than hardcoded) so it can never drift out of sync with them.
+const LAYERABLE_ROLES = new Set(
+  ROLES.filter((role) => OUTFIT_SHAPES.some((shape) => shape[role] > 1))
+);
+
+module.exports = { OUTFIT_SHAPES, ROLES, LAYERABLE_ROLES };

@@ -23,13 +23,16 @@ async function getUserGenderStyle(userId) {
   return { gender, style };
 }
 
-async function getBaselineMatrixForUser(userId) {
-  const { gender, style } = await getUserGenderStyle(userId);
-
+function getBaselineMatrix(gender, style) {
   return (
     matchScoreBaseline[gender]?.[style] ||
     matchScoreBaseline[DEFAULT_GENDER][DEFAULT_STYLE]
   );
+}
+
+async function getBaselineMatrixForUser(userId) {
+  const { gender, style } = await getUserGenderStyle(userId);
+  return getBaselineMatrix(gender, style);
 }
 
 async function loadUserScores(userId) {
@@ -44,9 +47,15 @@ async function loadUserScores(userId) {
   return scores;
 }
 
-// Every pair "used" by a finished outfit: every cross-item pair (the normal
-// clique), plus a self-pair for any item that occupies its role alone (the
-// same rule matrixService.isCliqueValid checks compatibility against).
+// Every pair "used" by a finished outfit: every cross-item pair. This
+// naturally includes a subtype paired with itself whenever two physical
+// items in the outfit genuinely share a subtype (e.g. two puffer coats) -
+// that's an ordinary pair like any other, adjusted the same way.
+//
+// There is deliberately no separate "self-pair for a role held alone"
+// entry anymore - standalone-eligibility is now the hardcoded, non-
+// personalizable list in api/constants/requiresLayering.js, not a score,
+// so there's nothing here for that to adjust.
 function pairsForItems(items) {
   const pairs = [];
 
@@ -55,17 +64,6 @@ function pairsForItems(items) {
       pairs.push([items[i].subtype, items[j].subtype]);
     }
   }
-
-  const roleCounts = {};
-  items.forEach((item) => {
-    roleCounts[item.type] = (roleCounts[item.type] || 0) + 1;
-  });
-
-  items.forEach((item) => {
-    if (roleCounts[item.type] === 1) {
-      pairs.push([item.subtype, item.subtype]);
-    }
-  });
 
   return pairs;
 }
@@ -126,6 +124,7 @@ async function wipeUserScores(userId) {
 
 module.exports = {
   getUserGenderStyle,
+  getBaselineMatrix,
   getBaselineMatrixForUser,
   loadUserScores,
   pairsForItems,
