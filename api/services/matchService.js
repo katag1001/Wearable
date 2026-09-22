@@ -62,6 +62,23 @@ const {
 const MAX_POOL_SIZE_PER_ROLE = 60;
 const MAX_COMBINATIONS_EXPLORED = 20000;
 
+// --- Debug logging helpers -------------------------------------------------
+// Only used to make console output readable while testing the match service
+// against real wardrobe data - purely cosmetic, no effect on matching logic.
+function formatItem(item) {
+  if (!item) return "<none>";
+  return `"${item.name || "unnamed"}" [${item.type}/${item.subtype}] (id:${item._id})`;
+}
+
+function formatItems(items) {
+  return items.map(formatItem).join(", ");
+}
+
+function formatShape(shape) {
+  return `top:${shape.top} bottom:${shape.bottom} onepiece:${shape.onepiece} outer:${shape.outer}`;
+}
+// ----------------------------------------------------------------------------
+
 function buildRolePools(allItems, newItem) {
   const pools = { top: [], bottom: [], onepiece: [], outer: [] };
   const newItemId = String(newItem._id);
@@ -76,6 +93,11 @@ function buildRolePools(allItems, newItem) {
     }
   });
 
+  console.log(
+    `[matchService] built role pools for new item ${formatItem(newItem)} -> ` +
+      `top:${pools.top.length} bottom:${pools.bottom.length} onepiece:${pools.onepiece.length} outer:${pools.outer.length}`
+  );
+
   return pools;
 }
 
@@ -85,7 +107,23 @@ function buildRolePools(allItems, newItem) {
 // checking them once at the end - just cheaper, since a dead branch stops
 // growing immediately instead of being built out in full first.
 function isStillViable(items, colorRules) {
-  return passesColorCheck(items, colorRules) && passesPatternCheck(items) && hasSharedSeason(items);
+  const colorOk = passesColorCheck(items, colorRules);
+  const patternOk = passesPatternCheck(items);
+  const seasonOk = hasSharedSeason(items);
+
+  if (!colorOk || !patternOk || !seasonOk) {
+    const failedChecks = [
+      !colorOk && "colour",
+      !patternOk && "pattern",
+      !seasonOk && "season",
+    ].filter(Boolean);
+
+    console.log(
+      `[matchService]     viability check FAILED (${failedChecks.join(", ")}) for set [${formatItems(items)}]`
+    );
+  }
+
+  return colorOk && patternOk && seasonOk;
 }
 
 // Backtracking search across the 4 roles for one shape. Prunes the moment a
@@ -104,12 +142,18 @@ function findShapeCombinations(
   requiresLayeringSet = new Set(),
   colorRules = getColorRules(null)
 ) {
+  console.log(`[matchService] --- trying shape [${formatShape(shape)}] for new item ${formatItem(newItem)}`);
+
   const needed = {};
 
   for (const role of ROLES) {
     needed[role] = shape[role] - (newItem.type === role ? 1 : 0);
 
     if (needed[role] < 0) {
+      console.log(
+        `[matchService]   REJECTED shape [${formatShape(shape)}]: new item's type "${newItem.type}" ` +
+          `already exceeds this shape's "${role}" slot count`
+      );
       return [];
     }
   }
@@ -117,6 +161,10 @@ function findShapeCombinations(
   // Shape-level early exit: newItem alone occupies a single-slot role it
   // can never stand alone in - no point building pools/searching at all.
   if (shape[newItem.type] === 1 && requiresLayeringSet.has(newItem.subtype)) {
+    console.log(
+      `[matchService]   REJECTED shape [${formatShape(shape)}]: new item ${formatItem(newItem)} requires ` +
+        `layering but this shape only has 1 "${newItem.type}" slot`
+    );
     return [];
   }
 
@@ -126,8 +174,14 @@ function findShapeCombinations(
   // up front - every subsequent incremental check below only ever grows
   // this same set, so this single check covers it for good.
   if (!isStillViable([newItem], colorRules)) {
+    console.log(
+      `[matchService]   REJECTED shape [${formatShape(shape)}]: new item ${formatItem(newItem)} alone ` +
+        `already fails colour/pattern/season`
+    );
     return [];
   }
+
+  console.log(`[matchService]   needed additional picks: ${JSON.stringify(needed)}`);
 
   const results = [];
 
@@ -135,6 +189,7 @@ function findShapeCombinations(
     if (roleIndex === ROLES.length) {
       // No re-check needed here: matrix/layering/colour/pattern/season were
       // already verified incrementally as each item was picked below.
+      console.log(`[matchService]   COMPLETE candidate set for shape [${formatShape(shape)}]: [${formatItems([newItem, ...chosenSoFar])}]`);
       results.push([newItem, ...chosenSoFar]);
       return;
     }
@@ -158,32 +213,46 @@ function findShapeCombinations(
 
       for (let i = startIndex; i < pool.length; i += 1) {
         if (budget.remaining <= 0) {
+          console.log(`[matchService]   BUDGET EXHAUSTED while filling role "${role}" - stopping search for this shape`);
           return;
         }
 
         budget.remaining -= 1;
 
         const candidate = pool[i];
+        const soFar = [newItem, ...chosenSoFar, ...picked];
+
+        console.log(
+          `[matchService]   considering ${formatItem(candidate)} for role "${role}" against current set [${formatItems(soFar)}]`
+        );
 
         // Per-candidate layering check: this role has only 1 slot in this
         // shape, so a candidate that can't stand alone is dead on arrival.
         if (roleTargetCount === 1 && requiresLayeringSet.has(candidate.subtype)) {
+          console.log(
+            `[matchService]     REJECTED ${formatItem(candidate)}: requires layering but "${role}" only has 1 slot in this shape`
+          );
           continue;
         }
 
-        const soFar = [newItem, ...chosenSoFar, ...picked];
-
-        const compatibleWithEverythingSoFar = soFar.every((item) =>
-          canPair(baselineMatrix, personalScores, item.subtype, candidate.subtype)
+        const incompatibleWith = soFar.find(
+          (item) => !canPair(baselineMatrix, personalScores, item.subtype, candidate.subtype)
         );
 
-        if (!compatibleWithEverythingSoFar) {
+        if (incompatibleWith) {
+          console.log(
+            `[matchService]     REJECTED ${formatItem(candidate)}: matrix says "${candidate.subtype}" ` +
+              `does not pair with "${incompatibleWith.subtype}" (${formatItem(incompatibleWith)})`
+          );
           continue;
         }
 
         if (!isStillViable([...soFar, candidate], colorRules)) {
+          console.log(`[matchService]     REJECTED ${formatItem(candidate)}: fails colour/pattern/season with current set`);
           continue;
         }
+
+        console.log(`[matchService]     ACCEPTED ${formatItem(candidate)} for role "${role}"`);
 
         pick(i + 1, remaining - 1, [...picked, candidate]);
       }
@@ -193,6 +262,8 @@ function findShapeCombinations(
   }
 
   pickRole(0, []);
+
+  console.log(`[matchService] shape [${formatShape(shape)}] produced ${results.length} candidate set(s)`);
 
   return results;
 }
@@ -209,8 +280,11 @@ function findCandidateMatches(
   const budget = { remaining: MAX_COMBINATIONS_EXPLORED };
   const candidates = [];
 
+  console.log(`[matchService] === finding candidate matches for ${formatItem(newItem)} across ${OUTFIT_SHAPES.length} shape(s), budget:${budget.remaining}`);
+
   OUTFIT_SHAPES.forEach((shape) => {
     if (!shape[newItem.type]) {
+      console.log(`[matchService] skipping shape [${formatShape(shape)}]: has no "${newItem.type}" slot`);
       return;
     }
 
@@ -229,12 +303,16 @@ function findCandidateMatches(
       const described = describeOutfit(itemSet, { isUserMade: false });
 
       if (!described) {
+        console.log(`[matchService]   REJECTED completed set [${formatItems(itemSet)}]: describeOutfit failed (likely temperature/season)`);
         return;
       }
 
       if (!validateOutfit(itemSet, baselineMatrix, personalScores, requiresLayeringSet, colorRules)) {
+        console.log(`[matchService]   REJECTED completed set [${formatItems(itemSet)}]: failed final validateOutfit safety check`);
         return;
       }
+
+      console.log(`[matchService]   FINAL CANDIDATE: [${formatItems(itemSet)}]`);
 
       candidates.push({
         ...described,
@@ -246,6 +324,8 @@ function findCandidateMatches(
     });
   });
 
+  console.log(`[matchService] === ${candidates.length} total candidate(s) found for ${formatItem(newItem)}`);
+
   return candidates;
 }
 
@@ -254,16 +334,23 @@ function dedupeKey(clothesIds) {
 }
 
 async function processMatches(newItem, allItems) {
+  console.log(`[matchService] ######## processMatches called for ${formatItem(newItem)}`);
+
   if (!ROLES.includes(newItem.type)) {
+    console.log(`[matchService] ABORTING: new item's type "${newItem.type}" is not a recognised role (${ROLES.join(", ")})`);
     return;
   }
 
   const wardrobe = allItems || (await Clothes.find({ userId: newItem.userId }));
 
+  console.log(`[matchService] wardrobe size (excluding new item lookup): ${wardrobe.length}`);
+
   const [{ gender, style, colour }, personalScores] = await Promise.all([
     getUserMatchingPreferences(newItem.userId),
     loadUserScores(newItem.userId),
   ]);
+
+  console.log(`[matchService] user preferences -> gender:${gender} style:${style} colour:${colour}`);
 
   const baselineMatrix = getBaselineMatrix(gender, style);
   const requiresLayeringSet = getRequiresLayeringSet(gender);
@@ -279,6 +366,7 @@ async function processMatches(newItem, allItems) {
   );
 
   if (!candidates.length) {
+    console.log(`[matchService] no candidates found for ${formatItem(newItem)} - nothing to save`);
     return;
   }
 
@@ -289,7 +377,13 @@ async function processMatches(newItem, allItems) {
   const newMatches = candidates.filter((match) => {
     const key = dedupeKey(match.clothes);
 
-    if (existingKeys.has(key) || seenKeys.has(key)) {
+    if (existingKeys.has(key)) {
+      console.log(`[matchService] DEDUPED (already saved): [${match.clothes.map(String).join(", ")}]`);
+      return false;
+    }
+
+    if (seenKeys.has(key)) {
+      console.log(`[matchService] DEDUPED (duplicate within this run): [${match.clothes.map(String).join(", ")}]`);
       return false;
     }
 
@@ -298,10 +392,15 @@ async function processMatches(newItem, allItems) {
   });
 
   if (!newMatches.length) {
+    console.log(`[matchService] all candidates were duplicates of existing matches - nothing new to save`);
     return;
   }
 
+  console.log(`[matchService] saving ${newMatches.length} new match(es) out of ${candidates.length} candidate(s) found`);
+
   await Match.insertMany(newMatches);
+
+  console.log(`[matchService] ######## processMatches finished for ${formatItem(newItem)}`);
 }
 
 module.exports = {
