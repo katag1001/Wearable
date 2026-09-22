@@ -13,6 +13,7 @@ const {
   wipeUserScores,
 } = require("../services/matchScoreService.js");
 const { deleteMatchesAndDecrementScores } = require("../services/matchLifecycleService.js");
+const { matchesTodayTemperature } = require("../services/temperatureService.js");
 
 
 /* -------------------- AUTH HELPER -------------------- */
@@ -637,14 +638,19 @@ exports.createToday = async (req, res) => {
     const seasonFilter = {};
     seasonFilter[season_today] = true;
 
-    const matches = await Match.find({
+    const seasonMatches = await Match.find({
       userId,
       ...seasonFilter,
-
-      // Temperature ranges overlap within a ±4°C tolerance
-      min_temp: { $lte: max_temp_today + 4 },
-      max_temp: { $gte: min_temp_today - 4 },
     });
+
+    const todayRange = { min: min_temp_today, max: max_temp_today };
+
+    const matches = seasonMatches.filter((match) =>
+      matchesTodayTemperature(
+        { min: match.min_temp, max: match.max_temp },
+        todayRange
+      )
+    );
 
     await Today.deleteMany({ userId });
 
