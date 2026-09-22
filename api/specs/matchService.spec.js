@@ -8,6 +8,7 @@ const {
   isStillViable,
 } = require("../services/matchService.js");
 const { OUTFIT_SHAPES } = require("../constants/outfitShapes.js");
+const { getColorRules } = require("../utils/colorPalettes.js");
 
 function clothes(overrides) {
   return {
@@ -167,24 +168,25 @@ test("two distinct physical items of the identical subtype can legitimately both
 });
 
 test("isStillViable fails on colour, pattern, or season the same way the final checks would", () => {
+  const colorRules = getColorRules("mid");
   const cream = clothes({ subtype: "A", colors: ["Cream"], styles: ["plain"] });
 
-  assert.equal(isStillViable([cream]), true);
+  assert.equal(isStillViable([cream], colorRules), true);
 
   const incompatibleColours = clothes({ subtype: "B", colors: ["Neon Green"], styles: ["plain"] });
-  assert.equal(isStillViable([cream, incompatibleColours]), false);
+  assert.equal(isStillViable([cream, incompatibleColours], colorRules), false);
 
   const twoPatterned = [
     clothes({ subtype: "C", styles: ["patterned"] }),
     clothes({ subtype: "D", styles: ["patterned"] }),
   ];
-  assert.equal(isStillViable(twoPatterned), false);
+  assert.equal(isStillViable(twoPatterned, colorRules), false);
 
   const noSharedSeason = [
     clothes({ subtype: "E", spring: true, summer: false, autumn: false, winter: false }),
     clothes({ subtype: "F", spring: false, summer: true, autumn: false, winter: false }),
   ];
-  assert.equal(isStillViable(noSharedSeason), false);
+  assert.equal(isStillViable(noSharedSeason, colorRules), false);
 });
 
 test("findShapeCombinations prunes a colour-incompatible candidate during the search, not just at the end", () => {
@@ -201,6 +203,33 @@ test("findShapeCombinations prunes a colour-incompatible candidate during the se
 
   // Matrix-compatible, but colours share no palette - pruned incrementally.
   assert.equal(results.length, 0);
+});
+
+test("findShapeCombinations prunes a candidate that pushes the outfit's distinct colour count over the level's cap", () => {
+  // Both items' colours fit comfortably within a single real palette, but
+  // combined they total 8 distinct colours - over "mid"'s cap of 7.
+  const newTop = clothes({
+    subtype: "Short t-shirt", type: "top",
+    colors: ["Cream", "Camel", "Tan", "White"], styles: ["plain"],
+  });
+  const jeans = clothes({
+    subtype: "Jeans", type: "bottom",
+    colors: ["Gold", "Olive Green", "Brown", "Green"], styles: ["plain"],
+  });
+
+  const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };
+  const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
+  const shape = OUTFIT_SHAPES.find((s) => s.top === 1 && s.bottom === 1 && s.outer === 0);
+
+  const midResults = findShapeCombinations(
+    newTop, shape, pools, baseline, null, { remaining: 1000 }, new Set(), getColorRules("mid")
+  );
+  assert.equal(midResults.length, 0);
+
+  const maxResults = findShapeCombinations(
+    newTop, shape, pools, baseline, null, { remaining: 1000 }, new Set(), getColorRules("max")
+  );
+  assert.equal(maxResults.length, 1);
 });
 
 test("findShapeCombinations rejects a whole shape immediately when newItem alone can't fill a single-slot layerable role", () => {

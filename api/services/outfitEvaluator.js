@@ -104,7 +104,7 @@ function describeOutfit(items, { isUserMade }) {
   };
 }
 
-function validateOutfit(items, baselineMatrix, personalScores, requiresLayeringSet) {
+function validateOutfit(items, baselineMatrix, personalScores, requiresLayeringSet, colorRules) {
   if (!isCliqueValid(items, baselineMatrix, personalScores, requiresLayeringSet)) {
     return false;
   }
@@ -113,7 +113,7 @@ function validateOutfit(items, baselineMatrix, personalScores, requiresLayeringS
     return false;
   }
 
-  if (!passesColorCheck(items)) {
+  if (!passesColorCheck(items, colorRules)) {
     return false;
   }
 

@@ -5,8 +5,6 @@
 // clique check in matrixService) make up validateOutfit's gate for
 // auto-generated candidates - never applied to user-made outfits.
 
-const { colorPalettes } = require("../utils/colorPalettes.js");
-
 // Counts items whose styles include "patterned", case-insensitively -
 // addUpdateClothes.jsx stores it as "Patterned".
 function passesPatternCheck(items) {
@@ -18,10 +16,19 @@ function passesPatternCheck(items) {
   return patternedCount <= 1;
 }
 
-function passesColorCheck(items) {
+// `colorRules` is the caller's already-resolved { palettes, maxColors } for
+// their own Preferences.colour level (min/mid/max) - see
+// api/utils/colorPalettes.js. An outfit must both fit within one shared
+// palette AND stay within the level's distinct-colour-count cap
+// (maxColors === null means no cap).
+function passesColorCheck(items, colorRules) {
   const combinedColors = [...new Set(items.flatMap((item) => item.colors || []))];
 
-  return colorPalettes.some((palette) =>
+  if (colorRules.maxColors !== null && combinedColors.length > colorRules.maxColors) {
+    return false;
+  }
+
+  return colorRules.palettes.some((palette) =>
     combinedColors.every((color) => palette.includes(color))
   );
 }

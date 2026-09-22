@@ -2,6 +2,9 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const { describeOutfit, validateOutfit, countRoles } = require("../services/outfitEvaluator.js");
+const { getColorRules } = require("../utils/colorPalettes.js");
+
+const colorRules = getColorRules("mid");
 
 function item(overrides) {
   return {
@@ -150,5 +153,5 @@ test("validateOutfit passes a clean, compatible, single-palette outfit", () => {
     item({ subtype: "Jeans", type: "bottom", colors: ["Tan"], styles: ["plain"] }),
   ];
 
-  assert.equal(validateOutfit(items, baseline, null), true);
+  assert.equal(validateOutfit(items, baseline, null, undefined, colorRules), true);
 });

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test specs/**/*.js",
     "start": "node index.js",
     "build": "echo 'No build step required'",
     "vercel-build": "echo 'No build step required'"

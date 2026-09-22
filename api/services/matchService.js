@@ -44,11 +44,12 @@
 const { Clothes, Match } = require("../models/AllModels.js");
 const { OUTFIT_SHAPES, ROLES } = require("../constants/outfitShapes.js");
 const { getRequiresLayeringSet } = require("../constants/requiresLayering.js");
+const { getColorRules } = require("../utils/colorPalettes.js");
 const { canPair } = require("./matrixService.js");
 const { passesPatternCheck, passesColorCheck } = require("./styleColorService.js");
 const { describeOutfit, validateOutfit, hasSharedSeason } = require("./outfitEvaluator.js");
 const {
-  getUserGenderStyle,
+  getUserMatchingPreferences,
   getBaselineMatrix,
   loadUserScores,
 } = require("./matchScoreService.js");
@@ -83,8 +84,8 @@ function buildRolePools(allItems, newItem) {
 // file header), so checking them on a growing partial set is equivalent to
 // checking them once at the end - just cheaper, since a dead branch stops
 // growing immediately instead of being built out in full first.
-function isStillViable(items) {
-  return passesColorCheck(items) && passesPatternCheck(items) && hasSharedSeason(items);
+function isStillViable(items, colorRules) {
+  return passesColorCheck(items, colorRules) && passesPatternCheck(items) && hasSharedSeason(items);
 }
 
 // Backtracking search across the 4 roles for one shape. Prunes the moment a
@@ -100,7 +101,8 @@ function findShapeCombinations(
   baselineMatrix,
   personalScores,
   budget,
-  requiresLayeringSet = new Set()
+  requiresLayeringSet = new Set(),
+  colorRules = getColorRules(null)
 ) {
   const needed = {};
 
@@ -123,7 +125,7 @@ function findShapeCombinations(
   // gets a chance to check colour/pattern/season. Check the baseline once,
   // up front - every subsequent incremental check below only ever grows
   // this same set, so this single check covers it for good.
-  if (!isStillViable([newItem])) {
+  if (!isStillViable([newItem], colorRules)) {
     return [];
   }
 
@@ -179,7 +181,7 @@ function findShapeCombinations(
           continue;
         }
 
-        if (!isStillViable([...soFar, candidate])) {
+        if (!isStillViable([...soFar, candidate], colorRules)) {
           continue;
         }
 
@@ -200,7 +202,8 @@ function findCandidateMatches(
   allItems,
   baselineMatrix,
   personalScores,
-  requiresLayeringSet = new Set()
+  requiresLayeringSet = new Set(),
+  colorRules = getColorRules(null)
 ) {
   const pools = buildRolePools(allItems, newItem);
   const budget = { remaining: MAX_COMBINATIONS_EXPLORED };
@@ -218,7 +221,8 @@ function findCandidateMatches(
       baselineMatrix,
       personalScores,
       budget,
-      requiresLayeringSet
+      requiresLayeringSet,
+      colorRules
     );
 
     combos.forEach((itemSet) => {
@@ -228,7 +232,7 @@ function findCandidateMatches(
         return;
       }
 
-      if (!validateOutfit(itemSet, baselineMatrix, personalScores, requiresLayeringSet)) {
+      if (!validateOutfit(itemSet, baselineMatrix, personalScores, requiresLayeringSet, colorRules)) {
         return;
       }
 
@@ -256,20 +260,22 @@ async function processMatches(newItem, allItems) {
 
   const wardrobe = allItems || (await Clothes.find({ userId: newItem.userId }));
 
-  const [{ gender, style }, personalScores] = await Promise.all([
-    getUserGenderStyle(newItem.userId),
+  const [{ gender, style, colour }, personalScores] = await Promise.all([
+    getUserMatchingPreferences(newItem.userId),
     loadUserScores(newItem.userId),
   ]);
 
   const baselineMatrix = getBaselineMatrix(gender, style);
   const requiresLayeringSet = getRequiresLayeringSet(gender);
+  const colorRules = getColorRules(colour);
 
   const candidates = findCandidateMatches(
     newItem,
     wardrobe,
     baselineMatrix,
     personalScores,
-    requiresLayeringSet
+    requiresLayeringSet,
+    colorRules
   );
 
   if (!candidates.length) {

@@ -1,11 +1,11 @@
 // api/services/matchScoreService.js
 //
 // Reads and writes a user's personal combination-scoring overrides, and
-// resolves which shared baseline matrix a user is on. Storage is sparse: a
-// MatchScore document only exists for a subtype pair once the user has
-// actually created or deleted an outfit containing it. Any pair without a
-// document falls back live to the shared gender+style baseline in
-// api/constants/matchScoreBaseline.js.
+// resolves which shared baseline matrix/colour palettes a user is on.
+// Storage is sparse: a MatchScore document only exists for a subtype pair
+// once the user has actually created or deleted an outfit containing it.
+// Any pair without a document falls back live to the shared gender+style
+// baseline in api/constants/matchScoreBaseline.js.
 
 const { MatchScore, Preferences } = require("../models/AllModels.js");
 const { matchScoreBaseline } = require("../constants/matchScoreBaseline.js");
@@ -14,13 +14,17 @@ const { canonicalPairKey, personalScoreMapKey } = require("./matrixService.js");
 const DEFAULT_GENDER = "unisex";
 const DEFAULT_STYLE = "fun";
 
-async function getUserGenderStyle(userId) {
+// Single source for every Preferences-derived matching setting (gender,
+// style, colour level) - one Preferences fetch per call, reused by every
+// caller that needs any of these, rather than each resolving its own.
+async function getUserMatchingPreferences(userId) {
   const preferences = await Preferences.findOne({ userId });
 
   const gender = preferences?.gender || DEFAULT_GENDER;
   const style = preferences?.style || (gender === "man" ? "all" : DEFAULT_STYLE);
+  const colour = preferences?.colour || null;
 
-  return { gender, style };
+  return { gender, style, colour };
 }
 
 function getBaselineMatrix(gender, style) {
@@ -31,7 +35,7 @@ function getBaselineMatrix(gender, style) {
 }
 
 async function getBaselineMatrixForUser(userId) {
-  const { gender, style } = await getUserGenderStyle(userId);
+  const { gender, style } = await getUserMatchingPreferences(userId);
   return getBaselineMatrix(gender, style);
 }
 
@@ -123,7 +127,7 @@ async function wipeUserScores(userId) {
 }
 
 module.exports = {
-  getUserGenderStyle,
+  getUserMatchingPreferences,
   getBaselineMatrix,
   getBaselineMatrixForUser,
   loadUserScores,
