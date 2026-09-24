@@ -4,6 +4,7 @@ import "./viewToday.css";
 import { URL } from "../../config";
 import todayOutfitSort from "./todayOutfitSort";
 import MessagePopup from "../general/messagePopup.jsx";
+import DeletePopup from "../general/deletePopup.jsx";
 import { fetchTodayInfo } from "./todayHelpers";
 import { tagOptions } from "../../constants/optionsBank";
 
@@ -31,6 +32,11 @@ const ViewToday = ({ todayReady }) => {
     title: "",
     message: "",
   });
+
+  // Whether the "delete outfit" confirmation is showing, plus a loading
+  // flag for the confirm button while the delete request is in flight.
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingOutfit, setDeletingOutfit] = useState(false);
 
   const ALTERNATIVES_PER_PAGE = 4;
 
@@ -857,6 +863,85 @@ const ViewToday = ({ todayReady }) => {
   };
 
 
+  /* ------------------------- DELETE OUTFIT ------------------------- */
+
+  const deleteOutfit = async () => {
+
+    const outfit =
+      filteredOutfits[
+        currentIndex
+      ];
+
+    const matchId =
+      outfit?.matchId?._id;
+
+    if (!matchId) {
+      setShowDeleteConfirm(false);
+      return;
+    }
+
+    setDeletingOutfit(true);
+
+    try {
+
+      const token =
+        getToken();
+
+      await axios.delete(
+        `${URL}/match/${matchId}`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
+
+      // If this outfit was the active worn-today selection, there is
+      // nothing left to revert to - drop the snapshot.
+      if (
+        wornToday?.matchId ===
+        matchId
+      ) {
+        setWornToday(null);
+      }
+
+      setOutfits((prev) =>
+        prev.filter(
+          (o) =>
+            o.matchId?._id !==
+            matchId
+        )
+      );
+
+      setCurrentIndex(0);
+      setAlternativePage(0);
+      setShowDeleteConfirm(false);
+
+      setPopup({
+        open: true,
+        title: "Success",
+        message:
+          "Outfit deleted.",
+      });
+
+    } catch (err) {
+
+      setPopup({
+        open: true,
+        title: "Error",
+        message:
+          "Error deleting outfit: " +
+          err.message,
+      });
+
+    } finally {
+
+      setDeletingOutfit(false);
+    }
+  };
+
+
   /* ------------------------- IMAGE ------------------------- */
 
   const renderItemImage = (
@@ -1117,6 +1202,15 @@ const ViewToday = ({ todayReady }) => {
                 Mark as Worn Today
               </button>
 
+              <button
+                className="regular-button delete-outfit-button"
+                onClick={() =>
+                  setShowDeleteConfirm(true)
+                }
+              >
+                Delete Outfit
+              </button>
+
             </div>
 
           )}
@@ -1331,6 +1425,22 @@ const ViewToday = ({ todayReady }) => {
             message: "",
           })
         }
+      />
+
+
+      {/* DELETE CONFIRMATION */}
+
+      <DeletePopup
+        isOpen={showDeleteConfirm}
+        title="Delete Outfit"
+        message="Are you sure you want to delete this outfit permanently? This cannot be undone."
+        loading={deletingOutfit}
+        onConfirm={deleteOutfit}
+        onClose={() => {
+          if (!deletingOutfit) {
+            setShowDeleteConfirm(false);
+          }
+        }}
       />
 
     </div>

@@ -517,8 +517,14 @@
 
   display: flex;
   justify-content: center;
+  gap: .75rem;
 
   margin-top: auto;
+}
+
+
+.today-buttons > .regular-button {
+  flex: 1;
 }
 
 
@@ -565,6 +571,23 @@
 .regular-button:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: 3px;
+}
+
+
+.delete-outfit-button {
+  border-color: var(--error-border-color);
+
+  background: transparent;
+  color: var(--error-color);
+}
+
+
+.delete-outfit-button:hover {
+  background: var(--error-background);
+
+  border-color: var(--delete-hover-border-color);
+
+  color: var(--delete-hover-color);
 }
 
 

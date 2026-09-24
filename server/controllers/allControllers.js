@@ -559,7 +559,8 @@ exports.updateMatch = async (req, res) => {
                 wornYear,
               },
             },
-          ]
+          ],
+          { updatePipeline: true }
         );
       }
     }

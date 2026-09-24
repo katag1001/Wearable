@@ -1,7 +1,8 @@
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-require("dotenv").config();
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const allRoutes = require("./routes/allRoutes");
 
@@ -39,17 +40,17 @@ const cloudinary = require("cloudinary").v2;
 
 const {
   CLOUD_NAME,
-  API_KEY,
-  API_SECRET,
+  CLOUD_API_KEY,
+  CLOUD_API_SECRET,
 } = process.env;
 
-if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
+if (!CLOUD_NAME || !CLOUD_API_KEY || !CLOUD_API_SECRET) {
   console.warn("⚠️ Cloudinary not configured - image uploads disabled");
 } else {
   cloudinary.config({
     cloud_name: CLOUD_NAME,
-    api_key: API_KEY,
-    api_secret: API_SECRET,
+    api_key: CLOUD_API_KEY,
+    api_secret: CLOUD_API_SECRET,
   });
 
   (async () => {
