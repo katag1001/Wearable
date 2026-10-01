@@ -1236,6 +1236,24 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Jeans",
+      "name": "Wide leg jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
       "name": "High waisted jeans",
       "season": [
         "Spring",
@@ -2489,6 +2507,24 @@ const typeOptionsByGender = {
       "type": "bottom",
       "category": "Jeans",
       "name": "Flared jeans",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Dinner",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 10,
+      "maxTemp": 25
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Wide leg jeans",
       "season": [
         "Spring",
         "Autumn",

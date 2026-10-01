@@ -121,6 +121,7 @@ const SUBTYPE_SYNONYMS = {
   "low waist jeans": ["low waisted jeans"],
   "high waisted jeans": ["high waist jeans"],
   "boyfriend jeans": ["baggy jeans"],
+  "wide leg jeans": ["wide-leg jeans", "wideleg jeans", "wide jeans"],
   "jumpsuit": ["playsuit"],
   "playsuit": ["jumpsuit", "romper"],
   "romper": ["playsuit", "jumpsuit"],
