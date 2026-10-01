@@ -388,6 +388,22 @@ const ViewMatchesCard = ({
                 .map(capitalize)
                 .join(", ") || "N/A"}
             </div>
+
+            {/* Delete Button */}
+            {editable && (
+              <div className="match-card-button-row">
+                <button
+                  type="button"
+                  className="match-card-delete-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(match._id);
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
