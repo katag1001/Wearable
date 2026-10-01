@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -88,6 +88,19 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   // This stores the actual File selected by the user.
   // It is NOT uploaded to Cloudinary yet.
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const modalRef = useRef(null);
+
+
+  // Start each page at the top of the modal rather than
+  // keeping the scroll position from the previous page.
+  useEffect(() => {
+
+    if (modalRef.current) {
+      modalRef.current.scrollTop = 0;
+    }
+
+  }, [currentPage, justSavedItem]);
 
 
   useClothingDetection(
@@ -494,7 +507,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
     <div className="modal-backdrop">
 
-      <div className="modal-wrapper open">
+      <div className="modal-wrapper open" ref={modalRef}>
 
 
         <button
