@@ -120,54 +120,13 @@ export const useClothingForm = (item, typeOptions) => {
     );
 
 
-    setFormData(prev => {
-
-      const updated = {
-        ...prev,
-        subtype,
-        type: option?.type || ""
-      };
-
-
-      if (option) {
-
-        option.season.forEach(season => {
-
-          updated[
-            season.toLowerCase()
-          ] = true;
-
-        });
-
-
-        if (option.tags) {
-
-          updated.tags = [
-            ...new Set([
-              ...updated.tags,
-              ...option.tags
-            ])
-          ];
-
-        }
-
-
-        if (!manualTempOverride) {
-
-          updated.min_temp =
-            option.minTemp;
-
-          updated.max_temp =
-            option.maxTemp;
-
-        }
-
-      }
-
-
-      return updated;
-
-    });
+    // Only record the choice here. Page two is filled in from
+    // the subtype when the user clicks Next (useClothingDetection).
+    setFormData(prev => ({
+      ...prev,
+      subtype,
+      type: option?.type || ""
+    }));
 
   };
 

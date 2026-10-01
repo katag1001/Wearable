@@ -1,110 +1,130 @@
-import { useEffect, useRef } from "react";
-import { detectFromName } from "./uploadHelpers";
+import { useRef } from "react";
+import { detectFromName, getInitialState } from "./uploadHelpers";
 
+// Fills in page two (seasons, tags, colours, temperature) from the
+// name and subtype chosen on page one. This only runs when the user
+// clicks Next, so changing their mind on page one doesn't leave
+// suggestions from an earlier choice behind.
 export const useClothingDetection = (
-name,
-subtype,
+item,
 setFormData,
 manualTempOverride,
 typeOptions
 ) => {
 
-// Read these through refs so changing them (e.g. moving the
-// temperature slider) doesn't re-run detection and undo the
-// user's season/colour/tag choices. Detection should only run
-// when the name or subtype changes.
-const manualTempOverrideRef = useRef(manualTempOverride);
-const typeOptionsRef = useRef(typeOptions);
-
-manualTempOverrideRef.current = manualTempOverride;
-typeOptionsRef.current = typeOptions;
-
-useEffect(() => {
-if (!name) return;
-
-const {
-  detectedColors,
-  detectedSeasons,
-  detectedTags,
-} = detectFromName(name);
-
-setFormData(prev => {
-  const updated = {
-    ...prev
-  };
+// The name/subtype that page two was last filled from. When
+// updating an existing item, its saved values count as already
+// applied so clicking Next doesn't overwrite them.
+const lastAppliedRef = useRef(
+  item
+    ? { name: item.name, subtype: item.subtype }
+    : null
+);
 
 
-  // Existing name detection
-  if (detectedColors.length) {
-    updated.colors = detectedColors;
-  }
+const applyDetection = (name, subtype) => {
+
+  const lastApplied = lastAppliedRef.current;
+
+  const nameChanged = lastApplied?.name !== name;
+  const subtypeChanged = lastApplied?.subtype !== subtype;
+
+  // Nothing changed on page one (e.g. user went Back then Next),
+  // so keep whatever they set on page two.
+  if (!nameChanged && !subtypeChanged) return;
+
+  lastAppliedRef.current = { name, subtype };
 
 
- if (detectedTags.length) {
-  updated.tags = [
-    ...new Set([
-      ...updated.tags,
-      ...detectedTags
-    ])
-  ];
-}
+  const {
+    detectedColors,
+    detectedSeasons,
+    detectedTags,
+  } = detectFromName(name);
 
-  Object.entries(detectedSeasons).forEach(([season, value]) => {
-
-    if (value) {
-      updated[season] = true;
-    }
-
-  });
-
-
-  // New subtype detection
-  const subtypeOption = typeOptionsRef.current.find(
-    item => item.name === subtype
+  const subtypeOption = typeOptions.find(
+    option => option.name === subtype
   );
 
-
-  if (subtypeOption) {
-
-      updated.tags = [
-    ...new Set([
-      ...updated.tags,
-      ...subtypeOption.tags
-    ])
-  ];
+  const initial = getInitialState();
 
 
-    subtypeOption.season.forEach(season => {
+  setFormData(prev => {
 
-      updated[
-        season.toLowerCase()
-      ] = true;
+    // Start seasons and tags from scratch so suggestions from a
+    // previous name/subtype don't carry over.
+    const updated = {
+      ...prev,
+      spring: false,
+      summer: false,
+      autumn: false,
+      winter: false,
+      tags: []
+    };
+
+
+    // Colours only come from the name, so leave any the user
+    // picked alone if only the subtype changed.
+    if (nameChanged) {
+      updated.colors = detectedColors;
+    }
+
+
+    const tags = [...detectedTags];
+
+    Object.entries(detectedSeasons).forEach(([season, value]) => {
+
+      if (value) {
+        updated[season] = true;
+      }
 
     });
 
 
-    if (!manualTempOverrideRef.current) {
+    if (subtypeOption) {
 
-      updated.min_temp =
-        subtypeOption.minTemp;
+      tags.push(...(subtypeOption.tags || []));
 
+      subtypeOption.season.forEach(season => {
 
-      updated.max_temp =
-        subtypeOption.maxTemp;
+        updated[
+          season.toLowerCase()
+        ] = true;
+
+      });
 
     }
 
-  }
-
-  return updated;
-
-});
+    updated.tags = [...new Set(tags)];
 
 
-}, [
-name,
-subtype,
-setFormData
-]);
+    if (!manualTempOverride) {
+
+      updated.min_temp =
+        subtypeOption?.minTemp ?? initial.min_temp;
+
+      updated.max_temp =
+        subtypeOption?.maxTemp ?? initial.max_temp;
+
+    }
+
+    return updated;
+
+  });
+
+};
+
+
+// Used when starting a brand new item so the next Next always
+// fills page two, even if the name/subtype match the last item.
+const resetDetection = () => {
+  lastAppliedRef.current = null;
+};
+
+
+return {
+  applyDetection,
+  resetDetection
+};
 
 };

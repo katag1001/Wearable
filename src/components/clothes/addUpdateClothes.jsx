@@ -103,9 +103,11 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   }, [currentPage, justSavedItem]);
 
 
-  useClothingDetection(
-    formData.name,
-    formData.subtype,
+  const {
+    applyDetection,
+    resetDetection
+  } = useClothingDetection(
+    item,
     setFormData,
     manualTempOverride,
     typeOptions
@@ -216,6 +218,10 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
     }
 
     setShowValidation(false);
+
+    if (currentPage === 1) {
+      applyDetection(formData.name, formData.subtype);
+    }
 
     setCurrentPage(prev => prev + 1);
 
@@ -492,6 +498,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   const handleAddAnotherItem = () => {
 
     resetForm();
+    resetDetection();
 
     setSelectedImage(null);
 
