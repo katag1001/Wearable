@@ -880,6 +880,8 @@ const ViewToday = ({ todayReady }) => {
       return;
     }
 
+    // Close the modal straight away - the delete carries on in the background.
+    setShowDeleteConfirm(false);
     setDeletingOutfit(true);
 
     try {
@@ -916,7 +918,6 @@ const ViewToday = ({ todayReady }) => {
 
       setCurrentIndex(0);
       setAlternativePage(0);
-      setShowDeleteConfirm(false);
 
       setPopup({
         open: true,

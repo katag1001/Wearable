@@ -40,6 +40,7 @@
   "woman": [
     "Hoodie/sweatshirt",
     "Warm jumper",
+    "Turtleneck jumper",
     "Warm cardigan",
     "Light jumper",
     "Light cardigan",
@@ -47,6 +48,7 @@
     "Linen shirt",
     "Floaty blouse",
     "Fancy blouse",
+    "Fancy top",
     "Waistcoat",
     "Short Turtlneck",
     "Long turtleneck",
@@ -108,6 +110,7 @@
   "unisex": [
     "Hoodie/sweatshirt",
     "Warm jumper",
+    "Turtleneck jumper",
     "Warm cardigan",
     "Light jumper",
     "Light cardigan",
@@ -115,6 +118,7 @@
     "Linen shirt",
     "Floaty blouse",
     "Fancy blouse",
+    "Fancy top",
     "Waistcoat",
     "Short Turtlneck",
     "Long turtleneck",

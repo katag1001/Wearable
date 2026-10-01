@@ -102,6 +102,8 @@ const SUBTYPE_SYNONYMS = {
   "croptop": ["crop top"],
   "short turtlneck": ["short turtleneck", "polo neck"],
   "long turtleneck": ["polo neck", "roll neck"],
+  "turtleneck jumper": ["polo neck jumper", "roll neck jumper", "turtleneck sweater"],
+  "fancy top": ["party top", "going out top", "dressy top"],
   "demin jacket": ["denim jacket"],
   "shacket": ["shirt jacket"],
   "wideleg trousers": [

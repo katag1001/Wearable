@@ -37,6 +37,22 @@ test("every loaded cell is a finite number", () => {
   });
 });
 
+test("every matrix is symmetric and every same-subtype pair is -20", () => {
+  Object.keys(stylesByGender).forEach((gender) => {
+    stylesByGender[gender].forEach((style) => {
+      const matrix = matchScoreBaseline[gender][style];
+
+      Object.keys(matrix).forEach((a) => {
+        assert.equal(matrix[a][a], -20, `${gender}-${style}: ${a} with itself`);
+
+        Object.keys(matrix[a]).forEach((b) => {
+          assert.equal(matrix[a][b], matrix[b][a], `${gender}-${style}: ${a} / ${b}`);
+        });
+      });
+    });
+  });
+});
+
 test("a known hand-tuned self-pair score loads correctly (Hoodie/sweatshirt needs layering for man)", () => {
   assert.equal(matchScoreBaseline.man.all["Hoodie/sweatshirt"]["Hoodie/sweatshirt"], -20);
 });

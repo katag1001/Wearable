@@ -40,6 +40,10 @@ const ViewMatches = ({
   const confirmDelete = async () => {
     if (!deleteMatch) return;
 
+    const matchId = deleteMatch;
+
+    // Close the modal straight away - the delete carries on in the background.
+    setDeleteMatch(null);
     setDeleting(true);
 
     try {
@@ -51,15 +55,13 @@ const ViewMatches = ({
       }
 
       await axios.delete(
-        `${URL}/match/${deleteMatch}`,
+        `${URL}/match/${matchId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-
-      setDeleteMatch(null);
 
       // Close any expanded card after deletion.
       setExpandedMatchId(null);

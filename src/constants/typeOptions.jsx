@@ -721,6 +721,23 @@ const typeOptionsByGender = {
     {
       "type": "top",
       "category": "Jumpers and cardigans",
+      "name": "Turtleneck jumper",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": 0,
+      "maxTemp": 15
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
       "name": "Warm cardigan",
       "season": [
         "Autumn",
@@ -838,6 +855,27 @@ const typeOptionsByGender = {
       "type": "top",
       "category": "Shirts/Blouses",
       "name": "Fancy blouse",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Fancy top",
       "season": [
         "Spring",
         "Summer",
@@ -1949,6 +1987,23 @@ const typeOptionsByGender = {
     {
       "type": "top",
       "category": "Jumpers and cardigans",
+      "name": "Turtleneck jumper",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Loungewear",
+        "Outdoor",
+        "Everyday"
+      ],
+      "minTemp": -2,
+      "maxTemp": 13
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
       "name": "Warm cardigan",
       "season": [
         "Autumn",
@@ -2068,6 +2123,27 @@ const typeOptionsByGender = {
       "type": "top",
       "category": "Shirts/Blouses",
       "name": "Fancy blouse",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Wedding",
+        "Date night",
+        "Everyday"
+      ],
+      "minTemp": 15,
+      "maxTemp": 25
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Fancy top",
       "season": [
         "Spring",
         "Summer",

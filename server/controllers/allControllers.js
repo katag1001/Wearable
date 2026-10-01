@@ -12,7 +12,10 @@ const {
   recordOutfitCreated,
   wipeUserScores,
 } = require("../services/matchScoreService.js");
-const { deleteMatchesAndDecrementScores } = require("../services/matchLifecycleService.js");
+const {
+  deleteMatchesAndDecrementScores,
+  deleteMatchesWithoutScoring,
+} = require("../services/matchLifecycleService.js");
 const { matchesTodayTemperature } = require("../services/temperatureService.js");
 
 
@@ -350,7 +353,7 @@ exports.deleteItem = async (req, res) => {
     }
 
     console.log("Deleting matches...");
-    await deleteMatchesAndDecrementScores({ clothes: item._id, userId }, userId);
+    await deleteMatchesWithoutScoring({ clothes: item._id, userId });
 
     console.log("Deleting clothing...");
     await Clothes.deleteOne({
@@ -599,9 +602,8 @@ const userId = req.user?.userId;
 const { pieceId } = req.body;
 
 try {
-const { deletedCount } = await deleteMatchesAndDecrementScores(
-  { clothes: pieceId, userId },
-  userId
+const { deletedCount } = await deleteMatchesWithoutScoring(
+  { clothes: pieceId, userId }
 );
 
 return res.json({

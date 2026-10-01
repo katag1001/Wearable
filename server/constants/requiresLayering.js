@@ -2,7 +2,7 @@
 //
 // Hardcoded list of subtypes that can never be the sole occupant of their
 // role - they always need a second item of the same role to be worn (e.g.
-// Warm jumper needs a t-shirt or similar underneath). This is a deliberate
+// Warm cardigan needs a t-shirt or similar underneath). This is a deliberate
 // hard rule, not personalizable via user behaviour, unlike everything else
 // in the matching system.
 //
@@ -13,9 +13,9 @@
 // unusable.
 
 const REQUIRES_LAYERING = {
-  man: ["Warm jumper", "Warm cardigan", "Overalls"],
-  woman: ["Warm jumper", "Warm cardigan"],
-  unisex: ["Warm jumper", "Warm cardigan"],
+  man: ["Warm cardigan", "Overalls"],
+  woman: ["Warm cardigan"],
+  unisex: ["Warm cardigan"],
 };
 
 function getRequiresLayeringSet(gender) {
