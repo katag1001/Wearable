@@ -84,6 +84,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   const [justSavedItem, setJustSavedItem] = useState(null);
   const [message, setMessage] = useState("");
   const [showValidation, setShowValidation] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // This stores the actual File selected by the user.
   // It is NOT uploaded to Cloudinary yet.
@@ -232,6 +233,9 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
   e.preventDefault();
 
+  // Ignore repeat submits (e.g. pressing Enter) while a save is running.
+  if (saving) return;
+
   if (!currentValidation.valid) {
 
     setShowValidation(true);
@@ -245,6 +249,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   // Keep this outside the try block so the catch
   // can clean up a Cloudinary upload if needed.
   let cloudinaryData = null;
+
+  setSaving(true);
 
 
   try {
@@ -489,6 +495,10 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
       "Error saving clothing item"
     );
 
+  } finally {
+
+    setSaving(false);
+
   }
 
 };
@@ -605,6 +615,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                   <button
                     type="button"
                     className="modal-button"
+                    disabled={saving}
                     onClick={() => {
 
                       setShowValidation(false);
@@ -639,8 +650,9 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                   <button
                     className="modal-button"
                     type="submit"
+                    disabled={saving}
                   >
-                    Save
+                    {saving ? "Saving..." : "Save"}
                   </button>
 
                 )}
