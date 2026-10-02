@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./createMatch.css";
 import { URL } from "../../config";
+import { getImageUrl } from "../../utils/getImageUrl";
 import MessagePopup from "../general/messagePopup.jsx";
 
 
@@ -503,7 +504,7 @@ const CreateMatch = () => {
                   {item.imageUrl && (
 
                     <img
-                      src={item.imageUrl}
+                      src={getImageUrl(item.imageUrl, 500)}
                       alt={item.name}
                       className="buildmatch-clothing-image"
                     />
@@ -625,7 +626,7 @@ const CreateMatch = () => {
                         {item.imageUrl && (
 
                           <img
-                            src={item.imageUrl}
+                            src={getImageUrl(item.imageUrl, 500)}
                             alt={item.name}
                             className="selected-image"
                           />

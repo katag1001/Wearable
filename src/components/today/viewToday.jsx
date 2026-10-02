@@ -7,6 +7,7 @@ import MessagePopup from "../general/messagePopup.jsx";
 import DeletePopup from "../general/deletePopup.jsx";
 import { fetchTodayInfo } from "./todayHelpers";
 import { tagOptions } from "../../constants/optionsBank";
+import { getImageUrl } from "../../utils/getImageUrl";
 
 
 const ViewToday = ({ todayReady }) => {
@@ -958,7 +959,7 @@ const ViewToday = ({ todayReady }) => {
     return (
       <img
         key={item._id}
-        src={item.imageUrl}
+        src={getImageUrl(item.imageUrl, 800)}
         alt={item.name}
         className={
           small

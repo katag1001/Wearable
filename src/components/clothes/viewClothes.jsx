@@ -8,6 +8,7 @@ import "../../styles/pagesBottom.css";
 import "../../styles/pages.css";
 
 import { URL } from "../../config";
+import { getImageUrl } from "../../utils/getImageUrl";
 
 const ViewClothes = ({
   items = [],
@@ -90,9 +91,13 @@ const ViewClothes = ({
 
               {item.imageUrl && (
                 <img
-                  src={item.imageUrl}
+                  src={getImageUrl(item.imageUrl, 400)}
                   alt={item.name || "Clothing item"}
                   className="clothing-image-viewclothes"
+                  width="150"
+                  height="180"
+                  loading="lazy"
+                  decoding="async"
                 />
               )}
 

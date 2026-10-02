@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./filter.css";
 import TemperatureSlider from "./temperatureSlider";
+import { getImageUrl } from "../../utils/getImageUrl";
 import {
   seasonOptions,
   colorOptions,
@@ -303,7 +304,7 @@ return (
                       >
                         {currentItem.imageUrl && (
                           <img
-                            src={currentItem.imageUrl}
+                            src={getImageUrl(currentItem.imageUrl, 150)}
                             alt={currentItem.name}
                             className="filter-item-image"
                           />

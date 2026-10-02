@@ -10,6 +10,7 @@ import "./viewMatches.css";
 import "./viewMatchesCard.css";
 
 import TemperatureSlider from "../general/temperatureSlider";
+import { getImageUrl } from "../../utils/getImageUrl";
 
 const ViewMatchesCard = ({
   match,
@@ -300,7 +301,7 @@ const ViewMatchesCard = ({
 
     return (
       <img
-        src={item.imageUrl}
+        src={getImageUrl(item.imageUrl, 600)}
         alt={item.name}
         className="match-image"
       />

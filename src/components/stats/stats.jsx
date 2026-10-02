@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { URL } from "../../config";
+import { getImageUrl } from "../../utils/getImageUrl";
 import "./stats.css";
 import "../../styles/pages.css";
 
@@ -132,7 +133,7 @@ const Stats = () => {
               item?.imageUrl && (
                 <img
                   key={item._id}
-                  src={item.imageUrl}
+                  src={getImageUrl(item.imageUrl, 200)}
                   alt={item.name}
                   className="stats-outfit-image"
                 />
@@ -282,7 +283,7 @@ const Stats = () => {
 
                 {item.imageUrl && (
                   <img
-                    src={item.imageUrl}
+                    src={getImageUrl(item.imageUrl, 200)}
                     alt={item.name}
                     className="stats-clothing-image"
                   />
