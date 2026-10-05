@@ -91,9 +91,22 @@ test("describeOutfit never returns null for a user-made outfit", () => {
 
   const result = describeOutfit(items, { isUserMade: true });
 
+  // Union of the two is 0-30; with no outer the floor is raised to 14.
   assert.notEqual(result, null);
-  assert.equal(result.min_temp, 0);
+  assert.equal(result.min_temp, 14);
   assert.equal(result.max_temp, 30);
+});
+
+test("describeOutfit passes the temperature preference through to the range", () => {
+  const items = [
+    item({ subtype: "a", type: "top", min_temp: -2, max_temp: 20 }),
+    item({ subtype: "b", type: "bottom", min_temp: -2, max_temp: 22 }),
+  ];
+
+  const result = describeOutfit(items, { isUserMade: false, temperaturePreference: "cold" });
+
+  assert.equal(result.min_temp, 15);
+  assert.equal(result.max_temp, 20);
 });
 
 test("validateOutfit fails when the pattern check fails even if the matrix passes", () => {

@@ -260,74 +260,11 @@ const CreateMatch = () => {
     }
 
 
-    const allColors = [
-      ...new Set(
-        selectedItems.flatMap(
-          (item) => item.colors || []
-        )
-      ),
-    ];
-
-
-    const minTempAvg = Math.round(
-      selectedItems.reduce(
-        (sum, item) => sum + item.min_temp,
-        0
-      ) / selectedItems.length
-    );
-
-
-    const maxTempAvg = Math.round(
-      selectedItems.reduce(
-        (sum, item) => sum + item.max_temp,
-        0
-      ) / selectedItems.length
-    );
-
-
-    const seasonKeys = [
-      "spring",
-      "summer",
-      "autumn",
-      "winter",
-    ];
-
-
-    const seasons = {};
-
-
-    seasonKeys.forEach((season) => {
-
-      seasons[season] = selectedItems.every(
-        (item) => item[season]
-      );
-
-    });
-
-
-    const clothes = [];
-
-
-    Object.values(formData).forEach((items) => {
-
-      items.forEach((item) => {
-        clothes.push(item._id);
-      });
-
-    });
-
-
+    // Only the clothing ids are needed - the server works out
+    // everything else (temperature, seasons, colours, tags, etc.)
+    // from the items themselves (describeOutfit).
     const payload = {
-      clothes,
-      colors: allColors,
-      min_temp: minTempAvg,
-      max_temp: maxTempAvg,
-      ...seasons,
-      styles: [],
-      type: "match",
-      lastWornDate: null,
-      tags: [],
-      userMade: true,
+      clothes: selectedItems.map((item) => item._id),
     };
 
 

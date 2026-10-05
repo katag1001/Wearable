@@ -71,8 +71,8 @@ function hasSharedSeason(items) {
   return SEASONS.some((season) => items.every((item) => item[season]));
 }
 
-function describeOutfit(items, { isUserMade }) {
-  const temperature = computeTemperatureRange(items, { isUserMade });
+function describeOutfit(items, { isUserMade, temperaturePreference = null }) {
+  const temperature = computeTemperatureRange(items, { isUserMade, temperaturePreference });
 
   if (!temperature) {
     return null;

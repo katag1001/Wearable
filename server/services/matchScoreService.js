@@ -15,16 +15,17 @@ const DEFAULT_GENDER = "unisex";
 const DEFAULT_STYLE = "fun";
 
 // Single source for every Preferences-derived matching setting (gender,
-// style, colour level) - one Preferences fetch per call, reused by every
-// caller that needs any of these, rather than each resolving its own.
+// style, colour level, temperature) - one Preferences fetch per call, reused
+// by every caller that needs any of these, rather than each resolving its own.
 async function getUserMatchingPreferences(userId) {
   const preferences = await Preferences.findOne({ userId });
 
   const gender = preferences?.gender || DEFAULT_GENDER;
   const style = preferences?.style || (gender === "man" ? "all" : DEFAULT_STYLE);
   const colour = preferences?.colour || null;
+  const temperature = preferences?.temperature || null;
 
-  return { gender, style, colour };
+  return { gender, style, colour, temperature };
 }
 
 function getBaselineMatrix(gender, style) {

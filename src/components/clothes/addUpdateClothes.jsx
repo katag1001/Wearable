@@ -23,6 +23,11 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   // Defaults to "unisex" until the user's gender preference loads.
   const [gender, setGender] = useState("unisex");
 
+  // "cold" | "hot" | "normal" - shifts a new item's default
+  // temperatures. Treated as "normal" until it loads.
+  const [temperaturePreference, setTemperaturePreference] =
+    useState(null);
+
   const typeOptions = useMemo(
     () => getTypeOptions(gender),
     [gender]
@@ -31,7 +36,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
   useEffect(() => {
 
-    const fetchGender = async () => {
+    const fetchPreferences = async () => {
 
       const token = localStorage.getItem("token");
 
@@ -55,13 +60,17 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           setGender(fetchedGender);
         }
 
+        setTemperaturePreference(
+          response.data?.data?.temperature ?? null
+        );
+
       } catch {
-        // No preferences saved yet - keep the unisex default.
+        // No preferences saved yet - keep the unisex/normal defaults.
       }
 
     };
 
-    fetchGender();
+    fetchPreferences();
 
   }, []);
 
@@ -111,7 +120,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
     item,
     setFormData,
     manualTempOverride,
-    typeOptions
+    typeOptions,
+    temperaturePreference
   );
 
 

@@ -1,28 +1,32 @@
 import { useRef } from "react";
-import { detectFromName, getInitialState } from "./uploadHelpers";
+import {
+  detectFromName,
+  getInitialState,
+  shiftTempForPreference
+} from "./uploadHelpers";
 
 // Fills in page two (seasons, tags, colours, temperature) from the
 // name and subtype chosen on page one. This only runs when the user
 // clicks Next, so changing their mind on page one doesn't leave
 // suggestions from an earlier choice behind.
+//
+// Only ever runs for a NEW item. When editing an existing item nothing
+// is auto-filled - only the fields the user actually changes are changed.
 export const useClothingDetection = (
 item,
 setFormData,
 manualTempOverride,
-typeOptions
+typeOptions,
+temperaturePreference
 ) => {
 
-// The name/subtype that page two was last filled from. When
-// updating an existing item, its saved values count as already
-// applied so clicking Next doesn't overwrite them.
-const lastAppliedRef = useRef(
-  item
-    ? { name: item.name, subtype: item.subtype }
-    : null
-);
+// The name/subtype that page two was last filled from.
+const lastAppliedRef = useRef(null);
 
 
 const applyDetection = (name, subtype) => {
+
+  if (item) return;
 
   const lastApplied = lastAppliedRef.current;
 
@@ -98,13 +102,19 @@ const applyDetection = (name, subtype) => {
     updated.tags = [...new Set(tags)];
 
 
+    // Defaults are shifted 1 degree for users who generally feel
+    // too cold/too hot - see context/temperature-ranges.md.
     if (!manualTempOverride) {
 
-      updated.min_temp =
-        subtypeOption?.minTemp ?? initial.min_temp;
+      updated.min_temp = shiftTempForPreference(
+        subtypeOption?.minTemp ?? initial.min_temp,
+        temperaturePreference
+      );
 
-      updated.max_temp =
-        subtypeOption?.maxTemp ?? initial.max_temp;
+      updated.max_temp = shiftTempForPreference(
+        subtypeOption?.maxTemp ?? initial.max_temp,
+        temperaturePreference
+      );
 
     }
 

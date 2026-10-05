@@ -9,6 +9,7 @@ const { processMatches } = require("../services/matchService");
 const { describeOutfit } = require("../services/outfitEvaluator.js");
 const {
   getBaselineMatrixForUser,
+  getUserMatchingPreferences,
   recordOutfitCreated,
   wipeUserScores,
 } = require("../services/matchScoreService.js");
@@ -428,7 +429,12 @@ exports.createMatch = async (req, res) => {
         // Manual outfits are never rejected - describeOutfit only computes
         // descriptive fields here (temperature, tags, role counts, etc.),
         // it never validates matrix/colour/pattern compatibility.
-        const described = describeOutfit(clothes, { isUserMade: true });
+        const { temperature } = await getUserMatchingPreferences(userId);
+
+        const described = describeOutfit(clothes, {
+          isUserMade: true,
+          temperaturePreference: temperature,
+        });
 
         const match = new Match({
           ...req.body,

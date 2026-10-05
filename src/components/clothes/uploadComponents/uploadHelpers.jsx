@@ -1,23 +1,15 @@
 import { colorOptions, tagOptions } from "../../../constants/optionsBank";
 
-export const seasonTempRanges = {
-  spring: {
-    min: 10,
-    max: 20
-  },
-  summer: {
-    min: 15,
-    max: 35
-  },
-  autumn: {
-    min: 8,
-    max: 15
-  },
-  winter: {
-    min: 0,
-    max: 13
-  }
+// How far a new item's default temperatures are shifted for the
+// user's "do you generally feel too cold or too hot?" preference.
+// Someone who feels the cold needs the same item on warmer days.
+const TEMPERATURE_PREFERENCE_OFFSET = {
+  cold: 1,
+  hot: -1
 };
+
+export const shiftTempForPreference = (temp, temperaturePreference) =>
+  temp + (TEMPERATURE_PREFERENCE_OFFSET[temperaturePreference] ?? 0);
 
 export const getInitialState = () => ({
   name: "",

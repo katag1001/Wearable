@@ -223,7 +223,8 @@ function findCandidateMatches(
   baselineMatrix,
   personalScores,
   requiresLayeringSet = new Set(),
-  colorRules = getColorRules(null)
+  colorRules = getColorRules(null),
+  temperaturePreference = null
 ) {
   const pools = buildRolePools(allItems, newItem);
   const budget = { remaining: MAX_COMBINATIONS_EXPLORED };
@@ -246,7 +247,7 @@ function findCandidateMatches(
     );
 
     combos.forEach((itemSet) => {
-      const described = describeOutfit(itemSet, { isUserMade: false });
+      const described = describeOutfit(itemSet, { isUserMade: false, temperaturePreference });
 
       if (!described) {
         return;
@@ -280,7 +281,7 @@ async function processMatches(newItem, allItems) {
 
   const wardrobe = allItems || (await Clothes.find({ userId: newItem.userId }));
 
-  const [{ gender, style, colour }, personalScores] = await Promise.all([
+  const [{ gender, style, colour, temperature }, personalScores] = await Promise.all([
     getUserMatchingPreferences(newItem.userId),
     loadUserScores(newItem.userId),
   ]);
@@ -295,7 +296,8 @@ async function processMatches(newItem, allItems) {
     baselineMatrix,
     personalScores,
     requiresLayeringSet,
-    colorRules
+    colorRules,
+    temperature
   );
 
   if (!candidates.length) {
