@@ -32,7 +32,7 @@ import ProtectedRoute from "./components/login/ProtectedRoute";
 import StyleQuizGate from "./components/login/StyleQuizGate";
 
 /* Context */
-import { MatchesProvider } from "./context/MatchesProvider";
+import { PagedCacheProvider } from "./context/PagedCacheProvider";
 
 /* -------------------- SCROLL TO TOP -------------------- */
 const ScrollToTop = () => {
@@ -152,7 +152,7 @@ const App = () => {
       <Analytics />
       <SpeedInsights />
 
-      <MatchesProvider loggedIn={loggedIn}>
+      <PagedCacheProvider loggedIn={loggedIn}>
       <Router>
         {/* Reset scroll position whenever the route changes */}
         <ScrollToTop />
@@ -245,7 +245,7 @@ const App = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
-      </MatchesProvider>
+      </PagedCacheProvider>
     </>
   );
 };

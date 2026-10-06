@@ -1,18 +1,37 @@
-import React, { useCallback, useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 
 import Header from "../components/header";
 import ViewClothes from "../components/clothes/viewClothes";
 import ViewClothesTop from "../components/clothes/viewClothesTop";
 import AddUpdateClothes from "../components/clothes/addUpdateClothes";
 import Filter from "../components/general/filter";
+import Pagination from "../components/general/pagination";
+
+import { usePagedCache } from "../context/usePagedCache";
+import { usePagedList } from "../hooks/usePagedList";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
+import { buildClothingFilterQuery } from "../utils/clothingQuery";
+import { withPage, formatListCount } from "../utils/pageQuery";
 
 import "../styles/pages.css";
 
-import { URL } from "../config";
+const defaultFilters = {
+  seasons: [],
+  colors: [],
+  styles: [],
+};
 
 const Clothes = ({ loggedIn }) => {
-  const [allItems, setAllItems] = useState([]);
+  const {
+    fetchFilterOptions,
+    invalidateFilterOptions,
+    getSavedView,
+    saveView,
+  } = usePagedCache("clothes");
+
+  // Pick up the search / filters / page from last time.
+  const [savedView] = useState(() => getSavedView());
+
   const [error, setError] = useState(null);
 
   const [showClothingModal, setShowClothingModal] =
@@ -22,15 +41,18 @@ const Clothes = ({ loggedIn }) => {
 
   const [showFilters, setShowFilters] =
     useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(
+    savedView?.searchTerm ?? ""
+  );
   const [selectedType, setSelectedType] =
-    useState(null);
+    useState(savedView?.selectedType ?? null);
 
-  const [filters, setFilters] = useState({
-    seasons: [],
-    colors: [],
-    styles: [],
-  });
+  const [filters, setFilters] = useState(
+    savedView?.filters ?? defaultFilters
+  );
+
+  const [filterOptions, setFilterOptions] =
+    useState(null);
 
   const clothingTypes = [
     "top",
@@ -46,113 +68,69 @@ const Clothes = ({ loggedIn }) => {
     onepiece: "One-Pieces",
   };
 
-  // useCallback keeps this the same function between renders, so the
-  // effect below can list it and still only run once.
-  const fetchAllItems = useCallback(async () => {
-    try {
-      setError(null);
+  /* -------------------- Query -------------------- */
 
-      const token = localStorage.getItem("token");
+  const debouncedSearch = useDebouncedValue(searchTerm);
 
-      if (!token) {
-        setError("No user logged in");
-        return;
-      }
+  const filterQuery = buildClothingFilterQuery({
+    search: debouncedSearch,
+    type: selectedType,
+    filters,
+  });
 
-      const res = await axios.get(
-        `${URL}/clothing/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  // The page number belongs to the filters it was chosen under, so any
+  // change to search / type / filters goes back to page 1 without a
+  // wasted request for the old page number.
+  const [pageState, setPageState] = useState(
+    savedView?.pageState ?? { filterQuery, page: 1 }
+  );
 
-      if (!Array.isArray(res.data)) {
-        setError(
-          res.data?.error ||
-            "Invalid response from server"
-        );
-        return;
-      }
+  const page =
+    pageState.filterQuery === filterQuery ? pageState.page : 1;
 
-      setAllItems(res.data);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to fetch clothing items");
-    }
-  }, []);
+  const {
+    data,
+    loading,
+    error: pageError,
+    reload,
+  } = usePagedList("clothes", withPage(filterQuery, page), {
+    errorMessage: "Failed to fetch clothing items",
+  });
 
   useEffect(() => {
-    fetchAllItems();
-  }, [fetchAllItems]);
+    saveView({ searchTerm, selectedType, filters, pageState });
+  }, [searchTerm, selectedType, filters, pageState, saveView]);
 
-  const filteredItems = allItems.filter((item) => {
-    if (
-      selectedType &&
-      item.type !== selectedType
-    ) {
-      return false;
-    }
+  /* -------------------- Filter panel options -------------------- */
 
-    if (searchTerm.trim()) {
-      const search = searchTerm.toLowerCase();
+  const loadFilterOptions = () => {
+    fetchFilterOptions()
+      .then(setFilterOptions)
+      .catch((err) => {
+        // The panel falls back to showing every option.
+        console.error("Failed to load filter options:", err);
+      });
+  };
 
-      const matchesSearch =
-        item.name
-          ?.toLowerCase()
-          .includes(search) ||
-        item.colors?.some((color) =>
-          color
-            .toLowerCase()
-            .includes(search)
-        ) ||
-        item.styles?.some((style) =>
-          style
-            .toLowerCase()
-            .includes(search)
-        );
+  useEffect(() => {
+    loadFilterOptions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-      if (!matchesSearch) {
-        return false;
-      }
-    }
+  /* -------------------- Actions -------------------- */
 
-    if (filters.seasons.length > 0) {
-      const seasonMatch =
-        filters.seasons.some(
-          (season) => item[season]
-        );
+  // After an add, edit or delete: the page, the counts and the filter
+  // options can all have changed.
+  const refresh = () => {
+    invalidateFilterOptions();
+    loadFilterOptions();
+    reload();
+  };
 
-      if (!seasonMatch) {
-        return false;
-      }
-    }
-
-    if (filters.colors.length > 0) {
-      const colorMatch =
-        item.colors?.some((color) =>
-          filters.colors.includes(color)
-        );
-
-      if (!colorMatch) {
-        return false;
-      }
-    }
-
-    if (filters.styles.length > 0) {
-      const styleMatch =
-        item.styles?.some((style) =>
-          filters.styles.includes(style)
-        );
-
-      if (!styleMatch) {
-        return false;
-      }
-    }
-
-    return true;
-  });
+  const handlePageChange = (newPage) => {
+    setPageState({ filterQuery, page: newPage });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const toggleTypeFilter = (type) => {
     setSelectedType((prev) =>
@@ -175,6 +153,8 @@ const Clothes = ({ loggedIn }) => {
     setSelectedItem(null);
   };
 
+  const count = formatListCount(data);
+
   return (
     <div className="full-page-container">
       <Header
@@ -183,10 +163,15 @@ const Clothes = ({ loggedIn }) => {
 
       <div className="main-container">
       <h2 className="page-title">
-        My Clothes{" "}
-        <span className="page-title-count">
-          ({filteredItems.length})
-        </span>
+        My Clothes
+        {count && (
+          <>
+            {" "}
+            <span className="page-title-count">
+              ({count})
+            </span>
+          </>
+        )}
       </h2>
 
       <button
@@ -196,9 +181,9 @@ const Clothes = ({ loggedIn }) => {
         Add Item
       </button>
 
-      {error && (
+      {(error || pageError) && (
         <p className="error-text">
-          Error: {error}
+          Error: {error || pageError}
         </p>
       )}
 
@@ -214,12 +199,28 @@ const Clothes = ({ loggedIn }) => {
       />
 
       <div className="page-bottom-container">
-      <ViewClothes
-        items={filteredItems}
-        onEdit={handleEdit}
-        refresh={fetchAllItems}
-        setError={setError}
-      />
+        {!data ? (
+          loading && (
+            <p className="no-items-text">
+              Loading clothes...
+            </p>
+          )
+        ) : (
+          <>
+            <ViewClothes
+              items={data.items}
+              onEdit={handleEdit}
+              refresh={refresh}
+              setError={setError}
+            />
+
+            <Pagination
+              page={data.page}
+              totalPages={data.totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
+        )}
       </div>
 
       <Filter
@@ -229,20 +230,8 @@ const Clothes = ({ loggedIn }) => {
         }
         filters={filters}
         setFilters={setFilters}
-        availableColors={[
-          ...new Set(
-            allItems.flatMap(
-              (item) => item.colors || []
-            )
-          ),
-        ]}
-        availableStyles={[
-          ...new Set(
-            allItems.flatMap(
-              (item) => item.styles || []
-            )
-          ),
-        ]}
+        availableColors={filterOptions?.colors}
+        availableStyles={filterOptions?.styles}
         // Clothing items have no temperature range - only matches do.
         showTemperature={false}
       />
@@ -251,7 +240,7 @@ const Clothes = ({ loggedIn }) => {
         <AddUpdateClothes
           item={selectedItem}
           onClose={closeModal}
-          refresh={fetchAllItems}
+          refresh={refresh}
         />
       )}
       </div>

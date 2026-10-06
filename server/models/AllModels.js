@@ -69,6 +69,10 @@ validate: { validator: Number.isInteger, message: "score must be a whole number"
 },
 });
 
+// My Outfits pages through a user's matches newest first
+// (server/services/queryHelpers.js).
+matchSchema.index({ userId: 1, _id: -1 });
+
 /* -------------------- CLOTHES -------------------- */
 
 const clothesSchema = new mongoose.Schema({
@@ -106,6 +110,10 @@ summer: { type: Boolean, required: true },
 autumn: { type: Boolean, required: true },
 winter: { type: Boolean, required: true },
 });
+
+// My Clothes pages through a user's items newest first
+// (server/services/queryHelpers.js).
+clothesSchema.index({ userId: 1, _id: -1 });
 
 /* -------------------- TODAY -------------------- */
 

@@ -17,6 +17,8 @@ router.delete(
 /* CLOTHING ROUTES */
 router.post("/clothing/", authMiddleware, allControllers.createItem);
 router.get("/clothing/", authMiddleware, allControllers.getAllItems);
+// Must stay above /clothing/:id or "options" is read as an item id.
+router.get("/clothing/options", authMiddleware, allControllers.getClothingFilterOptions);
 router.get("/clothing/:id", authMiddleware, allControllers.getItemById);
 router.put("/clothing/:id", authMiddleware, allControllers.updateItem);
 router.delete("/clothing/:id", authMiddleware, allControllers.deleteItem);
@@ -26,6 +28,8 @@ router.delete("/clothing/:id", authMiddleware, allControllers.deleteItem);
 router.post("/match/matches", authMiddleware, allControllers.createMatch);
 /*router.post("/match/bulk", authMiddleware, allControllers.createMatchesBulk);*/
 router.get("/match/", authMiddleware, allControllers.getAllMatches);
+// Must stay above /match/:id or "options" is read as a match id.
+router.get("/match/options", authMiddleware, allControllers.getMatchFilterOptions);
 router.get("/match/:id", authMiddleware, allControllers.getMatchById);
 router.put("/match/:id", authMiddleware, allControllers.updateMatch);
 router.delete("/match/:id", authMiddleware, allControllers.deleteMatch);

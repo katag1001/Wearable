@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from "axios";
-import { URL } from "../config";
-import { useMatches } from "../context/useMatches";
+import { usePagedList } from "../hooks/usePagedList";
+import { buildMatchFilterQuery } from "../utils/matchQuery";
+import { buildClothingFilterQuery } from "../utils/clothingQuery";
+import { withPage } from "../utils/pageQuery";
 
 import TodayFullBlock from '../components/today/todayFullBlock';
 import ViewMatches from '../components/matches/viewMatches';
@@ -34,73 +35,42 @@ const Homepage = ({ loggedIn, logout }) => {
 
   /*-------------------------Clothes-------------------------*/
 
-  const [clothes, setClothes] = useState([]);
-  const [clothesError, setClothesError] = useState(null);
+  // The first page of this season's newest clothes / outfits - the
+  // "View All" links have the rest. Both are cached for the session, so
+  // returning here is instant.
+  const homeClothesQuery = withPage(
+    buildClothingFilterQuery({
+      filters: { seasons: [currentSeason] },
+    }),
+    1
+  );
 
-  const fetchClothes = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setClothesError("No user logged in");
-        return;
-      }
-
-      const res = await axios.get(
-        `${URL}/clothing/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setClothes(res.data);
-
-    } catch (err) {
-      setClothesError("Failed to fetch clothes");
-    }
-  };
+  const {
+    data: clothesData,
+    reload: reloadClothes,
+  } = usePagedList("clothes", homeClothesQuery, {
+    enabled: loggedIn,
+    errorMessage: "Failed to fetch clothes",
+  });
 
   /*-------------------------Matches-------------------------*/
 
-  // Shared with My Outfits, so loading them here makes that page instant.
+  const homeMatchesQuery = withPage(
+    buildMatchFilterQuery({ season: currentSeason }),
+    1
+  );
+
   const {
-    matches,
-    fetchMatches: fetchSharedMatches,
-  } = useMatches();
-  const [matchesError, setMatchesError] = useState(null);
+    data: matchesData,
+    reload: reloadMatches,
+  } = usePagedList("matches", homeMatchesQuery, {
+    enabled: loggedIn,
+    errorMessage: "Failed to fetch matches",
+  });
 
-  const fetchMatches = async () => {
-    try {
-      await fetchSharedMatches();
-    } catch (err) {
-      setMatchesError(
-        err.message === "No user logged in"
-          ? err.message
-          : "Failed to fetch matches"
-      );
-    }
-  };
+  const seasonClothes = clothesData?.items ?? [];
 
-  /*-------------------------Fetch dashboard data-------------------------*/
-
-  useEffect(() => {
-    if (loggedIn) {
-      fetchClothes();
-      fetchMatches();
-    }
-  }, [loggedIn]);
-
-  /*-------------------------Season filtering -------------------------*/
-
-  const seasonClothes = clothes.filter(
-    (item) => item[currentSeason]
-  );
-
-  const seasonMatches = matches.filter(
-    (match) => match[currentSeason]
-  );
+  const seasonMatches = matchesData?.matches ?? [];
 
   return (
     <>
@@ -132,8 +102,7 @@ const Homepage = ({ loggedIn, logout }) => {
                   <ViewClothes
                     items={seasonClothes}
                     onEdit={() => {}}
-                    refresh={fetchClothes}
-                    setError={setClothesError}
+                    refresh={reloadClothes}
                   />
 
                 </div>
@@ -150,8 +119,7 @@ const Homepage = ({ loggedIn, logout }) => {
                   <ViewMatches
   matches={seasonMatches}
   editable={false}
-  refresh={fetchMatches}
-  setError={setMatchesError}
+  refresh={reloadMatches}
 />
 
                 </div>

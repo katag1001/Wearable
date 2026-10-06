@@ -17,6 +17,18 @@ const {
   wipeUserScores,
 } = require("../services/matchScoreService.js");
 const { USER_MADE_SCORE } = require("../constants/scoring.js");
+const { findPage } = require("../services/queryHelpers.js");
+const {
+  CLOTHES_CARD_FIELDS,
+  parseMatchQuery,
+  buildMatchFilter,
+  findClothesIdsMatchingSearch,
+  groupClothesByType,
+} = require("../services/matchQueryService.js");
+const {
+  parseClothingQuery,
+  buildClothingFilter,
+} = require("../services/clothingQueryService.js");
 const {
   deleteMatchesAndDecrementScores,
   deleteMatchesWithoutScoring,
@@ -265,6 +277,9 @@ return res.status(500).json({ error: error.message });
 }
 };
 
+// Without ?page= this returns every item as a plain array (used by Build
+// Outfits and Stats). With ?page= it returns one page of the filtered
+// items plus counts - see server/services/clothingQueryService.js.
 exports.getAllItems = async (req, res) => {
 const userId = req.user?.userId;
 
@@ -273,8 +288,43 @@ return res.status(401).json({ error: "Unauthorized" });
 }
 
 try {
+if (req.query.page === undefined) {
 const items = await Clothes.find({ userId });
 return res.json(items);
+}
+
+const filters = parseClothingQuery(req.query);
+
+const result = await findPage({
+Model: Clothes,
+userId,
+filter: buildClothingFilter(userId, filters),
+paging: filters,
+listKey: "items",
+});
+
+return res.json(result);
+} catch (error) {
+return res.status(500).json({ error: error.message });
+}
+};
+
+// The choices shown in the My Clothes filter panel, worked out on the
+// server so the page doesn't need every item to build them.
+exports.getClothingFilterOptions = async (req, res) => {
+const userId = req.user?.userId;
+
+if (!userId) {
+return res.status(401).json({ error: "Unauthorized" });
+}
+
+try {
+const [colors, styles] = await Promise.all([
+Clothes.distinct("colors", { userId }),
+Clothes.distinct("styles", { userId }),
+]);
+
+return res.json({ colors, styles });
 } catch (error) {
 return res.status(500).json({ error: error.message });
 }
@@ -475,12 +525,64 @@ exports.createMatch = async (req, res) => {
   }
 };
 
+// Without ?page= this returns every match as a plain array (used by Stats).
+// With ?page= it returns one page of the filtered matches plus counts -
+// see server/services/matchQueryService.js for the supported filters.
 exports.getAllMatches = async (req, res) => {
 const userId = req.user?.userId;
 
 try {
+if (req.query.page === undefined) {
 const matches = await Match.find({ userId }).populate("clothes");
 return res.json(matches);
+}
+
+const filters = parseMatchQuery(req.query);
+
+const matchingClothesIds = await findClothesIdsMatchingSearch(
+Clothes,
+userId,
+filters.search
+);
+
+const result = await findPage({
+Model: Match,
+userId,
+filter: buildMatchFilter(userId, filters, matchingClothesIds),
+paging: filters,
+listKey: "matches",
+prepare: (query) => query.populate("clothes", CLOTHES_CARD_FIELDS),
+});
+
+return res.json(result);
+} catch (error) {
+return res.status(500).json({ error: error.message });
+}
+};
+
+// The choices shown in the My Outfits filter panel, worked out on the
+// server so the page doesn't need every match to build them.
+exports.getMatchFilterOptions = async (req, res) => {
+const userId = req.user?.userId;
+
+try {
+const [colors, styles, tags, clothesIds] = await Promise.all([
+Match.distinct("colors", { userId }),
+Match.distinct("styles", { userId }),
+Match.distinct("tags", { userId }),
+Match.distinct("clothes", { userId }),
+]);
+
+const clothes = await Clothes.find({ _id: { $in: clothesIds }, userId })
+.select(CLOTHES_CARD_FIELDS)
+.lean();
+
+return res.json({
+colors,
+styles,
+tags,
+clothesByCategory: groupClothesByType(clothes),
+});
 } catch (error) {
 return res.status(500).json({ error: error.message });
 }

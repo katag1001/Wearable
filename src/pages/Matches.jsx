@@ -1,14 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useLocation, Link } from "react-router-dom";
+import axios from "axios";
 
 import Header from "../components/header";
 import ViewMatches from "../components/matches/viewMatches";
 import ViewMatchesTop from "../components/matches/viewMatchesTop";
 import Filter from "../components/general/filter";
+import Pagination from "../components/general/pagination";
 
-import { useMatches } from "../context/useMatches";
+import { usePagedCache } from "../context/usePagedCache";
+import { usePagedList } from "../hooks/usePagedList";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
+import { buildMatchFilterQuery } from "../utils/matchQuery";
+import { withPage, formatListCount } from "../utils/pageQuery";
 
 import "../styles/pages.css";
+
+const defaultFilters = {
+  seasons: [],
+  colors: [],
+  styles: [],
+  tags: [],
+  minTemp: null,
+  maxTemp: null,
+  favourite: false,
+  items: {
+    top: null,
+    bottom: null,
+    outer: null,
+    onepiece: null,
+  },
+};
 
 const Matches = ({ loggedIn, logout }) => {
   const [searchParams] = useSearchParams();
@@ -17,10 +39,19 @@ const Matches = ({ loggedIn, logout }) => {
   const location = useLocation();
 
   const {
-    matches,
-    setMatches,
-    fetchMatches: fetchSharedMatches,
-  } = useMatches();
+    fetchPage,
+    fetchFilterOptions,
+    invalidateFilterOptions,
+    getSavedView,
+    saveView,
+  } = usePagedCache("matches");
+
+  // Coming from "View New Matches" (?item=) starts a fresh view;
+  // otherwise pick up the search / filters / page from last time.
+  const [savedView] = useState(() =>
+    itemFilter ? null : getSavedView()
+  );
+
   const [error, setError] = useState(null);
 
   // True only when we've just navigated here from "View New Matches"
@@ -34,55 +65,86 @@ const Matches = ({ loggedIn, logout }) => {
     useState(null);
 
   const [selectedSeason, setSelectedSeason] =
-    useState(null);
+    useState(savedView?.selectedSeason ?? null);
 
   const [showFilters, setShowFilters] =
     useState(false);
 
   const [searchTerm, setSearchTerm] =
-    useState("");
+    useState(savedView?.searchTerm ?? "");
 
-  const [filters, setFilters] = useState({
-    seasons: [],
-    colors: [],
-    styles: [],
-    tags: [],
-    minTemp: null,
-    maxTemp: null,
-    favourite: false,
-    items: {
-      top: null,
-      bottom: null,
-      outer: null,
-      onepiece: null,
-    },
+  const [filters, setFilters] = useState(
+    savedView?.filters ?? defaultFilters
+  );
+
+  const [filterOptions, setFilterOptions] =
+    useState(null);
+
+  /* -------------------- Query -------------------- */
+
+  const debouncedSearch = useDebouncedValue(searchTerm);
+
+  const filterQuery = buildMatchFilterQuery({
+    search: debouncedSearch,
+    season: selectedSeason,
+    filters,
+    item: itemFilter,
   });
 
-  // Re-fetches into the shared store. The cached list stays on screen
-  // until the fresh one arrives, so revisiting the page is instant.
-  const fetchMatches = async () => {
-    try {
-      setError(null);
-      await fetchSharedMatches();
-    } catch (err) {
-      setError(
-        err.message === "No user logged in"
-          ? err.message
-          : "Failed to fetch matches"
-      );
-    }
+  // The page number belongs to the filters it was chosen under, so any
+  // change to search / season / filters goes back to page 1 without a
+  // wasted request for the old page number.
+  const [pageState, setPageState] = useState(
+    savedView?.pageState ?? { filterQuery, page: 1 }
+  );
+
+  const page =
+    pageState.filterQuery === filterQuery ? pageState.page : 1;
+
+  const query = withPage(filterQuery, page);
+
+  const {
+    data,
+    loading,
+    error: pageError,
+    reload,
+    updateItem,
+  } = usePagedList("matches", query, {
+    enabled: !waitingForNewMatch,
+    errorMessage: "Failed to fetch matches",
+  });
+
+  useEffect(() => {
+    if (itemFilter) return;
+
+    saveView({ searchTerm, selectedSeason, filters, pageState });
+  }, [itemFilter, searchTerm, selectedSeason, filters, pageState, saveView]);
+
+  /* -------------------- Filter panel options -------------------- */
+
+  const loadFilterOptions = () => {
+    fetchFilterOptions()
+      .then(setFilterOptions)
+      .catch((err) => {
+        // The panel falls back to showing every option.
+        console.error("Failed to load filter options:", err);
+      });
   };
 
   useEffect(() => {
-    if (!waitingForNewMatch) {
-      fetchMatches();
-      return;
-    }
+    loadFilterOptions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* -------------------- New matches polling -------------------- */
+
+  useEffect(() => {
+    if (!waitingForNewMatch) return undefined;
 
     let attempts = 0;
     const maxAttempts = 8;
     let timeoutId;
-    let cancelled = false;
+    const controller = new AbortController();
 
     const poll = async () => {
       attempts += 1;
@@ -90,24 +152,23 @@ const Matches = ({ loggedIn, logout }) => {
       try {
         setError(null);
 
-        const data = await fetchSharedMatches();
+        // Cached by the store, so the page shows it as soon as
+        // polling stops.
+        const result = await fetchPage(query, {
+          signal: controller.signal,
+        });
 
-        if (cancelled) return;
-
-        const found = data.some((match) =>
-          match.clothes?.some(
-            (item) => item._id === itemFilter
-          )
-        );
-
-        if (found || attempts >= maxAttempts) {
+        if (result.filteredTotal > 0 || attempts >= maxAttempts) {
+          // New outfits mean new colours / tags / items to filter by.
+          invalidateFilterOptions();
+          loadFilterOptions();
           setWaitingForNewMatch(false);
           return;
         }
 
         timeoutId = setTimeout(poll, 1000);
       } catch (err) {
-        if (cancelled) return;
+        if (axios.isCancel(err)) return;
 
         setError(
           err.message === "No user logged in"
@@ -121,20 +182,20 @@ const Matches = ({ loggedIn, logout }) => {
     poll();
 
     return () => {
-      cancelled = true;
+      controller.abort();
       clearTimeout(timeoutId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleUpdateSuccess = (updatedMatch) => {
-    setMatches((prev) =>
-      prev.map((match) =>
-        match._id === updatedMatch._id
-          ? updatedMatch
-          : match
-      )
-    );
+  /* -------------------- Actions -------------------- */
+
+  // After a delete or edit: the page, the counts and the filter
+  // options can all have changed.
+  const refresh = () => {
+    invalidateFilterOptions();
+    loadFilterOptions();
+    reload();
   };
 
   const handleError = (msg) => {
@@ -142,13 +203,17 @@ const Matches = ({ loggedIn, logout }) => {
   };
 
   const handleFavouriteToggle = (matchId, favourite) => {
-    setMatches((prev) =>
-      prev.map((match) =>
-        match._id === matchId
-          ? { ...match, favourite }
-          : match
-      )
-    );
+    updateItem(matchId, { favourite });
+
+    // An unfavourited outfit no longer belongs in a favourites-only list.
+    if (filters.favourite) {
+      reload();
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    setPageState({ filterQuery, page: newPage });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const toggleSeasonFilter = (season) => {
@@ -161,153 +226,7 @@ const Matches = ({ loggedIn, logout }) => {
     word.charAt(0).toUpperCase() +
     word.slice(1);
 
-  const filteredMatches = matches.filter(
-    (match) => {
-      if (
-        itemFilter &&
-        !match.clothes?.some(
-          (item) =>
-            item._id === itemFilter
-        )
-      ) {
-        return false;
-      }
-
-      if (
-        selectedSeason &&
-        !match[selectedSeason]
-      ) {
-        return false;
-      }
-
-      if (searchTerm.trim()) {
-        const search =
-          searchTerm.toLowerCase();
-
-        const matchesSearch =
-          match.clothes?.some((item) =>
-            item.name
-              ?.toLowerCase()
-              .includes(search)
-          ) ||
-          match.colors?.some((color) =>
-            color
-              .toLowerCase()
-              .includes(search)
-          ) ||
-          match.styles?.some((style) =>
-            style
-              .toLowerCase()
-              .includes(search)
-          ) ||
-          match.tags?.some((tag) =>
-            tag
-              .toLowerCase()
-              .includes(search)
-          );
-
-        if (!matchesSearch) {
-          return false;
-        }
-      }
-
-      if (filters.favourite && !match.favourite) {
-        return false;
-      }
-
-      if (filters.seasons.length > 0) {
-        if (
-          !filters.seasons.some(
-            (season) =>
-              match[season]
-          )
-        ) {
-          return false;
-        }
-      }
-
-      if (filters.colors.length > 0) {
-        if (
-          !match.colors?.some((color) =>
-            filters.colors.includes(color)
-          )
-        ) {
-          return false;
-        }
-      }
-
-      if (filters.styles.length > 0) {
-        if (
-          !match.styles?.some((style) =>
-            filters.styles.includes(style)
-          )
-        ) {
-          return false;
-        }
-      }
-
-      if (filters.tags.length > 0) {
-        if (
-          !(match.tags || []).some((tag) =>
-            filters.tags.includes(tag)
-          )
-        ) {
-          return false;
-        }
-      }
-
-      const selectedItemIds = Object.values(
-        filters.items || {}
-      ).filter(Boolean);
-
-      if (selectedItemIds.length > 0) {
-        const matchClothesIds = (match.clothes || []).map(
-          (item) => item._id
-        );
-
-        const hasAllSelectedItems = selectedItemIds.every(
-          (id) => matchClothesIds.includes(id)
-        );
-
-        if (!hasAllSelectedItems) {
-          return false;
-        }
-      }
-
-      if (
-        filters.minTemp !== null &&
-        match.max_temp < filters.minTemp
-      ) {
-        return false;
-      }
-
-      if (
-        filters.maxTemp !== null &&
-        match.min_temp > filters.maxTemp
-      ) {
-        return false;
-      }
-
-      return true;
-    }
-  );
-
-  const clothesByCategory = { top: [], bottom: [], outer: [], onepiece: [] };
-
-  const seenClothesIds = new Set();
-
-  matches.forEach((match) => {
-    (match.clothes || []).forEach((item) => {
-      if (
-        item?._id &&
-        clothesByCategory[item.type] &&
-        !seenClothesIds.has(item._id)
-      ) {
-        seenClothesIds.add(item._id);
-        clothesByCategory[item.type].push(item);
-      }
-    });
-  });
+  const count = formatListCount(data);
 
   return (
     <div className="full-page-container">
@@ -317,10 +236,15 @@ const Matches = ({ loggedIn, logout }) => {
 
       <div className="main-container">
       <h2 className="page-title">
-        My Outfits{" "}
-        <span className="page-title-count">
-          ({filteredMatches.length})
-        </span>
+        My Outfits
+        {count && (
+          <>
+            {" "}
+            <span className="page-title-count">
+              ({count})
+            </span>
+          </>
+        )}
       </h2>
 
       <Link
@@ -342,26 +266,40 @@ const Matches = ({ loggedIn, logout }) => {
         capitalize={capitalize}
       />
 
-      {error && (
+      {(error || pageError) && (
         <p className="error-text">
-          {error}
+          {error || pageError}
         </p>
       )}
 
-    
+
       <div className="page-bottom-container">
         {waitingForNewMatch ? (
           <p className="no-items-text">
             Finding your new matches...
           </p>
+        ) : !data ? (
+          loading && (
+            <p className="no-items-text">
+              Loading outfits...
+            </p>
+          )
         ) : (
-          <ViewMatches
-            matches={filteredMatches}
-            onEdit={setEditingMatch}
-            refresh={fetchMatches}
-            setError={setError}
-            onFavouriteToggle={handleFavouriteToggle}
-          />
+          <>
+            <ViewMatches
+              matches={data.matches}
+              onEdit={setEditingMatch}
+              refresh={refresh}
+              setError={setError}
+              onFavouriteToggle={handleFavouriteToggle}
+            />
+
+            <Pagination
+              page={data.page}
+              totalPages={data.totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
         )}
       </div>
 
@@ -374,31 +312,10 @@ const Matches = ({ loggedIn, logout }) => {
         setFilters={setFilters}
         showFavourites
         showItemFilter
-        clothesByCategory={clothesByCategory}
-        availableColors={[
-          ...new Set(
-            matches.flatMap(
-              (match) =>
-                match.colors || []
-            )
-          ),
-        ]}
-        availableStyles={[
-          ...new Set(
-            matches.flatMap(
-              (match) =>
-                match.styles || []
-            )
-          ),
-        ]}
-        availableTags={[
-          ...new Set(
-            matches.flatMap(
-              (match) =>
-                match.tags || []
-            )
-          ),
-        ]}
+        clothesByCategory={filterOptions?.clothesByCategory}
+        availableColors={filterOptions?.colors}
+        availableStyles={filterOptions?.styles}
+        availableTags={filterOptions?.tags}
       />
 
     </div>

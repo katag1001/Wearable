@@ -1,0 +1,51 @@
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: .4rem;
+  /* Clear of the fixed action button at the bottom of the page */
+  margin: 1.5rem 0 5.5rem;
+  font-family: var(--main-font);
+}
+
+.pagination-button {
+  min-width: 2.2rem;
+  height: 2.2rem;
+  padding: 0 .6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--card-background);
+  color: var(--main-color);
+  font-family: inherit;
+  font-size: var(--small-font-size);
+  cursor: pointer;
+}
+
+.pagination-button:hover:not(:disabled) {
+  border-color: var(--hover-border-color);
+}
+
+.pagination-button-active {
+  border-color: var(--main-color);
+  background: var(--main-color);
+  color: var(--inverse-color);
+}
+
+.pagination-button:disabled {
+  color: var(--muted-color);
+  cursor: default;
+}
+
+.pagination-gap {
+  color: var(--muted-color);
+  font-size: var(--small-font-size);
+}
+
+@media (max-width: 600px) {
+  .pagination-button {
+    min-width: 1.9rem;
+    height: 1.9rem;
+    padding: 0 .4rem;
+  }
+}
