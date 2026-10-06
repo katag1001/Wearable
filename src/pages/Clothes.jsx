@@ -182,7 +182,12 @@ const Clothes = ({ loggedIn }) => {
       />
 
       <div className="main-container">
-      <h2 className="page-title">My Clothes</h2>
+      <h2 className="page-title">
+        My Clothes{" "}
+        <span className="page-title-count">
+          ({filteredItems.length})
+        </span>
+      </h2>
 
       <button
         className="top-action-button"

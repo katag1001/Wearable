@@ -332,7 +332,12 @@ const Matches = ({ loggedIn, logout }) => {
       />
 
       <div className="main-container">
-      <h2 className="page-title">My Outfits</h2>
+      <h2 className="page-title">
+        My Outfits{" "}
+        <span className="page-title-count">
+          ({filteredMatches.length})
+        </span>
+      </h2>
 
       <Link
         to="/buildmatches"
