@@ -1,8 +1,8 @@
 // server/scripts/matchingOverhaulMigration.js
 //
-// One-off database update for the matching overhaul
-// (context/matching-overhaul-plan.md, section 7). Run once, after the code
-// changes are deployed:
+// One-off database update for the matching overhaul (see
+// context/clothing-and-matching-flow.md, Parts 10-11). Run once, after the
+// code changes are deployed:
 //
 //   node server/scripts/matchingOverhaulMigration.js
 //

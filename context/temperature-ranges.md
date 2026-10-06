@@ -16,8 +16,9 @@ In short:
    days.
 4. **Minimums** stop an outfit going colder than makes sense without a coat,
    or with a particular coat.
-5. The user's **temperature preference** shifts the whole range before it's
-   saved.
+5. The user's **temperature preference** shifts the whole range.
+6. Any outfit with a **long bottom** is capped at a maximum of 25° - the
+   last step, after everything else.
 
 Files:
 
@@ -47,8 +48,8 @@ values at the time of writing; the file is the source of truth.
 | Bottom group | Subtypes |
 |---|---|
 | short | Mini skirt and all shorts |
-| lightLong | Maxi, Knee-length, Midi and Low waist midi skirts, Linen pants, Cropped jeans, Cropped trousers |
-| long | All other jeans and trousers, Leggings, Sweatpants, Cargo pants, Leather trousers, Chinos |
+| lightLong | Maxi, Knee-length, Midi and Low waist midi skirts, Linen pants, Cropped trousers |
+| long | All jeans (including Cropped jeans), Tailored trousers, Wide leg trousers, Chinos, Cargo pants, Leather trousers, Leggings, Sweatpants |
 
 `BASE_RANGES` - a top group worn with a bottom group, no outer:
 
@@ -83,6 +84,8 @@ values at the time of writing; the file is the source of truth.
 - `OUTER_LAYER_OVERLAP` (4) - a long or warm top over a onepiece (a
   cardigan over a dress) caps the maximum this far above the onepiece's own
   minimum.
+- `LONG_BOTTOM_MAX_TEMP` (25) - the highest saved maximum for any outfit
+  with a long bottom (Part 2, step 6).
 - `TEMPERATURE_LIMITS` (−20 to 50) - the same bounds as the sliders.
 
 ### 1.5 The temperature preference
@@ -136,6 +139,14 @@ match - the outfit becomes a single temperature rather than being rejected.
 Both ends move by `TEMPERATURE_PREFERENCE_SHIFT`, and are kept within
 `TEMPERATURE_LIMITS`.
 
+### Step 6 - Long-bottom cap
+
+If the outfit has a bottom from the "long" group, its saved maximum is
+never above `LONG_BOTTOM_MAX_TEMP` (25). This is applied last, after the
+preference shift, so it's the real saved value: Short t-shirt + Wide leg
+jeans is 17–25 (19–25 for "cold"), not 17–28. If the minimum were above 25
+it would be lowered to 25. Outfits without a long bottom are untouched.
+
 ### Unknown subtypes
 
 A subtype missing from the presets falls back to a middle value (a long top
@@ -154,7 +165,8 @@ preference, with the values above:
 | 2. Warm jumper over it, −11 | 6–17 |
 | 3. Denim jacket, −2 (maximum capped at 25 − 2 = 23) | 4–15 |
 | 4. One outer: minimum raised to the Denim jacket's 10 | 10–15 |
-| 5. "cold" +2 | **12–17** |
+| 5. "cold" +2 | 12–17 |
+| 6. Long-bottom cap: 17 is already under 25 | **12–17** |
 
 ---
 
@@ -216,6 +228,7 @@ preference, with the values above:
 | Warmest day for an outfit with outers | `OUTER_CEILING_BASE` |
 | Cardigan-over-dress cap | `OUTER_LAYER_OVERLAP` |
 | Preference shift | `TEMPERATURE_PREFERENCE_SHIFT` |
+| Highest maximum with a long bottom | `LONG_BOTTOM_MAX_TEMP` |
 | Today overlap threshold | `MIN_TODAY_OVERLAP_FRACTION` in `server/services/temperatureService.js` |
 
 After changing them, restart the server and run the reset script (Part 3)

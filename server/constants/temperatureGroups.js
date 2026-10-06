@@ -40,7 +40,7 @@ const BOTTOM_GROUPS = {
   long: [
     "Jeans", "Flared jeans", "Wide leg jeans", "High waisted jeans",
     "Low waist jeans", "Skinny jeans", "Boyfriend jeans", "Tailored trousers",
-    "Wideleg trousers", "Chinos", "Cargo pants", "Leather trousers",
+    "Wide leg trousers", "Chinos", "Cargo pants", "Leather trousers",
     "Leggings", "Sweatpants", "Cropped jeans",
   ],
 };

@@ -55,7 +55,7 @@ module.exports = {
     "Boyfriend jeans",
     "Cropped trousers",
     "Leather trousers",
-    "Wideleg trousers",
+    "Wide leg trousers",
     "Tailored trousers",
     "Cargo pants",
     "Linen pants",
@@ -130,7 +130,7 @@ module.exports = {
     [  58,  88,  60,  86,  68,  68,  85,  66,  50,  54,  54,  59,  73,  73,  73,  90,  86,  71,  71,  60,  64,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  54,  70,  85,  74,  54,  26,  56,  46,  74,  62,  70,  58,  73], // Boyfriend jeans
     [  34,  40,  62,  60,  85,  84,  89,  74,  74,  74,  74,  84,  84,  84,  74,  62,  62,  44,  62,  74,  74,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  90,  62,  62,  52,  88,  46,  22,  62,  68,  62,  62,  26,  74], // Cropped trousers
     [  59,  82,  86,  79,  74,  66,  82,  52,  57,  85,  88,  60,  66,  86,  86,  46,  60,  40,  52,  52,  71,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  84,  73,  79,  68,  68,  88,  67,  68,  74,  60,  73,  59,  50], // Leather trousers
-    [  24,  30,  90,  50,  86,  84,  92,  86,  86,  90,  88,  90,  88,  88,  87,  78,  62,  49,  80,  74,  64,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  92,  52,  52,  52,  90,  36,  12,  88,  68,  62,  52,  16,  79], // Wideleg trousers
+    [  24,  30,  90,  50,  86,  84,  92,  86,  86,  90,  88,  90,  88,  88,  87,  78,  62,  49,  80,  74,  64,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  92,  52,  52,  52,  90,  36,  12,  88,  68,  62,  52,  16,  79], // Wide leg trousers
     [  24,  80,  92,  62,  86,  68,  96,  60,  60,  90,  88,  94,  88,  90,  85,  72,  54,  26,  46,  60,  68,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  95,  54,  70,  44,  92,  86,  26,  92,  62,  54,  54,  24,  68], // Tailored trousers
     [  86,  56,  54,  58,  62,  62,  44,  54,  44,  44,  44,  49,  67,  67,  67,  84,  84,  71,  80,  54,  52,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  44,  64,  80,  86,  44,  16,  86,  36,  68,  82,  86,  88,  82], // Cargo pants
     [  44,  24,  34,  42,  66,  74,  80,  94,  85,  62,  62,  67,  79,  71,  79,  74,  74,  73,  85,  84,  82,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  62,  62,  24,  66,  54,   5,  18,  22,  66,  80,  62,  30,  71], // Linen pants

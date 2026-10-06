@@ -17,17 +17,32 @@ export const getInitialState = () => ({
   lastWornDate: null
 });
 
+// Other words for a colour in colorOptions, so an item name using them
+// still picks the colour up (e.g. "Beige trench" -> Cream).
+const COLOR_NAME_ALIASES = {
+  beige: "Cream",
+  lavender: "Lilac",
+};
+
 export const detectFromName = (name) => {
   const lower = name.toLowerCase();
 
 
-  const detectedColors = colorOptions
+  const namedColors = colorOptions
     .filter(color =>
       lower.includes(
         color.name.toLowerCase()
       )
     )
     .map(color => color.name);
+
+  const aliasedColors = Object.entries(COLOR_NAME_ALIASES)
+    .filter(([alias]) => lower.includes(alias))
+    .map(([, colorName]) => colorName);
+
+  const detectedColors = [
+    ...new Set([...namedColors, ...aliasedColors])
+  ];
 
 
 
@@ -86,8 +101,8 @@ const SUBTYPE_SYNONYMS = {
   "turtleneck jumper": ["polo neck jumper", "roll neck jumper", "turtleneck sweater"],
   "fancy top": ["party top", "going out top", "dressy top"],
   "shacket": ["shirt jacket"],
-  "wideleg trousers": [
-    "wide leg trousers",
+  "wide leg trousers": [
+    "wideleg trousers",
     "wide-leg trousers",
     "wide leg pants",
   ],

@@ -1219,7 +1219,7 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Trousers",
-      "name": "Wideleg trousers",
+      "name": "Wide leg trousers",
       "season": [
         "Spring",
         "Summer",
@@ -1315,22 +1315,6 @@ const typeOptionsByGender = {
         "Gym",
         "Loungewear",
         "Outdoor",
-        "Everyday"
-      ]
-    },
-    {
-      "type": "bottom",
-      "category": "Trousers",
-      "name": "Chinos",
-      "season": [
-        "Spring",
-        "Summer",
-        "Autumn",
-        "Winter"
-      ],
-      "tags": [
-        "Work",
-        "Date night",
         "Everyday"
       ]
     },
@@ -2371,7 +2355,7 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Trousers",
-      "name": "Wideleg trousers",
+      "name": "Wide leg trousers",
       "season": [
         "Spring",
         "Summer",

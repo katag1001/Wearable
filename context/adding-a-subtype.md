@@ -145,10 +145,18 @@ pick it up.
 
 ## Renaming or removing a subtype
 
-Same files, plus:
+Same files (including `temperatureGroups.js` and any `SUBTYPE_SYNONYMS`
+key), plus:
 
 - Existing clothes with the old name keep it in the database - they will
-  no longer match a matrix row. Update them in the `clothes` collection
-  (see `server/scripts/matchingOverhaulMigration.js` for an example).
+  no longer match a matrix row. Update them in the `clothes` collection.
 - Personal adjustments in `matchscores` store the subtype names
-  (`subtypeA` / `subtypeB`) and need updating or deleting too.
+  (`subtypeA` / `subtypeB`, in alphabetical order) and need updating too -
+  re-sorting the pair if the new name sorts differently.
+- Matches only store clothing ids, so they need no change.
+
+`server/scripts/renameWideLegTrousers.js` is a ready example of a rename
+(items + score adjustments), and `server/scripts/replaceWomensChinos.js`
+of removing a subtype for one gender by switching items to another.
+Keeping the old spelling as a `SUBTYPE_SYNONYMS` entry means typing it
+still suggests the subtype.

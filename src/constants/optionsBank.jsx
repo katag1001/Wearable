@@ -61,7 +61,6 @@ export const seasonOptions = [
 ];
 
 export const colorOptions = [
-  { name: "Beige", value: "#F5F5DC" },
   { name: "Black", value: "#000000" },
   { name: "Brown", value: "#8B4513" },
   { name: "Camel", value: "#C19A6B" },
@@ -72,7 +71,6 @@ export const colorOptions = [
   { name: "Gold", value: "#D4AF37" },
   { name: "Grey", value: "#808080" },
   { name: "Green", value: "#008000" },
-  { name: "Lavender", value: "#E6E6FA" },
   { name: "Light Blue", value: "#ADD8E6" },
   { name: "Lilac", value: "#C8A2C8" },
   { name: "Lime Green", value: "#32CD32" },

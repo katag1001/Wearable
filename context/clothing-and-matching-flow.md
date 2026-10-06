@@ -9,14 +9,19 @@ outfits (matches) being created from it. It covers:
 4. How outfits are matched automatically, check by check, and scored.
 5. How outfits the user builds by hand differ.
 6. How the app learns from what the user builds, favourites and deletes.
+7. How scores are shown and used to sort the Today page.
+8. A worked example, known quirks, the reasons behind the design, and the
+   one-off database scripts.
 
 Two related docs go deeper on specific parts and aren't repeated here:
 
 - `context/temperature-ranges.md` covers how match temperature ranges are
   worked out. Clothing items have no temperature range.
-- `context/adding-a-subtype.md` covers the subtype lists and score matrices.
-- `context/matching-overhaul-plan.md` records the decisions behind the
-  current matching design.
+- `context/adding-a-subtype.md` covers adding, renaming or removing a
+  subtype (subtype lists, score matrices, temperature groups).
+
+The reasons behind the current design are in Part 10, and the one-off
+database scripts in Part 11.
 
 In short:
 
@@ -32,8 +37,9 @@ In short:
 - Once an item is saved, the server **searches for every possible outfit**
   that includes it from the rest of the wardrobe, in the background. An
   outfit is a candidate only if it passes all of these: fixed compatibility,
-  layering rules, colour palette, pattern limit, a shared season and
-  temperature. Every candidate gets a **score (0-100)** and only the **best
+  layering rules, colour palette, pattern limit and a shared season.
+  Temperature never rejects an outfit - each match gets a preset range from
+  its subtypes. Every candidate gets a **score (0-100)** and only the **best
   100** new ones are saved.
 - **Compatibility is fixed.** Role rules plus the gender's matrix decide
   whether two items can ever be in the same outfit. User behaviour never
@@ -60,7 +66,7 @@ Files:
 | `src/components/clothes/uploadComponents/useClothingForm.jsx` | Form state and toggle handlers |
 | `src/components/clothes/uploadComponents/useClothingDetection.jsx` | Auto-fills page two when Next is clicked |
 | `src/components/clothes/uploadComponents/uploadHelpers.jsx` | Name detection, subtype suggestions, defaults |
-| `src/constants/typeOptions.jsx` | Subtypes per gender, with their default seasons/tags/temps |
+| `src/constants/typeOptions.jsx` | Subtypes per gender, with their category and default seasons/tags |
 | `src/constants/optionsBank.jsx` | Colour, tag and season option lists |
 
 ### 1.1 When the form opens
@@ -145,6 +151,9 @@ so:
 - A colour name inside another word is detected too. For example
   `"Tank top"` → `Tan`, `"Embroidered blouse"` → `Red`, `"Golden …"` →
   `Gold`.
+- Some other words count as a colour (`COLOR_NAME_ALIASES`): `"beige"` →
+  `Cream`, `"lavender"` → `Lilac`. Beige and Lavender were merged into
+  those colours and can't be picked any more.
 - There is no plain "Blue". Only `Dark Blue`, `Light Blue`, `Navy`,
   `Teal` and `Turquoise` exist, so `"Blue jeans"` detects no colour. The
   user has to pick one, because page two needs at least one colour.
@@ -157,12 +166,11 @@ The user can correct all of this on page two.
 of it:
 
 - **Seasons.** Checkboxes (`toggleSeason`).
-- **Temperature.** A two-thumb slider from −20 to 50. Moving it sets
-  `manualTempOverride`, and from then on the defaults are never applied
-  again for this item.
-- **Colours.** A grid of the 30 `colorOptions` (`toggleColor`).
+- **Colours.** A grid of the 28 `colorOptions` (`toggleColor`).
 - **Tags.** The 10 `tagOptions`: Work, Gym, Loungewear, Party, Date night,
   Wedding, Beach, Outdoor, Dinner, Everyday.
+
+There is no temperature on the form - items don't have one.
 
 **Style is recalculated automatically.** An effect in `addUpdateClothes.jsx`
 sets `styles` to `"Patterned"` when there are more than one colour and to
@@ -203,7 +211,7 @@ gets through these checks, in order:
 | # | Where | Check | On failure |
 |---|---|---|---|
 | 1 | Page one (client) | Name, subtype, image present | Message, can't continue |
-| 2 | Page two (client) | ≥1 season, temp range, ≥1 colour | Message, can't save |
+| 2 | Page two (client) | ≥1 season, ≥1 colour | Message, can't save |
 | 3 | `authMiddleware` | Valid `Bearer` JWT; sets `req.user.userId` | 401 |
 | 4 | `createItem` | `type` present | 400 "Missing type" |
 | 5 | `createItem` | No existing item with the same `name` + `type` for this user | Returns the existing item (see Part 9) |
@@ -217,10 +225,10 @@ list, or that `type` matches the subtype. It trusts the client. An item
 whose subtype isn't in the user's matrix is saved, but it can never be
 matched automatically (3.3).
 
-The matrices currently use the corrected names **Denim jacket**, **Short
-turtleneck** and **Long t-shirt**, and men's **Waistcoat** is a `top`.
-Items saved under the old names (or a men's Waistcoat saved as `outer`)
-must be updated with `server/scripts/matchingOverhaulMigration.js`.
+Subtype names have changed over time (e.g. Demin jacket → Denim jacket,
+Wideleg trousers → Wide leg trousers, men's Waistcoat is now a `top`,
+Chinos is no longer a women's subtype). Items saved under an old name stop
+being matched until they're updated - see the scripts in Part 11.
 
 ### 1.7 After saving: automatic matching starts
 
@@ -379,7 +387,7 @@ coats, two short t-shirts).
 
 | Gender | File | Subtypes |
 |---|---|---|
-| woman | `woman.js` | 69 |
+| woman | `woman.js` | 68 |
 | unisex | `unisex.js` | 72 |
 | man | `man.js` | 36 |
 
@@ -464,16 +472,16 @@ colour level:
 
 | Level | Palettes | Palette size | Max distinct colours in an outfit |
 |---|---|---|---|
-| min | 30 | 4 | 4 |
-| mid | 41 | 5 | 7 |
-| max | 56 | 6–8 | no cap |
+| min | 30 | 3–4 | 4 |
+| mid | 41 | 4–5 | 7 |
+| max | 52 | 5–8 | no cap |
 
 An outfit passes if **all of its colours together fit inside at least one
 palette**, and the number of distinct colours is within the cap.
 
 Colours don't need to be close to each other. They just need to appear
 together in some palette. For example, Black + Navy is never allowed at
-`min`, but is allowed at `mid` and `max`. Black + Beige isn't allowed at any
+`min`, but is allowed at `mid` and `max`. Black + Camel isn't allowed at any
 level.
 
 ### 3.7 The pattern rule
@@ -768,7 +776,7 @@ A woman, colour **mid**, temperature **normal**. Her wardrobe already has:
 
 | Item | Subtype (role) | Colours | Seasons |
 |---|---|---|---|
-| Cream wideleg trousers | Wideleg trousers (bottom) | Cream | all |
+| Cream wideleg trousers | Wide leg trousers (bottom) | Cream | all |
 | Camel trench coat | Trench coat (outer) | Camel | Spr/Aut/Win |
 | Brown light cardigan | Light cardigan (top) | Brown | all |
 
@@ -783,8 +791,8 @@ and she picks it. Clicking Next fills in:
 She saves. The item passes every check and is stored, and `processMatches`
 starts.
 
-**Compatibility.** Buttondown shirt + Wideleg trousers, + Trench coat and
-Wideleg trousers + Trench coat are "always" role pairs. Buttondown shirt +
+**Compatibility.** Buttondown shirt + Wide leg trousers, + Trench coat and
+Wide leg trousers + Trench coat are "always" role pairs. Buttondown shirt +
 Light cardigan is a top+top pair the woman matrix allows. Cream, Gold,
 Brown and Camel all fit inside the mid palette
 `["Cream", "Camel", "Tan", "Gold", "Brown"]`. Only one item (the shirt) is
@@ -794,12 +802,12 @@ patterned. Spring, Autumn and Winter are shared by everything.
 
 | Pair | Score |
 |---|---|
-| Buttondown shirt + Wideleg trousers | 92 |
+| Buttondown shirt + Wide leg trousers | 92 |
 | Buttondown shirt + Trench coat | 92 |
 | Buttondown shirt + Light cardigan | 85 |
-| Light cardigan + Wideleg trousers | 84 |
+| Light cardigan + Wide leg trousers | 84 |
 | Light cardigan + Trench coat | 68 |
-| Wideleg trousers + Trench coat | 90 |
+| Wide leg trousers + Trench coat | 90 |
 
 | Shape | Items | Score | Temperature | Result |
 |---|---|---|---|---|
@@ -812,7 +820,7 @@ All four are within the best 100, so all are saved, each with its score.
 "View New Matches" polls until they appear.
 
 **Learning.** She deletes the 4-item outfit. Each of its 6 pairs gets −2,
-so Wideleg trousers + Trench coat drops from 90 to 88. **Nothing stops
+so Wide leg trousers + Trench coat drops from 90 to 88. **Nothing stops
 matching** - the trousers and coat are still compatible, and the 3-item
 shirt + trousers + trench outfit keeps its score of 91. Future outfits
 with that pair just score slightly lower. If she favourites the 3-item
@@ -849,7 +857,8 @@ These are behaviours found in the code that may not be intended.
    subtypes aren't in the new gender's list stop being matched.
 6. **Palettes reference colours that can't be picked.** `Coral` and
    `Kharki` appear in the palettes but not in `colorOptions`. They do no
-   harm, but they make some palettes effectively one colour smaller.
+   harm, but they make some palettes effectively one colour smaller. The
+   last palette in the `max` list is also an exact copy of an earlier one.
 7. **Matching runs after the response is sent.** `processMatches` isn't
    awaited, and in `updateItem` it has no `.catch`. On a serverless
    deployment (`api/index.vercel.js`), work after the response may be cut
@@ -861,14 +870,76 @@ These are behaviours found in the code that may not be intended.
 
 ---
 
+## Part 10 - Why it works this way
+
+Decisions made when matching was redesigned (October 2026), so they aren't
+undone by accident:
+
+- **Compatibility and score are separate.** Previously one number per pair
+  did both, so deleting a few outfits could stop a pair matching at all,
+  and pairs started with very different "lives". Now compatibility is a
+  fixed yes/no and the score only ranks.
+- **Nothing the user does can make a pair match or stop matching.**
+  Building an outfit with an incompatible pair saves that outfit (user-built
+  outfits are never checked) but doesn't teach automatic matching to
+  produce it.
+- **No style archetypes.** One matrix per gender. The quiz images now only
+  decide colour and pattern.
+- **One matrix file per gender, not a separate yes/no file.** Benchmarking
+  showed the pair lookup is a small part of matching time (colour checks
+  dominate), so a separate file would add maintenance without speeding
+  anything up. `null` vs a number encodes the yes/no.
+- **The per-pair yes/no decisions** for top+top, outer+outer and
+  top+onepiece were made by hand and live only in the matrix files (as
+  `null` or a score). A few non-obvious ones:
+  - Linen shirt + Short t-shirt is allowed but Linen shirt + Long t-shirt
+    isn't - deliberately.
+  - Turtleneck jumper + any other jumper, and any jumper + Croptop, never
+    match.
+  - Romper never pairs with a top. Men's Waistcoat + Romper/Overalls was
+    left undecided and defaults to no.
+- **A match's score is set once, at creation.** Matches aren't re-scored
+  when the user's adjustments change. Claiming an automatic outfit is the
+  one exception (it becomes 90).
+- **Only the best 100 new outfits per item are saved**, rather than
+  whichever the search happened to find first.
+- **Temperature belongs to matches, not items.** Item ranges were removed;
+  a match's range comes from preset groups and points
+  (`temperature-ranges.md`).
+- **Renames and merges:** Demin jacket → Denim jacket, Short Turtlneck →
+  Short turtleneck, Long-tshirt → Long t-shirt, Wideleg trousers → Wide leg
+  trousers; Beige → Cream, Lavender → Lilac; Chinos removed for women
+  (existing ones become Cropped trousers).
+
+---
+
+## Part 11 - One-off database scripts
+
+All in `server/scripts/`. Each reads `MONGO` from `server/.env`. Run from
+the project root with `node server/scripts/<name>.js`.
+
+| Script | What it does | Safe to run again? |
+|---|---|---|
+| `matchingOverhaulMigration.js` | Renames the first set of subtypes, men's Waistcoat → top, removes the old `style` preference, **deletes all personal score adjustments**, reports matches without a score | Steps 1-3 and 5 yes; **step 4 no** - it would wipe learned adjustments |
+| `removeClothingTemperatures.js` | Removes `min_temp`/`max_temp` from clothing items (`--backup <file>` saves them first) | Yes |
+| `resetMatchTemperatures.js` | Recalculates every match's temperature range from the current presets (`--dry-run`, `--backup <file>`). Also overwrites ranges edited by hand | Yes - run it after changing `temperatureGroups.js` |
+| `renameWideLegTrousers.js` | Wideleg trousers → Wide leg trousers on items and score adjustments | Yes |
+| `replaceWomensChinos.js` | Women's Chinos items → Cropped trousers | Yes |
+| `mergeColours.js` | Beige → Cream and Lavender → Lilac on items and matches (an item left with one colour becomes Plain) | Yes |
+
+All of these have been run on the current database.
+
+---
+
 ## Where to change things
 
 | What | Where |
 |---|---|
-| Subtypes and their default seasons/tags/temps/category | `src/constants/typeOptions.jsx` (+ `shared/subtypesByGender.json`, see `adding-a-subtype.md`) |
+| Subtypes and their default seasons/tags/category | `src/constants/typeOptions.jsx` (+ `shared/subtypesByGender.json`, see `adding-a-subtype.md`) |
 | Extra words for subtype suggestions | `SUBTYPE_SYNONYMS` in `uploadHelpers.jsx` |
 | Selectable colours / tags | `colorOptions` / `tagOptions` in `src/constants/optionsBank.jsx` |
 | Name → colour/season/tag detection | `detectFromName` in `uploadHelpers.jsx` |
+| Other words for a colour ("beige" → Cream) | `COLOR_NAME_ALIASES` in `uploadHelpers.jsx` |
 | Plain/Patterned rule | the `styles` effect in `addUpdateClothes.jsx` |
 | Style quiz images and what they mean | `styleImageOptions` in `src/constants/styleQuizOptions.js` |
 | Tie-break order | `levelPriority` in the same file |
@@ -883,7 +954,9 @@ These are behaviours found in the code that may not be intended.
 | Default gender when missing | `DEFAULT_GENDER` in `matchScoreService.js` |
 | Today page weights | `SCORE_WEIGHTS` in `todayOutfitSort.jsx` |
 | Favourite score | `FAVOURITE_SCORE` in `src/utils/matchScore.js` |
-| Temperature numbers | see `temperature-ranges.md` |
+| Temperature numbers | `server/constants/temperatureGroups.js`, see `temperature-ranges.md` |
+| Remove the temporary score display | see 7.2 |
+| One-off database updates | `server/scripts/`, see Part 11 |
 
 Tests: `server/specs/` (`matchService`, `matrixService`,
 `outfitScoreService`, `outfitEvaluator`, `styleColorService`,
