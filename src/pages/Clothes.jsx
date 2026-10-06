@@ -19,6 +19,8 @@ const defaultFilters = {
   seasons: [],
   colors: [],
   styles: [],
+  tags: [],
+  subtypes: [],
 };
 
 const Clothes = ({ loggedIn }) => {
@@ -132,10 +134,40 @@ const Clothes = ({ loggedIn }) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Subtypes always belong to the selected type, so changing or
+  // clearing the type clears them - no hidden subtype filters left on.
+  const clearSubtypes = () => {
+    setFilters((prev) =>
+      prev.subtypes?.length > 0 ? { ...prev, subtypes: [] } : prev
+    );
+  };
+
   const toggleTypeFilter = (type) => {
     setSelectedType((prev) =>
       prev === type ? null : type
     );
+    clearSubtypes();
+  };
+
+  // From the subtype row under the type buttons. Picking a subtype of
+  // another type switches to that type with just this subtype.
+  const toggleSubtypeFilter = (type, subtype) => {
+    if (selectedType !== type) {
+      setSelectedType(type);
+      setFilters((prev) => ({ ...prev, subtypes: [subtype] }));
+      return;
+    }
+
+    setFilters((prev) => {
+      const current = prev.subtypes || [];
+
+      return {
+        ...prev,
+        subtypes: current.includes(subtype)
+          ? current.filter((entry) => entry !== subtype)
+          : [...current, subtype],
+      };
+    });
   };
 
   const handleAddItem = () => {
@@ -195,6 +227,9 @@ const Clothes = ({ loggedIn }) => {
         typeTitles={typeTitles}
         selectedType={selectedType}
         toggleTypeFilter={toggleTypeFilter}
+        subtypesByType={filterOptions?.subtypesByType}
+        selectedSubtypes={filters.subtypes}
+        toggleSubtypeFilter={toggleSubtypeFilter}
         setShowFilters={setShowFilters}
       />
 
@@ -231,7 +266,10 @@ const Clothes = ({ loggedIn }) => {
         filters={filters}
         setFilters={setFilters}
         availableColors={filterOptions?.colors}
-        availableStyles={filterOptions?.styles}
+        availableTags={filterOptions?.tags}
+        // Styles aren't offered for clothes; subtypes are picked from
+        // the type buttons instead.
+        showStyles={false}
         // Clothing items have no temperature range - only matches do.
         showTemperature={false}
       />

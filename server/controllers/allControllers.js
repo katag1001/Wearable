@@ -28,6 +28,7 @@ const {
 const {
   parseClothingQuery,
   buildClothingFilter,
+  groupSubtypesByType,
 } = require("../services/clothingQueryService.js");
 const {
   deleteMatchesAndDecrementScores,
@@ -319,12 +320,19 @@ return res.status(401).json({ error: "Unauthorized" });
 }
 
 try {
-const [colors, styles] = await Promise.all([
+const [colors, styles, tags, typesAndSubtypes] = await Promise.all([
 Clothes.distinct("colors", { userId }),
 Clothes.distinct("styles", { userId }),
+Clothes.distinct("tags", { userId }),
+Clothes.find({ userId }).select("type subtype").lean(),
 ]);
 
-return res.json({ colors, styles });
+return res.json({
+colors,
+styles,
+tags,
+subtypesByType: groupSubtypesByType(typesAndSubtypes),
+});
 } catch (error) {
 return res.status(500).json({ error: error.message });
 }

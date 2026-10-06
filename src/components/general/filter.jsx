@@ -28,6 +28,9 @@ const defaultFilters = {
   colors: [],
   styles: [],
   tags: [],
+  // Set from the type buttons on My Clothes, not from this panel -
+  // listed here so Reset clears them too.
+  subtypes: [],
   minTemp: null,
   maxTemp: null,
   favourite: false,

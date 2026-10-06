@@ -27,6 +27,8 @@ const parseClothingQuery = (query = {}) => ({
   seasons: parseSeasons(query.seasons),
   colors: parseList(query.colors),
   styles: parseList(query.styles),
+  tags: parseList(query.tags),
+  subtypes: parseList(query.subtypes),
 });
 
 /* -------------------- Filter rules -------------------- */
@@ -40,6 +42,12 @@ const seasonsCondition = ({ seasons }) => anySeasonCondition(seasons);
 const colorsCondition = ({ colors }) => anyOfCondition("colors", colors);
 
 const stylesCondition = ({ styles }) => anyOfCondition("styles", styles);
+
+const tagsCondition = ({ tags }) => anyOfCondition("tags", tags);
+
+// Each item has one subtype, so this is "is one of the chosen subtypes".
+const subtypesCondition = ({ subtypes }) =>
+  anyOfCondition("subtype", subtypes);
 
 // Name, any colour or any style contains the search text.
 const searchCondition = ({ search }) => {
@@ -61,6 +69,8 @@ const FILTER_RULES = [
   seasonsCondition,
   colorsCondition,
   stylesCondition,
+  tagsCondition,
+  subtypesCondition,
   searchCondition,
 ];
 
@@ -70,8 +80,32 @@ const buildClothingFilter = (userId, filters) =>
     FILTER_RULES.map((rule) => rule(filters))
   );
 
+/* -------------------- Filter panel options -------------------- */
+
+// The subtypes the user owns, grouped by type and sorted A-Z, e.g.
+// { top: ["Shirt", "T-shirt"], bottom: ["Jeans"], outer: [], onepiece: [] }
+const groupSubtypesByType = (items) => {
+  const grouped = Object.fromEntries(
+    CLOTHING_TYPES.map((type) => [type, new Set()])
+  );
+
+  items.forEach(({ type, subtype }) => {
+    if (grouped[type] && subtype) {
+      grouped[type].add(subtype);
+    }
+  });
+
+  return Object.fromEntries(
+    CLOTHING_TYPES.map((type) => [
+      type,
+      [...grouped[type]].sort((a, b) => a.localeCompare(b)),
+    ])
+  );
+};
+
 module.exports = {
   CLOTHING_TYPES,
   parseClothingQuery,
   buildClothingFilter,
+  groupSubtypesByType,
 };

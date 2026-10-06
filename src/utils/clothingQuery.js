@@ -27,6 +27,8 @@ export const buildClothingFilterQuery = ({
   addList(params, "seasons", filters.seasons);
   addList(params, "colors", filters.colors);
   addList(params, "styles", filters.styles);
+  addList(params, "tags", filters.tags);
+  addList(params, "subtypes", filters.subtypes);
 
   return params.toString();
 };

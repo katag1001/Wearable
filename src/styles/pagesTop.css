@@ -18,6 +18,9 @@
 ----------------------------------------------------------------- */
 
 .top-selection-area {
+  /* Anchors the floating subtype row (My Clothes) */
+  position: relative;
+
   width: 100%;
   margin-bottom: 1.5rem;
 }
@@ -99,6 +102,67 @@
 }
 
 .top-option-button.top-option-active:hover {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
+}
+
+
+/* ----------------------------------------------------------------
+   Subtype Row (My Clothes)
+   Floats over the page below the type buttons while a type is
+   hovered / focused, so the content underneath doesn't jump.
+----------------------------------------------------------------- */
+
+.subtype-option-row {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .4rem;
+
+  padding: .75rem;
+
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+
+  background: var(--card-background);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .08);
+}
+
+.subtype-option-button {
+  padding: .45rem .85rem;
+
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+
+  background: var(--card-background);
+  color: var(--secondary-color);
+
+  font-family: inherit;
+  font-size: var(--tag-font-size);
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.subtype-option-button:hover {
+  border-color: var(--hover-border-color);
+  color: var(--main-color);
+}
+
+.subtype-option-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 2px;
+}
+
+.subtype-option-button.subtype-option-active {
   background: var(--main-color);
   border-color: var(--main-color);
   color: var(--inverse-color);

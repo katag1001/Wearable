@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import '../../styles/pagesTop.css'
 
 
@@ -9,13 +9,46 @@ const ViewClothesTop = ({
   typeTitles,
   selectedType,
   toggleTypeFilter,
+  // { top: ["Shirt", ...], bottom: [...], ... } - only subtypes the user owns
+  subtypesByType = {},
+  selectedSubtypes = [],
+  toggleSubtypeFilter,
   setShowFilters
 }) => {
+
+  // The type whose subtypes are showing in the row below the type
+  // buttons - set while hovering / focusing a type button.
+  const [previewType, setPreviewType] = useState(null);
+
+  const previewSubtypes = previewType
+    ? subtypesByType[previewType] || []
+    : [];
+
+  // Closes the subtype row once focus leaves the whole selection area
+  // (moving between a type button and its subtypes keeps it open).
+  const handleBlur = (e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setPreviewType(null);
+    }
+  };
+
+  const typeLabel = (type) => {
+    const count =
+      selectedType === type ? selectedSubtypes.length : 0;
+
+    return count > 0
+      ? `${typeTitles[type]} · ${count}`
+      : typeTitles[type];
+  };
 
   return (
     <div className="top-area-wrapper">
 
-      <div className="top-selection-area">
+      <div
+        className="top-selection-area"
+        onMouseLeave={() => setPreviewType(null)}
+        onBlur={handleBlur}
+      >
 
         <div className="top-option-row">
 
@@ -29,13 +62,44 @@ const ViewClothesTop = ({
                   : ""
               }`}
               onClick={() => toggleTypeFilter(type)}
+              onMouseEnter={() => setPreviewType(type)}
+              onFocus={() => setPreviewType(type)}
             >
-              {typeTitles[type]}
+              {typeLabel(type)}
             </button>
 
           ))}
 
         </div>
+
+        {previewSubtypes.length > 0 && (
+          <div
+            className="subtype-option-row"
+            aria-label={`${typeTitles[previewType]} subtypes`}
+          >
+            {previewSubtypes.map((subtype) => {
+              const active =
+                selectedType === previewType &&
+                selectedSubtypes.includes(subtype);
+
+              return (
+                <button
+                  key={subtype}
+                  type="button"
+                  className={`subtype-option-button ${
+                    active ? "subtype-option-active" : ""
+                  }`}
+                  aria-pressed={active}
+                  onClick={() =>
+                    toggleSubtypeFilter(previewType, subtype)
+                  }
+                >
+                  {subtype}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="top-search-row">
