@@ -11,8 +11,12 @@ const {
   getBaselineMatrixForUser,
   getUserMatchingPreferences,
   recordOutfitCreated,
+  recordOutfitClaimed,
+  recordOutfitFavourited,
+  recordOutfitUnfavourited,
   wipeUserScores,
 } = require("../services/matchScoreService.js");
+const { USER_MADE_SCORE } = require("../constants/scoring.js");
 const {
   deleteMatchesAndDecrementScores,
   deleteMatchesWithoutScoring,
@@ -397,7 +401,7 @@ exports.createMatch = async (req, res) => {
     const existingMatches = await Match.find({
       userId,
       clothes: { $size: clothesIds.length },
-    }).select("clothes");
+    }).select("clothes userMade");
 
     const duplicate = existingMatches.find((match) => {
       const existingClothes = match.clothes
@@ -410,43 +414,58 @@ exports.createMatch = async (req, res) => {
       );
     });
 
-    if (duplicate) {
+    if (duplicate?.userMade) {
       return res.status(409).json({ error: "Match already exists." });
     }
 
     // Get clothing items so we can describe the finished outfit
-        const clothes = await Clothes.find({
-          _id: { $in: clothesIds },
-          userId,
-        });
+    const clothes = await Clothes.find({
+      _id: { $in: clothesIds },
+      userId,
+    });
 
-        if (clothes.length !== clothesIds.length) {
-          return res.status(400).json({
-            error: "One or more clothing items could not be found.",
-          });
-        }
+    if (clothes.length !== clothesIds.length) {
+      return res.status(400).json({
+        error: "One or more clothing items could not be found.",
+      });
+    }
 
-        // Manual outfits are never rejected - describeOutfit only computes
-        // descriptive fields here (temperature, tags, role counts, etc.),
-        // it never validates matrix/colour/pattern compatibility.
-        const { temperature } = await getUserMatchingPreferences(userId);
+    const baselineMatrix = await getBaselineMatrixForUser(userId);
 
-        const described = describeOutfit(clothes, {
-          isUserMade: true,
-          temperaturePreference: temperature,
-        });
+    // Building an outfit the app already suggested claims it: it becomes
+    // user-made, gets the flat user-made score, and its pairs learn from it.
+    if (duplicate) {
+      const claimed = await Match.findByIdAndUpdate(
+        duplicate._id,
+        { $set: { userMade: true, score: USER_MADE_SCORE } },
+        { new: true, runValidators: true }
+      );
 
-        const match = new Match({
-          ...req.body,
-          ...described,
-          userId,
-          userMade: true,
-        });
+      await recordOutfitClaimed(userId, clothes, baselineMatrix);
 
+      return res.json(claimed);
+    }
+
+    // Manual outfits are never rejected - describeOutfit only computes
+    // descriptive fields here (temperature, tags, role counts, etc.),
+    // it never validates compatibility/colour/pattern.
+    const { temperature } = await getUserMatchingPreferences(userId);
+
+    const described = describeOutfit(clothes, {
+      isUserMade: true,
+      temperaturePreference: temperature,
+    });
+
+    const match = new Match({
+      ...req.body,
+      ...described,
+      userId,
+      userMade: true,
+      score: USER_MADE_SCORE,
+    });
 
     await match.save();
 
-    const baselineMatrix = await getBaselineMatrixForUser(userId);
     await recordOutfitCreated(userId, clothes, baselineMatrix);
 
     return res.json(match);
@@ -498,10 +517,18 @@ exports.updateMatch = async (req, res) => {
       });
     }
 
-    const { restoreSnapshot, clothesSnapshots, ...matchFields } = req.body;
+    // A match's score is set once by the server and never edited by the
+    // client (a favourite is shown as 100 without changing it).
+    const { restoreSnapshot, clothesSnapshots, score, ...matchFields } = req.body;
+
+    const wasFavourite = !!match.favourite;
 
     // Update match fields
     Object.assign(match, matchFields);
+
+    const favouriteChanged =
+      typeof matchFields.favourite === "boolean" &&
+      matchFields.favourite !== wasFavourite;
 
     if (restoreSnapshot) {
 
@@ -571,6 +598,19 @@ exports.updateMatch = async (req, res) => {
           ],
           { updatePipeline: true }
         );
+      }
+    }
+
+    // Favouriting raises every pair in the outfit; unfavouriting takes the
+    // same amount back off, so toggling can't inflate a pair's score.
+    if (favouriteChanged) {
+      const clothes = await Clothes.find({ _id: { $in: match.clothes }, userId });
+      const baselineMatrix = await getBaselineMatrixForUser(userId);
+
+      if (match.favourite) {
+        await recordOutfitFavourited(userId, clothes, baselineMatrix);
+      } else {
+        await recordOutfitUnfavourited(userId, clothes, baselineMatrix);
       }
     }
 
@@ -764,28 +804,22 @@ exports.updatePreferences = async (req, res) => {
       saturday,
       sunday,
       gender,
-      style,
       colour,
       pattern,
       temperature,
     } = req.body;
 
-    // A user explicitly resetting their gender or style invalidates their
-    // personal combination scoring (it was learned under a different
-    // subtype universe / starting point) - so it gets wiped and falls back
-    // live to the new gender+style baseline. Changing anything else
-    // (temperature, colour, pattern, day preferences) never wipes it.
+    // A user changing their gender invalidates their personal score
+    // adjustments (they were learned against a different set of subtypes) -
+    // so they get wiped and scoring falls back to the new gender's
+    // baseline. Changing anything else (temperature, colour, pattern, day
+    // preferences) never wipes them.
     const existingPreferences = await Preferences.findOne({ userId });
 
     const genderChanged =
       !!existingPreferences &&
       gender !== undefined &&
       gender !== existingPreferences.gender;
-
-    const styleChanged =
-      !!existingPreferences &&
-      style !== undefined &&
-      style !== existingPreferences.style;
 
     const preferences = await Preferences.findOneAndUpdate(
       { userId },
@@ -799,7 +833,6 @@ exports.updatePreferences = async (req, res) => {
           saturday,
           sunday,
           gender,
-          style,
           colour,
           pattern,
           temperature,
@@ -816,7 +849,7 @@ exports.updatePreferences = async (req, res) => {
       }
     );
 
-    if (genderChanged || styleChanged) {
+    if (genderChanged) {
       await wipeUserScores(userId);
     }
 

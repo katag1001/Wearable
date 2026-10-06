@@ -5,6 +5,7 @@ import { URL } from "../../config";
 import todayOutfitSort from "./todayOutfitSort";
 import MessagePopup from "../general/messagePopup.jsx";
 import DeletePopup from "../general/deletePopup.jsx";
+import MatchScoreBadge from "../general/matchScoreBadge.jsx";
 import { fetchTodayInfo } from "./todayHelpers";
 import { tagOptions } from "../../constants/optionsBank";
 import { getImageUrl } from "../../utils/getImageUrl";
@@ -1124,6 +1125,11 @@ const ViewToday = ({ todayReady }) => {
 
             <div className="featured-outfit-content">
 
+              <MatchScoreBadge
+                match={wornOutfit?.matchId}
+                overlay
+              />
+
               {renderOutfitImages(
                 wornOutfit
               )}
@@ -1168,6 +1174,11 @@ const ViewToday = ({ todayReady }) => {
 
             {filteredOutfits.length > 0 ? (
               <>
+                <MatchScoreBadge
+                  match={selectedOutfit?.matchId}
+                  overlay
+                />
+
                 {renderOutfitImages(
                   selectedOutfit
                 )}

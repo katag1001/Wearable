@@ -56,6 +56,17 @@ wornYear: { type: Number, default: null },
 
 userMade: { type: Boolean, default: false },
 favourite: { type: Boolean, default: false },
+
+// Set once when the match is created (server/services/outfitScoreService.js
+// and server/constants/scoring.js). A favourite is shown and sorted as 100
+// without changing this value.
+score: {
+type: Number,
+required: true,
+min: 0,
+max: 100,
+validate: { validator: Number.isInteger, message: "score must be a whole number" },
+},
 });
 
 /* -------------------- CLOTHES -------------------- */
@@ -142,7 +153,6 @@ const preferencesSchema = new mongoose.Schema({
   sunday: { type: String, default: null },
 
   gender: { type: String, enum: ["man", "woman", "unisex"], default: null },
-  style: { type: String, enum: ["fun", "classic", "fashion", "all"], default: null },
   colour: { type: String, enum: ["max", "mid", "min"], default: null },
   pattern: { type: String, enum: ["max", "mid", "min"], default: null },
   temperature: { type: String, enum: ["cold", "hot", "normal"], default: null },
@@ -151,13 +161,15 @@ const preferencesSchema = new mongoose.Schema({
 
 /* -------------------- MATCH SCORE -------------------- */
 //
-// A user's personal compatibility score for one pair of clothing subtypes.
-// Storage is sparse - a document only exists once a user has created or
-// deleted an outfit containing that pair. Any pair with no document here
-// falls back to the shared gender+style baseline in
-// api/constants/matchScoreBaseline.js. subtypeA/subtypeB are always stored
-// in a canonical (alphabetical) order - see matrixService.canonicalPairKey -
-// so a pair is never split across two documents.
+// A user's personal adjustment to the score of one pair of clothing
+// subtypes. The pair's score is the gender's baseline
+// (server/constants/matchScoreBaseline.js) plus this adjustment, kept
+// between 0 and 100. Storage is sparse - a document only exists once a user
+// has built, claimed, favourited or deleted an outfit containing that pair,
+// and never for a pair that can't be matched. subtypeA/subtypeB are always
+// stored in a canonical (alphabetical) order - see
+// matrixService.canonicalPairKey - so a pair is never split across two
+// documents.
 
 const matchScoreSchema = new mongoose.Schema({
 
@@ -171,7 +183,7 @@ const matchScoreSchema = new mongoose.Schema({
   subtypeA: { type: String, required: true },
   subtypeB: { type: String, required: true },
 
-  score: { type: Number, required: true },
+  adjustment: { type: Number, required: true },
 
 });
 

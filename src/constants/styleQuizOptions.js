@@ -10,17 +10,17 @@ import fashion3 from "../assets/images/styles/fashion3.jpg";
 
 
 export const styleImageOptions = [
-  { key: "fun1", image: fun1, style: "fun", colour: "max", pattern: "max", gender: ["woman"] },
-  { key: "fun2", image: fun2, style: "fun", colour: "mid", pattern: "max", gender: ["unisex"] },
-  { key: "fun3", image: fun3, style: "fun", colour: "max", pattern: "mid", gender: ["woman", "man"] },
+  { key: "fun1", image: fun1, colour: "max", pattern: "max", gender: ["woman"] },
+  { key: "fun2", image: fun2, colour: "mid", pattern: "max", gender: ["unisex"] },
+  { key: "fun3", image: fun3, colour: "max", pattern: "mid", gender: ["woman", "man"] },
 
-  { key: "classic1", image: classic1, style: "classic", colour: "min", pattern: "min", gender: ["unisex"] },
-  { key: "classic2", image: classic2, style: "classic", colour: "min", pattern: "mid", gender: ["woman"] },
-  { key: "classic3", image: classic3, style: "classic", colour: "mid", pattern: "min", gender: ["man"] },
+  { key: "classic1", image: classic1, colour: "min", pattern: "min", gender: ["unisex"] },
+  { key: "classic2", image: classic2, colour: "min", pattern: "mid", gender: ["woman"] },
+  { key: "classic3", image: classic3, colour: "mid", pattern: "min", gender: ["man"] },
 
-  { key: "fashion1", image: fashion1, style: "fashion", colour: "mid", pattern: "mid", gender: ["woman", "unisex"] },
-  { key: "fashion2", image: fashion2, style: "fashion", colour: "max", pattern: "min", gender: ["man"] },
-  { key: "fashion3", image: fashion3, style: "fashion", colour: "min", pattern: "max", gender: ["woman"] },
+  { key: "fashion1", image: fashion1, colour: "mid", pattern: "mid", gender: ["woman", "unisex"] },
+  { key: "fashion2", image: fashion2, colour: "max", pattern: "min", gender: ["man"] },
+  { key: "fashion3", image: fashion3, colour: "min", pattern: "max", gender: ["woman"] },
 ];
 
 /* --------------------------------------------------------------------
@@ -53,12 +53,11 @@ export const temperatureQuestionOptions = [
    STYLE IMAGE MAPPING
 
    "Select all that apply" — multi-select grid built from every image
-   in src/assets/images/styles. Each entry says what style, colour
-   level and pattern level that image represents. Edit the style,
-   colour and pattern values here to change what a picture means —
-   nothing else in the app needs to change.
+   in src/assets/images/styles. Each entry says what colour level and
+   pattern level that image represents. Edit the colour and pattern
+   values here to change what a picture means — nothing else in the
+   app needs to change.
 
-   style:   "fun" | "classic" | "fashion"
    colour:  "max" | "mid" | "min"
    pattern: "max" | "mid" | "min"
    gender:  array of one or more of "woman" | "unisex" | "man" — an
@@ -78,5 +77,4 @@ export const temperatureQuestionOptions = [
    option that appears first in these lists wins.
 -------------------------------------------------------------------- */
 
-export const stylePriority = ["fashion", "classic", "fun"];
 export const levelPriority = ["min", "mid", "max"];

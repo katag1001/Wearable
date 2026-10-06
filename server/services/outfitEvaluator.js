@@ -1,4 +1,4 @@
-// api/services/outfitEvaluator.js
+// server/services/outfitEvaluator.js
 //
 // Orchestrates matrixService/temperatureService/styleColorService into the
 // two outfit-level operations everything else calls:
@@ -11,7 +11,7 @@
 //    all, so the pricier checks in validateOutfit never run on it.
 //
 //  - validateOutfit: the gate used ONLY for auto-generated candidates -
-//    matrix compatibility (including layering rules) + colour + pattern.
+//    fixed compatibility (including layering rules) + colour + pattern.
 //    Never called for a user-made outfit. matchService's search already
 //    prunes on all of this incrementally as it builds a candidate, so by
 //    the time a candidate reaches here it should always pass - this call
@@ -104,8 +104,10 @@ function describeOutfit(items, { isUserMade, temperaturePreference = null }) {
   };
 }
 
-function validateOutfit(items, baselineMatrix, personalScores, requiresLayeringSet, colorRules) {
-  if (!isCliqueValid(items, baselineMatrix, personalScores, requiresLayeringSet)) {
+// `context` is the same { baselineMatrix, layeringRules, colorRules } object
+// matchService builds once per run.
+function validateOutfit(items, { baselineMatrix, layeringRules, colorRules }) {
+  if (!isCliqueValid(items, baselineMatrix, layeringRules)) {
     return false;
   }
 

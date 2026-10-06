@@ -1,0 +1,16 @@
+/* TEMPORARY - testing aid only, see matchScoreBadge.jsx */
+
+.match-score-badge {
+  color: var(--secondary-color);
+  font-size: var(--tag-font-size);
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+.match-score-badge--overlay {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  z-index: 2;
+  pointer-events: none;
+}

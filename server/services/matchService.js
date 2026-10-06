@@ -1,83 +1,73 @@
-// api/services/matchService.js
+// server/services/matchService.js
 //
-// Finds every valid outfit that a newly added/updated clothing item can be
-// part of, given the rest of the user's wardrobe, and saves the new ones.
+// Finds the best new outfits a newly added/updated clothing item can be
+// part of, given the rest of the user's wardrobe, and saves them.
 //
 // This always builds each candidate outfit fresh from the current wardrobe
 // (anchored on the new item) rather than incrementally extending
-// previously-saved matches. That sidesteps the old "can this saved match
-// still take another outer" problem entirely - there is nothing to extend,
-// every candidate is assembled and validated as a complete whole before
-// anything is saved.
+// previously-saved matches - every candidate is assembled and validated as
+// a complete whole before anything is saved.
 //
-// Every check used for pruning here (matrix pairwise/self-check, colour,
-// pattern, season) is monotonic: once violated by a partial item-set, it
-// can never be satisfied again by adding more items. That's what makes it
-// safe to check all of them as early as possible, incrementally, during
-// the search itself - not just after a full candidate is assembled:
-//   1. Shape-level early exit: if the new item alone would occupy a
-//      single-slot role that requires layering, the whole shape is
-//      rejected before any pool/search work starts.
-//   2. Per-candidate layering check: a pool candidate for a single-slot
-//      role that requires layering is skipped the moment it's considered,
-//      never entered into the recursion.
-//   3. Incremental matrix + colour + pattern + season checks: every time a
-//      candidate is added, the growing partial item-set is re-checked
-//      against all four; a dead branch is abandoned immediately rather
-//      than fully built out and rejected at the end.
+// Every check used for pruning here (fixed compatibility, colour, pattern,
+// season) is monotonic: once violated by a partial item-set, it can never
+// be satisfied again by adding more items. That's what makes it safe to
+// check all of them as early as possible, incrementally, during the search
+// itself - not just after a full candidate is assembled:
+//   1. Shape-level early exit: if the new item can't fill its slot in a
+//      shape (it requires layering but the shape has one slot for its role,
+//      or it requires a top but the shape has none), the whole shape is
+//      skipped before any search work starts.
+//   2. Per-candidate shape check: a pool candidate that can't fill its slot
+//      for the same reasons is skipped the moment it's considered.
+//   3. Incremental compatibility + colour + pattern + season checks: every
+//      time a candidate is added, the growing partial item-set is
+//      re-checked; a dead branch is abandoned immediately.
 // Only temperature isn't pruned incrementally (the layering formula's
 // "outer replaces the floor" exception makes that non-trivial) - it's
 // still checked once per fully-assembled candidate, in describeOutfit.
 // validateOutfit is still called on each survivor as a cheap final safety
-// net, even though by construction it should now always pass.
+// net, even though by construction it should always pass.
 //
-// `budget` (MAX_COMBINATIONS_EXPLORED) is shared across every shape in one
-// run. Before this reordering, the most expensive shapes (2 top + 2 outer)
-// could exhaust it before cheaper, equally valid shapes (e.g. involving a
-// onepiece) were ever attempted - silently missing real matches, not just
-// running slower. Pruning this aggressively means far less budget is spent
-// on dead branches, which fixes that starvation as a side effect.
+// Choosing what to save: every item-set the search finds is scored
+// (outfitScoreService.computeOutfitScore), and only the best
+// MAX_NEW_MATCHES_PER_ITEM that aren't already saved are kept.
 //
-// Only item-sets that reach the DB-facing dedupe/insert step ever touch
-// Mongo again.
+// Search limits: the search stops after MAX_COMBINATIONS_EXPLORED candidate
+// considerations or SEARCH_TIME_LIMIT_MS, whichever comes first, shared
+// across every shape in one run. Matching runs after the response on a
+// serverless free tier with a short execution limit, so it must stay
+// bounded regardless of wardrobe size. When a limit is hit, the best
+// outfits found so far are still kept.
 
 const { Clothes, Match } = require("../models/AllModels.js");
 const { OUTFIT_SHAPES, ROLES } = require("../constants/outfitShapes.js");
-const { getRequiresLayeringSet } = require("../constants/requiresLayering.js");
+const { getLayeringRules } = require("../constants/requiresLayering.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
-const { canPair } = require("./matrixService.js");
+const { isCompatible, fitsShape } = require("./matrixService.js");
+const { computeOutfitScore } = require("./outfitScoreService.js");
 const { passesPatternCheck, passesColorCheck } = require("./styleColorService.js");
 const { describeOutfit, validateOutfit, hasSharedSeason } = require("./outfitEvaluator.js");
 const {
   getUserMatchingPreferences,
   getBaselineMatrix,
-  loadUserScores,
+  loadUserAdjustments,
 } = require("./matchScoreService.js");
 
-// Hard caps to keep this bounded regardless of wardrobe size - important on
-// a serverless free tier with a short execution limit. Today, every
-// baseline score is a placeholder 5 (see matchScoreBaseline.js), so the
-// matrix provides no real pruning yet; these caps are the actual guardrail
-// until real per-user/per-archetype scores start doing that job.
 const MAX_POOL_SIZE_PER_ROLE = 60;
-const MAX_COMBINATIONS_EXPLORED = 20000;
+const MAX_COMBINATIONS_EXPLORED = 200000;
+const SEARCH_TIME_LIMIT_MS = 3000;
+const MAX_NEW_MATCHES_PER_ITEM = 100;
 
-// --- Debug logging helpers -------------------------------------------------
-// Only used to make console output readable while testing the match service
-// against real wardrobe data - purely cosmetic, no effect on matching logic.
-function formatItem(item) {
-  if (!item) return "<none>";
-  return `"${item.name || "unnamed"}" [${item.type}/${item.subtype}] (id:${item._id})`;
+function createBudget({
+  maxCombinations = MAX_COMBINATIONS_EXPLORED,
+  timeLimitMs = SEARCH_TIME_LIMIT_MS,
+} = {}) {
+  return { remaining: maxCombinations, deadline: Date.now() + timeLimitMs };
 }
 
-function formatItems(items) {
-  return items.map(formatItem).join(", ");
+function isBudgetSpent(budget) {
+  return budget.remaining <= 0 || Date.now() > budget.deadline;
 }
-
-function formatShape(shape) {
-  return `top:${shape.top} bottom:${shape.bottom} onepiece:${shape.onepiece} outer:${shape.outer}`;
-}
-// ----------------------------------------------------------------------------
 
 function buildRolePools(allItems, newItem) {
   const pools = { top: [], bottom: [], onepiece: [], outer: [] };
@@ -96,6 +86,22 @@ function buildRolePools(allItems, newItem) {
   return pools;
 }
 
+// Everything matching needs for one user, resolved once per run.
+function buildMatchingContext({
+  gender,
+  colour = null,
+  temperature = null,
+  adjustments = new Map(),
+}) {
+  return {
+    baselineMatrix: getBaselineMatrix(gender),
+    adjustments,
+    layeringRules: getLayeringRules(gender),
+    colorRules: getColorRules(colour),
+    temperaturePreference: temperature,
+  };
+}
+
 // A partial (or complete) item-set is still "alive" only if it could still
 // end up passing colour + pattern + season. All three are monotonic (see
 // file header), so checking them on a growing partial set is equivalent to
@@ -111,20 +117,11 @@ function isStillViable(items, colorRules) {
 
 // Backtracking search across the 4 roles for one shape. Prunes the moment a
 // candidate is incompatible with anything chosen so far (including
-// newItem) on matrix compatibility, layering, colour, pattern, or season -
-// see the file header for why this is safe. `budget` is shared across
-// every shape in one processMatches run and caps total work done,
-// independent of wardrobe size.
-function findShapeCombinations(
-  newItem,
-  shape,
-  pools,
-  baselineMatrix,
-  personalScores,
-  budget,
-  requiresLayeringSet = new Set(),
-  colorRules = getColorRules(null)
-) {
+// newItem), can't fill its slot in the shape, or breaks colour, pattern or
+// season - see the file header for why this is safe. `budget` is shared
+// across every shape in one processMatches run.
+function findShapeCombinations(newItem, shape, pools, context, budget) {
+  const { baselineMatrix, layeringRules, colorRules } = context;
   const needed = {};
 
   for (const role of ROLES) {
@@ -135,9 +132,9 @@ function findShapeCombinations(
     }
   }
 
-  // Shape-level early exit: newItem alone occupies a single-slot role it
-  // can never stand alone in - no point building pools/searching at all.
-  if (shape[newItem.type] === 1 && requiresLayeringSet.has(newItem.subtype)) {
+  // Shape-level early exit: newItem alone can't fill its slot here - no
+  // point searching at all.
+  if (!fitsShape(newItem, shape, layeringRules)) {
     return [];
   }
 
@@ -154,8 +151,8 @@ function findShapeCombinations(
 
   function pickRole(roleIndex, chosenSoFar) {
     if (roleIndex === ROLES.length) {
-      // No re-check needed here: matrix/layering/colour/pattern/season were
-      // already verified incrementally as each item was picked below.
+      // No re-check needed here: everything was already verified
+      // incrementally as each item was picked below.
       results.push([newItem, ...chosenSoFar]);
       return;
     }
@@ -169,7 +166,6 @@ function findShapeCombinations(
     }
 
     const pool = pools[role];
-    const roleTargetCount = shape[role];
 
     function pick(startIndex, remaining, picked) {
       if (remaining === 0) {
@@ -178,7 +174,7 @@ function findShapeCombinations(
       }
 
       for (let i = startIndex; i < pool.length; i += 1) {
-        if (budget.remaining <= 0) {
+        if (isBudgetSpent(budget)) {
           return;
         }
 
@@ -187,14 +183,12 @@ function findShapeCombinations(
         const candidate = pool[i];
         const soFar = [newItem, ...chosenSoFar, ...picked];
 
-        // Per-candidate layering check: this role has only 1 slot in this
-        // shape, so a candidate that can't stand alone is dead on arrival.
-        if (roleTargetCount === 1 && requiresLayeringSet.has(candidate.subtype)) {
+        if (!fitsShape(candidate, shape, layeringRules)) {
           continue;
         }
 
         const incompatibleWith = soFar.find(
-          (item) => !canPair(baselineMatrix, personalScores, item.subtype, candidate.subtype)
+          (item) => !isCompatible(baselineMatrix, item, candidate)
         );
 
         if (incompatibleWith) {
@@ -217,61 +211,84 @@ function findShapeCombinations(
   return results;
 }
 
+function dedupeKey(clothesIds) {
+  return clothesIds.map((id) => id.toString()).sort().join(",");
+}
+
+// Searches every shape with a slot for newItem's role, scores every
+// item-set found, and returns up to `limit` saveable match descriptions,
+// best score first. Item-sets already saved (`existingKeys`) are skipped,
+// as are any that fail the temperature check in describeOutfit - the next
+// best one takes their place.
 function findCandidateMatches(
   newItem,
   allItems,
-  baselineMatrix,
-  personalScores,
-  requiresLayeringSet = new Set(),
-  colorRules = getColorRules(null),
-  temperaturePreference = null
+  context,
+  {
+    existingKeys = new Set(),
+    limit = MAX_NEW_MATCHES_PER_ITEM,
+    budget = createBudget(),
+  } = {}
 ) {
   const pools = buildRolePools(allItems, newItem);
-  const budget = { remaining: MAX_COMBINATIONS_EXPLORED };
-  const candidates = [];
+  const scoredItemSets = [];
 
   OUTFIT_SHAPES.forEach((shape) => {
     if (!shape[newItem.type]) {
       return;
     }
 
-    const combos = findShapeCombinations(
-      newItem,
-      shape,
-      pools,
-      baselineMatrix,
-      personalScores,
-      budget,
-      requiresLayeringSet,
-      colorRules
-    );
-
-    combos.forEach((itemSet) => {
-      const described = describeOutfit(itemSet, { isUserMade: false, temperaturePreference });
-
-      if (!described) {
-        return;
-      }
-
-      if (!validateOutfit(itemSet, baselineMatrix, personalScores, requiresLayeringSet, colorRules)) {
-        return;
-      }
-
-      candidates.push({
-        ...described,
-        userId: newItem.userId,
-        userMade: false,
-        favourite: false,
-        lastWornDate: null,
+    findShapeCombinations(newItem, shape, pools, context, budget).forEach((itemSet) => {
+      scoredItemSets.push({
+        itemSet,
+        score: computeOutfitScore(itemSet, context.baselineMatrix, context.adjustments),
       });
     });
   });
 
-  return candidates;
-}
+  // Stable sort, so equal scores keep the order they were found in.
+  scoredItemSets.sort((a, b) => b.score - a.score);
 
-function dedupeKey(clothesIds) {
-  return clothesIds.map((id) => id.toString()).sort().join(",");
+  const candidates = [];
+  const seenKeys = new Set(existingKeys);
+
+  for (const { itemSet, score } of scoredItemSets) {
+    if (candidates.length >= limit) {
+      break;
+    }
+
+    const key = dedupeKey(itemSet.map((item) => item._id));
+
+    if (seenKeys.has(key)) {
+      continue;
+    }
+
+    seenKeys.add(key);
+
+    const described = describeOutfit(itemSet, {
+      isUserMade: false,
+      temperaturePreference: context.temperaturePreference,
+    });
+
+    if (!described) {
+      continue;
+    }
+
+    if (!validateOutfit(itemSet, context)) {
+      continue;
+    }
+
+    candidates.push({
+      ...described,
+      score,
+      userId: newItem.userId,
+      userMade: false,
+      favourite: false,
+      lastWornDate: null,
+    });
+  }
+
+  return candidates;
 }
 
 async function processMatches(newItem, allItems) {
@@ -281,47 +298,16 @@ async function processMatches(newItem, allItems) {
 
   const wardrobe = allItems || (await Clothes.find({ userId: newItem.userId }));
 
-  const [{ gender, style, colour, temperature }, personalScores] = await Promise.all([
+  const [{ gender, colour, temperature }, adjustments, existingMatches] = await Promise.all([
     getUserMatchingPreferences(newItem.userId),
-    loadUserScores(newItem.userId),
+    loadUserAdjustments(newItem.userId),
+    Match.find({ userId: newItem.userId }).select("clothes"),
   ]);
 
-  const baselineMatrix = getBaselineMatrix(gender, style);
-  const requiresLayeringSet = getRequiresLayeringSet(gender);
-  const colorRules = getColorRules(colour);
-
-  const candidates = findCandidateMatches(
-    newItem,
-    wardrobe,
-    baselineMatrix,
-    personalScores,
-    requiresLayeringSet,
-    colorRules,
-    temperature
-  );
-
-  if (!candidates.length) {
-    return;
-  }
-
-  const existingMatches = await Match.find({ userId: newItem.userId }).select("clothes");
+  const context = buildMatchingContext({ gender, colour, temperature, adjustments });
   const existingKeys = new Set(existingMatches.map((match) => dedupeKey(match.clothes)));
-  const seenKeys = new Set();
 
-  const newMatches = candidates.filter((match) => {
-    const key = dedupeKey(match.clothes);
-
-    if (existingKeys.has(key)) {
-      return false;
-    }
-
-    if (seenKeys.has(key)) {
-      return false;
-    }
-
-    seenKeys.add(key);
-    return true;
-  });
+  const newMatches = findCandidateMatches(newItem, wardrobe, context, { existingKeys });
 
   if (!newMatches.length) {
     return;
@@ -331,9 +317,15 @@ async function processMatches(newItem, allItems) {
 }
 
 module.exports = {
+  MAX_COMBINATIONS_EXPLORED,
+  SEARCH_TIME_LIMIT_MS,
+  MAX_NEW_MATCHES_PER_ITEM,
   processMatches,
   findCandidateMatches,
+  buildMatchingContext,
   buildRolePools,
+  createBudget,
   findShapeCombinations,
   isStillViable,
+  dedupeKey,
 };

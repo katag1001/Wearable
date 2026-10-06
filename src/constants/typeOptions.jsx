@@ -1,15 +1,15 @@
 // src/constants/typeOptions.jsx
 //
-// Generated from the LWS Matrix CSVs (context/LWS Matrix - *.csv).
 // Each gender's clothing options: type, category, subtype (name),
 // tags, seasons, and the temperature range they suit.
 //
 // IMPORTANT: shared/subtypesByGender.json (used by the backend's
-// api/constants/matchScoreBaseline.js for outfit-matching scores)
-// independently lists these same subtype names per gender. It does NOT read
-// from this file. If a subtype is added, removed, or renamed in EITHER this
-// file or shared/subtypesByGender.json, the other MUST be updated to match,
-// or the two will silently drift apart.
+// server/constants/matchScoreBaseline.js for outfit matching)
+// independently lists these same subtype names per gender and role, in the
+// same order. It does NOT read from this file. If a subtype is added,
+// removed, renamed or moved to another role in EITHER this file or
+// shared/subtypesByGender.json, the other MUST be updated to match, or the
+// two will silently drift apart.
 
 const typeOptionsByGender = {
   "man": [
@@ -170,7 +170,7 @@ const typeOptionsByGender = {
     {
       "type": "top",
       "category": "Tops",
-      "name": "Long-tshirt",
+      "name": "Long t-shirt",
       "season": [
         "Spring",
         "Autumn",
@@ -208,6 +208,25 @@ const typeOptionsByGender = {
       ],
       "minTemp": 18,
       "maxTemp": 35
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Waistcoat",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Party",
+        "Dinner",
+        "Date night"
+      ],
+      "minTemp": 12,
+      "maxTemp": 22
     },
     {
       "type": "bottom",
@@ -474,25 +493,6 @@ const typeOptionsByGender = {
     },
     {
       "type": "outer",
-      "category": "Suits and blazers",
-      "name": "Waistcoat",
-      "season": [
-        "Spring",
-        "Summer",
-        "Autumn",
-        "Winter"
-      ],
-      "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Date night"
-      ],
-      "minTemp": 12,
-      "maxTemp": 22
-    },
-    {
-      "type": "outer",
       "category": "Coats",
       "name": "Duffle coat",
       "season": [
@@ -610,7 +610,7 @@ const typeOptionsByGender = {
     {
       "type": "outer",
       "category": "Jackets",
-      "name": "Demin jacket",
+      "name": "Denim jacket",
       "season": [
         "Spring",
         "Summer",
@@ -913,7 +913,7 @@ const typeOptionsByGender = {
     {
       "type": "top",
       "category": "Tops",
-      "name": "Short Turtlneck",
+      "name": "Short turtleneck",
       "season": [
         "Spring",
         "Autumn",
@@ -992,7 +992,7 @@ const typeOptionsByGender = {
     {
       "type": "top",
       "category": "Tops",
-      "name": "Long-tshirt",
+      "name": "Long t-shirt",
       "season": [
         "Spring",
         "Autumn",
@@ -1912,7 +1912,7 @@ const typeOptionsByGender = {
     {
       "type": "outer",
       "category": "Jackets",
-      "name": "Demin jacket",
+      "name": "Denim jacket",
       "season": [
         "Spring",
         "Summer",
@@ -2200,7 +2200,7 @@ const typeOptionsByGender = {
     {
       "type": "top",
       "category": "Tops",
-      "name": "Short Turtlneck",
+      "name": "Short turtleneck",
       "season": [
         "Spring",
         "Autumn",
@@ -2280,7 +2280,7 @@ const typeOptionsByGender = {
     {
       "type": "top",
       "category": "Tops",
-      "name": "Long-tshirt",
+      "name": "Long t-shirt",
       "season": [
         "Spring",
         "Autumn",
@@ -3239,7 +3239,7 @@ const typeOptionsByGender = {
     {
       "type": "outer",
       "category": "Jackets",
-      "name": "Demin jacket",
+      "name": "Denim jacket",
       "season": [
         "Spring",
         "Summer",

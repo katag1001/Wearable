@@ -1,11 +1,12 @@
+import { getEffectiveMatchScore } from "../../utils/matchScore";
+
 const STORAGE_KEY = "weather_cache";
 
 const SCORE_WEIGHTS = {
   temperature: 0.10,
   clothingFreshness: 0.30,
-  outfitFreshness: 0.30,
-  userMade: 0.10,
-  favourite: 0.20
+  outfitFreshness: 0.20,
+  score: 0.40
 };
 
 
@@ -123,12 +124,10 @@ const getOutfitFreshnessScore = (match) => {
   );
 };
 
-const getUserMadeScore = (match) => {
-  return match?.userMade ? 10 : 0;
-};
-
-const getFavouriteScore = (match) => {
-  return match?.favourite ? 10 : 0;
+// The match's 0-100 score (100 for a favourite), on the same 0-10 scale as
+// the other factors. User-made outfits already carry a flat high score.
+const getMatchScore = (match) => {
+  return getEffectiveMatchScore(match) / 10;
 };
 
 
@@ -157,10 +156,8 @@ const getOverallScore = (scores) => {
       SCORE_WEIGHTS.clothingFreshness +
     scores.outfitFreshness *
       SCORE_WEIGHTS.outfitFreshness +
-    scores.userMade *
-      SCORE_WEIGHTS.userMade +
-    scores.favourite *
-      SCORE_WEIGHTS.favourite;
+    scores.score *
+      SCORE_WEIGHTS.score;
 
   return score;
 };
@@ -186,13 +183,8 @@ const scoreOutfit = (outfit, weather) => {
         match
       ),
 
-    userMade:
-      getUserMadeScore(
-        match
-      ),
-
-    favourite:
-      getFavouriteScore(
+    score:
+      getMatchScore(
         match
       ),
   };
@@ -328,15 +320,8 @@ const todayOutfitSort = (
       );
 
       console.log(
-        "user-made-score:",
-        scores.userMade.toFixed(
-          1
-        )
-      );
-
-      console.log(
-        "favourite-score:",
-        scores.favourite.toFixed(
+        "match-score:",
+        scores.score.toFixed(
           1
         )
       );

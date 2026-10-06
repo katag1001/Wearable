@@ -56,7 +56,7 @@ const StyleQuizForm = ({ onComplete }) => {
       return;
     }
 
-    const { style, colour, pattern } = resolveStyleQuiz(selectedImages, gender);
+    const { colour, pattern } = resolveStyleQuiz(selectedImages);
 
     try {
       setSaving(true);
@@ -68,7 +68,7 @@ const StyleQuizForm = ({ onComplete }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ gender, style, colour, pattern, temperature }),
+        body: JSON.stringify({ gender, colour, pattern, temperature }),
       });
 
       if (!response.ok) {

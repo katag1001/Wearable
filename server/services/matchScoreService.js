@@ -1,113 +1,111 @@
-// api/services/matchScoreService.js
+// server/services/matchScoreService.js
 //
-// Reads and writes a user's personal combination-scoring overrides, and
-// resolves which shared baseline matrix/colour palettes a user is on.
-// Storage is sparse: a MatchScore document only exists for a subtype pair
-// once the user has actually created or deleted an outfit containing it.
-// Any pair without a document falls back live to the shared gender+style
-// baseline in api/constants/matchScoreBaseline.js.
+// Reads and writes a user's personal score adjustments, and resolves which
+// baseline matrix/colour palettes a user is on. Storage is sparse: a
+// MatchScore document only exists for a subtype pair once the user has
+// built, claimed, favourited or deleted an outfit containing it. A pair's
+// score is always baseline + adjustment (see outfitScoreService.js), so the
+// baseline matrix stays the single source of truth.
+//
+// Adjustments only ever change scores. They are never stored for a pair
+// that can't be matched, and compatibility never reads them.
 
 const { MatchScore, Preferences } = require("../models/AllModels.js");
 const { matchScoreBaseline } = require("../constants/matchScoreBaseline.js");
-const { canonicalPairKey, personalScoreMapKey } = require("./matrixService.js");
+const { LEARNING_DELTAS } = require("../constants/scoring.js");
+const { canonicalPairKey, pairKey, isCompatible } = require("./matrixService.js");
+const { clampAdjustment } = require("./outfitScoreService.js");
 
 const DEFAULT_GENDER = "unisex";
-const DEFAULT_STYLE = "fun";
 
 // Single source for every Preferences-derived matching setting (gender,
-// style, colour level, temperature) - one Preferences fetch per call, reused
-// by every caller that needs any of these, rather than each resolving its own.
+// colour level, temperature) - one Preferences fetch per call, reused by
+// every caller that needs any of these, rather than each resolving its own.
 async function getUserMatchingPreferences(userId) {
   const preferences = await Preferences.findOne({ userId });
 
   const gender = preferences?.gender || DEFAULT_GENDER;
-  const style = preferences?.style || (gender === "man" ? "all" : DEFAULT_STYLE);
   const colour = preferences?.colour || null;
   const temperature = preferences?.temperature || null;
 
-  return { gender, style, colour, temperature };
+  return { gender, colour, temperature };
 }
 
-function getBaselineMatrix(gender, style) {
-  return (
-    matchScoreBaseline[gender]?.[style] ||
-    matchScoreBaseline[DEFAULT_GENDER][DEFAULT_STYLE]
-  );
+function getBaselineMatrix(gender) {
+  return matchScoreBaseline[gender] || matchScoreBaseline[DEFAULT_GENDER];
 }
 
 async function getBaselineMatrixForUser(userId) {
-  const { gender, style } = await getUserMatchingPreferences(userId);
-  return getBaselineMatrix(gender, style);
+  const { gender } = await getUserMatchingPreferences(userId);
+  return getBaselineMatrix(gender);
 }
 
-async function loadUserScores(userId) {
+async function loadUserAdjustments(userId) {
   const docs = await MatchScore.find({ userId });
 
-  const scores = new Map();
+  const adjustments = new Map();
 
   docs.forEach((doc) => {
-    scores.set(personalScoreMapKey(doc.subtypeA, doc.subtypeB), doc.score);
+    adjustments.set(pairKey(doc.subtypeA, doc.subtypeB), doc.adjustment);
   });
 
-  return scores;
+  return adjustments;
 }
 
-// Every pair "used" by a finished outfit: every cross-item pair. This
-// naturally includes a subtype paired with itself whenever two physical
-// items in the outfit genuinely share a subtype (e.g. two puffer coats) -
-// that's an ordinary pair like any other, adjusted the same way.
-//
-// There is deliberately no separate "self-pair for a role held alone"
-// entry anymore - standalone-eligibility is now the hardcoded, non-
-// personalizable list in api/constants/requiresLayering.js, not a score,
-// so there's nothing here for that to adjust.
+// Every two-item pair in `items`, as the items themselves. This includes
+// two physically different items that share a subtype (e.g. two puffer
+// coats) - such a pair is never compatible, so it is simply skipped when
+// adjusting.
 function pairsForItems(items) {
   const pairs = [];
 
   for (let i = 0; i < items.length; i += 1) {
     for (let j = i + 1; j < items.length; j += 1) {
-      pairs.push([items[i].subtype, items[j].subtype]);
+      pairs.push([items[i], items[j]]);
     }
   }
 
   return pairs;
 }
 
-// Adjusts every pair in `items` by `delta`. A pair with no existing personal
-// document is seeded from the baseline (not from 0) before the delta is
-// applied, so a pair's very first personal adjustment starts from wherever
-// it already stood, not from scratch.
+// Adds `delta` to every compatible pair in `items`. Each new adjustment is
+// limited so baseline + adjustment stays between 0 and 100. Pairs that
+// can't be matched (e.g. two bottoms in a user-built outfit) are skipped,
+// so nothing is ever stored for them.
 async function adjustScoresForOutfit(userId, items, delta, baselineMatrix) {
-  const pairs = pairsForItems(items).map(([a, b]) => canonicalPairKey(a, b));
+  const pairsBySubtypes = new Map();
 
-  if (!pairs.length) {
+  pairsForItems(items)
+    .filter(([itemA, itemB]) => isCompatible(baselineMatrix, itemA, itemB))
+    .forEach(([itemA, itemB]) => {
+      const [subtypeA, subtypeB] = canonicalPairKey(itemA.subtype, itemB.subtype);
+      pairsBySubtypes.set(pairKey(subtypeA, subtypeB), [subtypeA, subtypeB]);
+    });
+
+  if (!pairsBySubtypes.size) {
     return;
   }
+
+  const pairs = [...pairsBySubtypes.values()];
 
   const existingDocs = await MatchScore.find({
     userId,
     $or: pairs.map(([subtypeA, subtypeB]) => ({ subtypeA, subtypeB })),
   });
 
-  const existingKeys = new Set(
-    existingDocs.map((doc) => personalScoreMapKey(doc.subtypeA, doc.subtypeB))
+  const existingAdjustments = new Map(
+    existingDocs.map((doc) => [pairKey(doc.subtypeA, doc.subtypeB), doc.adjustment])
   );
 
   const operations = pairs.map(([subtypeA, subtypeB]) => {
-    if (existingKeys.has(personalScoreMapKey(subtypeA, subtypeB))) {
-      return {
-        updateOne: {
-          filter: { userId, subtypeA, subtypeB },
-          update: { $inc: { score: delta } },
-        },
-      };
-    }
-
-    const baselineScore = baselineMatrix?.[subtypeA]?.[subtypeB] ?? 0;
+    const current = existingAdjustments.get(pairKey(subtypeA, subtypeB)) || 0;
+    const baseline = baselineMatrix[subtypeA][subtypeB];
 
     return {
-      insertOne: {
-        document: { userId, subtypeA, subtypeB, score: baselineScore + delta },
+      updateOne: {
+        filter: { userId, subtypeA, subtypeB },
+        update: { $set: { adjustment: clampAdjustment(baseline, current + delta) } },
+        upsert: true,
       },
     };
   });
@@ -116,11 +114,23 @@ async function adjustScoresForOutfit(userId, items, delta, baselineMatrix) {
 }
 
 async function recordOutfitCreated(userId, items, baselineMatrix) {
-  await adjustScoresForOutfit(userId, items, 1, baselineMatrix);
+  await adjustScoresForOutfit(userId, items, LEARNING_DELTAS.created, baselineMatrix);
+}
+
+async function recordOutfitClaimed(userId, items, baselineMatrix) {
+  await adjustScoresForOutfit(userId, items, LEARNING_DELTAS.claimed, baselineMatrix);
+}
+
+async function recordOutfitFavourited(userId, items, baselineMatrix) {
+  await adjustScoresForOutfit(userId, items, LEARNING_DELTAS.favourited, baselineMatrix);
+}
+
+async function recordOutfitUnfavourited(userId, items, baselineMatrix) {
+  await adjustScoresForOutfit(userId, items, LEARNING_DELTAS.unfavourited, baselineMatrix);
 }
 
 async function recordOutfitDeleted(userId, items, baselineMatrix) {
-  await adjustScoresForOutfit(userId, items, -1, baselineMatrix);
+  await adjustScoresForOutfit(userId, items, LEARNING_DELTAS.deleted, baselineMatrix);
 }
 
 async function wipeUserScores(userId) {
@@ -131,9 +141,12 @@ module.exports = {
   getUserMatchingPreferences,
   getBaselineMatrix,
   getBaselineMatrixForUser,
-  loadUserScores,
+  loadUserAdjustments,
   pairsForItems,
   recordOutfitCreated,
+  recordOutfitClaimed,
+  recordOutfitFavourited,
+  recordOutfitUnfavourited,
   recordOutfitDeleted,
   wipeUserScores,
 };

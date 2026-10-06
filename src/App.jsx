@@ -58,7 +58,6 @@ const App = () => {
 
       const isComplete =
         prefs?.gender &&
-        prefs?.style &&
         prefs?.colour &&
         prefs?.pattern &&
         prefs?.temperature;

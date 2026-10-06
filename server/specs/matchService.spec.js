@@ -3,9 +3,12 @@ const assert = require("node:assert/strict");
 
 const {
   buildRolePools,
+  buildMatchingContext,
+  createBudget,
   findShapeCombinations,
   findCandidateMatches,
   isStillViable,
+  dedupeKey,
 } = require("../services/matchService.js");
 const { OUTFIT_SHAPES } = require("../constants/outfitShapes.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
@@ -27,144 +30,181 @@ function clothes(overrides) {
   };
 }
 
-function fullyOpenBaseline(subtypes) {
+// Every pair of different subtypes scores `score`; the same subtype is null.
+function openBaseline(subtypes, score = 50) {
   const matrix = {};
   subtypes.forEach((a) => {
     matrix[a] = {};
     subtypes.forEach((b) => {
-      matrix[a][b] = 5;
+      matrix[a][b] = a === b ? null : score;
     });
   });
   return matrix;
 }
 
+function context(baselineMatrix, overrides = {}) {
+  return {
+    baselineMatrix,
+    adjustments: new Map(),
+    layeringRules: { requiresLayeringSet: new Set(), requiresTopSet: new Set() },
+    colorRules: getColorRules(null),
+    temperaturePreference: null,
+    ...overrides,
+  };
+}
+
+const topBottomShape = OUTFIT_SHAPES.find((s) => s.top === 1 && s.bottom === 1 && s.outer === 0);
+
 test("buildRolePools groups wardrobe items by type and excludes the new item", () => {
   const newItem = clothes({ subtype: "NewTop", type: "top" });
 
-  const allItems = [
-    newItem,
-    clothes({ subtype: "Jeans", type: "bottom" }),
-    clothes({ subtype: "Blazer", type: "outer" }),
-  ];
-
-  const pools = buildRolePools(allItems, newItem);
+  const pools = buildRolePools(
+    [newItem, clothes({ subtype: "Jeans", type: "bottom" }), clothes({ subtype: "Blazer", type: "outer" })],
+    newItem
+  );
 
   assert.equal(pools.top.length, 0);
   assert.equal(pools.bottom.length, 1);
   assert.equal(pools.outer.length, 1);
 });
 
-test("findShapeCombinations finds a valid top+bottom pair when everything is compatible", () => {
+test("buildMatchingContext resolves one gender's matrix and layering rules", () => {
+  const built = buildMatchingContext({ gender: "man" });
+
+  assert.equal(typeof built.baselineMatrix["Short t-shirt"], "object");
+  assert.equal(built.layeringRules.requiresLayeringSet.has("Waistcoat"), true);
+  assert.equal(built.layeringRules.requiresTopSet.has("Overalls"), true);
+});
+
+test("findShapeCombinations finds a top+bottom pair when they're compatible", () => {
   const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
   const jeans = clothes({ subtype: "Jeans", type: "bottom" });
-
   const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };
-  const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
-  const shape = OUTFIT_SHAPES.find((s) => s.top === 1 && s.bottom === 1 && s.outer === 0);
 
   const results = findShapeCombinations(
-    newTop, shape, pools, baseline, null, { remaining: 1000 }, new Set()
+    newTop, topBottomShape, pools, context(openBaseline(["Short t-shirt", "Jeans"])), createBudget()
   );
 
   assert.equal(results.length, 1);
-  assert.deepEqual(
-    new Set(results[0].map((i) => i.subtype)),
-    new Set(["Short t-shirt", "Jeans"])
-  );
 });
 
-test("findShapeCombinations finds nothing when the pair is incompatible", () => {
+test("findShapeCombinations finds nothing when the matrix says the pair never matches", () => {
   const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
+  const linen = clothes({ subtype: "Linen shirt", type: "top" });
   const jeans = clothes({ subtype: "Jeans", type: "bottom" });
 
-  const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };
-  const baseline = {
-    "Short t-shirt": { "Short t-shirt": 5, Jeans: 0 },
-    Jeans: { Jeans: 5, "Short t-shirt": 0 },
-  };
-  const shape = OUTFIT_SHAPES.find((s) => s.top === 1 && s.bottom === 1 && s.outer === 0);
+  const baseline = openBaseline(["Short t-shirt", "Linen shirt", "Jeans"]);
+  baseline["Short t-shirt"]["Linen shirt"] = null;
+  baseline["Linen shirt"]["Short t-shirt"] = null;
 
-  const results = findShapeCombinations(
-    newTop, shape, pools, baseline, null, { remaining: 1000 }, new Set()
-  );
+  const pools = { top: [linen], bottom: [jeans], onepiece: [], outer: [] };
+  const twoTopShape = OUTFIT_SHAPES.find((s) => s.top === 2 && s.bottom === 1 && s.outer === 0);
+
+  const results = findShapeCombinations(newTop, twoTopShape, pools, context(baseline), createBudget());
 
   assert.equal(results.length, 0);
 });
 
-test("findCandidateMatches produces a saveable match description for a compatible top+bottom wardrobe", () => {
-  const newTop = clothes({ subtype: "Short t-shirt", type: "top", userId: "user1" });
-  const jeans = clothes({ subtype: "Jeans", type: "bottom", userId: "user1" });
-
-  const allItems = [newTop, jeans];
-  const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
-
-  const results = findCandidateMatches(newTop, allItems, baseline, null, new Set());
-
-  assert.equal(results.length, 1);
-  assert.equal(results[0].userMade, false);
-  assert.deepEqual(new Set(results[0].clothes), new Set(["Short t-shirt", "Jeans"]));
-});
-
-test("findCandidateMatches excludes a top on the requires-layering list from the 1-top shapes but includes it in the 2-top shapes", () => {
-  const warmJumper = clothes({ subtype: "Warm jumper", type: "top" });
-  const tshirt = clothes({ subtype: "Short t-shirt", type: "top" });
-  const jeans = clothes({ subtype: "Jeans", type: "bottom" });
-
-  const baseline = fullyOpenBaseline(["Warm jumper", "Short t-shirt", "Jeans"]);
-  const requiresLayeringSet = new Set(["Warm jumper"]);
-
-  const allItems = [warmJumper, tshirt, jeans];
-
-  const results = findCandidateMatches(warmJumper, allItems, baseline, null, requiresLayeringSet);
-
-  // Should NOT find [Warm jumper, Jeans] alone (needs layering).
-  const soloTop = results.find((r) => r.clothes.length === 2);
-  assert.equal(soloTop, undefined);
-
-  // Should find [Warm jumper, Short t-shirt, Jeans] (layered).
-  const layered = results.find((r) => r.clothes.length === 3);
-  assert.notEqual(layered, undefined);
-  assert.deepEqual(
-    new Set(layered.clothes),
-    new Set(["Warm jumper", "Short t-shirt", "Jeans"])
-  );
-});
-
-test("the same physical item is never used twice in one outfit, even when a 2nd top of the identical subtype is needed but not owned", () => {
-  // Only ONE "Short t-shirt" exists in the wardrobe (it IS the new item).
-  // A 2-top shape needs a second, different top - there's nothing else to
-  // pick, so no 2-top combination should ever be produced from thin air.
-  const onlyTshirt = clothes({ _id: "physical-1", subtype: "Short t-shirt", type: "top" });
-  const jeans = clothes({ _id: "physical-2", subtype: "Jeans", type: "bottom" });
-
-  const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
-
-  const results = findCandidateMatches(onlyTshirt, [onlyTshirt, jeans], baseline, null, new Set());
-
-  const twoTopCombo = results.find((r) => r.topCount === 2);
-  assert.equal(twoTopCombo, undefined);
-});
-
-test("two distinct physical items of the identical subtype can legitimately both appear in one outfit", () => {
-  // Two DIFFERENT real garments that happen to be the same subtype -
-  // distinguishable only by _id. This should be allowed (it's two real
-  // t-shirts layered), and every clothes id in any single result must be
-  // unique (no physical item repeated within the same outfit).
+test("two items of the same subtype are never put in the same outfit", () => {
   const tshirtA = clothes({ _id: "physical-1", subtype: "Short t-shirt", type: "top" });
   const tshirtB = clothes({ _id: "physical-2", subtype: "Short t-shirt", type: "top" });
   const jeans = clothes({ _id: "physical-3", subtype: "Jeans", type: "bottom" });
 
-  const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
+  const results = findCandidateMatches(
+    tshirtA, [tshirtA, tshirtB, jeans], context(openBaseline(["Short t-shirt", "Jeans"]))
+  );
 
-  const results = findCandidateMatches(tshirtA, [tshirtA, tshirtB, jeans], baseline, null, new Set());
+  assert.equal(results.find((r) => r.topCount === 2), undefined);
+  assert.equal(results.length, 1);
+});
 
-  const twoTopCombo = results.find((r) => r.topCount === 2);
-  assert.notEqual(twoTopCombo, undefined);
+test("findCandidateMatches attaches the outfit's score to every match", () => {
+  const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
+  const jeans = clothes({ subtype: "Jeans", type: "bottom" });
 
-  results.forEach((result) => {
-    const uniqueIds = new Set(result.clothes.map(String));
-    assert.equal(uniqueIds.size, result.clothes.length);
+  const results = findCandidateMatches(newTop, [newTop, jeans], context(openBaseline(["Short t-shirt", "Jeans"], 73)));
+
+  assert.equal(results.length, 1);
+  assert.equal(results[0].score, 73);
+  assert.equal(results[0].userMade, false);
+});
+
+test("findCandidateMatches keeps only the best `limit` outfits, highest score first", () => {
+  const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
+  const bottoms = ["Jeans", "Chinos", "Cargo pants"].map((subtype) => clothes({ subtype, type: "bottom" }));
+
+  const baseline = openBaseline(["Short t-shirt", "Jeans", "Chinos", "Cargo pants"]);
+  [["Jeans", 90], ["Chinos", 60], ["Cargo pants", 30]].forEach(([subtype, score]) => {
+    baseline["Short t-shirt"][subtype] = score;
+    baseline[subtype]["Short t-shirt"] = score;
   });
+
+  const results = findCandidateMatches(newTop, [newTop, ...bottoms], context(baseline), { limit: 2 });
+
+  assert.deepEqual(results.map((r) => r.score), [90, 60]);
+});
+
+test("findCandidateMatches skips outfits that are already saved and takes the next best", () => {
+  const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
+  const jeans = clothes({ subtype: "Jeans", type: "bottom" });
+  const chinos = clothes({ subtype: "Chinos", type: "bottom" });
+
+  const existingKeys = new Set([dedupeKey(["Short t-shirt", "Jeans"])]);
+
+  const results = findCandidateMatches(
+    newTop, [newTop, jeans, chinos], context(openBaseline(["Short t-shirt", "Jeans", "Chinos"])), { existingKeys, limit: 1 }
+  );
+
+  assert.equal(results.length, 1);
+  assert.deepEqual(new Set(results[0].clothes), new Set(["Short t-shirt", "Chinos"]));
+});
+
+test("a top on the requires-layering list is only used in 2-top shapes", () => {
+  const warmJumper = clothes({ subtype: "Warm jumper", type: "top" });
+  const tshirt = clothes({ subtype: "Short t-shirt", type: "top" });
+  const jeans = clothes({ subtype: "Jeans", type: "bottom" });
+
+  const results = findCandidateMatches(
+    warmJumper,
+    [warmJumper, tshirt, jeans],
+    context(openBaseline(["Warm jumper", "Short t-shirt", "Jeans"]), {
+      layeringRules: { requiresLayeringSet: new Set(["Warm jumper"]), requiresTopSet: new Set() },
+    })
+  );
+
+  assert.equal(results.find((r) => r.clothes.length === 2), undefined);
+  assert.notEqual(results.find((r) => r.clothes.length === 3), undefined);
+});
+
+test("Overalls are only matched in shapes with a top", () => {
+  const overalls = clothes({ subtype: "Overalls", type: "onepiece" });
+  const tshirt = clothes({ subtype: "Short t-shirt", type: "top" });
+  const coat = clothes({ subtype: "Puffer coat", type: "outer" });
+
+  const results = findCandidateMatches(
+    overalls,
+    [overalls, tshirt, coat],
+    context(openBaseline(["Overalls", "Short t-shirt", "Puffer coat"]), {
+      layeringRules: { requiresLayeringSet: new Set(), requiresTopSet: new Set(["Overalls"]) },
+    })
+  );
+
+  assert.notEqual(results.length, 0);
+  results.forEach((result) => assert.equal(result.topCount, 1));
+});
+
+test("the search stops once the budget's time limit has passed", () => {
+  const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
+  const jeans = clothes({ subtype: "Jeans", type: "bottom" });
+  const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };
+
+  const expired = createBudget({ timeLimitMs: -1 });
+
+  const results = findShapeCombinations(
+    newTop, topBottomShape, pools, context(openBaseline(["Short t-shirt", "Jeans"])), expired
+  );
+
+  assert.equal(results.length, 0);
 });
 
 test("isStillViable fails on colour, pattern, or season the same way the final checks would", () => {
@@ -189,19 +229,15 @@ test("isStillViable fails on colour, pattern, or season the same way the final c
   assert.equal(isStillViable(noSharedSeason, colorRules), false);
 });
 
-test("findShapeCombinations prunes a colour-incompatible candidate during the search, not just at the end", () => {
-  const newTop = clothes({ subtype: "Short t-shirt", type: "top", colors: ["Cream"], styles: ["plain"] });
-  const jeans = clothes({ subtype: "Jeans", type: "bottom", colors: ["Neon Green"], styles: ["plain"] });
-
+test("findShapeCombinations prunes a colour-incompatible candidate during the search", () => {
+  const newTop = clothes({ subtype: "Short t-shirt", type: "top", colors: ["Cream"] });
+  const jeans = clothes({ subtype: "Jeans", type: "bottom", colors: ["Neon Green"] });
   const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };
-  const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
-  const shape = OUTFIT_SHAPES.find((s) => s.top === 1 && s.bottom === 1 && s.outer === 0);
 
   const results = findShapeCombinations(
-    newTop, shape, pools, baseline, null, { remaining: 1000 }, new Set()
+    newTop, topBottomShape, pools, context(openBaseline(["Short t-shirt", "Jeans"])), createBudget()
   );
 
-  // Matrix-compatible, but colours share no palette - pruned incrementally.
   assert.equal(results.length, 0);
 });
 
@@ -218,31 +254,32 @@ test("findShapeCombinations prunes a candidate that pushes the outfit's distinct
   });
 
   const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };
-  const baseline = fullyOpenBaseline(["Short t-shirt", "Jeans"]);
-  const shape = OUTFIT_SHAPES.find((s) => s.top === 1 && s.bottom === 1 && s.outer === 0);
+  const baseline = openBaseline(["Short t-shirt", "Jeans"]);
 
   const midResults = findShapeCombinations(
-    newTop, shape, pools, baseline, null, { remaining: 1000 }, new Set(), getColorRules("mid")
+    newTop, topBottomShape, pools, context(baseline, { colorRules: getColorRules("mid") }), createBudget()
   );
   assert.equal(midResults.length, 0);
 
   const maxResults = findShapeCombinations(
-    newTop, shape, pools, baseline, null, { remaining: 1000 }, new Set(), getColorRules("max")
+    newTop, topBottomShape, pools, context(baseline, { colorRules: getColorRules("max") }), createBudget()
   );
   assert.equal(maxResults.length, 1);
 });
 
-test("findShapeCombinations rejects a whole shape immediately when newItem alone can't fill a single-slot layerable role", () => {
+test("findShapeCombinations rejects a whole shape when newItem can't fill its slot", () => {
   const warmJumper = clothes({ subtype: "Warm jumper", type: "top" });
   const jeans = clothes({ subtype: "Jeans", type: "bottom" });
-
   const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };
-  const baseline = fullyOpenBaseline(["Warm jumper", "Jeans"]);
-  const requiresLayeringSet = new Set(["Warm jumper"]);
-  const shape = OUTFIT_SHAPES.find((s) => s.top === 1 && s.bottom === 1 && s.outer === 0);
 
   const results = findShapeCombinations(
-    warmJumper, shape, pools, baseline, null, { remaining: 1000 }, requiresLayeringSet
+    warmJumper,
+    topBottomShape,
+    pools,
+    context(openBaseline(["Warm jumper", "Jeans"]), {
+      layeringRules: { requiresLayeringSet: new Set(["Warm jumper"]), requiresTopSet: new Set() },
+    }),
+    createBudget()
   );
 
   assert.equal(results.length, 0);

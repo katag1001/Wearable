@@ -111,8 +111,8 @@ test("describeOutfit passes the temperature preference through to the range", ()
 
 test("validateOutfit fails when the pattern check fails even if the matrix passes", () => {
   const baseline = {
-    "Short t-shirt": { "Short t-shirt": 5, Jeans: 5 },
-    Jeans: { Jeans: 5, "Short t-shirt": 5 },
+    "Short t-shirt": { "Short t-shirt": null, Jeans: 50 },
+    Jeans: { Jeans: null, "Short t-shirt": 50 },
   };
 
   const items = [
@@ -120,7 +120,7 @@ test("validateOutfit fails when the pattern check fails even if the matrix passe
     item({ subtype: "Jeans", type: "bottom", styles: ["patterned"] }),
   ];
 
-  assert.equal(validateOutfit(items, baseline, null), false);
+  assert.equal(validateOutfit(items, { baselineMatrix: baseline, colorRules }), false);
 });
 
 test("describeOutfit ANDs season flags across every item", () => {
@@ -157,8 +157,8 @@ test("describeOutfit never rejects a user-made outfit for having no shared seaso
 
 test("validateOutfit passes a clean, compatible, single-palette outfit", () => {
   const baseline = {
-    "Short t-shirt": { "Short t-shirt": 5, Jeans: 5 },
-    Jeans: { Jeans: 5, "Short t-shirt": 5 },
+    "Short t-shirt": { "Short t-shirt": null, Jeans: 50 },
+    Jeans: { Jeans: null, "Short t-shirt": 50 },
   };
 
   const items = [
@@ -166,5 +166,5 @@ test("validateOutfit passes a clean, compatible, single-palette outfit", () => {
     item({ subtype: "Jeans", type: "bottom", colors: ["Tan"], styles: ["plain"] }),
   ];
 
-  assert.equal(validateOutfit(items, baseline, null, undefined, colorRules), true);
+  assert.equal(validateOutfit(items, { baselineMatrix: baseline, colorRules }), true);
 });

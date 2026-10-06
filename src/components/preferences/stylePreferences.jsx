@@ -132,9 +132,8 @@ const StylePreferences = () => {
     const body = { gender, temperature };
 
     if (selectedImages.length > 0) {
-      const { style, colour, pattern } = resolveStyleQuiz(selectedImages, gender);
+      const { colour, pattern } = resolveStyleQuiz(selectedImages);
 
-      body.style = style;
       body.colour = colour;
       body.pattern = pattern;
     }
@@ -262,8 +261,8 @@ const StylePreferences = () => {
         </h3>
 
         <p className="style-preferences-section-description">
-          Pick every image that feels like you to update your style,
-          colour and pattern preferences.
+          Pick every image that feels like you to update your colour and
+          pattern preferences.
         </p>
 
         <div className="style-preferences-image-grid">

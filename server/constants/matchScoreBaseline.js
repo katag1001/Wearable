@@ -1,63 +1,108 @@
-// api/constants/matchScoreBaseline.js
+// server/constants/matchScoreBaseline.js
 //
-// Baseline compatibility scores between clothing subtypes, per gender and
-// style archetype. The actual, hand-editable data lives in
-// api/constants/matrices/<gender>-<style>.js (7 files, one per archetype) as
-// a row/column grid - this file loads each one, checks its subtype order
-// matches the canonical list, and converts it into the
-// { [subtypeA]: { [subtypeB]: score } } lookup shape matrixService expects.
+// Baseline pair scores per gender. The hand-editable data lives in
+// server/constants/matrices/<gender>.js (one file per gender) as a
+// row/column grid - this file loads each one, checks it, and converts it
+// into the { [subtypeA]: { [subtypeB]: score | null } } lookup shape
+// matrixService/outfitScoreService expect.
 //
-// A pair is usable when its score is above 0. This baseline is only ever
-// read as the fallback default for a user who has not yet built up their
-// own personal score for a given pair (see matchScoreService.js).
+// A cell is either a whole-number score from 0 to 100, or null for a pair
+// that can never be matched. Every file is checked on server start, and the
+// server refuses to start if any of these is broken:
+//  - the subtype order matches shared/subtypesByGender.json (tops, bottoms,
+//    onepieces, outers);
+//  - every row has one cell per subtype, and the grid is symmetric;
+//  - the same subtype twice is null;
+//  - the fixed role rules hold (constants/compatibilityRules.js): "never"
+//    role pairs are null and "always" role pairs have a score;
+//  - every score is a whole number from 0 to 100.
 //
 // Subtype names must match Clothes.subtype exactly. The canonical list per
-// gender lives in shared/subtypesByGender.json.
+// gender and role lives in shared/subtypesByGender.json.
 //
 // IMPORTANT: src/constants/typeOptions.jsx (frontend) independently hardcodes
 // its own copy of these same subtype names, per gender, alongside each
 // subtype's category/season/tags/temperature metadata. It does NOT read from
-// shared/subtypesByGender.json. If a subtype is added, removed, or renamed in
-// EITHER shared/subtypesByGender.json or src/constants/typeOptions.jsx, the
-// other MUST be updated to match, or the two will silently drift apart.
+// shared/subtypesByGender.json. If a subtype is added, removed, renamed or
+// moved to another role in EITHER shared/subtypesByGender.json or
+// src/constants/typeOptions.jsx, the other MUST be updated to match, or the
+// two will silently drift apart.
 
 const subtypesByGender = require("../../shared/subtypesByGender.json");
+const { ROLES } = require("./outfitShapes.js");
+const { NEVER, ALWAYS, getRolePairRule } = require("./compatibilityRules.js");
+const { MIN_SCORE, MAX_SCORE } = require("./scoring.js");
 
-const stylesByGender = {
-  man: ["all"],
-  woman: ["fun", "classic", "fashion"],
-  unisex: ["fun", "classic", "fashion"],
-};
+const GENDERS = ["man", "woman", "unisex"];
 
 const matrixFiles = {
-  man: { all: require("./matrices/man-all.js") },
-  woman: {
-    fun: require("./matrices/woman-fun.js"),
-    classic: require("./matrices/woman-classic.js"),
-    fashion: require("./matrices/woman-fashion.js"),
-  },
-  unisex: {
-    fun: require("./matrices/unisex-fun.js"),
-    classic: require("./matrices/unisex-classic.js"),
-    fashion: require("./matrices/unisex-fashion.js"),
-  },
+  man: require("./matrices/man.js"),
+  woman: require("./matrices/woman.js"),
+  unisex: require("./matrices/unisex.js"),
 };
 
-// Converts one { subtypes, scores } row/column file into the
-// { [subtypeA]: { [subtypeB]: score } } lookup shape, after checking its
-// subtype order exactly matches the canonical list for that gender - this
-// is what catches a matrix file and shared/subtypesByGender.json ever
-// silently drifting apart. `label` is only used to make a mismatch error
-// point at the right file.
-function toLookupMatrix(file, canonicalSubtypes, label) {
+// Flattens one gender's { top: [...], bottom: [...], ... } list into the
+// canonical matrix order (tops, bottoms, onepieces, outers) plus a
+// subtype -> role lookup.
+function canonicalOrder(subtypesByRole) {
+  const subtypes = [];
+  const roleOf = {};
+
+  ROLES.forEach((role) => {
+    (subtypesByRole[role] || []).forEach((subtype) => {
+      subtypes.push(subtype);
+      roleOf[subtype] = role;
+    });
+  });
+
+  return { subtypes, roleOf };
+}
+
+function isValidScore(value) {
+  return Number.isInteger(value) && value >= MIN_SCORE && value <= MAX_SCORE;
+}
+
+// Checks one cell against the rules above and throws a message pointing at
+// the exact pair if it breaks one.
+function checkCell(value, subtypeA, subtypeB, roleOf, label) {
+  const where = `${label}: ${subtypeA} + ${subtypeB}`;
+
+  if (value !== null && !isValidScore(value)) {
+    throw new Error(`${where} must be null or a whole number from ${MIN_SCORE} to ${MAX_SCORE}.`);
+  }
+
+  if (subtypeA === subtypeB) {
+    if (value !== null) {
+      throw new Error(`${where} must be null - a subtype never matches itself.`);
+    }
+    return;
+  }
+
+  const rule = getRolePairRule(roleOf[subtypeA], roleOf[subtypeB]);
+
+  if (rule === NEVER && value !== null) {
+    throw new Error(`${where} must be null - ${roleOf[subtypeA]} + ${roleOf[subtypeB]} never match.`);
+  }
+
+  if (rule === ALWAYS && value === null) {
+    throw new Error(`${where} needs a score - ${roleOf[subtypeA]} + ${roleOf[subtypeB]} always match.`);
+  }
+}
+
+// Converts one { subtypes, scores } row/column file into the nested lookup
+// shape, after checking every rule listed at the top of this file. `label`
+// is only used to make an error point at the right file.
+function toLookupMatrix(file, subtypesByRole, label) {
+  const { subtypes, roleOf } = canonicalOrder(subtypesByRole);
+
   const sameOrder =
-    file.subtypes.length === canonicalSubtypes.length &&
-    file.subtypes.every((subtype, index) => subtype === canonicalSubtypes[index]);
+    file.subtypes.length === subtypes.length &&
+    file.subtypes.every((subtype, index) => subtype === subtypes[index]);
 
   if (!sameOrder) {
     throw new Error(
       `${label}'s "subtypes" list does not match shared/subtypesByGender.json's ` +
-      `canonical list. Update one to match the other.`
+      `canonical list (tops, bottoms, onepieces, outers). Update one to match the other.`
     );
   }
 
@@ -68,22 +113,32 @@ function toLookupMatrix(file, canonicalSubtypes, label) {
     );
   }
 
-  const matrix = {};
-
-  file.subtypes.forEach((rowSubtype, i) => {
-    const row = file.scores[i];
-
+  file.scores.forEach((row, i) => {
     if (row.length !== file.subtypes.length) {
       throw new Error(
-        `${label}: row "${rowSubtype}" has ${row.length} scores but there are ` +
+        `${label}: row "${file.subtypes[i]}" has ${row.length} scores but there are ` +
         `${file.subtypes.length} subtypes.`
       );
     }
+  });
 
+  const matrix = {};
+
+  file.subtypes.forEach((rowSubtype, i) => {
     matrix[rowSubtype] = {};
 
     file.subtypes.forEach((colSubtype, j) => {
-      matrix[rowSubtype][colSubtype] = row[j];
+      const value = file.scores[i][j];
+
+      if (value !== file.scores[j][i]) {
+        throw new Error(
+          `${label}: ${rowSubtype} + ${colSubtype} is ${value} but ` +
+          `${colSubtype} + ${rowSubtype} is ${file.scores[j][i]} - the grid must be symmetric.`
+        );
+      }
+
+      checkCell(value, rowSubtype, colSubtype, roleOf, label);
+      matrix[rowSubtype][colSubtype] = value;
     });
   });
 
@@ -92,21 +147,18 @@ function toLookupMatrix(file, canonicalSubtypes, label) {
 
 const matchScoreBaseline = {};
 
-Object.keys(stylesByGender).forEach((gender) => {
-  matchScoreBaseline[gender] = {};
-
-  stylesByGender[gender].forEach((style) => {
-    matchScoreBaseline[gender][style] = toLookupMatrix(
-      matrixFiles[gender][style],
-      subtypesByGender[gender],
-      `api/constants/matrices/${gender}-${style}.js`
-    );
-  });
+GENDERS.forEach((gender) => {
+  matchScoreBaseline[gender] = toLookupMatrix(
+    matrixFiles[gender],
+    subtypesByGender[gender],
+    `server/constants/matrices/${gender}.js`
+  );
 });
 
 module.exports = {
+  GENDERS,
   matchScoreBaseline,
   subtypesByGender,
-  stylesByGender,
+  canonicalOrder,
   toLookupMatrix,
 };

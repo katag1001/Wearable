@@ -1,6 +1,5 @@
 import {
   styleImageOptions,
-  stylePriority,
   levelPriority,
 } from "../constants/styleQuizOptions";
 
@@ -33,23 +32,15 @@ const pickWinner = (counts, priorityOrder) => {
 
 /**
  * Given the keys of the style images a user selected, returns the
- * {style, colour, pattern} majority vote, breaking ties using the
- * fixed priority order in styleQuizOptions.js.
- *
- * Men only have a single style archetype ("all") for now, so gender always
- * forces the style outcome for "man" rather than deriving it from images -
- * colour/pattern are still computed normally either way.
+ * {colour, pattern} majority vote, breaking ties using the fixed
+ * priority order in styleQuizOptions.js.
  */
-export const resolveStyleQuiz = (selectedImageKeys, gender) => {
+export const resolveStyleQuiz = (selectedImageKeys) => {
   const selectedOptions = styleImageOptions.filter((option) =>
     selectedImageKeys.includes(option.key)
   );
 
   return {
-    style:
-      gender === "man"
-        ? "all"
-        : pickWinner(countBy(selectedOptions, "style"), stylePriority),
     colour: pickWinner(countBy(selectedOptions, "colour"), levelPriority),
     pattern: pickWinner(countBy(selectedOptions, "pattern"), levelPriority),
   };

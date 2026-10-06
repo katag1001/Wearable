@@ -10,6 +10,7 @@ import "./viewMatches.css";
 import "./viewMatchesCard.css";
 
 import TemperatureSlider from "../general/temperatureSlider";
+import MatchScoreBadge from "../general/matchScoreBadge";
 import { getImageUrl } from "../../utils/getImageUrl";
 
 const ViewMatchesCard = ({
@@ -389,6 +390,8 @@ const ViewMatchesCard = ({
                 .map(capitalize)
                 .join(", ") || "N/A"}
             </div>
+
+            <MatchScoreBadge match={match} />
 
             {/* Delete Button */}
             {editable && (

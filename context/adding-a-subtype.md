@@ -17,46 +17,54 @@ First decide:
 
 ## 1. `shared/subtypesByGender.json` - the master list (required)
 
-Add the name to each gender list it belongs to.
+Each gender has one list per role:
 
-- **Position matters.** Every matrix file for that gender must list its
-  subtypes in exactly this order. Put it next to the subtype it's most
-  similar to.
-- `server/constants/matchScoreBaseline.js` checks this on server start and
-  throws if a matrix and this list disagree - no change needed there.
+```json
+"woman": {
+  "top": ["Hoodie/sweatshirt", "..."],
+  "bottom": ["..."],
+  "onepiece": ["..."],
+  "outer": ["..."]
+}
+```
 
-## 2. `server/constants/matrices/<gender>-<style>.js` - the score matrices (required)
+Add the name to the right role list for each gender it belongs to.
 
-One file per gender + style combination:
+- **Position matters.** The gender's matrix file must list its subtypes in
+  exactly this order: all tops, then bottoms, then onepieces, then outers.
+  Put it next to the subtype it's most similar to.
+- `server/constants/matchScoreBaseline.js` reads the roles from here to
+  check the matrix (section 2). No change is needed there.
 
-| Gender | Files |
-|---|---|
-| woman | `woman-classic.js`, `woman-fashion.js`, `woman-fun.js` |
-| unisex | `unisex-classic.js`, `unisex-fashion.js`, `unisex-fun.js` |
-| man | `man-all.js` |
+## 2. `server/constants/matrices/<gender>.js` - the score matrices (required)
 
-In **every** file for each gender the subtype is added to:
+One file per gender: `man.js`, `woman.js`, `unisex.js`. In each file for a
+gender the subtype is added to:
 
 1. Add the name to `subtypes`, at the **same position** as in
    `subtypesByGender.json`.
-2. Add a **new row** to `scores` at that position, with one score per
+2. Add a **new row** to `scores` at that position, with one cell per
    subtype, and a trailing `// <Subtype name>` comment.
-3. Add a **new column** - one extra score, at that position, in **every
+3. Add a **new column**: one extra cell, at that position, in **every
    existing row**.
 
-Rules the scores must follow (enforced by
-`server/specs/matchScoreBaseline.spec.js`):
+Each cell is either a **score from 0 to 100** (whole number) or **`null`**
+(never matched). The server refuses to start unless:
 
-- **Symmetric** - `scores[i][j]` must equal `scores[j][i]`. The new row and
-  the new column must hold the same values.
-- **Self-pair is -20** - the new subtype paired with itself.
-- A pair can match only when its score is **above 0**. Typical scale:
-  `-20` never, `-15` / `-10` strongly no, `0`–`9` normal, `15`–`20` great.
+- the grid is **symmetric**: `scores[i][j]` equals `scores[j][i]`;
+- the subtype **paired with itself is `null`**;
+- **two bottoms, two onepieces, or a bottom with a onepiece are `null`**;
+- **top+bottom, top+outer, bottom+outer and onepiece+outer have a score**.
+  These always match, and the score only decides how good the match is;
+- **top+top, outer+outer and top+onepiece** may be either. This is where
+  "can these be worn together at all" is decided.
+
+`0` is a valid score (a poor match), not "never".
 
 Tip: copy the row and column of the closest existing subtype, then adjust
 the specific pairs that should differ. Doing this with a small Node script
 (read the file with `require`, rebuild the `subtypes` and `scores` blocks,
-write it back) is far less error-prone than hand-editing 60+ numbers per
+write it back) is far less error-prone than hand-editing 60+ cells per
 row.
 
 ## 3. `src/constants/typeOptions.jsx` - the frontend options (required)
@@ -77,7 +85,7 @@ Add one entry per gender, in the same shape as the others:
 
 - `name` must match `subtypesByGender.json` **exactly** (case, spacing,
   hyphens). This file is not linked to that one automatically.
-- `type` decides the role used by outfit shapes and matching.
+- `type` must match the role list it's in, in `subtypesByGender.json`.
 - `category` is the group shown in the subtype picker
   (`src/components/clothes/uploadComponents/modalOne.jsx`). Use an
   existing category name unless a new group is genuinely wanted.
@@ -97,31 +105,36 @@ other words people might type, so the picker suggests it:
 
 Without an entry, it still matches on the words in its own name.
 
-## 5. `server/constants/requiresLayering.js` - needs layering (only if applicable)
+## 5. `server/constants/requiresLayering.js` - single-item rules (only if applicable)
 
-Only if the subtype can **never be the only item in its role** (e.g. a
-cardigan that always needs a top underneath). Add it to the relevant gender
-lists. Only affects `top` and `outer` roles.
+- `REQUIRES_LAYERING`: a top or outer that can **never be the only item
+  in its role** (e.g. a cardigan that always needs a top underneath).
+- `REQUIRES_TOP`: a onepiece that must **always be worn with a top** (e.g.
+  Overalls).
+
+Add it to the relevant gender lists. Make sure the matrix gives it at
+least one compatible partner of the right kind, or it can never be
+matched. `server/specs/matchScoreBaseline.spec.js` checks this.
 
 ---
 
 ## After the change
 
 1. Run the server tests: `cd server && node --test specs/*.spec.js`.
-   The symmetry/self-pair test and the subtype-order check must pass.
-2. Restart the server - the matrices are read once on start.
+2. Restart the server - the matrices are read and checked once on start.
 3. Rebuild the frontend (`npx vite build`) if deploying - `dist/` is a
    built copy.
-4. Existing users keep their personal score overrides (`matchscores`
-   collection) - new pairs fall back to the default matrix automatically.
-   Existing matches are not regenerated; new matches appear when a
-   clothing item is added or edited.
+4. Existing users keep their personal score adjustments (`matchscores`
+   collection) - new pairs simply have none yet. Existing matches are not
+   regenerated; new matches appear when a clothing item is added or
+   edited.
 
 ## Renaming or removing a subtype
 
 Same four files, plus:
 
 - Existing clothes with the old name keep it in the database - they will
-  no longer match a matrix row. Update them in the `clothes` collection.
-- Personal overrides in `matchscores` store the subtype names
+  no longer match a matrix row. Update them in the `clothes` collection
+  (see `server/scripts/matchingOverhaulMigration.js` for an example).
+- Personal adjustments in `matchscores` store the subtype names
   (`subtypeA` / `subtypeB`) and need updating or deleting too.

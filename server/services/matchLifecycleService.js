@@ -1,12 +1,11 @@
-// api/services/matchLifecycleService.js
+// server/services/matchLifecycleService.js
 //
 // Wraps deleting Match documents. Only a deliberate, single-match delete by
-// the user counts as a "dislike" and decrements the personal combination
-// scores (matchScoreService.recordOutfitDeleted). Bulk deletes - delete-by-
-// piece, and the cascade that runs when a wardrobe item itself is removed -
-// say nothing about whether the user liked the outfit, so they just delete
-// the matches and leave the scores alone. Otherwise one clean-up could
-// drag a pair's score hundreds of points below zero.
+// the user counts as a "dislike" and lowers the personal pair scores
+// (matchScoreService.recordOutfitDeleted). Bulk deletes - delete-by-piece,
+// and the cascade that runs when a wardrobe item itself is removed - say
+// nothing about whether the user liked the outfit, so they just delete the
+// matches and leave the scores alone.
 
 const { Match, Clothes } = require("../models/AllModels.js");
 const { getBaselineMatrixForUser, recordOutfitDeleted } = require("./matchScoreService.js");
