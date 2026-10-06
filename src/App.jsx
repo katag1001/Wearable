@@ -31,6 +31,9 @@ import Enter from "./components/login/Enter";
 import ProtectedRoute from "./components/login/ProtectedRoute";
 import StyleQuizGate from "./components/login/StyleQuizGate";
 
+/* Context */
+import { MatchesProvider } from "./context/MatchesProvider";
+
 /* -------------------- SCROLL TO TOP -------------------- */
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -149,6 +152,7 @@ const App = () => {
       <Analytics />
       <SpeedInsights />
 
+      <MatchesProvider loggedIn={loggedIn}>
       <Router>
         {/* Reset scroll position whenever the route changes */}
         <ScrollToTop />
@@ -241,6 +245,7 @@ const App = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
+      </MatchesProvider>
     </>
   );
 };

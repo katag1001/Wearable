@@ -302,9 +302,11 @@ const ViewMatchesCard = ({
 
     return (
       <img
-        src={getImageUrl(item.imageUrl, 600)}
+        src={getImageUrl(item.imageUrl, 400)}
         alt={item.name}
         className="match-image"
+        loading="lazy"
+        decoding="async"
       />
     );
   };

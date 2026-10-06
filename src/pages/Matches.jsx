@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useSearchParams, useLocation, Link } from "react-router-dom";
 
 import Header from "../components/header";
@@ -7,7 +6,7 @@ import ViewMatches from "../components/matches/viewMatches";
 import ViewMatchesTop from "../components/matches/viewMatchesTop";
 import Filter from "../components/general/filter";
 
-import { URL } from "../config";
+import { useMatches } from "../context/useMatches";
 
 import "../styles/pages.css";
 
@@ -17,7 +16,11 @@ const Matches = ({ loggedIn, logout }) => {
 
   const location = useLocation();
 
-  const [matches, setMatches] = useState([]);
+  const {
+    matches,
+    setMatches,
+    fetchMatches: fetchSharedMatches,
+  } = useMatches();
   const [error, setError] = useState(null);
 
   // True only when we've just navigated here from "View New Matches"
@@ -55,32 +58,18 @@ const Matches = ({ loggedIn, logout }) => {
     },
   });
 
-  const getToken = () =>
-    localStorage.getItem("token");
-
+  // Re-fetches into the shared store. The cached list stays on screen
+  // until the fresh one arrives, so revisiting the page is instant.
   const fetchMatches = async () => {
     try {
       setError(null);
-
-      const token = getToken();
-
-      if (!token) {
-        setError("No user logged in");
-        return;
-      }
-
-      const response = await axios.get(
-        `${URL}/match/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setMatches(response.data);
+      await fetchSharedMatches();
     } catch (err) {
-      setError("Failed to fetch matches");
+      setError(
+        err.message === "No user logged in"
+          ? err.message
+          : "Failed to fetch matches"
+      );
     }
   };
 
@@ -93,6 +82,7 @@ const Matches = ({ loggedIn, logout }) => {
     let attempts = 0;
     const maxAttempts = 8;
     let timeoutId;
+    let cancelled = false;
 
     const poll = async () => {
       attempts += 1;
@@ -100,26 +90,11 @@ const Matches = ({ loggedIn, logout }) => {
       try {
         setError(null);
 
-        const token = getToken();
+        const data = await fetchSharedMatches();
 
-        if (!token) {
-          setError("No user logged in");
-          setWaitingForNewMatch(false);
-          return;
-        }
+        if (cancelled) return;
 
-        const response = await axios.get(
-          `${URL}/match/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        setMatches(response.data);
-
-        const found = response.data.some((match) =>
+        const found = data.some((match) =>
           match.clothes?.some(
             (item) => item._id === itemFilter
           )
@@ -132,14 +107,23 @@ const Matches = ({ loggedIn, logout }) => {
 
         timeoutId = setTimeout(poll, 1000);
       } catch (err) {
-        setError("Failed to fetch matches");
+        if (cancelled) return;
+
+        setError(
+          err.message === "No user logged in"
+            ? err.message
+            : "Failed to fetch matches"
+        );
         setWaitingForNewMatch(false);
       }
     };
 
     poll();
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

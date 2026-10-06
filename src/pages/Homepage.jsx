@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from "axios";
 import { URL } from "../config";
+import { useMatches } from "../context/useMatches";
 
 import TodayFullBlock from '../components/today/todayFullBlock';
 import ViewMatches from '../components/matches/viewMatches';
@@ -63,31 +64,22 @@ const Homepage = ({ loggedIn, logout }) => {
 
   /*-------------------------Matches-------------------------*/
 
-  const [matches, setMatches] = useState([]);
+  // Shared with My Outfits, so loading them here makes that page instant.
+  const {
+    matches,
+    fetchMatches: fetchSharedMatches,
+  } = useMatches();
   const [matchesError, setMatchesError] = useState(null);
 
   const fetchMatches = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setMatchesError("No user logged in");
-        return;
-      }
-
-      const response = await axios.get(
-        `${URL}/match/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setMatches(response.data);
-
+      await fetchSharedMatches();
     } catch (err) {
-      setMatchesError("Failed to fetch matches");
+      setMatchesError(
+        err.message === "No user logged in"
+          ? err.message
+          : "Failed to fetch matches"
+      );
     }
   };
 
