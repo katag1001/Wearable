@@ -22,9 +22,8 @@
 //   3. Incremental compatibility + colour + pattern + season checks: every
 //      time a candidate is added, the growing partial item-set is
 //      re-checked; a dead branch is abandoned immediately.
-// Only temperature isn't pruned incrementally (the layering formula's
-// "outer replaces the floor" exception makes that non-trivial) - it's
-// still checked once per fully-assembled candidate, in describeOutfit.
+// Temperature never rejects a candidate - every outfit's range is worked
+// out from its subtypes (presetTemperatureService.js) once it's chosen.
 // validateOutfit is still called on each survivor as a cheap final safety
 // net, even though by construction it should always pass.
 //
@@ -218,8 +217,7 @@ function dedupeKey(clothesIds) {
 // Searches every shape with a slot for newItem's role, scores every
 // item-set found, and returns up to `limit` saveable match descriptions,
 // best score first. Item-sets already saved (`existingKeys`) are skipped,
-// as are any that fail the temperature check in describeOutfit - the next
-// best one takes their place.
+// as is any describeOutfit rejects - the next best one takes their place.
 function findCandidateMatches(
   newItem,
   allItems,

@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 
 const { describeOutfit, validateOutfit, countRoles } = require("../services/outfitEvaluator.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
+const { computePresetTemperatureRange } = require("../services/presetTemperatureService.js");
 
 const colorRules = getColorRules("mid");
 
@@ -11,8 +12,6 @@ function item(overrides) {
     _id: overrides.subtype,
     type: "top",
     subtype: "Short t-shirt",
-    min_temp: 15,
-    max_temp: 30,
     colors: ["Cream"],
     styles: ["plain"],
     tags: ["Everyday"],
@@ -41,30 +40,15 @@ test("countRoles tallies each type independently", () => {
 
 test("describeOutfit computes temperature, role counts, hasOuter, and merges tags/colours/styles", () => {
   const items = [
-    item({
-      subtype: "Short t-shirt",
-      type: "top",
-      min_temp: 15,
-      max_temp: 30,
-      colors: ["Cream"],
-      styles: ["plain"],
-      tags: ["Everyday"],
-    }),
-    item({
-      subtype: "Jeans",
-      type: "bottom",
-      min_temp: 5,
-      max_temp: 22,
-      colors: ["Tan"],
-      styles: ["plain"],
-      tags: ["Everyday"],
-    }),
+    item({ subtype: "Short t-shirt", type: "top", colors: ["Cream"], styles: ["plain"], tags: ["Everyday"] }),
+    item({ subtype: "Jeans", type: "bottom", colors: ["Tan"], styles: ["plain"], tags: ["Everyday"] }),
   ];
 
   const result = describeOutfit(items, { isUserMade: false });
+  const { min_temp, max_temp } = computePresetTemperatureRange(items);
 
-  assert.equal(result.min_temp, 15);
-  assert.equal(result.max_temp, 22);
+  assert.equal(result.min_temp, min_temp);
+  assert.equal(result.max_temp, max_temp);
   assert.deepEqual(result.clothes, ["Short t-shirt", "Jeans"]);
   assert.equal(result.topCount, 1);
   assert.equal(result.bottomCount, 1);
@@ -74,39 +58,40 @@ test("describeOutfit computes temperature, role counts, hasOuter, and merges tag
   assert.deepEqual(result.tags, ["Everyday"]);
 });
 
-test("describeOutfit returns null for a non-overlapping auto-search candidate", () => {
+test("describeOutfit never rejects an outfit because of temperature", () => {
   const items = [
-    item({ subtype: "a", type: "top", min_temp: 20, max_temp: 30 }),
-    item({ subtype: "b", type: "bottom", min_temp: 0, max_temp: 10 }),
+    item({ subtype: "Linen shirt", type: "top" }),
+    item({ subtype: "Leather trousers", type: "bottom" }),
+    item({ subtype: "Puffer coat", type: "outer" }),
   ];
 
-  assert.equal(describeOutfit(items, { isUserMade: false }), null);
+  assert.notEqual(describeOutfit(items, { isUserMade: false }), null);
 });
 
-test("describeOutfit never returns null for a user-made outfit", () => {
+test("describeOutfit ignores any temperature range left on the items themselves", () => {
   const items = [
-    item({ subtype: "a", type: "top", min_temp: 20, max_temp: 30 }),
-    item({ subtype: "b", type: "bottom", min_temp: 0, max_temp: 10 }),
+    item({ subtype: "Short t-shirt", type: "top", min_temp: -20, max_temp: -10 }),
+    item({ subtype: "Jeans", type: "bottom", min_temp: 40, max_temp: 50 }),
   ];
 
-  const result = describeOutfit(items, { isUserMade: true });
+  const { min_temp, max_temp } = computePresetTemperatureRange(items);
+  const result = describeOutfit(items, { isUserMade: false });
 
-  // Union of the two is 0-30; with no outer the floor is raised to 14.
-  assert.notEqual(result, null);
-  assert.equal(result.min_temp, 14);
-  assert.equal(result.max_temp, 30);
+  assert.equal(result.min_temp, min_temp);
+  assert.equal(result.max_temp, max_temp);
 });
 
 test("describeOutfit passes the temperature preference through to the range", () => {
   const items = [
-    item({ subtype: "a", type: "top", min_temp: -2, max_temp: 20 }),
-    item({ subtype: "b", type: "bottom", min_temp: -2, max_temp: 22 }),
+    item({ subtype: "Short t-shirt", type: "top" }),
+    item({ subtype: "Jeans", type: "bottom" }),
   ];
 
   const result = describeOutfit(items, { isUserMade: false, temperaturePreference: "cold" });
+  const expected = computePresetTemperatureRange(items, "cold");
 
-  assert.equal(result.min_temp, 15);
-  assert.equal(result.max_temp, 20);
+  assert.equal(result.min_temp, expected.min_temp);
+  assert.equal(result.max_temp, expected.max_temp);
 });
 
 test("validateOutfit fails when the pattern check fails even if the matrix passes", () => {

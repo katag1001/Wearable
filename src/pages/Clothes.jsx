@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 
 import Header from "../components/header";
@@ -11,7 +11,7 @@ import "../styles/pages.css";
 
 import { URL } from "../config";
 
-const Clothes = ({ loggedIn, logout }) => {
+const Clothes = ({ loggedIn }) => {
   const [allItems, setAllItems] = useState([]);
   const [error, setError] = useState(null);
 
@@ -30,8 +30,6 @@ const Clothes = ({ loggedIn, logout }) => {
     seasons: [],
     colors: [],
     styles: [],
-    minTemp: null,
-    maxTemp: null,
   });
 
   const clothingTypes = [
@@ -48,14 +46,13 @@ const Clothes = ({ loggedIn, logout }) => {
     onepiece: "One-Pieces",
   };
 
-  const getToken = () =>
-    localStorage.getItem("token");
-
-  const fetchAllItems = async () => {
+  // useCallback keeps this the same function between renders, so the
+  // effect below can list it and still only run once.
+  const fetchAllItems = useCallback(async () => {
     try {
       setError(null);
 
-      const token = getToken();
+      const token = localStorage.getItem("token");
 
       if (!token) {
         setError("No user logged in");
@@ -84,11 +81,11 @@ const Clothes = ({ loggedIn, logout }) => {
       console.error(err);
       setError("Failed to fetch clothing items");
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAllItems();
-  }, []);
+  }, [fetchAllItems]);
 
   const filteredItems = allItems.filter((item) => {
     if (
@@ -150,18 +147,6 @@ const Clothes = ({ loggedIn, logout }) => {
         );
 
       if (!styleMatch) {
-        return false;
-      }
-    }
-
-    if (filters.minTemp !== null) {
-      if (item.max_temp < filters.minTemp) {
-        return false;
-      }
-    }
-
-    if (filters.maxTemp !== null) {
-      if (item.min_temp > filters.maxTemp) {
         return false;
       }
     }
@@ -253,6 +238,8 @@ const Clothes = ({ loggedIn, logout }) => {
             )
           ),
         ]}
+        // Clothing items have no temperature range - only matches do.
+        showTemperature={false}
       />
 
       {showClothingModal && (

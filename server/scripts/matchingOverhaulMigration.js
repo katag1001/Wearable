@@ -6,8 +6,9 @@
 //
 //   node server/scripts/matchingOverhaulMigration.js
 //
-// It reads MONGO from server/.env, like the server does. Every step is safe
-// to run again - a second run changes nothing.
+// It reads MONGO from server/.env, like the server does. Steps 1-3 and 5
+// are safe to run again. Step 4 is NOT once the new code is live - it would
+// also delete every score adjustment users have built up since.
 //
 //  1. Renames subtypes on existing clothes.
 //  2. Changes men's Waistcoat items from outer to top.

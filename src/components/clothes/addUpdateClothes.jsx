@@ -23,11 +23,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   // Defaults to "unisex" until the user's gender preference loads.
   const [gender, setGender] = useState("unisex");
 
-  // "cold" | "hot" | "normal" - shifts a new item's default
-  // temperatures. Treated as "normal" until it loads.
-  const [temperaturePreference, setTemperaturePreference] =
-    useState(null);
-
   const typeOptions = useMemo(
     () => getTypeOptions(gender),
     [gender]
@@ -60,12 +55,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           setGender(fetchedGender);
         }
 
-        setTemperaturePreference(
-          response.data?.data?.temperature ?? null
-        );
-
       } catch {
-        // No preferences saved yet - keep the unisex/normal defaults.
+        // No preferences saved yet - keep the unisex default.
       }
 
     };
@@ -83,9 +74,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
     toggleColor,
     toggleTag,
     toggleSeason,
-    handleTempChange,
-    handleSubtypeChange,
-    manualTempOverride
+    handleSubtypeChange
   } = useClothingForm(item, typeOptions);
 
 
@@ -119,9 +108,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
   } = useClothingDetection(
     item,
     setFormData,
-    manualTempOverride,
-    typeOptions,
-    temperaturePreference
+    typeOptions
   );
 
 
@@ -169,8 +156,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           formData.autumn ||
           formData.winter
         ) &&
-        formData.min_temp !== "" &&
-        formData.max_temp !== "" &&
         formData.colors.length > 0,
 
       missing: [
@@ -180,11 +165,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
           formData.autumn ||
           formData.winter
         ) && "at least one season",
-
-        (
-          formData.min_temp === "" ||
-          formData.max_temp === ""
-        ) && "a temperature range",
 
         formData.colors.length === 0 &&
           "at least one colour",
@@ -319,15 +299,17 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
     // 2. Build clothing payload
     // ------------------------------------------
 
+    // Items saved before temperature moved to matches may still carry
+    // min_temp/max_temp - never send them back.
+    const {
+      min_temp: _oldMinTemp,
+      max_temp: _oldMaxTemp,
+      ...itemFields
+    } = formData;
+
     const payload = {
 
-      ...formData,
-
-      min_temp:
-        Number(formData.min_temp),
-
-      max_temp:
-        Number(formData.max_temp),
+      ...itemFields,
 
 
       // Only replace image data if a new image
@@ -589,9 +571,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                 <ModalTwo
                   formData={formData}
                   toggleSeason={toggleSeason}
-                  handleTempChange={
-                    handleTempChange
-                  }
                   toggleColor={toggleColor}
                   toggleTag={toggleTag}
                 />

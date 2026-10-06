@@ -1,21 +1,10 @@
 import { colorOptions, tagOptions } from "../../../constants/optionsBank";
 
-// How far a new item's default temperatures are shifted for the
-// user's "do you generally feel too cold or too hot?" preference.
-// Someone who feels the cold needs the same item on warmer days.
-const TEMPERATURE_PREFERENCE_OFFSET = {
-  cold: 1,
-  hot: -1
-};
-
-export const shiftTempForPreference = (temp, temperaturePreference) =>
-  temp + (TEMPERATURE_PREFERENCE_OFFSET[temperaturePreference] ?? 0);
-
+// Clothing items have no temperature range of their own - a match's range
+// is worked out on the server from its subtypes (context/temperature-ranges.md).
 export const getInitialState = () => ({
   name: "",
   imageUrl: "",
-  min_temp: 10,
-  max_temp: 20,
   colors: [],
   styles: "plain",
   type: "",

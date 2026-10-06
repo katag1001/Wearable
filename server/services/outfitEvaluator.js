@@ -1,14 +1,15 @@
 // server/services/outfitEvaluator.js
 //
-// Orchestrates matrixService/temperatureService/styleColorService into the
-// two outfit-level operations everything else calls:
+// Orchestrates matrixService/presetTemperatureService/styleColorService into
+// the two outfit-level operations everything else calls:
 //
 //  - describeOutfit: ALWAYS runs, and NEVER rejects a user-made outfit. It
 //    computes the descriptive fields (temperature, role counts, tags,
 //    combined colours/styles) for any finished item-set - auto-generated or
-//    manually built by the user. For an auto-search candidate only, it can
-//    return null if the base items share no usable temperature range at
-//    all, so the pricier checks in validateOutfit never run on it.
+//    manually built by the user. The temperature range comes from the
+//    outfit's subtypes alone, so it never causes a rejection. For an
+//    auto-search candidate only, it returns null if the items share no
+//    season.
 //
 //  - validateOutfit: the gate used ONLY for auto-generated candidates -
 //    fixed compatibility (including layering rules) + colour + pattern.
@@ -20,7 +21,7 @@
 // No DB access here except the (optional) tag computation, which is pure
 // given already-loaded items.
 
-const { computeTemperatureRange } = require("./temperatureService.js");
+const { computePresetTemperatureRange } = require("./presetTemperatureService.js");
 const { passesPatternCheck, passesColorCheck } = require("./styleColorService.js");
 const { isCliqueValid } = require("./matrixService.js");
 const { computeMatchTags } = require("./helpers.js");
@@ -72,11 +73,7 @@ function hasSharedSeason(items) {
 }
 
 function describeOutfit(items, { isUserMade, temperaturePreference = null }) {
-  const temperature = computeTemperatureRange(items, { isUserMade, temperaturePreference });
-
-  if (!temperature) {
-    return null;
-  }
+  const { min_temp, max_temp } = computePresetTemperatureRange(items, temperaturePreference);
 
   const seasons = computeSeasons(items);
 
@@ -96,8 +93,8 @@ function describeOutfit(items, { isUserMade, temperaturePreference = null }) {
     colors,
     styles,
     tags,
-    min_temp: Number(temperature.min_temp.toFixed(1)),
-    max_temp: Number(temperature.max_temp.toFixed(1)),
+    min_temp,
+    max_temp,
     ...seasons,
     ...roleCounts,
     hasOuter: roleCounts.outerCount > 0,

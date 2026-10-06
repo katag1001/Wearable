@@ -1,12 +1,8 @@
 import { useRef } from "react";
-import {
-  detectFromName,
-  getInitialState,
-  shiftTempForPreference
-} from "./uploadHelpers";
+import { detectFromName } from "./uploadHelpers";
 
-// Fills in page two (seasons, tags, colours, temperature) from the
-// name and subtype chosen on page one. This only runs when the user
+// Fills in page two (seasons, tags, colours) from the name and subtype
+// chosen on page one. This only runs when the user
 // clicks Next, so changing their mind on page one doesn't leave
 // suggestions from an earlier choice behind.
 //
@@ -15,9 +11,7 @@ import {
 export const useClothingDetection = (
 item,
 setFormData,
-manualTempOverride,
-typeOptions,
-temperaturePreference
+typeOptions
 ) => {
 
 // The name/subtype that page two was last filled from.
@@ -49,8 +43,6 @@ const applyDetection = (name, subtype) => {
   const subtypeOption = typeOptions.find(
     option => option.name === subtype
   );
-
-  const initial = getInitialState();
 
 
   setFormData(prev => {
@@ -100,23 +92,6 @@ const applyDetection = (name, subtype) => {
     }
 
     updated.tags = [...new Set(tags)];
-
-
-    // Defaults are shifted 1 degree for users who generally feel
-    // too cold/too hot - see context/temperature-ranges.md.
-    if (!manualTempOverride) {
-
-      updated.min_temp = shiftTempForPreference(
-        subtypeOption?.minTemp ?? initial.min_temp,
-        temperaturePreference
-      );
-
-      updated.max_temp = shiftTempForPreference(
-        subtypeOption?.maxTemp ?? initial.max_temp,
-        temperaturePreference
-      );
-
-    }
 
     return updated;
 

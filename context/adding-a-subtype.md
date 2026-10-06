@@ -11,7 +11,8 @@ First decide:
 - **Its role** - `top`, `bottom`, `onepiece` or `outer`.
 - **Which existing subtype it's closest to** - copying that subtype's
   scores and defaults is the easiest starting point.
-- **Its defaults** - category, seasons, tags, min/max temperature.
+- **Its defaults** - category, seasons, tags.
+- **Its temperature preset** - which temperature group it's in (section 6).
 
 ---
 
@@ -77,9 +78,7 @@ Add one entry per gender, in the same shape as the others:
   "category": "Tops",
   "name": "Fancy top",
   "season": ["Spring", "Summer", "Autumn", "Winter"],
-  "tags": ["Work", "Party", "Dinner", "Wedding", "Date night", "Everyday"],
-  "minTemp": 15,
-  "maxTemp": 25
+  "tags": ["Work", "Party", "Dinner", "Wedding", "Date night", "Everyday"]
 }
 ```
 
@@ -89,7 +88,7 @@ Add one entry per gender, in the same shape as the others:
 - `category` is the group shown in the subtype picker
   (`src/components/clothes/uploadComponents/modalOne.jsx`). Use an
   existing category name unless a new group is genuinely wanted.
-- `season`, `tags`, `minTemp`, `maxTemp` are the **automatic defaults**
+- `season` and `tags` are the **automatic defaults**
   filled in by addUpdateClothes when the user clicks Next - see
   `src/components/clothes/uploadComponents/useClothingDetection.jsx`.
   No code change is needed for these to work.
@@ -116,6 +115,21 @@ Add it to the relevant gender lists. Make sure the matrix gives it at
 least one compatible partner of the right kind, or it can never be
 matched. `server/specs/matchScoreBaseline.spec.js` checks this.
 
+## 6. `server/constants/temperatureGroups.js` - temperature preset (required)
+
+Clothing items have no temperature range; a match's range comes from its
+subtypes (see `temperature-ranges.md`). Add the new subtype to:
+
+- a top: one of `TOP_GROUPS` (short / long / warm);
+- a bottom: one of `BOTTOM_GROUPS` (short / lightLong / long);
+- a onepiece: `ONEPIECE_RANGES`, with its own `[min, max]`;
+- an outer: both `OUTER_WARMTH_POINTS` and `OUTER_MIN_TEMPS`.
+
+`server/specs/presetTemperatureService.spec.js` fails if any subtype in
+`subtypesByGender.json` is missing here. Then run
+`node server/scripts/resetMatchTemperatures.js` if existing matches should
+pick it up.
+
 ---
 
 ## After the change
@@ -131,7 +145,7 @@ matched. `server/specs/matchScoreBaseline.spec.js` checks this.
 
 ## Renaming or removing a subtype
 
-Same four files, plus:
+Same files, plus:
 
 - Existing clothes with the old name keep it in the database - they will
   no longer match a matrix row. Update them in the `clothes` collection

@@ -16,8 +16,6 @@ const { getColorRules } = require("../utils/colorPalettes.js");
 function clothes(overrides) {
   return {
     _id: overrides.subtype,
-    min_temp: 15,
-    max_temp: 25,
     colors: ["Cream"],
     styles: ["plain"],
     tags: ["Everyday"],

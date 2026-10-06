@@ -12,10 +12,6 @@ export const useClothingForm = (item, typeOptions) => {
       : getInitialState()
   );
 
-  const [manualTempOverride, setManualTempOverride] =
-    useState(false);
-
-
   const updateField = (name, value) => {
 
     setFormData(prev => ({
@@ -80,36 +76,6 @@ export const useClothingForm = (item, typeOptions) => {
   };
 
 
-  const handleTempChange = (
-    field,
-    value
-  ) => {
-
-    setManualTempOverride(true);
-
-
-    setFormData(prev => ({
-
-      ...prev,
-
-      [field]:
-        field === "min_temp"
-
-          ? Math.min(
-              Number(value),
-              prev.max_temp
-            )
-
-          : Math.max(
-              Number(value),
-              prev.min_temp
-            )
-
-    }));
-
-  };
-
-
   const handleSubtypeChange = (e) => {
 
     const subtype = e.target.value;
@@ -138,8 +104,6 @@ export const useClothingForm = (item, typeOptions) => {
       getInitialState()
     );
 
-    setManualTempOverride(false);
-
   };
 
 
@@ -152,11 +116,7 @@ export const useClothingForm = (item, typeOptions) => {
     toggleColor,
     toggleTag,
     toggleSeason,
-    handleTempChange,
     handleSubtypeChange,
-
-    manualTempOverride,
-    setManualTempOverride,
 
     resetForm
 

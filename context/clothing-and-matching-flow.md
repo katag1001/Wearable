@@ -12,7 +12,8 @@ outfits (matches) being created from it. It covers:
 
 Two related docs go deeper on specific parts and aren't repeated here:
 
-- `context/temperature-ranges.md` covers item and match temperature ranges.
+- `context/temperature-ranges.md` covers how match temperature ranges are
+  worked out. Clothing items have no temperature range.
 - `context/adding-a-subtype.md` covers the subtype lists and score matrices.
 - `context/matching-overhaul-plan.md` records the decisions behind the
   current matching design.
@@ -21,7 +22,8 @@ In short:
 
 - **Page one** of the add form asks for a name, image and subtype. When the
   user clicks **Next**, page two is filled in from the **name** (colours,
-  seasons, tags) and the **subtype** (seasons, tags, temperature).
+  seasons, tags) and the **subtype** (seasons, tags). Items have no
+  temperature - only matches do.
 - **Style** (`Plain` / `Patterned`) is never chosen by the user. It is
   `Patterned` whenever the item has more than one colour.
 - There is **no manual or admin approval**. An item is accepted once it
@@ -54,7 +56,7 @@ Files:
 |---|---|
 | `src/components/clothes/addUpdateClothes.jsx` | The two-page modal, validation and saving |
 | `src/components/clothes/uploadComponents/modalOne.jsx` | Page one: name, image, subtype |
-| `src/components/clothes/uploadComponents/modalTwo.jsx` | Page two: seasons, temperature, colours, tags |
+| `src/components/clothes/uploadComponents/modalTwo.jsx` | Page two: seasons, colours, tags |
 | `src/components/clothes/uploadComponents/useClothingForm.jsx` | Form state and toggle handlers |
 | `src/components/clothes/uploadComponents/useClothingDetection.jsx` | Auto-fills page two when Next is clicked |
 | `src/components/clothes/uploadComponents/uploadHelpers.jsx` | Name detection, subtype suggestions, defaults |
@@ -68,12 +70,9 @@ Files:
 - `gender` decides which subtype list is shown
   (`getTypeOptions(gender)`). It is `unisex` until it loads, and stays
   `unisex` if the user has no preferences or an unknown gender.
-- `temperature` shifts the default temperature range by ±1°. See
-  `temperature-ranges.md`.
 
 The form starts from `getInitialState()` (`uploadHelpers.jsx`): empty name,
-no colours, `styles: "plain"`, no seasons or tags, and a temperature of
-10–20.
+no colours, `styles: "plain"`, and no seasons or tags.
 
 ### 1.2 Page one: name, image, subtype
 
@@ -133,7 +132,6 @@ Seasons and tags are cleared first, then rebuilt from the sources below.
 | `styles` | Colours | `Patterned` if there are 2 or more colours, otherwise `Plain`. Recalculated every time the colours change (1.4). |
 | `spring`/`summer`/`autumn`/`winter` | Name **plus** subtype | Set to true if the name contains `spring`, `summer`, `autumn`/`fall` or `winter`, **or** the subtype's default `season` list includes it. The result is the union of both. |
 | `tags` | Name **plus** subtype | Tags whose name appears in the item name, plus the subtype's default `tags`, de-duplicated. |
-| `min_temp`/`max_temp` | Subtype + temperature preference | The subtype's `minTemp`/`maxTemp`, or 10–20 if none, shifted ±1° for the preference. **Skipped once the user has moved the slider** (`manualTempOverride`). Details in `temperature-ranges.md`. |
 | `type` | Subtype | Already set on page one. |
 
 #### Colour detection details
@@ -173,8 +171,7 @@ a lowercase `"patterned"`, but the effect overwrites it straight away, so
 the value saved is always `"Plain"` or `"Patterned"`.) There is no control
 for style on the form.
 
-**Validation for page two:** at least one season, a temperature range and
-at least one colour. Tags are optional.
+**Validation for page two:** at least one season and at least one colour. Tags are optional.
 
 ### 1.5 Saving
 
@@ -185,8 +182,9 @@ at least one colour. Tags are optional.
    `VITE_UPLOAD_PRESET`). This uses `fetch` so the app's auth header isn't
    sent to Cloudinary. The result supplies `imageUrl` (`secure_url`) and
    `cloudinaryId` (`public_id`).
-2. **Payload.** The whole `formData`, with `min_temp`/`max_temp` converted
-   to numbers and the new image fields added.
+2. **Payload.** The whole `formData` plus the new image fields. Any
+   `min_temp`/`max_temp` left on an item saved before temperatures moved to
+   matches is dropped.
 3. **Request.**
    - New item: `POST /clothing` (plus `username`, which the schema ignores).
    - Edit: `PUT /clothing/:id`.
@@ -209,7 +207,7 @@ gets through these checks, in order:
 | 3 | `authMiddleware` | Valid `Bearer` JWT; sets `req.user.userId` | 401 |
 | 4 | `createItem` | `type` present | 400 "Missing type" |
 | 5 | `createItem` | No existing item with the same `name` + `type` for this user | Returns the existing item (see Part 9) |
-| 6 | Mongoose `Clothes` schema | `name`, `userId`, `min_temp`, `max_temp`, `colors`, `styles`, `type`, `subtype`, all four seasons are required. Fields must cast (for example `tags` must be strings) | 500 with the validation message |
+| 6 | Mongoose `Clothes` schema | `name`, `userId`, `colors`, `styles`, `type`, `subtype`, all four seasons are required. Fields must cast (for example `tags` must be strings) | 500 with the validation message |
 
 On edit (`updateItem`), checks 3 and 6 run (`runValidators: true`). There is
 no duplicate check on edit.
@@ -241,7 +239,7 @@ appears. Then it shows the matches, filtered to that item.
 - The form starts from the saved item.
 - **Nothing is auto-filled.** `applyDetection` returns straight away, so
   renaming an item doesn't re-detect colours, and changing its subtype
-  doesn't reset seasons, tags or temperature. A subtype change still
+  doesn't reset seasons or tags. A subtype change still
   updates `type`.
 - Style is still recalculated from the colours (1.4).
 - After the save, `processMatches` runs again for the item. It only **adds**
@@ -334,7 +332,7 @@ affects items added and outfits matched afterwards.
 | `gender` | man / woman / unisex | Which subtype list the add form shows. Which matrix is used. Which layering lists are used. | `typeOptions.jsx`, `getBaselineMatrix`, `getLayeringRules` |
 | `colour` | min / mid / max | Which colour palette list is used, and the colour-count cap | `getColorRules` |
 | `pattern` | min / mid / max | **Saved and required by the quiz gate, but not used by matching.** The pattern rule is the same for everyone (3.7). | - |
-| `temperature` | cold / normal / hot | ±1° on new items' defaults. The no-outer minimum for outfits. | `temperature-ranges.md` |
+| `temperature` | cold / normal / hot | Shifts every new match's temperature range ±2° | `temperature-ranges.md` |
 | `monday` … `sunday` | a tag name | That day's tag is used to put matching outfits first on the Today page | `todayOutfitSort.jsx` |
 
 ### 2.5 Defaults when something is missing
@@ -491,10 +489,10 @@ outfit is marked for exactly the seasons every item has (`computeSeasons`).
 
 ### 3.9 Temperature rule
 
-`computeTemperatureRange` (`server/services/temperatureService.js`). For an
-automatic outfit, it rejects only if the tops and bottom/onepiece have **no
-temperature in common**. Anything else gives a range, which may collapse to
-a single temperature. Full details in `temperature-ranges.md`.
+`computePresetTemperatureRange` (`server/services/presetTemperatureService.js`)
+works out every match's range from its **subtypes** - clothing items have no
+range of their own. Temperature **never rejects** an outfit. Full details in
+`temperature-ranges.md`.
 
 ### 3.10 Outfit scores
 
@@ -522,7 +520,7 @@ score - unfavouriting returns the match to its original score.
 
 File: `server/services/matchService.js`, with `outfitEvaluator.js`,
 `matrixService.js`, `outfitScoreService.js`, `styleColorService.js`,
-`temperatureService.js`.
+`presetTemperatureService.js`.
 
 ### 4.1 Overview
 
@@ -546,7 +544,7 @@ score every item-set found                   (computeOutfitScore)
   ▼
 best score first, until 100 are kept:
   skip if already saved
-  describeOutfit   → temperature (may reject) + season + descriptive fields
+  describeOutfit   → temperature (from subtypes) + season + descriptive fields
   validateOutfit   → final safety re-check (compatibility, layering, pattern, colour)
   ▼
 Match.insertMany(best 100 new outfits)
@@ -619,9 +617,8 @@ about 1.5 s.)
    1. Skip it if the same set of clothes is already saved, or already
       kept in this run.
    2. **`describeOutfit(items, { isUserMade: false, temperaturePreference })`**
-      - Temperature range. Returns `null` (skipped - the next best takes its
-        place) if the base items don't overlap.
-      - Otherwise builds the match fields:
+      - Temperature range, from the subtypes (3.9). Never rejects.
+      - Builds the match fields:
 
         | Field | Value |
         |---|---|
@@ -630,7 +627,7 @@ about 1.5 s.)
         | `colors` | union of item colours |
         | `styles` | union of item styles (e.g. `["Plain", "Patterned"]`) |
         | `tags` | tags held by **at least half** the items, or all tags if none reach half (`computeMatchTags`) |
-        | `min_temp` / `max_temp` | rounded to 1 decimal |
+        | `min_temp` / `max_temp` | whole numbers, from `computePresetTemperatureRange` |
         | `spring`…`winter` | true only if every item has that season |
         | `topCount` / `bottomCount` / `onepieceCount` / `outerCount` | role counts |
         | `hasOuter` | `outerCount > 0` |
@@ -668,8 +665,7 @@ Files: `src/components/matches/createMatch.jsx`, `createMatch` in
 1. All ids must belong to the user. Otherwise 400.
 2. `describeOutfit(items, { isUserMade: true, ... })`:
    - **No compatibility, layering, colour or pattern checks.**
-   - If temperatures don't overlap, the range is the union instead of a
-     rejection.
+   - The temperature range comes from the subtypes, like any other match.
    - Seasons are still computed. With no shared season the outfit is
      saved with every season false, so it never appears on the Today
      page.
@@ -770,11 +766,11 @@ its CSS and its three usages to remove it.
 
 A woman, colour **mid**, temperature **normal**. Her wardrobe already has:
 
-| Item | Subtype (role) | Colours | Seasons | Temp |
-|---|---|---|---|---|
-| Cream wideleg trousers | Wideleg trousers (bottom) | Cream | all | 15–28 |
-| Camel trench coat | Trench coat (outer) | Camel | Spr/Aut/Win | 10–20 |
-| Brown light cardigan | Light cardigan (top) | Brown | all | 15–22 |
+| Item | Subtype (role) | Colours | Seasons |
+|---|---|---|---|
+| Cream wideleg trousers | Wideleg trousers (bottom) | Cream | all |
+| Camel trench coat | Trench coat (outer) | Camel | Spr/Aut/Win |
+| Brown light cardigan | Light cardigan (top) | Brown | all |
 
 **Adding the item.** She types "Cream and gold buttondown shirt". The
 suggestions include **Buttondown shirt** (keyword `"buttondown shirt"`),
@@ -783,7 +779,6 @@ and she picks it. Clicking Next fills in:
 - colours **Cream, Gold** (from the name) → style **Patterned**
 - seasons **Spring, Autumn, Winter** and tags **Work, Wedding, Date night,
   Everyday** (from the subtype)
-- temperature **15–25** (the subtype default; "normal" means no shift)
 
 She saves. The item passes every check and is stored, and `processMatches`
 starts.
@@ -808,10 +803,10 @@ patterned. Spring, Autumn and Winter are shared by everything.
 
 | Shape | Items | Score | Temperature | Result |
 |---|---|---|---|---|
-| 4 (1 top, 1 bottom) | shirt + trousers | 92 | 15–25 | **saved** |
-| 5 (+1 outer) | shirt + trousers + trench | 0.7 × 91.3 + 0.3 × 90 ≈ **91** | 10–25 | **saved** |
-| 6 (2 tops, 1 bottom) | shirt + cardigan + trousers | 0.7 × 87 + 0.3 × 84 ≈ **86** | 15–25 | **saved** |
-| 7 (2 tops, 1 bottom, 1 outer) | shirt + cardigan + trousers + trench | 0.7 × 85.2 + 0.3 × 68 ≈ **80** | 10–25 | **saved** |
+| 4 (1 top, 1 bottom) | shirt + trousers | 92 | 14–22 | **saved** |
+| 5 (+1 outer) | shirt + trousers + trench | 0.7 × 91.3 + 0.3 × 90 ≈ **91** | 9–18 | **saved** |
+| 6 (2 tops, 1 bottom) | shirt + cardigan + trousers | 0.7 × 87 + 0.3 × 84 ≈ **86** | 14–18 | **saved** |
+| 7 (2 tops, 1 bottom, 1 outer) | shirt + cardigan + trousers + trench | 0.7 × 85.2 + 0.3 × 68 ≈ **80** | 6–14 | **saved** |
 
 All four are within the best 100, so all are saved, each with its score.
 "View New Matches" polls until they appear.
@@ -859,10 +854,7 @@ These are behaviours found in the code that may not be intended.
    awaited, and in `updateItem` it has no `.catch`. On a serverless
    deployment (`api/index.vercel.js`), work after the response may be cut
    off. The client polling (8 × 1 s) would then show no new matches.
-8. **User-made outfits with only outers** get `max_temp: Infinity`. There
-   are no tops or bottoms to set a ceiling, and the Build Matches page
-   doesn't prevent this.
-9. **Three colour-palette tests fail** (`styleColorService.spec.js` ×2 and
+8. **Three colour-palette tests fail** (`styleColorService.spec.js` ×2 and
    the colour-cap test in `matchService.spec.js`). They were failing before
    the matching overhaul - the palette data no longer contains the
    combinations the tests expect.
@@ -895,5 +887,6 @@ These are behaviours found in the code that may not be intended.
 
 Tests: `server/specs/` (`matchService`, `matrixService`,
 `outfitScoreService`, `outfitEvaluator`, `styleColorService`,
-`matchScoreService`, `matchScoreBaseline`, `temperatureService`,
+`matchScoreService`, `matchScoreBaseline`, `presetTemperatureService`,
+`temperatureService`,
 `colorPalettes`). Run them with `cd server && node --test specs/*.spec.js`.

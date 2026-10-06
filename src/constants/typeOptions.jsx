@@ -1,7 +1,8 @@
 // src/constants/typeOptions.jsx
 //
 // Each gender's clothing options: type, category, subtype (name),
-// tags, seasons, and the temperature range they suit.
+// tags and seasons. Clothing has no temperature range - matches get one
+// from server/constants/temperatureGroups.js.
 //
 // IMPORTANT: shared/subtypesByGender.json (used by the backend's
 // server/constants/matchScoreBaseline.js for outfit matching)
@@ -28,9 +29,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 8,
-      "maxTemp": 18
+      ]
     },
     {
       "type": "top",
@@ -45,9 +44,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": -5,
-      "maxTemp": 12
+      ]
     },
     {
       "type": "top",
@@ -61,9 +58,7 @@ const typeOptionsByGender = {
         "Work",
         "Loungewear",
         "Everyday"
-      ],
-      "minTemp": -5,
-      "maxTemp": 12
+      ]
     },
     {
       "type": "top",
@@ -83,9 +78,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 12,
-      "maxTemp": 20
+      ]
     },
     {
       "type": "top",
@@ -103,9 +96,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 12,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "top",
@@ -121,9 +112,7 @@ const typeOptionsByGender = {
         "Beach",
         "Wedding",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "top",
@@ -140,9 +129,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 5,
-      "maxTemp": 15
+      ]
     },
     {
       "type": "top",
@@ -163,9 +150,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "top",
@@ -184,9 +169,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 12,
-      "maxTemp": 22
+      ]
     },
     {
       "type": "top",
@@ -205,9 +188,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "top",
@@ -224,9 +205,7 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night"
-      ],
-      "minTemp": 12,
-      "maxTemp": 22
+      ]
     },
     {
       "type": "bottom",
@@ -243,9 +222,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 5,
-      "maxTemp": 22
+      ]
     },
     {
       "type": "bottom",
@@ -260,9 +237,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 0,
-      "maxTemp": 15
+      ]
     },
     {
       "type": "bottom",
@@ -280,9 +255,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 8,
-      "maxTemp": 22
+      ]
     },
     {
       "type": "bottom",
@@ -297,9 +270,7 @@ const typeOptionsByGender = {
         "Gym",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 8,
-      "maxTemp": 22
+      ]
     },
     {
       "type": "bottom",
@@ -317,9 +288,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -336,9 +305,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 0,
-      "maxTemp": 18
+      ]
     },
     {
       "type": "bottom",
@@ -356,9 +323,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 12,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -373,9 +338,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -388,9 +351,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -403,9 +364,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 20,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -421,9 +380,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -437,9 +394,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "onepiece",
@@ -451,9 +406,7 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Everyday"
-      ],
-      "minTemp": 21,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "onepiece",
@@ -469,9 +422,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 12,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "outer",
@@ -487,9 +438,7 @@ const typeOptionsByGender = {
         "Work",
         "Dinner",
         "Date night"
-      ],
-      "minTemp": 8,
-      "maxTemp": 18
+      ]
     },
     {
       "type": "outer",
@@ -504,9 +453,7 @@ const typeOptionsByGender = {
         "Work",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": -10,
-      "maxTemp": 8
+      ]
     },
     {
       "type": "outer",
@@ -523,9 +470,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 0,
-      "maxTemp": 18
+      ]
     },
     {
       "type": "outer",
@@ -542,9 +487,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 8,
-      "maxTemp": 18
+      ]
     },
     {
       "type": "outer",
@@ -556,9 +499,7 @@ const typeOptionsByGender = {
       "tags": [
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": -15,
-      "maxTemp": 5
+      ]
     },
     {
       "type": "outer",
@@ -579,9 +520,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": -15,
-      "maxTemp": 0
+      ]
     },
     {
       "type": "outer",
@@ -603,9 +542,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 8,
-      "maxTemp": 18
+      ]
     },
     {
       "type": "outer",
@@ -621,9 +558,7 @@ const typeOptionsByGender = {
         "Work",
         "Loungewear",
         "Everyday"
-      ],
-      "minTemp": 12,
-      "maxTemp": 22
+      ]
     },
     {
       "type": "outer",
@@ -639,9 +574,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 20
+      ]
     },
     {
       "type": "outer",
@@ -657,9 +590,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 0,
-      "maxTemp": 12
+      ]
     },
     {
       "type": "outer",
@@ -676,9 +607,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 8,
-      "maxTemp": 18
+      ]
     }
   ],
   "woman": [
@@ -697,9 +626,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 20
+      ]
     },
     {
       "type": "top",
@@ -714,9 +641,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 0,
-      "maxTemp": 15
+      ]
     },
     {
       "type": "top",
@@ -731,9 +656,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 0,
-      "maxTemp": 15
+      ]
     },
     {
       "type": "top",
@@ -747,9 +670,7 @@ const typeOptionsByGender = {
         "Work",
         "Loungewear",
         "Everyday"
-      ],
-      "minTemp": 0,
-      "maxTemp": 15
+      ]
     },
     {
       "type": "top",
@@ -769,9 +690,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 22
+      ]
     },
     {
       "type": "top",
@@ -790,9 +709,7 @@ const typeOptionsByGender = {
         "Beach",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 22
+      ]
     },
     {
       "type": "top",
@@ -808,9 +725,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "top",
@@ -826,9 +741,7 @@ const typeOptionsByGender = {
         "Beach",
         "Wedding",
         "Everyday"
-      ],
-      "minTemp": 20,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "top",
@@ -847,9 +760,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "top",
@@ -868,9 +779,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "top",
@@ -889,9 +798,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "top",
@@ -906,9 +813,7 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "top",
@@ -925,9 +830,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 20
+      ]
     },
     {
       "type": "top",
@@ -945,9 +848,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 0,
-      "maxTemp": 15
+      ]
     },
     {
       "type": "top",
@@ -962,9 +863,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "top",
@@ -985,9 +884,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "top",
@@ -1006,9 +903,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "top",
@@ -1027,9 +922,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 20,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "top",
@@ -1048,9 +941,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 22,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "top",
@@ -1069,9 +960,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 20,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "top",
@@ -1088,9 +977,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 28
+      ]
     },
     {
       "type": "bottom",
@@ -1108,9 +995,7 @@ const typeOptionsByGender = {
         "Beach",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 20,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -1129,9 +1014,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "bottom",
@@ -1150,9 +1033,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "bottom",
@@ -1171,9 +1052,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "bottom",
@@ -1192,9 +1071,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "bottom",
@@ -1211,9 +1088,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -1229,9 +1104,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -1247,9 +1120,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -1265,9 +1136,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -1283,9 +1152,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -1301,9 +1168,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -1316,9 +1181,7 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -1336,9 +1199,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -1353,9 +1214,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 5,
-      "maxTemp": 18
+      ]
     },
     {
       "type": "bottom",
@@ -1373,9 +1232,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 28
+      ]
     },
     {
       "type": "bottom",
@@ -1393,9 +1250,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -1410,9 +1265,7 @@ const typeOptionsByGender = {
         "Gym",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -1429,9 +1282,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 20,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -1448,9 +1299,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 22
+      ]
     },
     {
       "type": "bottom",
@@ -1467,9 +1316,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 5,
-      "maxTemp": 20
+      ]
     },
     {
       "type": "bottom",
@@ -1485,9 +1332,7 @@ const typeOptionsByGender = {
         "Work",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 28
+      ]
     },
     {
       "type": "bottom",
@@ -1501,9 +1346,7 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night"
-      ],
-      "minTemp": 20,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -1518,9 +1361,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 20,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -1533,9 +1374,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 20,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -1548,9 +1387,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 22,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -1566,9 +1403,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 20,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "onepiece",
@@ -1587,9 +1422,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "onepiece",
@@ -1606,9 +1439,7 @@ const typeOptionsByGender = {
         "Beach",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 22,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "onepiece",
@@ -1624,9 +1455,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 12,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "onepiece",
@@ -1640,9 +1469,7 @@ const typeOptionsByGender = {
         "Beach",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 22,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "onepiece",
@@ -1656,9 +1483,7 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Wedding"
-      ],
-      "minTemp": 15,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "onepiece",
@@ -1675,9 +1500,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Wedding",
         "Date night"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "onepiece",
@@ -1693,9 +1516,7 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night"
-      ],
-      "minTemp": 18,
-      "maxTemp": 28
+      ]
     },
     {
       "type": "onepiece",
@@ -1704,9 +1525,7 @@ const typeOptionsByGender = {
       "season": [],
       "tags": [
         "Everyday"
-      ],
-      "minTemp": 0,
-      "maxTemp": 15
+      ]
     },
     {
       "type": "onepiece",
@@ -1719,9 +1538,7 @@ const typeOptionsByGender = {
       "tags": [
         "Loungewear",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "onepiece",
@@ -1733,9 +1550,7 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "outer",
@@ -1751,9 +1566,7 @@ const typeOptionsByGender = {
         "Work",
         "Dinner",
         "Date night"
-      ],
-      "minTemp": 10,
-      "maxTemp": 20
+      ]
     },
     {
       "type": "outer",
@@ -1769,9 +1582,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 18
+      ]
     },
     {
       "type": "outer",
@@ -1786,9 +1597,7 @@ const typeOptionsByGender = {
         "Work",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": -5,
-      "maxTemp": 10
+      ]
     },
     {
       "type": "outer",
@@ -1805,9 +1614,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 5,
-      "maxTemp": 20
+      ]
     },
     {
       "type": "outer",
@@ -1825,9 +1632,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 20
+      ]
     },
     {
       "type": "outer",
@@ -1844,9 +1649,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": -10,
-      "maxTemp": 5
+      ]
     },
     {
       "type": "outer",
@@ -1858,9 +1661,7 @@ const typeOptionsByGender = {
       "tags": [
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": -10,
-      "maxTemp": 10
+      ]
     },
     {
       "type": "outer",
@@ -1881,9 +1682,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": -10,
-      "maxTemp": 5
+      ]
     },
     {
       "type": "outer",
@@ -1905,9 +1704,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 20
+      ]
     },
     {
       "type": "outer",
@@ -1923,9 +1720,7 @@ const typeOptionsByGender = {
         "Work",
         "Loungewear",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "outer",
@@ -1941,9 +1736,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 5,
-      "maxTemp": 15
+      ]
     },
     {
       "type": "outer",
@@ -1960,9 +1753,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 20
+      ]
     }
   ],
   "unisex": [
@@ -1981,9 +1772,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 9,
-      "maxTemp": 19
+      ]
     },
     {
       "type": "top",
@@ -1998,9 +1787,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": -2,
-      "maxTemp": 13
+      ]
     },
     {
       "type": "top",
@@ -2015,9 +1802,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": -2,
-      "maxTemp": 13
+      ]
     },
     {
       "type": "top",
@@ -2031,9 +1816,7 @@ const typeOptionsByGender = {
         "Work",
         "Loungewear",
         "Everyday"
-      ],
-      "minTemp": -2,
-      "maxTemp": 13
+      ]
     },
     {
       "type": "top",
@@ -2053,9 +1836,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 13,
-      "maxTemp": 21
+      ]
     },
     {
       "type": "top",
@@ -2074,9 +1855,7 @@ const typeOptionsByGender = {
         "Beach",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 13,
-      "maxTemp": 21
+      ]
     },
     {
       "type": "top",
@@ -2094,9 +1873,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 13,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "top",
@@ -2112,9 +1889,7 @@ const typeOptionsByGender = {
         "Beach",
         "Wedding",
         "Everyday"
-      ],
-      "minTemp": 19,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "top",
@@ -2133,9 +1908,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "top",
@@ -2154,9 +1927,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "top",
@@ -2175,9 +1946,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "top",
@@ -2193,9 +1962,7 @@ const typeOptionsByGender = {
         "Work",
         "Wedding",
         "Everyday"
-      ],
-      "minTemp": 13,
-      "maxTemp": 23
+      ]
     },
     {
       "type": "top",
@@ -2212,9 +1979,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 8,
-      "maxTemp": 18
+      ]
     },
     {
       "type": "top",
@@ -2233,9 +1998,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 0,
-      "maxTemp": 15
+      ]
     },
     {
       "type": "top",
@@ -2250,9 +2013,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "top",
@@ -2273,9 +2034,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 16,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "top",
@@ -2294,9 +2053,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 13,
-      "maxTemp": 23
+      ]
     },
     {
       "type": "top",
@@ -2315,9 +2072,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 19,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "top",
@@ -2336,9 +2091,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 22,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "top",
@@ -2357,9 +2110,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 20,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "top",
@@ -2376,9 +2127,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 28
+      ]
     },
     {
       "type": "bottom",
@@ -2396,9 +2145,7 @@ const typeOptionsByGender = {
         "Beach",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 20,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -2417,9 +2164,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "bottom",
@@ -2438,9 +2183,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "bottom",
@@ -2459,9 +2202,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "bottom",
@@ -2480,9 +2221,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "bottom",
@@ -2499,9 +2238,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -2517,9 +2254,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -2535,9 +2270,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -2553,9 +2286,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -2571,9 +2302,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -2589,9 +2318,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -2604,9 +2331,7 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -2625,9 +2350,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "bottom",
@@ -2643,9 +2366,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 2,
-      "maxTemp": 16
+      ]
     },
     {
       "type": "bottom",
@@ -2663,9 +2384,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 28
+      ]
     },
     {
       "type": "bottom",
@@ -2684,9 +2403,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 9,
-      "maxTemp": 23
+      ]
     },
     {
       "type": "bottom",
@@ -2701,9 +2418,7 @@ const typeOptionsByGender = {
         "Gym",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 9,
-      "maxTemp": 23
+      ]
     },
     {
       "type": "bottom",
@@ -2722,9 +2437,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 19,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -2741,9 +2454,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 22
+      ]
     },
     {
       "type": "bottom",
@@ -2760,9 +2471,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 2,
-      "maxTemp": 19
+      ]
     },
     {
       "type": "bottom",
@@ -2781,9 +2490,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 13,
-      "maxTemp": 26
+      ]
     },
     {
       "type": "bottom",
@@ -2797,9 +2504,7 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night"
-      ],
-      "minTemp": 20,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -2814,9 +2519,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 19,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -2829,9 +2532,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 19,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -2844,9 +2545,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 21,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -2862,9 +2561,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 19,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "bottom",
@@ -2878,9 +2575,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "onepiece",
@@ -2898,9 +2593,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "onepiece",
@@ -2917,9 +2610,7 @@ const typeOptionsByGender = {
         "Beach",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 21,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "onepiece",
@@ -2931,9 +2622,7 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Everyday"
-      ],
-      "minTemp": 22,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "onepiece",
@@ -2949,9 +2638,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 12,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "onepiece",
@@ -2965,9 +2652,7 @@ const typeOptionsByGender = {
         "Beach",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 22,
-      "maxTemp": 35
+      ]
     },
     {
       "type": "onepiece",
@@ -2981,9 +2666,7 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Wedding"
-      ],
-      "minTemp": 15,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "onepiece",
@@ -3000,9 +2683,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Wedding",
         "Date night"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "onepiece",
@@ -3018,9 +2699,7 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night"
-      ],
-      "minTemp": 18,
-      "maxTemp": 28
+      ]
     },
     {
       "type": "onepiece",
@@ -3029,9 +2708,7 @@ const typeOptionsByGender = {
       "season": [],
       "tags": [
         "Everyday"
-      ],
-      "minTemp": 0,
-      "maxTemp": 15
+      ]
     },
     {
       "type": "onepiece",
@@ -3044,9 +2721,7 @@ const typeOptionsByGender = {
       "tags": [
         "Loungewear",
         "Everyday"
-      ],
-      "minTemp": 18,
-      "maxTemp": 30
+      ]
     },
     {
       "type": "onepiece",
@@ -3058,9 +2733,7 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Everyday"
-      ],
-      "minTemp": 15,
-      "maxTemp": 25
+      ]
     },
     {
       "type": "outer",
@@ -3077,9 +2750,7 @@ const typeOptionsByGender = {
         "Dinner",
         "Wedding",
         "Date night"
-      ],
-      "minTemp": 9,
-      "maxTemp": 19
+      ]
     },
     {
       "type": "outer",
@@ -3095,9 +2766,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 18
+      ]
     },
     {
       "type": "outer",
@@ -3112,9 +2781,7 @@ const typeOptionsByGender = {
         "Work",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": -7,
-      "maxTemp": 9
+      ]
     },
     {
       "type": "outer",
@@ -3131,9 +2798,7 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 2,
-      "maxTemp": 19
+      ]
     },
     {
       "type": "outer",
@@ -3151,9 +2816,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 9,
-      "maxTemp": 19
+      ]
     },
     {
       "type": "outer",
@@ -3171,9 +2834,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": -12,
-      "maxTemp": 2
+      ]
     },
     {
       "type": "outer",
@@ -3185,9 +2846,7 @@ const typeOptionsByGender = {
       "tags": [
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": -12,
-      "maxTemp": 7
+      ]
     },
     {
       "type": "outer",
@@ -3208,9 +2867,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": -12,
-      "maxTemp": 2
+      ]
     },
     {
       "type": "outer",
@@ -3232,9 +2889,7 @@ const typeOptionsByGender = {
         "Wedding",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 9,
-      "maxTemp": 19
+      ]
     },
     {
       "type": "outer",
@@ -3250,9 +2905,7 @@ const typeOptionsByGender = {
         "Work",
         "Loungewear",
         "Everyday"
-      ],
-      "minTemp": 13,
-      "maxTemp": 23
+      ]
     },
     {
       "type": "outer",
@@ -3268,9 +2921,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 10,
-      "maxTemp": 20
+      ]
     },
     {
       "type": "outer",
@@ -3286,9 +2937,7 @@ const typeOptionsByGender = {
         "Loungewear",
         "Outdoor",
         "Everyday"
-      ],
-      "minTemp": 2,
-      "maxTemp": 13
+      ]
     },
     {
       "type": "outer",
@@ -3305,9 +2954,7 @@ const typeOptionsByGender = {
         "Outdoor",
         "Date night",
         "Everyday"
-      ],
-      "minTemp": 9,
-      "maxTemp": 19
+      ]
     }
   ]
 };

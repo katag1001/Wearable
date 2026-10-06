@@ -1,270 +1,227 @@
 # How temperature ranges work
 
-Every clothing item and every match (outfit) stores a temperature range:
-`min_temp` and `max_temp`, in °C. This explains where each one comes from,
-and how a match's range is then used.
+**Only matches (outfits) have a temperature range.** Clothing items don't:
+there's no temperature on the add/edit form, in the `Clothes` schema or on
+the Clothes page. A match's `min_temp` and `max_temp` (°C, daytime outdoor)
+are worked out on the server from the **subtypes** in the outfit, using
+preset numbers. The client never supplies them.
 
 In short:
 
-1. A **clothing item's** range is the subtype's default range. It is
-   shifted 1° for the user's temperature preference, and the user can then
-   adjust it by hand. It is stored as it is.
-2. A **match's** range is always calculated on the server from its items'
-   ranges, by `computeTemperatureRange` in
-   `server/services/temperatureService.js`. The client never supplies it.
+1. Every top and bottom subtype belongs to a **group**. Each top group +
+   bottom group pair has a **base range**. Each onepiece has its own range.
+2. The **innermost top** sets the base. Every top worn over it moves the
+   range down by its **layer points**.
+3. Every outer has **warmth points** that move the range down to colder
+   days.
+4. **Minimums** stop an outfit going colder than makes sense without a coat,
+   or with a particular coat.
+5. The user's **temperature preference** shifts the whole range before it's
+   saved.
+
+Files:
+
+| File | Role |
+|---|---|
+| `server/constants/temperatureGroups.js` | **Every number** - groups, base ranges, onepiece ranges, points, minimums, caps, preference shift |
+| `server/services/presetTemperatureService.js` | The rules that combine them (`computePresetTemperatureRange`) |
+| `server/services/outfitEvaluator.js` | `describeOutfit` calls it for every new match |
+| `server/services/temperatureService.js` | Matching a saved range against today's weather |
+| `server/scripts/resetMatchTemperatures.js` | Recalculates every existing match after the numbers change |
 
 ---
 
-## The temperature preference
+## Part 1 - The presets
 
-The style quiz asks "Do you generally feel too cold or too hot?". The
-answer is saved as `preferences.temperature`:
+All of these live in `temperatureGroups.js`. The tables below show the
+values at the time of writing; the file is the source of truth.
 
-| Answer | Value | Effect |
-|---|---|---|
-| Too cold | `"cold"` | Needs warmer days for the same clothes |
-| Normal | `"normal"` | No adjustment |
-| Too hot | `"hot"` | Can wear the same clothes on colder days |
+### 1.1 Groups and base ranges
 
-If the preference is missing, it's treated as `"normal"`
-everywhere. It's used in two places: shifting the defaults of new clothing
-items (part 1), and the no-outer minimum for matches (part 2, step 4).
+| Top group | Subtypes |
+|---|---|
+| short | Short t-shirt, Vest, Croptop, Off-the-shoulder top, Linen shirt, Bodysuit, Fancy top, Tunic |
+| long | Long t-shirt, Buttondown shirt, Fancy blouse, Floaty blouse, Short turtleneck, Long turtleneck, Turtleneck, Waistcoat, Light jumper, Light cardigan |
+| warm | Hoodie/sweatshirt, Warm jumper, Turtleneck jumper, Warm cardigan |
 
-The quiz options are in `src/constants/styleQuizOptions.js`
-(`temperatureQuestionOptions`). The saved field is in
-`server/models/AllModels.js` (`preferences.temperature`).
+| Bottom group | Subtypes |
+|---|---|
+| short | Mini skirt and all shorts |
+| lightLong | Maxi, Knee-length, Midi and Low waist midi skirts, Linen pants, Cropped jeans, Cropped trousers |
+| long | All other jeans and trousers, Leggings, Sweatpants, Cargo pants, Leather trousers, Chinos |
 
----
+`BASE_RANGES` - a top group worn with a bottom group, no outer:
 
-## Part 1 - Clothing items
-
-### 1.1 The subtype defaults
-
-Each subtype in `src/constants/typeOptions.jsx` has a `minTemp` and
-`maxTemp`. They're defined separately for each gender (`man`, `woman`,
-`unisex`). For example, a man's "Short t-shirt" is 15–35 and a "Puffer
-coat" is −15–5.
-
-**What an item's range means:** "this item can be **part of** an outfit
-at these temperatures". Warm bases like jeans or long-sleeved tops can have
-very low minimums because they're expected to be worn **under** other
-layers. They don't mean the item can be worn on its own at that
-temperature. The match calculation (part 2) accounts for this.
-
-The backend never reads these defaults. Once an item is saved, its own
-`min_temp`/`max_temp` are the only values used.
-
-### 1.2 Adding a new item
-
-Files: `src/components/clothes/addUpdateClothes.jsx`,
-`uploadComponents/useClothingDetection.jsx`,
-`uploadComponents/useClothingForm.jsx`, `uploadComponents/uploadHelpers.jsx`.
-
-1. When the form opens, it fetches `/preferences` once to get the user's
-   `gender` (which decides which subtype list is used) and `temperature`.
-2. On page one the user picks a name and a subtype.
-3. When they click **Next**, `applyDetection` fills in page two. The range
-   becomes:
-   - the subtype's `minTemp`/`maxTemp`, or **10–20** if no subtype
-     matches (`getInitialState`);
-   - **shifted** by `shiftTempForPreference`: "cold" adds 1° to both min
-     and max, "hot" subtracts 1° from both, "normal" leaves it alone. The
-     whole range moves rather than narrowing.
-4. If the user then moves the temperature slider,
-   `manualTempOverride` is set and the defaults are never applied again
-   for this item. That includes going Back and picking another subtype.
-5. Going Back and clicking Next again without changing the name or
-   subtype doesn't overwrite anything on page two.
-6. The item is saved with `min_temp`/`max_temp` as numbers. Both are
-   required in the `Clothes` schema.
-
-Example: a man who feels the cold adds a Short t-shirt. The default 15–35
-is saved as **16–36**, unless he moves the slider.
-
-### 1.3 Editing an existing item
-
-**Nothing is auto-filled when editing.** `applyDetection` returns
-immediately for an existing item, so only the fields the user actually
-changes are saved. Renaming an item, or changing its subtype, leaves its
-range, seasons, tags and colours as they were. A subtype change still
-updates `type`, which matching needs.
-
-The temperature preference is also **not** re-applied when editing, or
-when the preference is changed later. It only affects the defaults of
-items added afterwards.
-
-Editing an item's range doesn't update matches that already exist. Only
-new matches found when the item is saved use the new range.
-
-### 1.4 The slider
-
-`src/components/general/temperatureSlider.jsx` is a two-thumb slider from
-−20 to 50 on the item form. The thumbs can't cross (min ≤ max).
-
----
-
-## Part 2 - Matches
-
-### 2.1 Where a match's range is calculated
-
-There's one function, `computeTemperatureRange(items, { isUserMade,
-temperaturePreference })`. It's called through `describeOutfit`
-(`server/services/outfitEvaluator.js`) from both places matches are
-created:
-
-| Match source | Caller | `isUserMade` |
-|---|---|---|
-| Found automatically when an item is added/edited | `processMatches` → `findCandidateMatches` (`server/services/matchService.js`) | `false` |
-| Built by the user on the Build Matches page | `createMatch` controller (`server/controllers/allControllers.js`) | `true` |
-
-In both cases the user's temperature preference is loaded with
-`getUserMatchingPreferences` (`server/services/matchScoreService.js`).
-
-The Build Matches page (`src/components/matches/createMatch.jsx`) sends
-**only the clothing ids**. Temperature, seasons, colours, tags and role
-counts are all worked out on the server from the items themselves.
-
-Automatic matching builds every outfit shape from scratch each time an
-item is saved: with no outer, one outer and two outers (see
-`server/constants/outfitShapes.js`). It doesn't extend existing matches.
-Each shape gets its own range, worked out independently.
-
-### 2.2 The calculation, step by step
-
-Items are split into **tops**, **bottoms/onepieces**, and **outers**.
-
-#### Step 1 - Combine the tops as layers
-
-Tops are layers, so they combine rather than intersect:
-
-- **floor** = the lowest `min_temp` of any top (the warmest layer decides
-  how cold you can go)
-- **ceiling** = the highest `max_temp` of any top (a layer can always come
-  off, so adding one never lowers the ceiling)
-
-Two tops therefore never conflict on temperature. Whether two tops can be
-worn together at all is decided by the matrix scores, not by temperature.
-
-#### Step 2 - Intersect with the bottom/onepiece to get the base range
-
-The combined tops range is intersected with the bottom or onepiece:
-
-- base floor = the **highest** of their floors
-- base ceiling = the **lowest** of their ceilings
-
-A onepiece on its own just uses its own range.
-
-#### Step 3 - If the base doesn't overlap
-
-If the base floor is above the base ceiling, the items have no
-temperature in common:
-
-- **Automatic match:** rejected (`null`). Nothing else is checked, and it
-  isn't saved.
-- **User-made match:** never rejected. The base becomes the **union** of
-  every top/bottom/onepiece instead (lowest `min_temp` to highest
-  `max_temp`).
-
-#### Step 4 - Work out the floor
-
-**With at least one outer:** the floor is **replaced** by the coldest
-outer's own `min_temp`. With **two** outers, it drops a further
-**4°** (`EXTRA_OUTER_PENALTY`). The no-outer minimums below don't apply.
-
-**With no outer:** item minimums assume layers on top (see 1.1), so the
-floor is **raised** to at least a minimum based on the number of layers
-and the user's preference (`NO_OUTER_MIN_TEMP`):
-
-| Layers (tops + onepiece) | Too hot | Normal | Too cold |
+| | short bottoms | lightLong bottoms | long bottoms |
 |---|---|---|---|
-| 1 (one top + bottom, or a onepiece alone) | 13 | 14 | 15 |
-| 2 (two tops + bottom, or a top over a onepiece) | 11 | 12 | 13 |
+| **short tops** | 22–38 | 19–34 | 17–28 |
+| **long tops** | 18–27 | 15–25 | 13–22 |
+| **warm tops** | 12–19 | 9–18 | 5–16 |
 
-If the base floor is already above this minimum, it's kept as it is.
+### 1.2 Onepieces
 
-#### Step 5 - The ceiling
+`ONEPIECE_RANGES` gives each onepiece its own range (e.g. Summer dress
+22–36, Jumpsuit 15–26, Winter dress 6–16).
 
-The ceiling is always the base ceiling from step 2 (or step 3). Outers
-never change it, and neither do extra layers.
+### 1.3 Points
 
-#### Step 6 - Collapse instead of rejecting
+- `TOP_LAYER_POINTS` - how far a top moves the range down when it's an
+  extra layer: short 1, long 4, warm 11.
+- `OUTER_WARMTH_POINTS` - how far each outer moves the range down (e.g.
+  Blazer 2, Trench coat 4, Winter Coat 9, Puffer coat 11).
 
-If step 4 pushed the floor above the ceiling, the floor is set to the
-ceiling. The match becomes a single temperature (e.g. 12–12). This
-applies to automatic and user-made matches alike. These outfits are kept,
-never rejected.
+### 1.4 Minimums and caps
 
-#### Step 7 - Stored
+- `NO_OUTER_MIN_TEMP` (14) - with no outer, the minimum is never below
+  this: colder than that needs a coat.
+- `OUTER_MIN_TEMPS` - with **exactly one** outer, the minimum is never
+  below that outer's value (e.g. Denim jacket 10, Puffer coat −10). Outfits
+  with two outers have no minimum.
+- `OUTER_CEILING_BASE` (25) - an outfit with outers is never suitable above
+  this minus the outers' total points (23° with a blazer, 14° with a puffer
+  coat).
+- `OUTER_LAYER_OVERLAP` (4) - a long or warm top over a onepiece (a
+  cardigan over a dress) caps the maximum this far above the onepiece's own
+  minimum.
+- `TEMPERATURE_LIMITS` (−20 to 50) - the same bounds as the sliders.
 
-`describeOutfit` rounds both values to one decimal place and stores them
-on the match as `min_temp`/`max_temp`.
+### 1.5 The temperature preference
 
-### 2.3 Worked examples
-
-Men's default ranges. "Normal" preference unless stated.
-
-| Outfit | Steps | Range |
-|---|---|---|
-| T-shirt (15–35) + jeans (5–22) | base 15–22; floor 15 is already above 14 | **15–22** |
-| T-shirt (15–35) + warm jumper (−5–12) + jeans (5–22) | tops −5–35; base 5–22; 2 layers → floor raised to 12 | **12–22** |
-| Same, "too cold" preference | 2 layers, cold → floor 13 | **13–22** |
-| Same + puffer coat (−15–5) | outer replaces the floor → −15 | **−15–22** |
-| Long-sleeve (−2–20) + jeans (−2–22) | base −2–20; 1 layer → floor raised to 14 | **14–20** |
-| Long-tshirt (12–22) + leather trousers (0–15) | base 12–15; floor raised to 14 | **14–15** |
-| Warm jumper (−5–12) + leather trousers (0–15) | base 0–12; floor 14 is above the ceiling → collapsed | **12–12** |
-| Summer dress (22–35) alone | 1 layer; floor 22 is already above 14 | **22–35** |
-| Winter dress (0–15) + warm cardigan (0–15) | top over onepiece = 2 layers → floor 12 | **12–15** |
-| T-shirt + jeans + jacket (8–18) + puffer (−15–5) | coldest outer −15, two outers −4 | **−19–22** |
-| Linen shirt (18–35) + leather trousers (0–15), automatic | base doesn't overlap | **rejected** |
-| Same, user-made | union 0–35; 1 layer → floor 14 | **14–35** |
-
-### 2.4 After a match is created
-
-- **Editing a match by hand:** the match card
-  (`src/components/matches/viewMatchesCard.jsx`) lets the user change a
-  match's range directly. The new values are saved as they are and never
-  recalculated.
-- **Changing the preference later:** existing matches keep their ranges.
-  Only matches created afterwards use the new preference.
+The style quiz asks "Do you generally feel too cold or too hot?", saved as
+`preferences.temperature`. `TEMPERATURE_PREFERENCE_SHIFT` moves both ends of
+the range: **cold +2**, normal 0, **hot −2**. The saved `min_temp`/`max_temp`
+already include it. A missing preference counts as normal.
 
 ---
 
-## Part 3 - Where match ranges are used
+## Part 2 - The calculation
 
-### 3.1 Today's outfits
+`computePresetTemperatureRange(items, temperaturePreference)`, step by step.
+It reads only each item's `type` (role) and `subtype`.
+
+### Step 1 - Base range
+
+- **With a onepiece:** the onepiece's own range. (A user-built outfit with
+  more than one uses the coldest.)
+- **Otherwise:** `BASE_RANGES[innermost top group][warmest bottom group]`.
+  The innermost top is the lightest one (short before long before warm).
+  With no top the "short" row is used; with no bottom the "long" column.
+
+### Step 2 - Extra tops
+
+- **Tops with a bottom:** every top other than the innermost moves the
+  whole range down by its `TOP_LAYER_POINTS`.
+- **Tops with a onepiece:** a short top (a t-shirt under overalls) moves
+  the whole range down. A long or warm top is a cover-up: it moves the range
+  down and caps the maximum `OUTER_LAYER_OVERLAP` above the onepiece's own
+  minimum.
+
+### Step 3 - Outers
+
+The outers' `OUTER_WARMTH_POINTS` are added together. The whole range moves
+down by that total, and the maximum is never above `OUTER_CEILING_BASE`
+minus the total.
+
+### Step 4 - Minimums
+
+- No outer: the minimum is raised to `NO_OUTER_MIN_TEMP` if it's below it.
+- Exactly one outer: raised to that outer's `OUTER_MIN_TEMPS` value.
+- Two outers: no minimum.
+
+If that lifts the minimum above the maximum, the maximum is raised to
+match - the outfit becomes a single temperature rather than being rejected.
+
+### Step 5 - Preference
+
+Both ends move by `TEMPERATURE_PREFERENCE_SHIFT`, and are kept within
+`TEMPERATURE_LIMITS`.
+
+### Unknown subtypes
+
+A subtype missing from the presets falls back to a middle value (a long top
+or bottom, a 15–25 onepiece, a 5-point outer). It's reported in
+`unknownSubtypes` (the reset script prints these) and caught by
+`server/specs/presetTemperatureService.spec.js`.
+
+### Worked example
+
+Short t-shirt + Warm jumper + Denim jacket + Wide leg jeans, "cold"
+preference, with the values above:
+
+| Step | Range |
+|---|---|
+| 1. Base: short top (the t-shirt) + long bottom | 17–28 |
+| 2. Warm jumper over it, −11 | 6–17 |
+| 3. Denim jacket, −2 (maximum capped at 25 − 2 = 23) | 4–15 |
+| 4. One outer: minimum raised to the Denim jacket's 10 | 10–15 |
+| 5. "cold" +2 | **12–17** |
+
+---
+
+## Part 3 - When ranges are worked out
+
+- **Automatic matches** (`processMatches`) and **user-built matches**
+  (`createMatch`) both get their range from `describeOutfit`, with the
+  user's preference from `getUserMatchingPreferences`.
+- **Temperature never rejects an outfit.** Every combination has a range.
+- **Editing a match by hand:** the match card
+  (`src/components/matches/viewMatchesCard.jsx`) can still change a match's
+  range directly. It's saved as it is and never recalculated - except by
+  the reset script below.
+- **Changing the numbers or the preference later:** existing matches keep
+  their ranges. Run
+  `node server/scripts/resetMatchTemperatures.js --dry-run` to preview, then
+  without `--dry-run` (optionally `--backup <file>`) to recalculate every
+  match. This also overwrites hand-edited ranges.
+
+---
+
+## Part 4 - Where match ranges are used
+
+### 4.1 Today's outfits
 
 1. `src/components/today/autoWeather.jsx` gets today's min/max from
    Open-Meteo (cached for the day in `localStorage`). It works out the
    season from the month (northern hemisphere) and posts all three to
    `/today/create`.
-2. The `createToday` controller keeps matches that are marked for
-   today's season **and** pass `matchesTodayTemperature`: at least **50%**
-   of the match's own range (`MIN_TODAY_OVERLAP_FRACTION`) must fall within
-   today's min–max. A single-temperature match (e.g. 12–12) passes if
-   that temperature is within today's range.
+2. The `createToday` controller keeps matches that are marked for today's
+   season **and** pass `matchesTodayTemperature`: at least **50%** of the
+   match's own range (`MIN_TODAY_OVERLAP_FRACTION`) must fall within
+   today's min–max. A single-temperature match (e.g. 12–12) passes if that
+   temperature is within today's range.
 3. `src/components/today/todayOutfitSort.jsx` sorts what's left.
    Temperature counts for 10% of the score: the score goes down for every
    degree today goes outside the match's range, and matches with an outer
    lose 1 point.
 
-### 3.2 Filters
+### 4.2 Filters
 
-On the Clothes and Matches pages, the temperature filter keeps anything
-whose range **overlaps** the chosen range at all (`src/pages/Clothes.jsx`,
-`src/pages/Matches.jsx`).
+- **Matches page:** the temperature filter keeps any match whose range
+  **overlaps** the chosen range at all (`src/pages/Matches.jsx`).
+- **Clothes page:** no temperature filter - items have no range
+  (`showTemperature={false}` on the shared `Filter`).
 
 ---
 
 ## Changing the numbers
 
-| What | Where |
+| What | Where (`server/constants/temperatureGroups.js` unless stated) |
 |---|---|
-| Subtype default ranges | `src/constants/typeOptions.jsx` (`minTemp`/`maxTemp`) |
-| ±1° shift for new items | `TEMPERATURE_PREFERENCE_OFFSET` in `src/components/clothes/uploadComponents/uploadHelpers.jsx` |
-| Minimum floor without an outer | `NO_OUTER_MIN_TEMP` in `server/services/temperatureService.js` |
-| Extra drop for a second outer | `EXTRA_OUTER_PENALTY` in `server/services/temperatureService.js` |
+| Which group a top/bottom is in | `TOP_GROUPS` / `BOTTOM_GROUPS` |
+| Top + bottom ranges | `BASE_RANGES` |
+| Onepiece ranges | `ONEPIECE_RANGES` |
+| Extra top layers | `TOP_LAYER_POINTS` |
+| Outer warmth | `OUTER_WARMTH_POINTS` |
+| Minimum with no outer / one outer | `NO_OUTER_MIN_TEMP` / `OUTER_MIN_TEMPS` |
+| Warmest day for an outfit with outers | `OUTER_CEILING_BASE` |
+| Cardigan-over-dress cap | `OUTER_LAYER_OVERLAP` |
+| Preference shift | `TEMPERATURE_PREFERENCE_SHIFT` |
 | Today overlap threshold | `MIN_TODAY_OVERLAP_FRACTION` in `server/services/temperatureService.js` |
 
-Tests for the match calculation are in
-`server/specs/temperatureService.spec.js`. Run them with
-`node --test server/specs/*.js`.
+After changing them, restart the server and run the reset script (Part 3)
+so existing matches follow.
+
+Tests: `server/specs/presetTemperatureService.spec.js` (the rules, written
+against the constants so they keep passing when numbers are tuned) and
+`server/specs/temperatureService.spec.js` (today matching). Run them with
+`cd server && node --test specs/*.spec.js`.

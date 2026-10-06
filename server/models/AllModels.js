@@ -87,8 +87,8 @@ required: true,
 index: true,
 },
 
-min_temp: { type: Number, required: true },
-max_temp: { type: Number, required: true },
+// No temperature range here - only matches have one, worked out from their
+// subtypes (server/services/presetTemperatureService.js).
 colors: { type: [String], required: true },
 styles: { type: [String], required: true },
 type: { type: String, required: true },

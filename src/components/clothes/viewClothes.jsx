@@ -63,6 +63,7 @@ const ViewClothes = ({
         refresh();
       }
     } catch (error) {
+      console.error("Delete item error:", error);
       setError?.("Failed to delete item");
     } finally {
       setDeleting(false);

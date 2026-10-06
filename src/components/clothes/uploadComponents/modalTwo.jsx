@@ -1,11 +1,9 @@
 import React from "react";
 import { seasonOptions, colorOptions, tagOptions } from "../../../constants/optionsBank";
-import TemperatureSlider from "../../general/temperatureSlider";
 
 const ModalTwo = ({
   formData,
   toggleSeason,
-  handleTempChange,
   toggleColor,
   toggleTag
 }) => {
@@ -44,26 +42,6 @@ const ModalTwo = ({
           </fieldset>
 
           </div>
-
-
-    {/* Temperature */}
-
-    <div>
-        <label className="form-label">
-          Temperature Range
-        </label>
-
-          <TemperatureSlider
-            min={-20}
-            max={50}
-            valueMin={formData.min_temp}
-            valueMax={formData.max_temp}
-            onChange={(minTemp, maxTemp) => {
-              handleTempChange("min_temp", minTemp);
-              handleTempChange("max_temp", maxTemp);
-            }}
-          />
-        </div>
 
 
     {/* Colours */}
