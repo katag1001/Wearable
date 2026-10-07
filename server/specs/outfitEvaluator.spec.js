@@ -140,6 +140,57 @@ test("describeOutfit never rejects a user-made outfit for having no shared seaso
   assert.notEqual(describeOutfit(items, { isUserMade: true }), null);
 });
 
+test("describeOutfit keeps only the tags every item has", () => {
+  const items = [
+    item({ subtype: "a", type: "top", tags: ["Work", "Everyday", "Party"] }),
+    item({ subtype: "b", type: "bottom", tags: ["Everyday", "Work"] }),
+    item({ subtype: "c", type: "outer", tags: ["Work", "Everyday"] }),
+  ];
+
+  const result = describeOutfit(items, { isUserMade: false });
+
+  assert.deepEqual(new Set(result.tags), new Set(["Work", "Everyday"]));
+});
+
+test("describeOutfit rejects an auto-search candidate with no shared tag", () => {
+  const items = [
+    item({ subtype: "a", type: "top", tags: ["Work"] }),
+    item({ subtype: "b", type: "bottom", tags: ["Party"] }),
+  ];
+
+  assert.equal(describeOutfit(items, { isUserMade: false }), null);
+});
+
+test("describeOutfit rejects an auto-search candidate containing an untagged item", () => {
+  const items = [
+    item({ subtype: "a", type: "top", tags: ["Work"] }),
+    item({ subtype: "b", type: "bottom", tags: [] }),
+  ];
+
+  assert.equal(describeOutfit(items, { isUserMade: false }), null);
+});
+
+test("describeOutfit keeps a user-made outfit with no shared tag, with an empty tag list", () => {
+  const items = [
+    item({ subtype: "a", type: "top", tags: ["Work"] }),
+    item({ subtype: "b", type: "bottom", tags: ["Party"] }),
+  ];
+
+  const result = describeOutfit(items, { isUserMade: true });
+
+  assert.notEqual(result, null);
+  assert.deepEqual(result.tags, []);
+});
+
+test("describeOutfit gives a user-made outfit the tags its items share", () => {
+  const items = [
+    item({ subtype: "a", type: "top", tags: ["Work", "Party"] }),
+    item({ subtype: "b", type: "bottom", tags: ["Party"] }),
+  ];
+
+  assert.deepEqual(describeOutfit(items, { isUserMade: true }).tags, ["Party"]);
+});
+
 test("validateOutfit passes a clean, compatible, single-palette outfit", () => {
   const baseline = {
     "Short t-shirt": { "Short t-shirt": null, Jeans: 50 },

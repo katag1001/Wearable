@@ -6,6 +6,7 @@ const jwt_secret = process.env.JWT_SECRET;
 
 const { User, Match, Today, Clothes, Preferences } = require("../models/AllModels.js");
 const { processMatches } = require("../services/matchService");
+const { waitUntil } = require("@vercel/functions");
 const { describeOutfit } = require("../services/outfitEvaluator.js");
 const {
   getBaselineMatrixForUser,
@@ -35,6 +36,17 @@ const {
   deleteMatchesWithoutScoring,
 } = require("../services/matchLifecycleService.js");
 const { matchesTodayTemperature } = require("../services/temperatureService.js");
+
+// Matching runs after the response is sent. waitUntil keeps the Vercel
+// function alive until it finishes (up to the function's max duration);
+// outside Vercel it does nothing and the promise simply runs on.
+function matchInBackground(item, allItems) {
+  waitUntil(
+    processMatches(item, allItems)
+      .then(() => console.log("Match processing completed."))
+      .catch((err) => console.error("Match processing failed:", err.message))
+  );
+}
 
 
 /* -------------------- AUTH HELPER -------------------- */
@@ -265,11 +277,7 @@ await item.save();
 
 const allItems = await Clothes.find({ userId });
 
-processMatches(item, allItems)
-  .then(() => console.log("Match processing completed."))
-  .catch((err) =>
-    console.error("Match processing failed:", err.message)
-  );
+matchInBackground(item, allItems);
 
 return res.json({ ...item.toObject(), processing: true });
 
@@ -378,7 +386,7 @@ req.body,
 
 const allItems = await Clothes.find({ userId });
 
-processMatches(updatedItem, allItems);
+matchInBackground(updatedItem, allItems);
 
 return res.json(updatedItem);
 
@@ -529,6 +537,12 @@ exports.createMatch = async (req, res) => {
     return res.json(match);
 
   } catch (error) {
+    // Saved by a matching run between the duplicate check and this save
+    // (Match.clothesKey is unique per user).
+    if (error.code === 11000) {
+      return res.status(409).json({ error: "Match already exists." });
+    }
+
     return res.status(500).json({ error: error.message });
   }
 };

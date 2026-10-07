@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { clothesKey } = require("../utils/clothesKey.js");
 
 /* -------------------- USER -------------------- */
 
@@ -21,6 +22,11 @@ ref: "Clothes",
 required: true,
 },
 ],
+
+// The sorted clothing ids as one string (server/utils/clothesKey.js), set
+// automatically from `clothes` before every save. Unique per user, so the
+// same outfit can never be saved twice.
+clothesKey: { type: String, required: true },
 
 userId: {
 type: mongoose.Schema.Types.ObjectId,
@@ -73,6 +79,13 @@ validate: { validator: Number.isInteger, message: "score must be a whole number"
 // (server/services/queryHelpers.js).
 matchSchema.index({ userId: 1, _id: -1 });
 
+matchSchema.index({ userId: 1, clothesKey: 1 }, { unique: true });
+
+// Runs for save() and insertMany() alike.
+matchSchema.pre("validate", function () {
+  this.clothesKey = clothesKey(this.clothes);
+});
+
 /* -------------------- CLOTHES -------------------- */
 
 const clothesSchema = new mongoose.Schema({
@@ -117,13 +130,14 @@ clothesSchema.index({ userId: 1, _id: -1 });
 
 /* -------------------- TODAY -------------------- */
 
+// One document per outfit suitable for today - a user has many. createToday
+// (allControllers.js) replaces the whole set each time it runs.
 const todaySchema = new mongoose.Schema({
 
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
-    unique: true,
     index: true,
   },
 

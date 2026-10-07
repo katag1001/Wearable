@@ -16,7 +16,7 @@
 // change.
 
 const min = [
-  ["Cream", "Camel", "Tan", "White"],
+  ["Cream", "Camel", "Tan", "White", "Brown", "Black"],
   ["Cream", "Olive Green", "Brown", "Gold"],
   ["Navy", "Light Blue", "White", "Silver"],
   ["Navy", "Dark Blue", "Light Blue", "White"],

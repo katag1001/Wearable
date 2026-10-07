@@ -19,6 +19,11 @@ const LOWEST_PAIR_WEIGHT = 0.3;
 // Outfits with no pairs to score (a onepiece on its own).
 const SINGLE_ITEM_SCORE = 80;
 
+// Automatic outfits scoring below this are never saved - complete matching
+// on a large wardrobe finds tens of thousands of outfits per item, most of
+// them poor. Doesn't apply to outfits the user builds.
+const MIN_AUTO_MATCH_SCORE = 60;
+
 // Every outfit the user builds (or claims) gets this flat score.
 const USER_MADE_SCORE = 90;
 
@@ -37,6 +42,7 @@ module.exports = {
   AVERAGE_PAIR_WEIGHT,
   LOWEST_PAIR_WEIGHT,
   SINGLE_ITEM_SCORE,
+  MIN_AUTO_MATCH_SCORE,
   USER_MADE_SCORE,
   LEARNING_DELTAS,
 };

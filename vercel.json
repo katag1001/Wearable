@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/index.vercel.js": {
+      "maxDuration": 300
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",

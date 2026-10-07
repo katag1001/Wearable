@@ -37,7 +37,8 @@ In short:
 - Once an item is saved, the server **searches for every possible outfit**
   that includes it from the rest of the wardrobe, in the background. An
   outfit is a candidate only if it passes all of these: fixed compatibility,
-  layering rules, colour palette, pattern limit and a shared season.
+  layering rules, colour palette, pattern limit, a shared season and a
+  shared tag.
   Temperature never rejects an outfit - each match gets a preset range from
   its subtypes. Every candidate gets a **score (0-100)** and only the **best
   100** new ones are saved.
@@ -233,9 +234,12 @@ being matched until they're updated - see the scripts in Part 11.
 ### 1.7 After saving: automatic matching starts
 
 `createItem` saves the item, loads the user's whole wardrobe, and calls
-`processMatches(item, allItems)` **without awaiting it**. It then responds
-right away with the item plus `processing: true`. `updateItem` does the
-same after an edit.
+`processMatches(item, allItems)` **without awaiting it**, passing the
+promise to Vercel's `waitUntil` (`matchInBackground` in
+`allControllers.js`) so the function stays alive until matching finishes,
+up to the 300s `maxDuration` in `vercel.json`. It then responds right away
+with the item plus `processing: true`. `updateItem` does the same after an
+edit.
 
 Clicking **View New Matches** opens `/matches?item=<id>` with
 `state.processing = true`. `src/pages/Matches.jsx` then re-fetches
@@ -490,10 +494,16 @@ level.
 means the item has 2 or more colours (1.4). This is the same for every user.
 The `pattern` preference doesn't change it.
 
-### 3.8 Season rule
+### 3.8 Season and tag rules
 
 All items must share **at least one** season (`hasSharedSeason`). The saved
 outfit is marked for exactly the seasons every item has (`computeSeasons`).
+
+All items must also share **at least one** tag (`hasSharedTag` in
+`server/services/helpers.js`). An item with no tags shares nothing, so it
+never matches automatically. The saved outfit gets exactly the tags every
+item has (`computeMatchTags`). For example, `Work, Everyday` + `Everyday`
+matches with tags `Everyday`, while `Work` + `Party` doesn't match.
 
 ### 3.9 Temperature rule
 
@@ -536,7 +546,7 @@ File: `server/services/matchService.js`, with `outfitEvaluator.js`,
 item saved
   │
   ▼
-processMatches(newItem, wardrobe)            (not awaited, runs in background)
+processMatches(newItem, wardrobe)            (not awaited; kept alive by waitUntil)
   │  load preferences + personal adjustments + existing match keys
   │  → context: matrix (gender), layering rules (gender), colour rules (colour)
   ▼
@@ -546,16 +556,17 @@ for each outfit shape that has a slot for newItem's role:
   findShapeCombinations                      (backtracking search, pruned as it goes)
     each candidate added must pass:
       fits the shape (layering rules) → compatible with every item so far
-      → colour → pattern → season
+      → colour → pattern → season → tag
   ▼
 score every item-set found                   (computeOutfitScore)
   ▼
-best score first, until 100 are kept:
+best score first, until 100,000 are kept or the score drops below 60:
   skip if already saved
-  describeOutfit   → temperature (from subtypes) + season + descriptive fields
+  describeOutfit   → temperature (from subtypes) + season + tag + descriptive fields
   validateOutfit   → final safety re-check (compatibility, layering, pattern, colour)
   ▼
-Match.insertMany(best 100 new outfits)
+Match.insertMany in chunks of 5,000, best first   (stops near the Vercel deadline;
+                                                     duplicates from overlapping runs skipped)
 ```
 
 ### 4.2 Setup
@@ -576,7 +587,7 @@ Match.insertMany(best 100 new outfits)
 
 `buildRolePools` sorts every **other** wardrobe item into `top`, `bottom`,
 `onepiece` and `outer` pools. Each pool keeps at most
-**`MAX_POOL_SIZE_PER_ROLE` = 60** items: the first 60 the database returns.
+**`MAX_POOL_SIZE_PER_ROLE` = 250** items: the first 250 the database returns.
 Items past that are never considered as partners.
 
 ### 4.4 The search
@@ -590,9 +601,9 @@ For every shape with a slot for the new item's role
 2. **Shape-level early exit** (`fitsShape`). Skip the shape if the new item
    can't fill its slot: it requires layering and the shape has one slot
    for its role, or it requires a top and the shape has none.
-3. **Check the new item on its own.** If it fails colour/pattern/season by
-   itself, skip the shape. For example, a single item with 5 colours at
-   `min` level fits no palette.
+3. **Check the new item on its own.** If it fails colour/pattern/season/tag
+   by itself, skip the shape. For example, a single item with 5 colours at
+   `min` level fits no palette, and an untagged item has no tag to share.
 4. **Backtracking.** Go through the roles in order (top, bottom,
    onepiece, outer), choosing the needed number from each pool, without
    repeats. Each time a candidate is considered:
@@ -601,8 +612,8 @@ For every shape with a slot for the new item's role
    3. **Compatibility.** The candidate must be compatible (`isCompatible`)
       with **every** item already chosen, including the new item. One
       incompatible pair rules it out.
-   4. **Colour + pattern + season.** The items chosen so far plus the
-      candidate must still pass all three (`isStillViable`).
+   4. **Colour + pattern + season + tag.** The items chosen so far plus the
+      candidate must still pass all four (`isStillViable`).
    5. If it passes, choose it and carry on.
 
 These checks are **monotonic**: once a partial outfit fails one, adding more
@@ -610,18 +621,28 @@ items can never make it pass. So a failing branch is dropped immediately
 instead of being built out in full.
 
 **Search limits**, shared across all shapes in one run:
-`MAX_COMBINATIONS_EXPLORED` = 200,000 candidate considerations, or
-`SEARCH_TIME_LIMIT_MS` = 3 seconds, whichever comes first. They exist
-because matching runs after the response on a serverless free tier with a
-short execution limit. When a limit is hit, the best outfits found so far
-are still kept. (A generated 276-item wardrobe used the full 200,000 in
-about 1.5 s.)
+`MAX_COMBINATIONS_EXPLORED` = 2,000,000 candidate considerations, or
+`SEARCH_TIME_LIMIT_MS` = 60 seconds, whichever comes first. When a limit is
+hit, the best outfits found so far are still kept. The limits are sized so
+matching is **complete** for a ~330-item wardrobe (4x an 83-item test
+wardrobe): its worst single item needed ~1.7M considerations, ~5s of
+search, ~7s including scoring, and produced ~90,000 outfits. 60s leaves
+most of Vercel Hobby's 300s function limit for scoring and saving.
+
+On Vercel the search also stops **`SAVE_RESERVE_MS` = 60 seconds** before
+the invocation's real deadline (`getDeadline()` from `@vercel/functions`,
+wrapped in `server/utils/functionDeadline.js`), however much of the
+function's time the request itself used. Outside Vercel there is no
+deadline.
 
 ### 4.5 Choosing and finishing outfits
 
 1. **Score** every item-set found (3.10).
 2. Go through them **best score first** (equal scores keep the order they
-   were found in), until **`MAX_NEW_MATCHES_PER_ITEM` = 100** are kept:
+   were found in), until **`MAX_NEW_MATCHES_PER_ITEM` = 100,000** are kept,
+   or the score drops below **`MIN_AUTO_MATCH_SCORE` = 60**
+   (`server/constants/scoring.js`). Lower-scoring outfits are never saved
+   automatically; outfits the user builds have no minimum.
    1. Skip it if the same set of clothes is already saved, or already
       kept in this run.
    2. **`describeOutfit(items, { isUserMade: false, temperaturePreference })`**
@@ -634,7 +655,7 @@ about 1.5 s.)
         | `type` | `"match"` |
         | `colors` | union of item colours |
         | `styles` | union of item styles (e.g. `["Plain", "Patterned"]`) |
-        | `tags` | tags held by **at least half** the items, or all tags if none reach half (`computeMatchTags`) |
+        | `tags` | tags held by **every** item (`computeMatchTags`) |
         | `min_temp` / `max_temp` | whole numbers, from `computePresetTemperatureRange` |
         | `spring`…`winter` | true only if every item has that season |
         | `topCount` / `bottomCount` / `onepieceCount` / `outerCount` | role counts |
@@ -648,12 +669,26 @@ about 1.5 s.)
 
 **Items that never match automatically.** An item is never matched if its
 subtype isn't in the current gender's matrix (for example, it was added
-under another gender, or the subtype was renamed).
+under another gender, or the subtype was renamed), or if it has no tags.
 
 ### 4.6 Saving
 
-The kept outfits are saved in one `Match.insertMany`. Nothing is ever
-removed or updated here. Automatic matching only adds.
+The kept outfits are saved best first, **`INSERT_CHUNK_SIZE` = 5,000** at
+a time (`saveMatchesBestFirst`). Before each chunk, if less than
+**`INSERT_STOP_MARGIN_MS` = 15 seconds** of the Vercel deadline is left,
+saving stops with a warning in the logs - the best outfits are already
+saved. Nothing is ever removed or updated here. Automatic matching only
+adds.
+
+**No duplicate outfits.** Every match has a `clothesKey`: its sorted
+clothing ids as one string (`server/utils/clothesKey.js`), set
+automatically before every save by a hook on the Match model. The index
+`{ userId, clothesKey }` is unique, so the same outfit can't be saved twice
+even when two matching runs overlap (two quick edits, or several items
+added at once). The second copy is rejected by the database and skipped
+(`isOnlyDuplicateKeyErrors`); any other save error is still thrown. If a
+user builds an outfit at the same moment a run saves it, Build Matches
+gets the usual 409 "Match already exists."
 
 ---
 
@@ -677,6 +712,8 @@ Files: `src/components/matches/createMatch.jsx`, `createMatch` in
    - Seasons are still computed. With no shared season the outfit is
      saved with every season false, so it never appears on the Today
      page.
+   - Tags are never a reason to reject it. The outfit gets the tags every
+     item shares; with none shared it's saved with no tags.
 3. Saved with `userMade: true` and **`score: 90`**.
 4. **Learning:** `recordOutfitCreated` adds **+5** to every compatible pair
    in the outfit (Part 6).
@@ -774,11 +811,11 @@ its CSS and its three usages to remove it.
 
 A woman, colour **mid**, temperature **normal**. Her wardrobe already has:
 
-| Item | Subtype (role) | Colours | Seasons |
-|---|---|---|---|
-| Cream wideleg trousers | Wide leg trousers (bottom) | Cream | all |
-| Camel trench coat | Trench coat (outer) | Camel | Spr/Aut/Win |
-| Brown light cardigan | Light cardigan (top) | Brown | all |
+| Item | Subtype (role) | Colours | Seasons | Tags |
+|---|---|---|---|---|
+| Cream wideleg trousers | Wide leg trousers (bottom) | Cream | all | Work, Everyday |
+| Camel trench coat | Trench coat (outer) | Camel | Spr/Aut/Win | Work, Everyday |
+| Brown light cardigan | Light cardigan (top) | Brown | all | Everyday |
 
 **Adding the item.** She types "Cream and gold buttondown shirt". The
 suggestions include **Buttondown shirt** (keyword `"buttondown shirt"`),
@@ -796,7 +833,10 @@ Wide leg trousers + Trench coat are "always" role pairs. Buttondown shirt +
 Light cardigan is a top+top pair the woman matrix allows. Cream, Gold,
 Brown and Camel all fit inside the mid palette
 `["Cream", "Camel", "Tan", "Gold", "Brown"]`. Only one item (the shirt) is
-patterned. Spring, Autumn and Winter are shared by everything.
+patterned. Spring, Autumn and Winter are shared by everything, and so is
+the **Everyday** tag. Outfits without the cardigan also share **Work**, so
+they're tagged `Work, Everyday`. Outfits with the cardigan are tagged
+`Everyday` only.
 
 **Scores.** woman matrix:
 
@@ -859,10 +899,10 @@ These are behaviours found in the code that may not be intended.
    `Kharki` appear in the palettes but not in `colorOptions`. They do no
    harm, but they make some palettes effectively one colour smaller. The
    last palette in the `max` list is also an exact copy of an earlier one.
-7. **Matching runs after the response is sent.** `processMatches` isn't
-   awaited, and in `updateItem` it has no `.catch`. On a serverless
-   deployment (`api/index.vercel.js`), work after the response may be cut
-   off. The client polling (8 × 1 s) would then show no new matches.
+7. **Matching runs after the response is sent.** It's kept alive with
+   `waitUntil`, but the client polling (8 × 1 s) can finish before a large
+   run has saved its matches, so new matches may only show on a later
+   load.
 8. **Three colour-palette tests fail** (`styleColorService.spec.js` ×2 and
    the colour-cap test in `matchService.spec.js`). They were failing before
    the matching overhaul - the palette data no longer contains the
@@ -926,6 +966,7 @@ the project root with `node server/scripts/<name>.js`.
 | `renameWideLegTrousers.js` | Wideleg trousers → Wide leg trousers on items and score adjustments | Yes |
 | `replaceWomensChinos.js` | Women's Chinos items → Cropped trousers | Yes |
 | `mergeColours.js` | Beige → Cream and Lavender → Lilac on items and matches (an item left with one colour becomes Plain) | Yes |
+| `addMatchClothesKey.js` | Sets `clothesKey` on every match and builds the unique `{ userId, clothesKey }` index. Lists any duplicate outfits and changes nothing if there are some | Yes |
 
 All of these have been run on the current database.
 
@@ -951,6 +992,8 @@ All of these have been run on the current database.
 | Colour palettes and colour caps | `server/utils/colorPalettes.js` |
 | Patterned-item limit | `passesPatternCheck` in `server/services/styleColorService.js` |
 | Search limits and best-N | `MAX_POOL_SIZE_PER_ROLE`, `MAX_COMBINATIONS_EXPLORED`, `SEARCH_TIME_LIMIT_MS`, `MAX_NEW_MATCHES_PER_ITEM` in `matchService.js` |
+| Lowest score an automatic outfit is saved at | `MIN_AUTO_MATCH_SCORE` in `server/constants/scoring.js` |
+| Time kept for saving / save chunk size | `SAVE_RESERVE_MS`, `INSERT_CHUNK_SIZE`, `INSERT_STOP_MARGIN_MS` in `matchService.js` |
 | Default gender when missing | `DEFAULT_GENDER` in `matchScoreService.js` |
 | Today page weights | `SCORE_WEIGHTS` in `todayOutfitSort.jsx` |
 | Favourite score | `FAVOURITE_SCORE` in `src/utils/matchScore.js` |

@@ -9,7 +9,8 @@
 //    manually built by the user. The temperature range comes from the
 //    outfit's subtypes alone, so it never causes a rejection. For an
 //    auto-search candidate only, it returns null if the items share no
-//    season.
+//    season or no tag. A user-made outfit with no shared tag is still
+//    described - it just gets an empty tag list.
 //
 //  - validateOutfit: the gate used ONLY for auto-generated candidates -
 //    fixed compatibility (including layering rules) + colour + pattern.
@@ -24,7 +25,7 @@
 const { computePresetTemperatureRange } = require("./presetTemperatureService.js");
 const { passesPatternCheck, passesColorCheck } = require("./styleColorService.js");
 const { isCliqueValid } = require("./matrixService.js");
-const { computeMatchTags } = require("./helpers.js");
+const { computeMatchTags, hasSharedTag } = require("./helpers.js");
 
 const ROLE_TYPE_TO_COUNT_FIELD = {
   top: "topCount",
@@ -77,7 +78,7 @@ function describeOutfit(items, { isUserMade, temperaturePreference = null }) {
 
   const seasons = computeSeasons(items);
 
-  if (!hasSharedSeason(items) && !isUserMade) {
+  if (!isUserMade && (!hasSharedSeason(items) || !hasSharedTag(items))) {
     return null;
   }
 

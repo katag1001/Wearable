@@ -9,7 +9,9 @@ const {
   findCandidateMatches,
   isStillViable,
   dedupeKey,
+  isOnlyDuplicateKeyErrors,
 } = require("../services/matchService.js");
+const { MIN_AUTO_MATCH_SCORE } = require("../constants/scoring.js");
 const { OUTFIT_SHAPES } = require("../constants/outfitShapes.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
 
@@ -28,8 +30,9 @@ function clothes(overrides) {
   };
 }
 
-// Every pair of different subtypes scores `score`; the same subtype is null.
-function openBaseline(subtypes, score = 50) {
+// Every pair of different subtypes scores `score` (default above
+// MIN_AUTO_MATCH_SCORE, so outfits are kept); the same subtype is null.
+function openBaseline(subtypes, score = 70) {
   const matrix = {};
   subtypes.forEach((a) => {
     matrix[a] = {};
@@ -150,7 +153,7 @@ test("findCandidateMatches skips outfits that are already saved and takes the ne
   const existingKeys = new Set([dedupeKey(["Short t-shirt", "Jeans"])]);
 
   const results = findCandidateMatches(
-    newTop, [newTop, jeans, chinos], context(openBaseline(["Short t-shirt", "Jeans", "Chinos"])), { existingKeys, limit: 1 }
+    newTop, [newTop, jeans, chinos], context(openBaseline(["Short t-shirt", "Jeans", "Chinos"], 70)), { existingKeys, limit: 1 }
   );
 
   assert.equal(results.length, 1);
@@ -200,6 +203,34 @@ test("the search stops once the budget's time limit has passed", () => {
 
   const results = findShapeCombinations(
     newTop, topBottomShape, pools, context(openBaseline(["Short t-shirt", "Jeans"])), expired
+  );
+
+  assert.equal(results.length, 0);
+});
+
+test("isStillViable fails when the items share no tag, or one is untagged", () => {
+  const colorRules = getColorRules("mid");
+
+  assert.equal(isStillViable([
+    clothes({ subtype: "A", tags: ["Work", "Everyday"] }),
+    clothes({ subtype: "B", tags: ["Everyday"] }),
+  ], colorRules), true);
+
+  assert.equal(isStillViable([
+    clothes({ subtype: "A", tags: ["Work"] }),
+    clothes({ subtype: "B", tags: ["Party"] }),
+  ], colorRules), false);
+
+  assert.equal(isStillViable([clothes({ subtype: "A", tags: [] })], colorRules), false);
+});
+
+test("findShapeCombinations prunes a candidate with no tag in common", () => {
+  const newTop = clothes({ subtype: "Short t-shirt", type: "top", tags: ["Work"] });
+  const jeans = clothes({ subtype: "Jeans", type: "bottom", tags: ["Party"] });
+  const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };
+
+  const results = findShapeCombinations(
+    newTop, topBottomShape, pools, context(openBaseline(["Short t-shirt", "Jeans"])), createBudget()
   );
 
   assert.equal(results.length, 0);
@@ -281,4 +312,41 @@ test("findShapeCombinations rejects a whole shape when newItem can't fill its sl
   );
 
   assert.equal(results.length, 0);
+});
+
+test("findCandidateMatches drops outfits scoring below the minimum", () => {
+  const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
+  const bottoms = ["Jeans", "Chinos"].map((subtype) => clothes({ subtype, type: "bottom" }));
+
+  const baseline = openBaseline(["Short t-shirt", "Jeans", "Chinos"]);
+  [["Jeans", MIN_AUTO_MATCH_SCORE], ["Chinos", MIN_AUTO_MATCH_SCORE - 1]].forEach(([subtype, score]) => {
+    baseline["Short t-shirt"][subtype] = score;
+    baseline[subtype]["Short t-shirt"] = score;
+  });
+
+  const results = findCandidateMatches(newTop, [newTop, ...bottoms], context(baseline));
+
+  assert.deepEqual(results.map((r) => r.score), [MIN_AUTO_MATCH_SCORE]);
+});
+
+test("findCandidateMatches uses a given minScore instead of the default", () => {
+  const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
+  const jeans = clothes({ subtype: "Jeans", type: "bottom" });
+
+  const results = findCandidateMatches(
+    newTop, [newTop, jeans], context(openBaseline(["Short t-shirt", "Jeans"], 30)), { minScore: 0 }
+  );
+
+  assert.equal(results.length, 1);
+});
+
+test("dedupeKey is the same whatever order the clothing ids are in", () => {
+  assert.equal(dedupeKey(["b", "a", "c"]), dedupeKey(["c", "b", "a"]));
+});
+
+test("isOnlyDuplicateKeyErrors is true only when every failed write is a duplicate", () => {
+  assert.equal(isOnlyDuplicateKeyErrors({ code: 11000 }), true);
+  assert.equal(isOnlyDuplicateKeyErrors({ writeErrors: [{ code: 11000 }, { err: { code: 11000 } }] }), true);
+  assert.equal(isOnlyDuplicateKeyErrors({ writeErrors: [{ code: 11000 }, { code: 121 }] }), false);
+  assert.equal(isOnlyDuplicateKeyErrors(new Error("connection lost")), false);
 });
