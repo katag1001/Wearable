@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import AutoWeather from './autoWeather';
 import ViewToday from './viewToday';
 import { fetchTodayInfo } from "./todayHelpers";
+import { getCachedToday } from "./todayCache";
 
 import './todayFullBlock.css';
 import '../../styles/pages.css';
@@ -10,7 +11,11 @@ import '../../styles/pages.css';
 const TodayFullBlock = () => {
 
   const [todayReady, setTodayReady] = useState(false);
-  const [todayTag, setTodayTag] = useState(null);
+  // Start with the tag cached earlier today so the title doesn't change
+  // once the preferences come back.
+  const [todayTag, setTodayTag] = useState(
+    () => getCachedToday()?.todayTag ?? null
+  );
 
   useEffect(() => {
     const loadTodayInfo = async () => {

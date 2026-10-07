@@ -8,6 +8,7 @@ import DeletePopup from "../general/deletePopup.jsx";
 import MatchScoreBadge from "../general/matchScoreBadge.jsx";
 import { fetchTodayInfo, isDateToday } from "./todayHelpers";
 import { rejectOutfit, wasRejectedToday } from "./outfitRejection";
+import { getCachedToday, cacheToday } from "./todayCache";
 import { tagOptions } from "../../constants/optionsBank";
 import { getImageUrl } from "../../utils/getImageUrl";
 
@@ -30,19 +31,30 @@ const findTagOption = (tagName) => {
 
 
 const ViewToday = ({ todayReady }) => {
-  const [outfits, setOutfits] = useState([]);
+
+  // Today's outfits from earlier today, if any - shown straight away on a
+  // refresh, then quietly refreshed from the server in the background.
+  const [cachedToday] = useState(getCachedToday);
+
+  const [outfits, setOutfits] = useState(
+    cachedToday?.outfits ?? []
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [selectedTag, setSelectedTag] = useState(null);
+  const [selectedTag, setSelectedTag] = useState(
+    cachedToday?.todayTag ?? null
+  );
 
   // Today's tag from the weekly preferences (a tagOptions name), or null.
-  const [todayTag, setTodayTag] = useState(null);
+  const [todayTag, setTodayTag] = useState(
+    cachedToday?.todayTag ?? null
+  );
 
   // Match ids with a reject request in flight, so fast clicking can't send
   // the same rejection twice.
   const pendingRejections = useRef(new Set());
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cachedToday);
   const [checkingToday, setCheckingToday] = useState(false);
   const [message, setMessage] = useState(null);
 
@@ -151,8 +163,11 @@ const ViewToday = ({ todayReady }) => {
 
   /* ------------------------- GET TODAY'S OUTFITS ------------------------- */
 
+  // silent: cached outfits are already showing, so refresh them without
+  // the loading messages and without moving the user's place.
   const fetchTodayOutfits = async (
     todayTagName = null,
+    silent = false,
     attempt = 0
   ) => {
 
@@ -187,12 +202,15 @@ const ViewToday = ({ todayReady }) => {
 
         if (attempt < 10) {
 
-          setCheckingToday(true);
+          if (!silent) {
+            setCheckingToday(true);
+          }
 
           setTimeout(() => {
 
             fetchTodayOutfits(
               todayTagName,
+              silent,
               attempt + 1
             );
 
@@ -299,11 +317,23 @@ const ViewToday = ({ todayReady }) => {
          SET OUTFITS
       ------------------------- */
 
+      // A silent refresh keeps the user's place unless the outfits
+      // themselves changed since the cached copy.
+      const outfitIdsChanged =
+        outfits.length !== sortedOutfits.length ||
+        outfits.some(
+          (outfit, index) =>
+            outfit?.matchId?._id !==
+            sortedOutfits[index]?.matchId?._id
+        );
+
       setOutfits(
         sortedOutfits
       );
 
-      setCurrentIndex(0);
+      if (!silent || outfitIdsChanged) {
+        setCurrentIndex(0);
+      }
 
       setCheckingToday(false);
       setLoading(false);
@@ -317,6 +347,11 @@ const ViewToday = ({ todayReady }) => {
 
       setCheckingToday(false);
       setLoading(false);
+
+      // Keep showing the cached outfits rather than an error.
+      if (silent) {
+        return;
+      }
 
       setMessage(
         "Error fetching outfits: " +
@@ -363,12 +398,16 @@ const ViewToday = ({ todayReady }) => {
 
       setTodayTag(todayTagName);
 
-      // Start filtered to today's tag.
-      setSelectedTag(todayTagName);
+      // Start filtered to today's tag - unless cached outfits are already
+      // showing, where the user may have picked a different tag.
+      if (!cachedToday) {
+        setSelectedTag(todayTagName);
+      }
 
 
       await fetchTodayOutfits(
-        todayTagName
+        todayTagName,
+        Boolean(cachedToday)
       );
     };
 
@@ -376,6 +415,24 @@ const ViewToday = ({ todayReady }) => {
     loadToday();
 
   }, [todayReady]);
+
+
+  /* ------------------------- CACHE TODAY ------------------------- */
+
+  // Keep the cached copy in step with every change (rejections, worn,
+  // deletes) so a refresh shows exactly what was on screen.
+  useEffect(() => {
+
+    if (loading) {
+      return;
+    }
+
+    cacheToday({
+      todayTag,
+      outfits,
+    });
+
+  }, [outfits, todayTag, loading]);
 
 
   /* ------------------------- FILTER BY TAG ------------------------- */
@@ -916,7 +973,7 @@ const ViewToday = ({ todayReady }) => {
 
   /* ------------------------- RENDER STATES ------------------------- */
 
-  if (!todayReady) {
+  if (!todayReady && loading) {
 
     return (
       <p className="today-message">
