@@ -305,24 +305,6 @@ const ViewToday = ({ todayReady }) => {
 
       setCurrentIndex(0);
 
-
-      // Start filtered to today's tag, if any of today's outfits have it.
-
-      const hasTodayTagOutfit =
-        todayTagName &&
-        sortedOutfits.some(
-          (outfit) =>
-            outfit?.matchId?.tags?.includes(
-              todayTagName
-            )
-        );
-
-      setSelectedTag(
-        hasTodayTagOutfit
-          ? todayTagName
-          : null
-      );
-
       setCheckingToday(false);
       setLoading(false);
 
@@ -380,6 +362,9 @@ const ViewToday = ({ todayReady }) => {
         null;
 
       setTodayTag(todayTagName);
+
+      // Start filtered to today's tag.
+      setSelectedTag(todayTagName);
 
 
       await fetchTodayOutfits(
@@ -1180,6 +1165,10 @@ const ViewToday = ({ todayReady }) => {
 
         <div className="today-tags-section">
 
+          <div className="today-tags-title">
+            Filter by Tag
+          </div>
+
           {todayTag && (
 
             <p className="today-tag-note">
@@ -1187,11 +1176,6 @@ const ViewToday = ({ todayReady }) => {
             </p>
 
           )}
-
-
-          <div className="today-tags-title">
-            Filter by Tag
-          </div>
 
 
           <div className="today-tag-selector">

@@ -6,6 +6,8 @@ import {
   styleImageOptions,
 } from "../../constants/styleQuizOptions";
 import { resolveStyleQuiz } from "../../utils/resolveStyleQuiz";
+import { emptyWeeklyTags } from "../../constants/weekDays";
+import WeeklyTagStep from "./WeeklyTagStep";
 import { URL } from "../../config";
 import "./styleQuizForm.css";
 
@@ -15,6 +17,7 @@ const StyleQuizForm = ({ onComplete }) => {
   const [step, setStep] = useState(1);
   const [gender, setGender] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [weeklyTags, setWeeklyTags] = useState(emptyWeeklyTags);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,6 +39,15 @@ const StyleQuizForm = ({ onComplete }) => {
 
   const handleImagesNext = () => {
     setStep(3);
+    setError("");
+  };
+
+  const handleWeeklyTagChange = (dayKey, tagName) => {
+    setWeeklyTags((current) => ({ ...current, [dayKey]: tagName }));
+  };
+
+  const handleWeeklyNext = () => {
+    setStep(4);
     setError("");
   };
 
@@ -68,7 +80,17 @@ const StyleQuizForm = ({ onComplete }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ gender, colour, pattern, temperature }),
+        body: JSON.stringify({
+          gender,
+          colour,
+          pattern,
+          temperature,
+          // Only the days picked, so retaking the quiz never clears a day
+          // already set on the Weekly Preferences page.
+          ...Object.fromEntries(
+            Object.entries(weeklyTags).filter(([, tagName]) => tagName)
+          ),
+        }),
       });
 
       if (!response.ok) {
@@ -170,6 +192,15 @@ const StyleQuizForm = ({ onComplete }) => {
       )}
 
       {step === 3 && (
+        <WeeklyTagStep
+          weeklyTags={weeklyTags}
+          onTagChange={handleWeeklyTagChange}
+          onBack={handleBack}
+          onNext={handleWeeklyNext}
+        />
+      )}
+
+      {step === 4 && (
         <div className="style-quiz-step">
           <div className="style-quiz-header">
             <h2 className="page-title">

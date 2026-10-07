@@ -276,14 +276,19 @@ If any of `gender`, `colour`, `pattern` or `temperature` is missing, or no
 preferences exist yet (404), `StyleQuizGate` redirects every gated page to
 `/style-quiz`.
 
-The quiz has three steps:
+The quiz has four steps:
 
 1. **"How do you usually dress?"**: More feminine → `woman`, More unisex →
    `unisex`, More masculine → `man`. Saved as `gender`.
 2. **"Select all that apply"**: a grid of style images. Only images whose
    `gender` list includes the chosen gender are shown. At least one image
    must be picked.
-3. **"Do you generally feel too cold or too hot?"**: `cold` / `hot` /
+3. **"What do you generally wear throughout the week?"**
+   (`WeeklyTagStep.jsx`): a tag for each day, picked from the tag images.
+   Picking a tag moves on to the next day. Every day is optional, and only
+   the days picked are saved, so retaking the quiz never clears a day set
+   on the Weekly Preferences page. Saved as `monday` … `sunday`.
+4. **"Do you generally feel too cold or too hot?"**: `cold` / `hot` /
    `normal`. Choosing one saves the whole quiz.
 
 ### 2.2 How the images become colour and pattern
@@ -803,8 +808,8 @@ score otherwise.
 
 The page shows one outfit at a time with ‹ / › arrows (wrapping round at
 either end), and the "Filter by Tag" panel beside it. The filter starts on
-today's weekly-preference tag if any of today's outfits have it, with a
-"Today's <tag> outfit" note above it.
+today's weekly-preference tag (click it to clear), with a
+"Today's <tag> outfit" subtitle under the panel title.
 
 ### 7.2 Rejecting an outfit
 

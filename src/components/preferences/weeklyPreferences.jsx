@@ -5,27 +5,10 @@ import "../../styles/pages.css";
 
 
 import { URL } from "../../config"
-
-
-const days = [
-  { key: "monday", label: "Monday" },
-  { key: "tuesday", label: "Tuesday" },
-  { key: "wednesday", label: "Wednesday" },
-  { key: "thursday", label: "Thursday" },
-  { key: "friday", label: "Friday" },
-  { key: "saturday", label: "Saturday" },
-  { key: "sunday", label: "Sunday" },
-];
-
-const emptyPreferences = {
-  monday: null,
-  tuesday: null,
-  wednesday: null,
-  thursday: null,
-  friday: null,
-  saturday: null,
-  sunday: null,
-};
+import {
+  weekDays as days,
+  emptyWeeklyTags as emptyPreferences,
+} from "../../constants/weekDays";
 
 const WeeklyPreferences = () => {
   const [preferences, setPreferences] =

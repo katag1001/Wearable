@@ -35,12 +35,16 @@ const Homepage = ({ loggedIn, logout }) => {
 
   /*-------------------------Clothes-------------------------*/
 
-  // The first page of this season's newest clothes / outfits - the
-  // "View All" links have the rest. Both are cached for the session, so
-  // returning here is instant.
+  // A preview of this season's newest clothes / outfits - the "View All"
+  // links have the rest. Both are cached for the session, so returning
+  // here is instant.
+  const HOME_CLOTHES_LIMIT = 14;
+  const HOME_MATCHES_LIMIT = 8;
+
   const homeClothesQuery = withPage(
     buildClothingFilterQuery({
       filters: { seasons: [currentSeason] },
+      limit: HOME_CLOTHES_LIMIT,
     }),
     1
   );
@@ -56,7 +60,10 @@ const Homepage = ({ loggedIn, logout }) => {
   /*-------------------------Matches-------------------------*/
 
   const homeMatchesQuery = withPage(
-    buildMatchFilterQuery({ season: currentSeason }),
+    buildMatchFilterQuery({
+      season: currentSeason,
+      limit: HOME_MATCHES_LIMIT,
+    }),
     1
   );
 
