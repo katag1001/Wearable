@@ -32,6 +32,7 @@ router.get("/match/", authMiddleware, allControllers.getAllMatches);
 router.get("/match/options", authMiddleware, allControllers.getMatchFilterOptions);
 router.get("/match/:id", authMiddleware, allControllers.getMatchById);
 router.put("/match/:id", authMiddleware, allControllers.updateMatch);
+router.put("/match/:id/reject", authMiddleware, allControllers.rejectMatch);
 router.delete("/match/:id", authMiddleware, allControllers.deleteMatch);
 
 /* TODAY ROUTES */

@@ -516,7 +516,8 @@ range of their own. Temperature **never rejects** an outfit. Full details in
 
 `server/services/outfitScoreService.js`, numbers in
 `server/constants/scoring.js`. Every match has a whole-number `score` from
-0 to 100, **set once when the match is created**:
+0 to 100, **set when the match is created** (and afterwards only changed by
+claiming it, 5.3, or rejecting it on the Today page, 7.2):
 
 | Match | Score |
 |---|---|
@@ -723,8 +724,9 @@ Files: `src/components/matches/createMatch.jsx`, `createMatch` in
 - **Already user-made** → 409 "Match already exists."
 - **An automatic match** → the user **claims** it: it becomes
   `userMade: true`, its score changes to **90**, and `recordOutfitClaimed`
-  adds **+5** to its pairs. The claimed match is returned. This is the
-  only time a match's score changes after creation.
+  adds **+5** to its pairs. The claimed match is returned. Apart from
+  rejecting it on the Today page (7.2), this is the only time a match's
+  score changes after creation.
 
 ---
 
@@ -747,6 +749,7 @@ Files: `server/services/matchScoreService.js`,
 | User deletes a clothing item (its outfits are deleted with it) | none |
 | Delete-by-piece (`deleteMatchesByPiece`, no route currently) | none |
 | Marking as worn, editing a match's range | none |
+| Rejecting an outfit on the Today page (7.2) | none - only that match's own score drops |
 | Gender changes | **all** personal adjustments deleted |
 | Automatic matching creating an outfit | none |
 
@@ -798,7 +801,39 @@ The match score comes from `getEffectiveMatchScore` in
 `src/utils/matchScore.js`, which returns 100 for a favourite and the stored
 score otherwise.
 
-### 7.2 Temporary score display
+The page shows one outfit at a time with ‹ / › arrows (wrapping round at
+either end), and the "Filter by Tag" panel beside it. The filter starts on
+today's weekly-preference tag if any of today's outfits have it, with a
+"Today's <tag> outfit" note above it.
+
+### 7.2 Rejecting an outfit
+
+Files: `server/services/matchRejectionService.js`,
+`src/components/today/outfitRejection.js`, `rejectMatch` and `createToday`
+in `allControllers.js`. Numbers in `server/constants/scoring.js`.
+
+- Pressing **›** rejects the outfit being left (`PUT /match/:id/reject`),
+  including favourites, the last outfit when it wraps round, and while a tag
+  filter is on. ‹ never rejects.
+- A rejection counts **at most once per outfit per day**: `rejectedCount`
+  +1, `lastRejectedDate` = now, and the stored `score` drops by
+  **`REJECTION_SCORE_PENALTY` = 3** (never below 0). The client sends no
+  request once the outfit's `lastRejectedDate` is today; the server ignores
+  a repeat anyway.
+- **`createToday`** leaves out outfits rejected in the last
+  **`REJECTION_COOLDOWN_DAYS` = 5** days - one rejected on the 2nd is
+  hidden up to and including the 7th. If every outfit for today's weather
+  was rejected recently, none are left out. Today's list is built once a
+  day, so an outfit rejected today stays reachable with ‹ until tomorrow.
+- **Marking as worn** an outfit rejected today undoes the rejection
+  (count −1, score +3, `lastRejectedDate` back to null). The previous
+  rejection date isn't kept, which doesn't matter: anything rejected in the
+  5 days before wasn't in today's list to wear. Switching the worn outfit
+  to another one later doesn't re-apply the rejection.
+- "Today" is the user's local day: the client sends its local midnight
+  (`todayStart` / `today_start`); the server falls back to its own.
+
+### 7.3 Temporary score display
 
 `src/components/general/matchScoreBadge.jsx` shows a small grey "Score N"
 on the match cards (`viewMatchesCard.jsx`) and on the Today page's main
@@ -938,9 +973,10 @@ undone by accident:
     match.
   - Romper never pairs with a top. Men's Waistcoat + Romper/Overalls was
     left undecided and defaults to no.
-- **A match's score is set once, at creation.** Matches aren't re-scored
-  when the user's adjustments change. Claiming an automatic outfit is the
-  one exception (it becomes 90).
+- **A match's score is set at creation.** Matches aren't re-scored
+  when the user's adjustments change. The exceptions are claiming an
+  automatic outfit (it becomes 90) and rejecting it on the Today page
+  (−3 per day it's rejected, 7.2).
 - **Only the best 100 new outfits per item are saved**, rather than
   whichever the search happened to find first.
 - **Temperature belongs to matches, not items.** Item ranges were removed;
@@ -996,13 +1032,15 @@ All of these have been run on the current database.
 | Time kept for saving / save chunk size | `SAVE_RESERVE_MS`, `INSERT_CHUNK_SIZE`, `INSERT_STOP_MARGIN_MS` in `matchService.js` |
 | Default gender when missing | `DEFAULT_GENDER` in `matchScoreService.js` |
 | Today page weights | `SCORE_WEIGHTS` in `todayOutfitSort.jsx` |
+| Rejection penalty / days a rejected outfit is hidden | `REJECTION_SCORE_PENALTY`, `REJECTION_COOLDOWN_DAYS` in `server/constants/scoring.js` |
 | Favourite score | `FAVOURITE_SCORE` in `src/utils/matchScore.js` |
 | Temperature numbers | `server/constants/temperatureGroups.js`, see `temperature-ranges.md` |
-| Remove the temporary score display | see 7.2 |
+| Remove the temporary score display | see 7.3 |
 | One-off database updates | `server/scripts/`, see Part 11 |
 
 Tests: `server/specs/` (`matchService`, `matrixService`,
 `outfitScoreService`, `outfitEvaluator`, `styleColorService`,
-`matchScoreService`, `matchScoreBaseline`, `presetTemperatureService`,
+`matchScoreService`, `matchScoreBaseline`, `matchRejectionService`,
+`presetTemperatureService`,
 `temperatureService`,
 `colorPalettes`). Run them with `cd server && node --test specs/*.spec.js`.

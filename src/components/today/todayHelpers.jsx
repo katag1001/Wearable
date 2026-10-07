@@ -22,6 +22,36 @@ export const getTodayDayOfWeek = () => {
 
 
 /* -------------------------
+   LOCAL DAY HELPERS
+------------------------- */
+
+// Midnight at the start of the user's local day, as an ISO string. Sent to
+// the server so "today" means the user's day, not the server's.
+export const getTodayStartISO = () => {
+  const midnight = new Date();
+  midnight.setHours(0, 0, 0, 0);
+
+  return midnight.toISOString();
+};
+
+
+export const isDateToday = (dateString) => {
+  if (!dateString) {
+    return false;
+  }
+
+  const today = new Date();
+  const date = new Date(dateString);
+
+  return (
+    today.getFullYear() === date.getFullYear() &&
+    today.getMonth() === date.getMonth() &&
+    today.getDate() === date.getDate()
+  );
+};
+
+
+/* -------------------------
    GET TODAY'S TAG
 ------------------------- */
 

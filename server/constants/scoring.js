@@ -6,7 +6,8 @@
 // adjustment for that pair. A match's `score` is set once, when the match
 // is created (see services/outfitScoreService.js), and is never
 // recalculated - except when a user claims an automatic match by building
-// the same outfit themselves.
+// the same outfit themselves, or rejects it on the Today page
+// (services/matchRejectionService.js).
 
 const MIN_SCORE = 0;
 const MAX_SCORE = 100;
@@ -36,6 +37,12 @@ const LEARNING_DELTAS = {
   deleted: -2,
 };
 
+// Rejecting an outfit on the Today page (at most once per outfit per day)
+// takes this off its stored score, and keeps it out of the Today list for
+// this many days.
+const REJECTION_SCORE_PENALTY = 3;
+const REJECTION_COOLDOWN_DAYS = 5;
+
 module.exports = {
   MIN_SCORE,
   MAX_SCORE,
@@ -45,4 +52,6 @@ module.exports = {
   MIN_AUTO_MATCH_SCORE,
   USER_MADE_SCORE,
   LEARNING_DELTAS,
+  REJECTION_SCORE_PENALTY,
+  REJECTION_COOLDOWN_DAYS,
 };

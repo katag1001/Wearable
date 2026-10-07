@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useGeolocation } from "@uidotdev/usehooks";
 import "./autoWeather.css";
 import { URL } from "../../config";
-import { getTodayDayOfWeek } from "./todayHelpers";
+import { getTodayDayOfWeek, getTodayStartISO } from "./todayHelpers";
 
 
 const AutoWeather = ({ setTodayReady }) => {
@@ -112,6 +112,7 @@ const AutoWeather = ({ setTodayReady }) => {
             min_temp_today: min,
             max_temp_today: max,
             season_today: season,
+            today_start: getTodayStartISO(),
           }),
         }
       );

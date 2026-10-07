@@ -7,11 +7,18 @@
    MAIN CONTAINER
 ---------------------------------------------------------------- */
 
+/* Fills the rest of .today-block below the title and weather. */
+
 .view-today-container {
   width: 100%;
-  height: 100%;
 
+  flex: 1 1 auto;
   min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  padding-bottom: 1.5rem;
 
   box-sizing: border-box;
 
@@ -26,14 +33,17 @@
    TOP SECTION
 ---------------------------------------------------------------- */
 
+/* Featured outfit ~70%, tag filter ~30%. */
+
 .today-top-section {
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: 1rem;
-  height: var(--view-today-container);
-  min-height: var(--view-today-container);
-  max-height: var(--view-today-container);
+
+  flex: 1 1 auto;
+  min-height: 0;
 
   padding: 0;
   box-sizing: border-box;
@@ -50,7 +60,9 @@
 
 .today-worn-section {
   width: 100%;
-  height: 100%;
+
+  flex: 1 1 auto;
+  min-height: 0;
 
   display: flex;
   align-items: center;
@@ -78,8 +90,7 @@
   width: 100%;
   min-width: 0;
   min-height: 0;
-  height: var(--view-today-container);
-  max-height: var(--view-today-container);
+  height: 100%;
   display: flex;
   flex-direction: column;
 
@@ -592,558 +603,122 @@
 
 
 /* ================================================================
-   OUTFIT SELECTOR
+   PREVIOUS / NEXT ARROWS
+
+   Sit on either side of the featured outfit. Next also rejects
+   the outfit being left (see outfitRejection.js).
 ================================================================ */
 
-.outfit-selector {
-  width: 100%;
-  min-width: 0;
-  min-height: 0;
-  height: var(--view-today-container);
-  max-height: var(--view-today-container);
-  box-sizing: border-box;
+.today-arrow-button {
+  position: absolute;
+  top: 50%;
+
+  width: 34px;
+  height: 34px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: .75rem;
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
 
-  overflow: hidden;
-
-  transition:
-    background .25s ease,
-    border-color .25s ease;
-}
-
-
-.outfit-selector:hover {
-  background: var(--hover-background);
-  border-color: var(--hover-border-color);
-}
-
-
-/* ----------------------------------------------------------------
-   SELECTOR CONTENT
----------------------------------------------------------------- */
-
-.outfit-selector-content {
-  width: 100%;
-  height: 100%;
-
-  min-height: 0;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: .5rem;
-
-  overflow: hidden;
-}
-
-
-/* ================================================================
-   ALTERNATIVE OUTFIT GRID
-================================================================ */
-
-.outfit-options {
-  width: 100%;
-  height: 100%;
-
-  min-width: 0;
-  min-height: 0;
-
-  flex: 1 1 auto;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  grid-template-rows:
-    repeat(2, minmax(0, 1fr));
-
-  gap: .5rem;
-
-  overflow: hidden;
-}
-
-
-/* ================================================================
-   INDIVIDUAL ALTERNATIVE CARD
-================================================================ */
-
-.outfit-option {
-  width: 100%;
-  height: 100%;
-
-  min-width: 0;
-  min-height: 0;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  padding: .35rem;
-
-  box-sizing: border-box;
+  padding: 0 0 3px;
 
   border: 1px solid var(--border-color);
-  border-radius: 7px;
+  border-radius: 50%;
 
   background: var(--card-background);
   color: var(--main-color);
 
+  font-family: var(--plus-font);
+  font-size: 1.5rem;
+  font-weight: 300;
+  line-height: 1;
+
+  box-sizing: border-box;
+
   cursor: pointer;
 
-  overflow: hidden;
+  opacity: .85;
+
+  transform: translateY(-50%);
+
+  z-index: 3;
 
   transition:
     background .2s ease,
     border-color .2s ease,
-    box-shadow .2s ease,
-    transform .2s ease;
+    color .2s ease,
+    opacity .2s ease;
 }
 
 
-.outfit-option:hover {
-  background: var(--hover-background);
-
-  border-color:
-    var(--hover-border-color);
-
+.today-arrow-prev {
+  left: .4rem;
 }
 
 
-.outfit-option:focus-visible {
+.today-arrow-next {
+  right: .4rem;
+}
+
+
+.today-arrow-button:hover {
+  background: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--inverse-color);
+
+  opacity: 1;
+}
+
+
+.today-arrow-button:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: 2px;
 }
 
 
 /* ================================================================
-   SMALL OUTFIT IMAGE GRID
-
-   SAME ARRANGEMENT AS VIEW MATCHES
-================================================================ */
-
-.today-image-group-small {
-  width: 100%;
-  height: 100%;
-
-  min-width: 0;
-  min-height: 0;
-
-  box-sizing: border-box;
-
-  padding: 4px;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(6, minmax(0, 1fr));
-
-  grid-template-rows:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 4px;
-
-  align-items: center;
-  justify-items: center;
-  align-content: center;
-
-  overflow: hidden;
-}
-
-
-/* ================================================================
-   1 IMAGE
-================================================================ */
-
-.today-image-group-small:not(
-  :has(.today-image-small:nth-child(2))
-) {
-  grid-template-rows: 1fr;
-}
-
-
-.today-image-group-small:not(
-  :has(.today-image-small:nth-child(2))
-)
-.today-image-small:nth-child(1) {
-  grid-column: 1 / -1;
-}
-
-
-/* ================================================================
-   2 IMAGES
-================================================================ */
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(2)
-):not(
-  :has(.today-image-small:nth-child(3))
-) {
-  grid-template-rows: 1fr;
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(2)
-):not(
-  :has(.today-image-small:nth-child(3))
-)
-.today-image-small:nth-child(1),
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(2)
-):not(
-  :has(.today-image-small:nth-child(3))
-)
-.today-image-small:nth-child(2) {
-  grid-column: span 3;
-}
-
-
-/* ================================================================
-   3 IMAGES
-================================================================ */
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(3)
-):not(
-  :has(.today-image-small:nth-child(4))
-) {
-  grid-template-rows:
-    repeat(2, minmax(0, 1fr));
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(3)
-):not(
-  :has(.today-image-small:nth-child(4))
-)
-.today-image-small:nth-child(1) {
-  grid-column: 2 / span 2;
-  grid-row: 1;
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(3)
-):not(
-  :has(.today-image-small:nth-child(4))
-)
-.today-image-small:nth-child(2) {
-  grid-column: 4 / span 2;
-  grid-row: 1;
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(3)
-):not(
-  :has(.today-image-small:nth-child(4))
-)
-.today-image-small:nth-child(3) {
-  grid-column: 3 / span 2;
-  grid-row: 2;
-}
-
-
-/* ================================================================
-   4 IMAGES
-================================================================ */
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(4)
-):not(
-  :has(.today-image-small:nth-child(5))
-) {
-  grid-template-rows:
-    repeat(2, minmax(0, 1fr));
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(4)
-):not(
-  :has(.today-image-small:nth-child(5))
-)
-.today-image-small {
-  grid-column: span 3;
-}
-
-
-/* ================================================================
-   5 IMAGES
-================================================================ */
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(5)
-):not(
-  :has(.today-image-small:nth-child(6))
-) {
-  grid-template-rows:
-    repeat(2, minmax(0, 1fr));
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(5)
-):not(
-  :has(.today-image-small:nth-child(6))
-)
-.today-image-small {
-  grid-column: span 2;
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(5)
-):not(
-  :has(.today-image-small:nth-child(6))
-)
-.today-image-small:nth-child(4) {
-  grid-column: 2 / span 2;
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(5)
-):not(
-  :has(.today-image-small:nth-child(6))
-)
-.today-image-small:nth-child(5) {
-  grid-column: 4 / span 2;
-}
-
-
-/* ================================================================
-   6 IMAGES
-================================================================ */
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(6)
-):not(
-  :has(.today-image-small:nth-child(7))
-) {
-  grid-template-rows:
-    repeat(2, minmax(0, 1fr));
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(6)
-):not(
-  :has(.today-image-small:nth-child(7))
-)
-.today-image-small {
-  grid-column: span 2;
-}
-
-
-/* ================================================================
-   7 IMAGES
-================================================================ */
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(7)
-):not(
-  :has(.today-image-small:nth-child(8))
-) {
-  grid-template-rows:
-    repeat(3, minmax(0, 1fr));
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(7)
-):not(
-  :has(.today-image-small:nth-child(8))
-)
-.today-image-small {
-  grid-column: span 2;
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(7)
-):not(
-  :has(.today-image-small:nth-child(8))
-)
-.today-image-small:nth-child(7) {
-  grid-column: 3 / span 2;
-}
-
-
-/* ================================================================
-   8 IMAGES
-================================================================ */
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(8)
-):not(
-  :has(.today-image-small:nth-child(9))
-) {
-  grid-template-rows:
-    repeat(3, minmax(0, 1fr));
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(8)
-):not(
-  :has(.today-image-small:nth-child(9))
-)
-.today-image-small {
-  grid-column: span 2;
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(8)
-):not(
-  :has(.today-image-small:nth-child(9))
-)
-.today-image-small:nth-child(7) {
-  grid-column: 2 / span 2;
-}
-
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(8)
-):not(
-  :has(.today-image-small:nth-child(9))
-)
-.today-image-small:nth-child(8) {
-  grid-column: 4 / span 2;
-}
-
-
-/* ================================================================
-   9+ IMAGES
-================================================================ */
-
-.today-image-group-small:has(
-  .today-image-small:nth-child(9)
-)
-.today-image-small {
-  grid-column: span 2;
-}
-
-
-/* ================================================================
-   SMALL INDIVIDUAL IMAGES
-================================================================ */
-
-.today-image-small {
-  display: block;
-
-  width: auto;
-  height: auto;
-
-  max-width: 100%;
-  max-height: 100%;
-
-  min-width: 0;
-  min-height: 0;
-
-  object-fit: contain;
-
-  justify-self: center;
-  align-self: center;
-
-  border-radius: 5px;
-}
-
-
-/* ================================================================
-   SHOW MORE
-================================================================ */
-
-.alternative-pagination {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-
-.alternative-up-button,
-.alternative-down-button {
-  flex-shrink: 0;
-
-  width: 100%;
-  height: 28px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0;
-
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-
-  background: var(--hover-background);
-  color: var(--secondary-color);
-
-  font-family: var(--plus-font);
-  font-size: 1rem;
-  font-weight: 300;
-
-  line-height: 1;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.alternative-up-button:hover,
-.alternative-down-button:hover {
-  background: var(--main-color);
-  border-color: var(--main-color);
-  color: var(--inverse-color);
-
-  transform: translateY(-1px);
-}
-
-
-.alternative-up-button:active,
-.alternative-down-button:active {
-  transform: translateY(0);
-}
-
-
-.alternative-up-button:focus-visible,
-.alternative-down-button:focus-visible {
-  outline: 2px solid var(--main-color);
-  outline-offset: 3px;
-}
-
-
-/* ================================================================
    TAG SECTION
+
+   The right-hand column, next to the featured outfit.
 ================================================================ */
 
 .today-tags-section {
   width: 100%;
+  min-width: 0;
   min-height: 0;
-  margin-top: 1rem;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: .75rem;
   box-sizing: border-box;
-  overflow: visible;
-  
+
+  background: var(--card-background);
+
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  overflow-y: auto;
 }
 
+
+/* ----------------------------------------------------------------
+   TODAY'S TAG NOTE
+---------------------------------------------------------------- */
+
+.today-tag-note {
+  margin: 0 0 .5rem;
+
+  color: var(--secondary-color);
+
+  font-size: var(--description-font-size);
+  font-weight: 400;
+
+  letter-spacing: .08em;
+
+  text-transform: uppercase;
+}
 
 
 /* ----------------------------------------------------------------
@@ -1155,7 +730,7 @@
   padding: 0 0 .45rem;
   border-bottom: 1px solid var(--border-color);
   font-family: var(--title-font);
-  font-size: .85rem;
+  font-size: .8rem;
   font-weight: 700;
   letter-spacing: .03em;
   text-transform: uppercase;
@@ -1171,12 +746,11 @@
   width: 100%;
   display: grid;
   box-sizing: border-box;
-  grid-template-columns: repeat(auto-fit, 65px);
-  gap: .4rem;
+  grid-template-columns: repeat(auto-fill, 54px);
+  justify-content: center;
+  gap: .35rem;
   overflow: visible;
-  padding-top: 2px;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding: 2px;
 }
 
 
@@ -1185,8 +759,8 @@
 ================================================================ */
 
 .today-tag-option {
-  width: 65px;
-  max-width: 65px;
+  width: 54px;
+  max-width: 54px;
 
   min-width: 0;
 
@@ -1195,7 +769,7 @@
   overflow: hidden;
 
   border: 1px solid var(--border-color);
-  border-radius: 7px;
+  border-radius: 6px;
 
   background: var(--card-background);
   color: var(--main-color);
@@ -1253,7 +827,7 @@
 .today-tag-image-wrapper {
   width: 100%;
 
-  height: 50px;
+  height: 40px;
 
   overflow: hidden;
 
@@ -1285,16 +859,16 @@
 ================================================================ */
 
 .today-tag-content {
-  min-height: 25px;
+  min-height: 20px;
 
   display: flex;
 
   align-items: center;
   justify-content: space-between;
 
-  gap: .2rem;
+  gap: .15rem;
 
-  padding: .25rem .3rem;
+  padding: .2rem .25rem;
 
   box-sizing: border-box;
 }
@@ -1309,7 +883,7 @@
 
   color: var(--tag-color);
 
-  font-size: .52rem;
+  font-size: .48rem;
   font-weight: 500;
 
   letter-spacing: .02em;
@@ -1324,8 +898,8 @@
 .today-tag-check {
   flex-shrink: 0;
 
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
 
   display: flex;
 
@@ -1337,7 +911,7 @@
   background: var(--main-color);
   color: var(--inverse-color);
 
-  font-size: .38rem;
+  font-size: .35rem;
 
   line-height: 1;
 }
@@ -1382,6 +956,7 @@
 
   .today-top-section {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
     height: auto;
     min-height: 0;
     max-height: none;
@@ -1398,7 +973,7 @@
 
 
   .featured-outfit,
-  .outfit-selector {
+  .today-tags-section {
     height: auto;
     max-height: none;
     min-height: 0;
@@ -1410,19 +985,9 @@
   }
 
 
-  .outfit-selector {
-    min-height: 420px;
-  }
-
-
   .featured-outfit-content {
     height: auto;
     min-height: 300px;
-  }
-
-
-  .outfit-options {
-    min-height: 350px;
   }
 
 }
@@ -1521,6 +1086,14 @@
   }
 
 
+  .today-arrow-button {
+    width: 30px;
+    height: 30px;
+
+    font-size: 1.3rem;
+  }
+
+
   .regular-button {
     padding: .5rem .75rem;
 
@@ -1531,79 +1104,13 @@
 
 
   /* ================================================================
-     OUTFIT SELECTOR
-  ================================================================ */
-
-  .outfit-selector {
-    width: 100%;
-
-    height: auto;
-    min-height: 0;
-    max-height: none;
-
-    padding: .55rem;
-
-    border-radius: 8px;
-  }
-
-
-  .outfit-selector-content {
-    height: auto;
-    min-height: 0;
-
-    gap: .4rem;
-  }
-
-
-  .outfit-options {
-    width: 100%;
-
-    height: 360px;
-    min-height: 300px;
-
-    gap: .4rem;
-  }
-
-
-  .outfit-option {
-    padding: .25rem;
-
-    border-radius: 6px;
-  }
-
-
-  .today-image-group-small {
-    padding: 3px;
-    gap: 3px;
-  }
-
-
-  .today-image-small {
-    border-radius: 4px;
-  }
-
-
-  /* Pagination buttons */
-
-  .alternative-pagination {
-    gap: 3px;
-  }
-
-
-  .alternative-up-button,
-  .alternative-down-button {
-    height: 30px;
-
-    font-size: .9rem;
-  }
-
-
-  /* ================================================================
      TAG SECTION
   ================================================================ */
 
   .today-tags-section {
-    margin-top: .75rem;
+    padding: .55rem;
+
+    border-radius: 8px;
   }
 
 
@@ -1616,46 +1123,7 @@
 
 
   .today-tag-selector {
-    grid-template-columns:
-      repeat(auto-fit, minmax(58px, 65px));
-
-    justify-content: center;
-
-    gap: .35rem;
-
-    padding-left: .5rem;
-    padding-right: .5rem;
-  }
-
-
-  .today-tag-option {
-    width: 100%;
-    max-width: 65px;
-  }
-
-
-  .today-tag-image-wrapper {
-    height: 46px;
-  }
-
-
-  .today-tag-content {
-    min-height: 23px;
-
-    padding: .2rem .25rem;
-  }
-
-
-  .today-tag-content > span:first-child {
-    font-size: .5rem;
-  }
-
-
-  .today-tag-check {
-    width: 10px;
-    height: 10px;
-
-    font-size: .35rem;
+    gap: .3rem;
   }
 
 
@@ -1681,7 +1149,7 @@
 @media (max-width: 400px) {
 
   .featured-outfit,
-  .outfit-selector {
+  .today-tags-section {
     padding: .4rem;
   }
 
@@ -1700,54 +1168,25 @@
   }
 
 
-  .outfit-options {
-    height: 300px;
-    min-height: 250px;
-
-    gap: .3rem;
-  }
-
-
-  .today-image-group-small {
-    padding: 2px;
-    gap: 2px;
-  }
-
-
-  .today-tags-section {
-    margin-top: .6rem;
-  }
-
-
   .today-tag-selector {
     grid-template-columns:
-      repeat(auto-fit, 58px);
-
-    gap: .3rem;
-
-    padding-left: .25rem;
-    padding-right: .25rem;
+      repeat(auto-fill, 50px);
   }
 
 
   .today-tag-option {
-    width: 58px;
-    max-width: 58px;
+    width: 50px;
+    max-width: 50px;
   }
 
 
   .today-tag-image-wrapper {
-    height: 42px;
-  }
-
-
-  .today-tag-content {
-    padding: .18rem .2rem;
+    height: 36px;
   }
 
 
   .today-tag-content > span:first-child {
-    font-size: .47rem;
+    font-size: .45rem;
   }
 
 
@@ -1758,4 +1197,3 @@
   }
 
 }
-

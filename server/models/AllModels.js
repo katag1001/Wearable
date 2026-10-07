@@ -63,9 +63,14 @@ wornYear: { type: Number, default: null },
 userMade: { type: Boolean, default: false },
 favourite: { type: Boolean, default: false },
 
-// Set once when the match is created (server/services/outfitScoreService.js
-// and server/constants/scoring.js). A favourite is shown and sorted as 100
-// without changing this value.
+// Scrolling past an outfit on the Today page rejects it, at most once a day
+// (server/services/matchRejectionService.js).
+rejectedCount: { type: Number, default: 0 },
+lastRejectedDate: { type: Date, default: null },
+
+// Set when the match is created (server/services/outfitScoreService.js
+// and server/constants/scoring.js), and lowered each time it's rejected.
+// A favourite is shown and sorted as 100 without changing this value.
 score: {
 type: Number,
 required: true,

@@ -36,6 +36,12 @@ const {
   deleteMatchesWithoutScoring,
 } = require("../services/matchLifecycleService.js");
 const { matchesTodayTemperature } = require("../services/temperatureService.js");
+const {
+  resolveTodayStart,
+  applyRejection,
+  undoRejection,
+  excludeRecentlyRejected,
+} = require("../services/matchRejectionService.js");
 
 // Matching runs after the response is sent. waitUntil keeps the Vercel
 // function alive until it finishes (up to the function's max duration);
@@ -641,9 +647,17 @@ exports.updateMatch = async (req, res) => {
       });
     }
 
-    // A match's score is set once by the server and never edited by the
-    // client (a favourite is shown as 100 without changing it).
-    const { restoreSnapshot, clothesSnapshots, score, ...matchFields } = req.body;
+    // A match's score and rejection fields are only ever changed by the
+    // server (a favourite is shown as 100 without changing its score).
+    const {
+      restoreSnapshot,
+      clothesSnapshots,
+      undoRejection: shouldUndoRejection,
+      score,
+      rejectedCount,
+      lastRejectedDate,
+      ...matchFields
+    } = req.body;
 
     const wasFavourite = !!match.favourite;
 
@@ -686,6 +700,11 @@ exports.updateMatch = async (req, res) => {
             : 1;
 
         match.wornYear = wornYear;
+
+        // Wearing an outfit rejected earlier today takes the rejection back.
+        if (shouldUndoRejection) {
+          undoRejection(match);
+        }
       }
 
       await match.save();
@@ -751,6 +770,43 @@ exports.updateMatch = async (req, res) => {
   }
 };
 
+// Scrolling past an outfit on the Today page. Counts at most once per
+// outfit per day - a second call the same day returns the match unchanged.
+exports.rejectMatch = async (req, res) => {
+  const userId = req.user?.userId;
+
+  try {
+    const match = await Match.findOne({
+      _id: req.params.id,
+      userId,
+    });
+
+    if (!match) {
+      return res.status(404).json({
+        message: "Match not found",
+      });
+    }
+
+    const todayStart = resolveTodayStart(req.body?.todayStart);
+
+    if (applyRejection(match, todayStart)) {
+      await match.save();
+    }
+
+    return res.json({
+      _id: match._id,
+      score: match.score,
+      rejectedCount: match.rejectedCount,
+      lastRejectedDate: match.lastRejectedDate,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
 exports.deleteMatch = async (req, res) => {
 const userId = req.user?.userId;
 
@@ -795,6 +851,7 @@ exports.createToday = async (req, res) => {
       min_temp_today,
       max_temp_today,
       season_today,
+      today_start,
     } = req.body;
 
     if (
@@ -818,11 +875,18 @@ exports.createToday = async (req, res) => {
 
     const todayRange = { min: min_temp_today, max: max_temp_today };
 
-    const matches = seasonMatches.filter((match) =>
+    const weatherMatches = seasonMatches.filter((match) =>
       matchesTodayTemperature(
         { min: match.min_temp, max: match.max_temp },
         todayRange
       )
+    );
+
+    // Outfits rejected in the last few days are skipped, unless every
+    // outfit for today's weather was.
+    const matches = excludeRecentlyRejected(
+      weatherMatches,
+      resolveTodayStart(today_start)
     );
 
     await Today.deleteMany({ userId });
