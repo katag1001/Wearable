@@ -7,7 +7,16 @@ const {
   parsePaging,
   resolvePage,
   combineConditions,
+  parseIdList,
 } = require("../services/queryHelpers.js");
+
+test("parseIdList keeps unique valid ids and drops anything else", () => {
+  const id = "507f1f77bcf86cd799439011";
+
+  assert.deepEqual(parseIdList([id, id, "not-an-id"]), [id]);
+  assert.deepEqual(parseIdList(id), []);
+  assert.deepEqual(parseIdList(undefined), []);
+});
 
 test("parsePaging defaults to page 1 of 32", () => {
   assert.deepEqual(parsePaging({}), { page: 1, limit: DEFAULT_PAGE_SIZE });

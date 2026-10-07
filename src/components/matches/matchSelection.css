@@ -1,0 +1,154 @@
+/* SELECTION BAR (matchSelectionBar.jsx)--------------------------------------- */
+
+.match-selection-bar {
+  position: sticky;
+  top: calc(var(--header-height) + 10px);
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+
+  width: fit-content;
+  margin: 0 0 16px auto;
+  padding: 6px 8px 6px 16px;
+
+  border-radius: var(--radius-pill);
+  background: var(--overlay-light-surface-solid);
+  box-shadow: var(--shadow-soft);
+
+  font-family: var(--main-font);
+  font-size: var(--tag-font-size);
+  letter-spacing: var(--tracking-tight);
+  color: var(--secondary-color);
+}
+
+.match-selection-count {
+  font-weight: 500;
+  color: var(--main-color);
+}
+
+.match-selection-clear {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--secondary-color);
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.match-selection-bin {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  background: var(--card-background);
+  color: var(--main-color);
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.match-selection-bin:hover:not(:disabled) {
+  border-color: var(--delete-hover-border-color);
+  color: var(--delete-hover-color);
+}
+
+.match-selection-bin:disabled,
+.match-selection-clear:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.match-selection-bin-icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* TICK BOX ON EACH CARD (viewMatchesCard.jsx)----------------------------------- */
+
+.match-select-box {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+
+  width: 24px;
+  height: 24px;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1.5px solid var(--secondary-color);
+  border-radius: 50%;
+  background: var(--overlay-light-surface-soft);
+  cursor: pointer;
+
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.match-select-box:hover {
+  transform: scale(1.1);
+}
+
+/* Only appears on hover - a ticked box stays visible. Touch screens
+   can't hover, so they always show it. */
+@media (hover: hover) {
+  .match-select-box:not(.selected) {
+    opacity: 0;
+  }
+
+  .match-card:hover .match-select-box,
+  .match-select-box:focus-visible {
+    opacity: 1;
+  }
+}
+
+.match-select-box.selected {
+  border-color: var(--main-color);
+  background: var(--main-color);
+}
+
+.match-select-tick {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--inverse-color);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.match-select-box.selected .match-select-tick {
+  opacity: 1;
+}
+
+.match-card.selected {
+  outline: 2px solid var(--main-color);
+  outline-offset: -2px;
+}

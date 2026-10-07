@@ -34,7 +34,7 @@ const LEARNING_DELTAS = {
   claimed: 5,
   favourited: 3,
   unfavourited: -3,
-  deleted: -2,
+  deleted: -0.25,
 };
 
 // Rejecting an outfit on the Today page (at most once per outfit per day)

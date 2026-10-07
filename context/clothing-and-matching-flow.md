@@ -48,7 +48,7 @@ In short:
 - The **matrix** used depends on the user's gender. The **colour palettes**
   depend on their colour level. Both come from the style quiz.
 - User-made outfits are **never rejected** and always score 90. Building
-  one (+5), favouriting (+3) or deleting any outfit (−2) adjusts the user's
+  one (+5), favouriting (+3) or deleting any outfit (−0.25) adjusts the user's
   personal score for every compatible subtype pair in it. That changes
   how future automatic outfits are **scored and ranked**, never whether
   they are allowed.
@@ -750,7 +750,8 @@ Files: `server/services/matchScoreService.js`,
 | User claims an automatic outfit by rebuilding it | **+5** |
 | User favourites an outfit | **+3** |
 | User unfavourites an outfit | **−3** |
-| User deletes one outfit (match card or Today → delete) | **−2** |
+| User deletes one outfit (match card or Today → delete) | **−0.25** |
+| User deletes several ticked outfits (`deleteManyMatches`, `DELETE /match/`) | **−0.25** per outfit |
 | User deletes a clothing item (its outfits are deleted with it) | none |
 | Delete-by-piece (`deleteMatchesByPiece`, no route currently) | none |
 | Marking as worn, editing a match's range | none |
@@ -899,8 +900,8 @@ they're tagged `Work, Everyday`. Outfits with the cardigan are tagged
 All four are within the best 100, so all are saved, each with its score.
 "View New Matches" polls until they appear.
 
-**Learning.** She deletes the 4-item outfit. Each of its 6 pairs gets −2,
-so Wide leg trousers + Trench coat drops from 90 to 88. **Nothing stops
+**Learning.** She deletes the 4-item outfit. Each of its 6 pairs gets −0.25,
+so Wide leg trousers + Trench coat drops from 90 to 89.75. **Nothing stops
 matching** - the trousers and coat are still compatible, and the 3-item
 shirt + trousers + trench outfit keeps its score of 91. Future outfits
 with that pair just score slightly lower. If she favourites the 3-item

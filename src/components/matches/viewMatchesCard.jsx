@@ -8,6 +8,7 @@ import { tagOptions } from "../../constants/optionsBank";
 import { URL } from "../../config";
 import "./viewMatches.css";
 import "./viewMatchesCard.css";
+import "./matchSelection.css";
 
 import TemperatureSlider from "../general/temperatureSlider";
 import MatchScoreBadge from "../general/matchScoreBadge";
@@ -23,6 +24,8 @@ const ViewMatchesCard = ({
   setError,
   editable = true,
   onFavouriteToggle,
+  isSelected = false,
+  onToggleSelect,
 }) => {
   const [updateData, setUpdateData] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -295,6 +298,39 @@ const ViewMatchesCard = ({
   );
 
   /*
+   * Render multi-select tick box (top left)
+   */
+  const renderSelectBox = () => (
+    <button
+      type="button"
+      role="checkbox"
+      className={
+        isSelected
+          ? "match-select-box selected"
+          : "match-select-box"
+      }
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggleSelect(match._id);
+      }}
+      aria-checked={isSelected}
+      aria-label={
+        isSelected
+          ? "Deselect outfit"
+          : "Select outfit"
+      }
+    >
+      <svg
+        className="match-select-tick"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path d="M5 12.5l4.5 4.5L19 7.5" />
+      </svg>
+    </button>
+  );
+
+  /*
    * Render clothing image
    */
   const renderItemImage = (item) => {
@@ -344,13 +380,20 @@ const ViewMatchesCard = ({
   return (
     <div
       ref={cardRef}
-      className={
-        isExpanded
-          ? "match-card expanded"
-          : "match-card"
-      }
+      className={[
+        "match-card",
+        isExpanded && "expanded",
+        isSelected && "selected",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       onClick={handleCardClick}
     >
+      {!isExpanded &&
+        editable &&
+        onToggleSelect &&
+        renderSelectBox()}
+
       {!isExpanded && renderFavouriteButton()}
 
       {/* IMAGE SECTION */}

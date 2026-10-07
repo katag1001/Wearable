@@ -18,7 +18,7 @@ const {
   wipeUserScores,
 } = require("../services/matchScoreService.js");
 const { USER_MADE_SCORE } = require("../constants/scoring.js");
-const { findPage } = require("../services/queryHelpers.js");
+const { findPage, parseIdList } = require("../services/queryHelpers.js");
 const {
   CLOTHES_CARD_FIELDS,
   parseMatchQuery,
@@ -823,7 +823,33 @@ return res.status(500).json({ error: error.message });
 }
 };
 
-exports.deleteMatchesByPiece = async (req, res) => {
+// Deletes the outfits the user ticked on the matches page. Each one is a
+// deliberate delete, so it lowers the pair scores just like a single delete.
+exports.deleteManyMatches = async (req, res) => {
+const userId = req.user?.userId;
+const ids = parseIdList(req.body?.ids);
+
+if (!ids.length) {
+return res.status(400).json({ error: "No matches selected" });
+}
+
+try {
+const { deletedCount } = await deleteMatchesAndDecrementScores(
+  { _id: { $in: ids }, userId },
+  userId
+);
+
+return res.json({
+  message: `Deleted ${deletedCount} matches`,
+  deletedCount,
+});
+
+} catch (error) {
+return res.status(500).json({ error: error.message });
+}
+};
+
+exports.deleteMatchesByPiece =async (req, res) => {
 const userId = req.user?.userId;
 const { pieceId } = req.body;
 

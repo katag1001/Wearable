@@ -30,6 +30,7 @@ router.post("/match/matches", authMiddleware, allControllers.createMatch);
 router.get("/match/", authMiddleware, allControllers.getAllMatches);
 // Must stay above /match/:id or "options" is read as a match id.
 router.get("/match/options", authMiddleware, allControllers.getMatchFilterOptions);
+router.delete("/match/", authMiddleware, allControllers.deleteManyMatches);
 router.get("/match/:id", authMiddleware, allControllers.getMatchById);
 router.put("/match/:id", authMiddleware, allControllers.updateMatch);
 router.put("/match/:id/reject", authMiddleware, allControllers.rejectMatch);

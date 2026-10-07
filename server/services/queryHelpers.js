@@ -57,6 +57,13 @@ const parseSearch = (value) => (value ? String(value).trim() : "");
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+// A list of ids sent in a request body. Anything that isn't an array gives
+// an empty list; invalid ids and duplicates are dropped.
+const parseIdList = (value) =>
+  Array.isArray(value)
+    ? [...new Set(value.map(String))].filter(isValidId)
+    : [];
+
 /* -------------------- Search -------------------- */
 
 const escapeRegex = (text) =>
@@ -150,6 +157,7 @@ module.exports = {
   parseSeasons,
   parseSearch,
   isValidId,
+  parseIdList,
   escapeRegex,
   searchRegex,
   anySeasonCondition,
