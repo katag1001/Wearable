@@ -202,9 +202,10 @@ preference, with the values above:
    today's min–max. A single-temperature match (e.g. 12–12) passes if that
    temperature is within today's range.
 3. `src/components/today/todayOutfitSort.jsx` sorts what's left.
-   Temperature counts for 10% of the score: the score goes down for every
-   degree today goes outside the match's range, and matches with an outer
-   lose 1 point.
+   Temperature is not part of the score. Instead, matches whose range
+   covers the whole forecast (`min_temp <= min` and `max_temp >= max`)
+   are listed before matches that don't, and each group is sorted by
+   score separately (today's tag orders outfits within each group).
 
 ### 4.2 Filters
 

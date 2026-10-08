@@ -792,15 +792,24 @@ so toggling on and off adds and removes the same 3 points.
 
 ### 7.1 The Today page
 
-`src/components/today/todayOutfitSort.jsx`. Outfits with today's tag still
-come first. Within each group, outfits are sorted by a weighted total of
-factors that each run from 0 to 10:
+`src/components/today/todayOutfitSort.jsx`. Outfits are split into four
+groups, shown in this order:
+
+1. Fits today's weather + has today's tag
+2. Fits today's weather, no tag
+3. Outside today's weather + has today's tag
+4. Outside today's weather, no tag
+
+An outfit fits the weather when its range covers the whole forecast
+(`min_temp <= today's min` and `max_temp >= today's max`). With no cached
+weather every outfit counts as fitting; with no today tag every outfit
+counts as tagged. Within each group, outfits are sorted by a weighted total
+of factors that each run from 0 to 10:
 
 | Factor | Weight |
 |---|---|
-| Temperature fit | 0.10 |
 | Clothing freshness | 0.30 |
-| Outfit freshness | 0.20 |
+| Outfit freshness | 0.30 |
 | **Match score** (`score` ÷ 10, or 10 for a favourite) | **0.40** |
 
 The match score comes from `getEffectiveMatchScore` in

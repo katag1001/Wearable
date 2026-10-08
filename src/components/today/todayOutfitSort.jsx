@@ -3,9 +3,8 @@ import { getEffectiveMatchScore } from "../../utils/matchScore";
 const STORAGE_KEY = "weather_cache";
 
 const SCORE_WEIGHTS = {
-  temperature: 0.10,
   clothingFreshness: 0.30,
-  outfitFreshness: 0.20,
+  outfitFreshness: 0.30,
   score: 0.40
 };
 
@@ -41,33 +40,16 @@ const getDaysSince = (date) => {
 };
 
 
-const getTemperatureScore = (match, weather) => {
-  if (!weather || !match) return 0;
+// An outfit fits today's weather when its temperature range covers the whole
+// forecast. With no cached weather, every outfit is treated as fitting.
+const fitsWeather = (match, weather) => {
+  if (!weather) return true;
+  if (!match) return false;
 
-  const overflowBelow = Math.max(
-    0,
-    match.min_temp - weather.min
+  return (
+    match.min_temp <= weather.min &&
+    match.max_temp >= weather.max
   );
-
-  const overflowAbove = Math.max(
-    0,
-    weather.max - match.max_temp
-  );
-
-  const totalOverflow =
-    overflowBelow + overflowAbove;
-
-  let score = Math.max(
-    0,
-    10 - (totalOverflow / 20) * 10
-  );
-
-  // Prefer the lighter outfit when an outer layer isn't needed to fit today's weather.
-  if (match.hasOuter) {
-    score = Math.max(0, score - 1);
-  }
-
-  return score;
 };
 
 
@@ -150,8 +132,6 @@ const hasTodayTag = (match, todayTag) => {
 
 const getOverallScore = (scores) => {
   const score =
-    scores.temperature *
-      SCORE_WEIGHTS.temperature +
     scores.clothingFreshness *
       SCORE_WEIGHTS.clothingFreshness +
     scores.outfitFreshness *
@@ -163,16 +143,10 @@ const getOverallScore = (scores) => {
 };
 
 
-const scoreOutfit = (outfit, weather) => {
+const scoreOutfit = (outfit) => {
   const match = outfit.matchId;
 
   const scores = {
-    temperature:
-      getTemperatureScore(
-        match,
-        weather
-      ),
-
     clothingFreshness:
       getClothingFreshnessScore(
         outfit
@@ -210,74 +184,59 @@ const todayOutfitSort = (
   const weather =
     getCachedWeather();
 
-  let taggedOutfits = [
-    ...outfits,
-  ];
-
-  let nonTaggedOutfits = [];
-
-
-  if (todayTag) {
-
-    taggedOutfits =
-      outfits.filter(
-        (outfit) =>
-          hasTodayTag(
-            outfit.matchId,
-            todayTag
-          )
-      );
-
-    nonTaggedOutfits =
-      outfits.filter(
-        (outfit) =>
-          !hasTodayTag(
-            outfit.matchId,
-            todayTag
-          )
-      );
-  }
-
-  const scoreOutfits = (
-    outfitsToScore
-  ) => {
-
-    return outfitsToScore.map(
+  const scoredOutfits =
+    outfits.map(
       (outfit) => {
 
-        const scores =
-          scoreOutfit(
-            outfit,
-            weather
-          );
+        const match =
+          outfit.matchId;
 
         return {
           outfit,
-          scores,
+          scores:
+            scoreOutfit(
+              outfit
+            ),
+          // With no today tag, every outfit counts as tagged.
+          isTagged:
+            !todayTag ||
+            hasTodayTag(
+              match,
+              todayTag
+            ),
+          fitsWeather:
+            fitsWeather(
+              match,
+              weather
+            ),
         };
       }
     );
-  };
 
 
-  const scoredTaggedOutfits =
-    scoreOutfits(
-      taggedOutfits
-    );
+  // Order: weather fit first, then today tag within each weather group.
+  const groups = [
+    scoredOutfits.filter(
+      (o) => o.fitsWeather && o.isTagged
+    ),
+    scoredOutfits.filter(
+      (o) => o.fitsWeather && !o.isTagged
+    ),
+    scoredOutfits.filter(
+      (o) => !o.fitsWeather && o.isTagged
+    ),
+    scoredOutfits.filter(
+      (o) => !o.fitsWeather && !o.isTagged
+    ),
+  ];
 
-  const scoredNonTaggedOutfits =
-    scoreOutfits(
-      nonTaggedOutfits
-    );
 
-
-  [
-    ...scoredTaggedOutfits,
-    ...scoredNonTaggedOutfits,
-  ].forEach(
+  scoredOutfits.forEach(
     ({
       outfit,
       scores,
+      isTagged,
+      fitsWeather: fits,
     }) => {
 
       const match =
@@ -292,17 +251,12 @@ const todayOutfitSort = (
 
       console.log(
         "today-tag-match:",
-        hasTodayTag(
-          match,
-          todayTag
-        )
+        isTagged
       );
 
       console.log(
-        "temp-score:",
-        scores.temperature.toFixed(
-          1
-        )
+        "fits-weather:",
+        fits
       );
 
       console.log(
@@ -339,28 +293,18 @@ const todayOutfitSort = (
     }
   );
 
-  scoredTaggedOutfits.sort(
-    (a, b) =>
-      b.scores.overall -
-      a.scores.overall
+  return groups.flatMap(
+    (group) =>
+      group
+        .sort(
+          (a, b) =>
+            b.scores.overall -
+            a.scores.overall
+        )
+        .map(
+          ({ outfit }) => outfit
+        )
   );
-
-  scoredNonTaggedOutfits.sort(
-    (a, b) =>
-      b.scores.overall -
-      a.scores.overall
-  );
-
-
-  return [
-    ...scoredTaggedOutfits.map(
-      ({ outfit }) => outfit
-    ),
-
-    ...scoredNonTaggedOutfits.map(
-      ({ outfit }) => outfit
-    ),
-  ];
 };
 
 
