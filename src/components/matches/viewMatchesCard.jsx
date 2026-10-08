@@ -13,6 +13,8 @@ import "./matchSelection.css";
 import TemperatureSlider from "../general/temperatureSlider";
 import MatchScoreBadge from "../general/matchScoreBadge";
 import { getImageUrl } from "../../utils/getImageUrl";
+import { isDateToday } from "../today/todayHelpers";
+import { wasRejectedToday } from "../today/outfitRejection";
 
 const ViewMatchesCard = ({
   match,
@@ -29,6 +31,11 @@ const ViewMatchesCard = ({
 }) => {
   const [updateData, setUpdateData] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [markingWorn, setMarkingWorn] = useState(false);
+
+  // Once worn today, the button locks so the wear counts
+  // can't be bumped twice in one day.
+  const wornToday = isDateToday(match.lastWornDate);
 
   const cardRef = useRef(null);
   const togglingFavouriteRef = useRef(false);
@@ -187,6 +194,59 @@ const ViewMatchesCard = ({
       setError?.("Failed to update match");
     } finally {
       setSaving(false);
+    }
+  };
+
+  /*
+   * Mark as worn today - the same request the Today page
+   * sends, which also updates every item in the outfit.
+   */
+  const handleMarkAsWorn = async () => {
+    const token = getToken();
+
+    if (!token) {
+      setError?.("No user logged in");
+      return;
+    }
+
+    setMarkingWorn(true);
+
+    try {
+      const response = await fetch(
+        `${URL}/match/${match._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            lastWornDate: new Date().toISOString(),
+
+            // Wearing an outfit rejected earlier today takes the
+            // rejection back.
+            undoRejection: wasRejectedToday(match),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError?.(
+          data?.error ||
+            data?.message ||
+            "Failed to mark as worn"
+        );
+        return;
+      }
+
+      refresh();
+    } catch (err) {
+      console.error("Mark as worn error:", err);
+      setError?.("Failed to mark as worn");
+    } finally {
+      setMarkingWorn(false);
     }
   };
 
@@ -596,6 +656,19 @@ const ViewMatchesCard = ({
                 }
               >
                 Delete
+              </button>
+
+              <button
+                type="button"
+                className="modal-button secondary"
+                onClick={handleMarkAsWorn}
+                disabled={markingWorn || wornToday}
+              >
+                {wornToday
+                  ? "Worn Today"
+                  : markingWorn
+                    ? "Marking..."
+                    : "Mark as Worn Today"}
               </button>
 
               <button
