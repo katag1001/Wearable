@@ -6,7 +6,7 @@
 // into the { [subtypeA]: { [subtypeB]: score | null } } lookup shape
 // matrixService/outfitScoreService expect.
 //
-// A cell is either a whole-number score from 0 to 100, or null for a pair
+// A cell is either a whole-number score from 0 to 90, or null for a pair
 // that can never be matched. Every file is checked on server start, and the
 // server refuses to start if any of these is broken:
 //  - the subtype order matches shared/subtypesByGender.json (tops, bottoms,
@@ -15,7 +15,7 @@
 //  - the same subtype twice is null;
 //  - the fixed role rules hold (constants/compatibilityRules.js): "never"
 //    role pairs are null and "always" role pairs have a score;
-//  - every score is a whole number from 0 to 100.
+//  - every score is a whole number from 0 to 90 (MAX_BASELINE_SCORE).
 //
 // Subtype names must match Clothes.subtype exactly. The canonical list per
 // gender and role lives in shared/subtypesByGender.json.
@@ -31,7 +31,7 @@
 const subtypesByGender = require("../../shared/subtypesByGender.json");
 const { ROLES } = require("./outfitShapes.js");
 const { NEVER, ALWAYS, getRolePairRule } = require("./compatibilityRules.js");
-const { MIN_SCORE, MAX_SCORE } = require("./scoring.js");
+const { MIN_SCORE, MAX_BASELINE_SCORE } = require("./scoring.js");
 
 const GENDERS = ["man", "woman", "unisex"];
 
@@ -59,7 +59,7 @@ function canonicalOrder(subtypesByRole) {
 }
 
 function isValidScore(value) {
-  return Number.isInteger(value) && value >= MIN_SCORE && value <= MAX_SCORE;
+  return Number.isInteger(value) && value >= MIN_SCORE && value <= MAX_BASELINE_SCORE;
 }
 
 // Checks one cell against the rules above and throws a message pointing at
@@ -68,7 +68,7 @@ function checkCell(value, subtypeA, subtypeB, roleOf, label) {
   const where = `${label}: ${subtypeA} + ${subtypeB}`;
 
   if (value !== null && !isValidScore(value)) {
-    throw new Error(`${where} must be null or a whole number from ${MIN_SCORE} to ${MAX_SCORE}.`);
+    throw new Error(`${where} must be null or a whole number from ${MIN_SCORE} to ${MAX_BASELINE_SCORE}.`);
   }
 
   if (subtypeA === subtypeB) {

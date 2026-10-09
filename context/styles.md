@@ -1412,3 +1412,1014 @@ Low-waist midi + long untucked top
 Low-waist jeans + long bulky jumper
 Wide-leg jeans + very long oversized top
 Wide-leg trousers + bulky top + bulky outerwear
+
+For men: 1. The fundamental men's outfit rules
+Rule 1 — Balance upper and lower-body volume
+The core principle remains:
+
+Oversized top → cleaner/slimmer bottom
+Slim/fitted top → wider bottom is easier
+Wide trousers + oversized top can work, but should look intentionally oversized rather than accidental.
+Examples:
+
+Hoodie + jeans → easy
+Hoodie + cargo pants → easy
+Hoodie + wide tailored trousers → fashion-forward
+Fitted turtleneck + wide tailored trousers → excellent
+Oversized shirt + linen pants → works if the shirt isn't enormous
+For men's clothing, however, straight + straight is much more forgiving than in many women's outfits.
+
+2. Think in terms of silhouette
+A useful men's silhouette vocabulary is:
+
+Slim
+Fitted top + relatively narrow trousers.
+
+Examples:
+
+Turtleneck + tailored trousers
+T-shirt + jeans
+Light jumper + chinos
+Straight
+Regular top + straight/regular trousers.
+
+This is the safest everyday silhouette.
+
+Relaxed
+Relaxed top + relaxed trousers.
+
+Examples:
+
+Oversized sweatshirt + relaxed jeans
+Shacket + cargo pants
+Linen shirt + linen trousers
+Oversized
+Oversized top + wide trousers + substantial outerwear.
+
+This can look excellent, but should be intentional.
+
+Structured
+Structured top + tailored trousers.
+
+Examples:
+
+Shirt + blazer + tailored trousers
+Turtleneck + blazer + trousers
+Waistcoat + shirt + tailored trousers
+3. The three-layer system
+Think:
+
+Base → Mid-layer → Outer layer
+
+Base layers
+Short t-shirt
+Long t-shirt
+Vest
+Buttondown shirt
+Linen shirt
+Turtleneck
+Mid-layers
+Light jumper
+Warm jumper
+Warm cardigan
+Hoodie/sweatshirt
+Waistcoat
+Shacket
+Fleece
+Denim jacket
+Leather jacket
+Blazer
+Outer layers
+Trench coat
+Rain coat
+Duffle coat
+Puffer coat
+Winter coat
+Jacket
+The general rule:
+
+Thicker, more weather-resistant and more voluminous pieces go outward.
+4. T-shirt rules
+Short t-shirt
+The universal casual base.
+
+Works with:
+
+jeans
+chinos
+tailored trousers
+cargo pants
+linen pants
+shorts
+denim shorts
+cargo shorts
+skater shorts
+sweatpants
+overalls
+Excellent underneath:
+
+blazer
+denim jacket
+leather jacket
+shacket
+cardigan
+overshirt-like jacket
+trench
+A short t-shirt is especially useful with higher-waisted or tailored trousers because it keeps the proportions clean.
+
+Long t-shirt
+Best with:
+
+jeans
+cargo pants
+sweatpants
+relaxed trousers
+shorts
+denim shorts
+Can work with tailored trousers, but usually looks more intentional if:
+
+tucked
+partially tucked
+relatively slim
+or deliberately oversized.
+A very long t-shirt + very wide trousers can make the body look excessively elongated.
+
+5. Shirt rules
+Buttondown shirt
+Probably the most versatile men's item in the wardrobe.
+
+Works with:
+
+jeans
+chinos
+tailored trousers
+linen pants
+cargo pants
+shorts
+denim shorts
+linen shorts
+blazer
+waistcoat
+cardigan
+Three major modes:
+
+Polished
+Buttondown + tailored trousers + blazer
+Smart casual
+Buttondown + chinos + jacket
+Relaxed
+Open buttondown + t-shirt + jeans
+Linen shirt
+Think relaxed, breathable and Mediterranean/summer.
+
+Excellent with:
+
+linen pants
+linen shorts
+chinos
+jeans
+tailored trousers
+shorts
+vest underneath
+Especially good:
+
+Linen shirt + linen pants
+But vary the proportions. If both are extremely loose, use:
+
+a tucked shirt
+rolled sleeves
+visible footwear/ankles
+a structured accessory
+or a more fitted undershirt.
+6. Turtleneck rules
+A men's turtleneck is one of the strongest smart-casual bridge pieces.
+
+Excellent with:
+
+tailored trousers
+chinos
+jeans
+leather trousers
+linen pants
+blazer
+trench coat
+leather jacket
+winter coat
+Particularly strong:
+
+Turtleneck + tailored trousers + blazer
+and
+
+Turtleneck + jeans + structured coat.
+A chunky turtleneck should generally have a cleaner bottom.
+
+7. Jumper rules
+Light jumper
+Extremely versatile.
+
+Works with:
+
+jeans
+chinos
+tailored trousers
+linen pants
+cargo pants
+shorts
+buttondown underneath
+Excellent for:
+
+shirt + jumper + trousers.
+Warm jumper
+More volume and visual weight.
+
+Best with:
+
+jeans
+chinos
+tailored trousers
+cargo pants
+corduroy-like textures if available
+shorts in transitional weather
+If oversized:
+
+keep trousers relatively clean.
+Warm cardigan
+Treat it as a soft jacket.
+
+Works well with:
+
+t-shirt + jeans
+buttondown + chinos
+turtleneck + trousers
+linen shirt + trousers
+tailored trousers
+casual shorts
+A cardigan is especially useful when you want to make a casual outfit feel more refined without becoming formal.
+
+8. Hoodie / sweatshirt rules
+Best with:
+
+jeans
+cargo pants
+sweatpants
+chinos
+shorts
+denim shorts
+skater shorts
+relaxed trousers
+Also surprisingly good with:
+
+tailored trousers
+blazer
+if deliberately using high-low styling.
+
+Hoodie + tailored trousers
+This works when:
+
+trousers are relatively relaxed
+hoodie isn't extremely bulky
+colours are cohesive
+footwear provides some structure.
+The combination should look intentional rather than like formal trousers were accidentally worn with gym clothes.
+
+9. Vest rules
+A vest is primarily a base layer.
+
+Works underneath:
+
+shirt
+linen shirt
+cardigan
+blazer
+shacket
+denim jacket
+leather jacket
+Can also be worn alone with:
+
+linen pants
+shorts
+cargo pants
+jeans
+For a more refined look:
+
+vest + open linen shirt + tailored/linen trousers.
+10. Waistcoat rules
+The waistcoat is a structure and formality amplifier.
+
+Best with:
+
+buttondown
+turtleneck
+light t-shirt for fashion styling
+Excellent with:
+
+tailored trousers
+chinos
+jeans
+linen trousers
+The most natural combination:
+
+buttondown + waistcoat + tailored trousers.
+A waistcoat + jeans is a useful smart-casual/high-low combination.
+
+11. Trouser rules
+Jeans
+The universal casual bottom.
+
+Works with almost everything:
+
+t-shirt
+shirt
+jumper
+cardigan
+hoodie
+turtleneck
+blazer
+denim jacket
+leather jacket
+trench
+puffer
+Jeans become smart-casual with:
+
+buttondown + blazer.
+And more elevated with:
+
+turtleneck + structured coat.
+Leather trousers
+These are inherently statement-making.
+
+Best with relatively simple tops:
+
+turtleneck
+t-shirt
+jumper
+buttondown
+blazer
+leather jacket
+Strong:
+
+fitted turtleneck + leather trousers + long coat.
+Be careful with:
+
+leather trousers + leather jacket + statement top
+because there are already multiple strong elements.
+
+Tailored trousers
+One of the most versatile pieces in the wardrobe.
+
+They can go:
+
+Formal
+
+shirt + blazer + tailored trousers
+Smart casual
+
+turtleneck + tailored trousers
+High-low
+
+hoodie + tailored trousers
+Relaxed
+
+t-shirt + loose tailored trousers.
+Wide/relaxed tailored trousers pair particularly well with:
+
+fitted t-shirt
+fitted turtleneck
+short jumper
+tucked shirt
+waistcoat.
+Cargo pants
+Already visually busy and utilitarian.
+
+Best with:
+
+t-shirt
+vest
+fitted turtleneck
+sweatshirt
+hoodie
+light jumper
+denim jacket
+leather jacket
+shacket
+A useful rule:
+
+Cargo pants + simple upper half.
+Don't automatically combine cargo pants with several other highly utilitarian pieces unless that's the intended aesthetic.
+
+Linen pants
+Best with:
+
+linen shirt
+t-shirt
+vest
+light jumper
+cardigan
+buttondown
+relaxed blazer
+Ideal for:
+
+tonal summer dressing.
+For example:
+
+cream linen shirt + beige linen trousers.
+Sweatpants
+Best with:
+
+hoodie
+sweatshirt
+t-shirt
+vest
+fleece
+denim jacket
+leather jacket
+For a more fashion-oriented combination:
+
+fitted turtleneck + sweatpants + structured jacket.
+Avoid excessive softness everywhere:
+
+oversized hoodie + sweatpants + fleece + puffer
+can become visually shapeless.
+
+Chinos
+The great middle ground between jeans and tailoring.
+
+Excellent with:
+
+t-shirt
+buttondown
+linen shirt
+jumper
+cardigan
+polo-like tops if available
+blazer
+denim jacket
+leather jacket
+trench
+They are one of the safest choices for smart-casual outfits.
+
+12. Shorts rules
+Standard shorts
+Best with:
+
+t-shirt
+linen shirt
+buttondown
+light jumper
+vest
+cardigan
+casual blazer
+Proportion rule
+Shorts already expose the lower leg, so oversized upper layers can work well.
+
+For example:
+
+oversized shirt + tailored shorts.
+Denim shorts
+Best with:
+
+t-shirt
+linen shirt
+vest
+sweatshirt
+light jumper
+denim jacket
+leather jacket
+Denim-on-denim can work, especially if the washes differ.
+
+Linen shorts
+Best with:
+
+linen shirt
+vest
+t-shirt
+lightweight buttondown
+light cardigan
+This is your most natural summer resort / Mediterranean combination.
+
+Cargo shorts
+Already visually heavy.
+
+Best with:
+
+simple t-shirt
+vest
+fitted shirt
+linen shirt
+lightweight jumper
+Avoid automatically adding another highly bulky/utilitarian item.
+
+Skater shorts
+These have a deliberately relaxed/youthful silhouette.
+
+Best with:
+
+oversized t-shirt
+hoodie
+sweatshirt
+vest
+relaxed shirt
+fleece
+Less natural with:
+
+formal blazer
+waistcoat
+very formal buttondown
+unless intentionally mixing aesthetics.
+
+13. Romper rules
+A romper is already a complete silhouette.
+
+Keep additional layers relatively simple:
+
+denim jacket
+leather jacket
+cardigan
+blazer
+shacket
+trench
+A fitted/structured outer layer can give a romper more definition.
+
+14. Overall / overalls rules
+Best underneath:
+
+t-shirt
+long t-shirt
+vest
+buttondown
+linen shirt
+turtleneck
+light jumper
+Particularly good:
+
+overalls + fitted turtleneck
+for a colder-season look.
+
+Avoid putting a very bulky jumper underneath unless the overalls are deliberately oversized.
+
+15. Blazer rules
+The men's blazer is the ultimate formality dial.
+
+It can elevate:
+
+t-shirt + jeans
+t-shirt + chinos
+hoodie + trousers
+turtleneck + jeans
+linen shirt + linen trousers
+shorts
+cargo pants
+Classic
+Buttondown + tailored trousers + blazer
+Smart casual
+T-shirt + chinos + blazer
+Fashion
+Hoodie + wide tailored trousers + blazer
+Summer
+Linen shirt + linen trousers + relaxed blazer
+16. Jacket rules
+Denim jacket
+Best with:
+
+t-shirt
+jeans
+chinos
+cargo pants
+linen trousers
+shorts
+casual dresses/one-pieces
+hoodie
+jumper
+The classic:
+
+white/neutral t-shirt + jeans + denim jacket
+But avoid making the denim too visually uniform unless intentionally doing double denim.
+
+Shacket
+A shacket sits between shirt and jacket.
+
+Best with:
+
+t-shirt
+vest
+thin turtleneck
+light jumper
+jeans
+cargo pants
+chinos
+linen pants
+shorts
+Because it is already a relaxed layer, it pairs particularly well with similarly relaxed bottoms.
+
+Leather jacket
+A strong statement outer layer.
+
+Excellent with:
+
+t-shirt + jeans
+turtleneck + tailored trousers
+buttondown + jeans
+knitwear + chinos
+linen shirt + trousers
+Especially good for adding edge to otherwise clean outfits.
+
+Fleece
+Treat it as casual/sporty.
+
+Best with:
+
+jeans
+cargo pants
+sweatpants
+chinos
+shorts
+t-shirt
+hoodie
+long-sleeve base layers
+Less natural with:
+
+waistcoat
+tailored formalwear
+formal blazer outfits
+though high-low styling can deliberately break that rule.
+
+17. Coat rules
+Trench coat
+One of the most versatile outer layers.
+
+Works over:
+
+jeans
+chinos
+tailored trousers
+linen trousers
+shirts
+turtlenecks
+blazers
+jumpers
+Excellent:
+
+turtleneck + tailored trousers + trench.
+Rain coat
+Primarily functional.
+
+Best with:
+
+jeans
+chinos
+cargo pants
+trousers
+jumper
+hoodie
+fleece
+casual outfits
+It can cover smart clothing but isn't itself particularly formal.
+
+Duffle coat
+Casual-to-smart-casual and substantial.
+
+Best with:
+
+warm jumper
+turtleneck
+buttondown
+jeans
+chinos
+tailored trousers
+casual trousers
+It works particularly well with textured winter outfits.
+
+Puffer coat
+A puffer is inherently bulky.
+
+Therefore:
+
+simplify what is underneath.
+Good:
+
+turtleneck + jeans
+t-shirt + chinos
+light jumper + jeans
+hoodie + straight trousers
+More difficult:
+
+warm jumper + oversized hoodie + wide cargo pants + huge puffer.
+Winter coat
+Can go over almost anything.
+
+Structured winter coat:
+
+excellent with tailoring.
+Oversized winter coat:
+
+better with simpler layers.
+18. Formality rules
+A useful hierarchy:
+
+Very casual
+hoodie
+sweatshirt
+sweatpants
+fleece
+cargo shorts
+skater shorts
+Casual
+t-shirt
+jeans
+denim jacket
+cargo pants
+shorts
+shacket
+Smart casual
+chinos
+buttondown
+cardigan
+linen shirt
+light jumper
+blazer
+tailored trousers
+Polished
+turtleneck
+waistcoat
+tailored trousers
+blazer
+structured coat
+The useful rule:
+
+Don't let the entire outfit sit at exactly the same formality level unless that's intentional.
+A small contrast often makes an outfit better:
+
+T-shirt + blazer
+Hoodie + tailored trousers
+Shirt + jeans
+Turtleneck + denim
+Tailored trousers + leather jacket
+19. Shirt + trouser compatibility matrix
+This is particularly useful for an outfit engine.
+
+Top	Best bottoms
+T-shirt	jeans, chinos, cargos, shorts, tailored trousers
+Long t-shirt	jeans, cargos, sweatpants, relaxed trousers
+Buttondown	chinos, jeans, tailored trousers, linen pants, shorts
+Linen shirt	linen pants, linen shorts, chinos, jeans
+Turtleneck	tailored trousers, jeans, chinos, leather trousers
+Light jumper	jeans, chinos, tailored trousers, linen pants
+Warm jumper	jeans, chinos, cargos, tailored trousers
+Hoodie	jeans, cargos, sweatpants, relaxed trousers
+Vest	linen pants, shorts, cargos, jeans
+Waistcoat	tailored trousers, chinos, jeans
+Cardigan	jeans, chinos, tailored trousers, linen pants
+20. The "one statement" rule
+Some items are naturally statement pieces:
+
+leather trousers
+leather jacket
+waistcoat
+oversized puffer
+very oversized shacket
+cargo pants
+skater shorts
+fur-like/textured pieces if introduced later
+When using one:
+
+Simplify at least one other part of the outfit.
+For example:
+
+Leather trousers → turtleneck + simple coat.
+
+Cargo pants → plain t-shirt + denim jacket.
+
+Oversized puffer → simple knit + straight jeans.
+
+Waistcoat → simple shirt + tailored trousers.
+
+21. Colour rules
+The same general system works beautifully for men's outfits.
+
+Three-colour default
+Aim for:
+
+dominant + supporting + accent
+For example:
+
+navy + white + brown
+beige + white + olive
+black + grey + burgundy
+Tonal dressing
+Men's wardrobes benefit particularly strongly from tonal combinations:
+
+cream + beige
+navy + blue
+grey + charcoal
+brown + camel
+olive + khaki
+Different textures prevent tonal outfits from becoming boring.
+
+For example:
+
+linen shirt + cotton trousers + leather shoes/accessories.
+22. Texture rules
+Texture is extremely useful when colour is restrained.
+
+Combine:
+
+knit + denim
+linen + cotton
+leather + wool
+suede-like textures + knit
+fleece + nylon
+tailored wool + cotton
+A simple outfit can become interesting through texture alone.
+
+23. The men's proportion rules
+I'd encode these particularly strongly.
+
+Wide trousers
+Prefer:
+
+fitted turtleneck
+fitted t-shirt
+short t-shirt
+tucked shirt
+waistcoat
+cropped/short jacket
+relatively clean jumper
+Slim trousers
+Can accommodate:
+
+oversized jumper
+hoodie
+cardigan
+shacket
+oversized shirt
+puffer
+Oversized upper body
+Prefer:
+
+straight jeans
+slim/straight trousers
+chinos
+relatively clean cargos
+Oversized outerwear
+Prefer:
+
+simple base
+relatively clean bottom
+limited layering underneath
+24. Length rules
+Short top + long trousers
+Very reliable.
+
+T-shirt + wide trousers
+Turtleneck + tailored trousers
+Long top + slim trousers
+Also very reliable.
+
+Long t-shirt + jeans
+Oversized shirt + chinos
+Long jumper + straight jeans
+Long top + wide trousers
+Requires more care.
+
+Long shirt + wide trousers
+works if the outfit has structure/tucking.
+
+Short jacket + wide trousers
+Excellent.
+
+This creates a strong, modern silhouette:
+
+short denim/leather jacket + wide tailored trousers.
+Long coat + wide trousers
+Also excellent, but tends toward a more sophisticated/relaxed silhouette.
+
+25. The "outerwear repeats the silhouette" rule
+This is particularly useful.
+
+Slim outfit
+Use:
+
+structured jacket
+trench
+fitted/straight coat
+Relaxed outfit
+Use:
+
+shacket
+duffle
+relaxed jacket
+oversized coat
+Wide trousers
+A shorter structured jacket can emphasize the waist/upper-body-to-leg proportion.
+
+Skinny/slim trousers
+A longer coat can balance the silhouette.
+
+26. Seasonal formulas
+Summer
+Strong combinations:
+
+linen shirt + linen pants
+linen shirt + linen shorts
+t-shirt + chinos
+vest + linen trousers
+buttondown + shorts
+linen shirt + denim shorts
+Spring/autumn
+Excellent layering season:
+
+t-shirt + shacket + jeans
+shirt + light jumper + chinos
+turtleneck + blazer + trousers
+t-shirt + denim jacket + chinos
+linen shirt + cardigan + trousers
+Winter
+Think:
+
+base → knit → coat
+
+Examples:
+
+turtleneck → winter coat
+shirt → warm jumper → duffle
+t-shirt → cardigan → winter coat
+turtleneck → blazer → winter coat
+hoodie → puffer
+shirt → cardigan → trench/coat
+27. High-low dressing rules
+This deserves its own section because it's one of the easiest ways to create stylish men's outfits.
+
+Casual top + formal bottom
+hoodie + tailored trousers
+sweatshirt + tailored trousers
+t-shirt + tailored trousers
+Formal top + casual bottom
+buttondown + jeans
+blazer + jeans
+waistcoat + jeans
+turtleneck + cargo pants
+Formal outerwear + casual outfit
+trench + t-shirt + jeans
+winter coat + hoodie + trousers
+Casual outerwear + smart outfit
+leather jacket + tailored trousers
+denim jacket + tailored trousers
+shacket + chinos
+The key is that one element bridges the two styles.
+
+28. The most reliable combinations
+If I were assigning high compatibility scores to your wardrobe, these would be among the strongest:
+
+T-shirt + jeans
+T-shirt + chinos
+T-shirt + tailored trousers
+Buttondown + chinos
+Buttondown + jeans
+Buttondown + tailored trousers
+Linen shirt + linen pants
+Linen shirt + linen shorts
+Turtleneck + tailored trousers
+Turtleneck + jeans
+Turtleneck + blazer + trousers
+Light jumper + chinos
+Light jumper + jeans
+Warm jumper + jeans
+Hoodie + jeans
+Hoodie + cargo pants
+Hoodie + sweatpants
+Hoodie + tailored trousers
+Cardigan + t-shirt + jeans
+Cardigan + buttondown + chinos
+Waistcoat + buttondown + tailored trousers
+Blazer + t-shirt + jeans
+Blazer + buttondown + chinos
+Blazer + turtleneck + tailored trousers
+Leather jacket + t-shirt + jeans
+Denim jacket + t-shirt + chinos
+Shacket + t-shirt + jeans
+Shacket + turtleneck + cargos
+Trench + turtleneck + tailored trousers
+Trench + shirt + jeans
+Puffer + turtleneck + jeans
+Duffle + jumper + chinos
+Linen shirt + vest + linen trousers
+T-shirt + wide tailored trousers
+Turtleneck + wide tailored trousers
+29. Combinations I'd flag rather than automatically reject
+These aren't inherently bad—they're just more dependent on styling.
+
+Oversized hoodie + wide trousers
+Warm jumper + wide cargo pants
+Long t-shirt + wide trousers
+Oversized shirt + wide linen pants
+Warm cardigan + wide trousers
+Fleece + tailored trousers
+Hoodie + waistcoat
+Cargo pants + shacket
+Cargo pants + fleece
+Puffer + oversized hoodie + wide trousers
+Leather jacket + leather trousers
+Waistcoat + t-shirt + cargo pants
+Blazer + sweatpants
+Formal buttondown + skater shorts
+Trench + sweatpants 

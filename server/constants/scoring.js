@@ -12,12 +12,32 @@
 const MIN_SCORE = 0;
 const MAX_SCORE = 100;
 
+// Matrix baseline scores stop below MAX_SCORE so the user's own behaviour
+// (LEARNING_DELTAS) always has room to push a pair above its baseline.
+const MAX_BASELINE_SCORE = 90;
+
 // Automatic outfits: 70% of the average pair score + 30% of the lowest,
 // so one clashing pair pulls the whole outfit down.
 const AVERAGE_PAIR_WEIGHT = 0.7;
 const LOWEST_PAIR_WEIGHT = 0.3;
 
-// Outfits with no pairs to score (a onepiece on its own).
+// Automatic outfits with 2+ items: the pair blend above counts for 60% of the
+// final score, and the colour score (COLOUR_COUNT_SCORES) for 40%.
+const PAIR_SCORE_WEIGHT = 0.6;
+const COLOUR_SCORE_WEIGHT = 0.4;
+
+// Score for the number of distinct colours in an outfit, per colour level
+// (Preferences.colour). Entry 0 is 1 colour, entry 1 is 2 colours, and so
+// on; the last entry is used for anything more. Each level's colour cap is
+// in utils/colorPalettes.js (maxColorsByLevel).
+const COLOUR_COUNT_SCORES = {
+  min: [85, 75, 85, 75],
+  mid: [75, 65, 85, 85, 65, 55],
+  max: [55, 65, 75, 85, 85, 75, 65],
+};
+
+// Outfits with no pairs to score (a onepiece on its own). Not affected by
+// the colour score.
 const SINGLE_ITEM_SCORE = 80;
 
 // Automatic outfits scoring below this are never saved - complete matching
@@ -46,8 +66,12 @@ const REJECTION_COOLDOWN_DAYS = 5;
 module.exports = {
   MIN_SCORE,
   MAX_SCORE,
+  MAX_BASELINE_SCORE,
   AVERAGE_PAIR_WEIGHT,
   LOWEST_PAIR_WEIGHT,
+  PAIR_SCORE_WEIGHT,
+  COLOUR_SCORE_WEIGHT,
+  COLOUR_COUNT_SCORES,
   SINGLE_ITEM_SCORE,
   MIN_AUTO_MATCH_SCORE,
   USER_MADE_SCORE,

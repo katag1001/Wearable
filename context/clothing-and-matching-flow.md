@@ -40,13 +40,14 @@ In short:
   layering rules, colour palette, pattern limit, a shared season and a
   shared tag.
   Temperature never rejects an outfit - each match gets a preset range from
-  its subtypes. Every candidate gets a **score (0-100)** and only the **best
-  100** new ones are saved.
+  its subtypes. Every candidate gets a **score (0-100)** from its item pairs
+  and its number of colours, and only the **best** new ones are saved.
 - **Compatibility is fixed.** Role rules plus the gender's matrix decide
   whether two items can ever be in the same outfit. User behaviour never
   changes it.
-- The **matrix** used depends on the user's gender. The **colour palettes**
-  depend on their colour level. Both come from the style quiz.
+- The **matrix** used depends on the user's gender. The **colour palettes**,
+  colour cap and colour-count score depend on their colour level. Both come
+  from the style quiz.
 - User-made outfits are **never rejected** and always score 90. Building
   one (+5), favouriting (+3) or deleting any outfit (−0.25) adjusts the user's
   personal score for every compatible subtype pair in it. That changes
@@ -347,7 +348,7 @@ affects items added and outfits matched afterwards.
 | Preference | Values | Used for | Where |
 |---|---|---|---|
 | `gender` | man / woman / unisex | Which subtype list the add form shows. Which matrix is used. Which layering lists are used. | `typeOptions.jsx`, `getBaselineMatrix`, `getLayeringRules` |
-| `colour` | min / mid / max | Which colour palette list is used, and the colour-count cap | `getColorRules` |
+| `colour` | min / mid / max | Which colour palette list is used, the colour-count cap, and the colour-count score (3.10) | `getColorRules`, `computeColourScore` |
 | `pattern` | min / mid / max | **Saved and required by the quiz gate, but not used by matching.** The pattern rule is the same for everyone (3.7). | - |
 | `temperature` | cold / normal / hot | Shifts every new match's temperature range ±2° | `temperature-ranges.md` |
 | `monday` … `sunday` | a tag name | That day's tag is used to put matching outfits first on the Today page | `todayOutfitSort.jsx` |
@@ -482,7 +483,7 @@ colour level:
 | Level | Palettes | Palette size | Max distinct colours in an outfit |
 |---|---|---|---|
 | min | 30 | 3–4 | 4 |
-| mid | 41 | 4–5 | 7 |
+| mid | 41 | 4–5 | 6 |
 | max | 52 | 5–8 | no cap |
 
 An outfit passes if **all of its colours together fit inside at least one
@@ -526,14 +527,32 @@ claiming it, 5.3, or rejecting it on the Today page, 7.2):
 
 | Match | Score |
 |---|---|
-| Automatic, 2+ items | **70% × average pair score + 30% × lowest pair score**, rounded |
-| Automatic, single item (a onepiece alone) | **80** |
+| Automatic, 2+ items | **60% × pair blend + 40% × colour score**, rounded. Pair blend = 70% × average pair score + 30% × lowest pair score |
+| Automatic, single item (a onepiece alone) | **80** (no colour score) |
 | User-built, or a claimed automatic match (5.3) | **90** |
 
 A **pair score** is the matrix baseline plus the user's personal
-adjustment (Part 6), kept between 0 and 100. The blend means one clashing
-pair pulls the whole outfit down: pairs of 80, 80, 80, 80, 80 and 5 give
-0.7 × 67.5 + 0.3 × 5 = **49**.
+adjustment (Part 6), kept between 0 and 100. The pair blend means one
+clashing pair pulls the whole outfit down: pairs of 80, 80, 80, 80, 80 and
+5 give a pair blend of 0.7 × 67.5 + 0.3 × 5 = 48.75.
+
+The **colour score** (`computeColourScore`, numbers in
+`COLOUR_COUNT_SCORES`) rates the outfit's number of **distinct** colours
+against the user's colour level. A colour on several items counts once.
+
+| Colours | min | mid | max |
+|---|---|---|---|
+| 1 | 85 | 75 | 55 |
+| 2 | 75 | 65 | 65 |
+| 3 | 85 | 85 | 75 |
+| 4 | 75 | 85 | 85 |
+| 5 | - | 65 | 85 |
+| 6 | - | 55 | 75 |
+| 7+ | - | - | 65 |
+
+`-` is over that level's colour cap (3.6), so it never reaches scoring.
+With 3 colours at mid, the outfit above scores
+0.6 × 48.75 + 0.4 × 85 = **63**.
 
 A **favourite is shown and sorted as 100**, without changing the stored
 score - unfavouriting returns the match to its original score.
@@ -899,12 +918,15 @@ they're tagged `Work, Everyday`. Outfits with the cardigan are tagged
 | Light cardigan + Trench coat | 68 |
 | Wide leg trousers + Trench coat | 90 |
 
-| Shape | Items | Score | Temperature | Result |
-|---|---|---|---|---|
-| 4 (1 top, 1 bottom) | shirt + trousers | 92 | 14–22 | **saved** |
-| 5 (+1 outer) | shirt + trousers + trench | 0.7 × 91.3 + 0.3 × 90 ≈ **91** | 9–18 | **saved** |
-| 6 (2 tops, 1 bottom) | shirt + cardigan + trousers | 0.7 × 87 + 0.3 × 84 ≈ **86** | 14–18 | **saved** |
-| 7 (2 tops, 1 bottom, 1 outer) | shirt + cardigan + trousers + trench | 0.7 × 85.2 + 0.3 × 68 ≈ **80** | 6–14 | **saved** |
+| Shape | Items | Pair blend | Colours (mid) | Score | Temperature | Result |
+|---|---|---|---|---|---|---|
+| 4 (1 top, 1 bottom) | shirt + trousers | 92 | 2 → 65 | 0.6 × 92 + 0.4 × 65 ≈ **81** | 14–22 | **saved** |
+| 5 (+1 outer) | shirt + trousers + trench | 0.7 × 91.3 + 0.3 × 90 ≈ 90.9 | 3 → 85 | **89** | 9–18 | **saved** |
+| 6 (2 tops, 1 bottom) | shirt + cardigan + trousers | 0.7 × 87 + 0.3 × 84 ≈ 86.1 | 3 → 85 | **86** | 14–18 | **saved** |
+| 7 (2 tops, 1 bottom, 1 outer) | shirt + cardigan + trousers + trench | 0.7 × 85.2 + 0.3 × 68 ≈ 80.0 | 4 → 85 | **82** | 6–14 | **saved** |
+
+The 2-item outfit ranks lowest: Cream + Gold is only 2 colours, which a
+mid user scores 65.
 
 All four are within the best 100, so all are saved, each with its score.
 "View New Matches" polls until they appear.
@@ -912,7 +934,7 @@ All four are within the best 100, so all are saved, each with its score.
 **Learning.** She deletes the 4-item outfit. Each of its 6 pairs gets −0.25,
 so Wide leg trousers + Trench coat drops from 90 to 89.75. **Nothing stops
 matching** - the trousers and coat are still compatible, and the 3-item
-shirt + trousers + trench outfit keeps its score of 91. Future outfits
+shirt + trousers + trench outfit keeps its score of 89. Future outfits
 with that pair just score slightly lower. If she favourites the 3-item
 outfit, it shows as 100 and its 3 pairs get +3.
 
@@ -1038,7 +1060,7 @@ All of these have been run on the current database.
 | Role rules (never / always / decided) | `server/constants/compatibilityRules.js` |
 | Pair compatibility and baseline scores | `server/constants/matrices/<gender>.js` |
 | Tops that need layering / onepieces that need a top | `server/constants/requiresLayering.js` |
-| Outfit score blend, single-item / user-made scores, learning steps | `server/constants/scoring.js` |
+| Outfit score blend, colour-count scores, single-item / user-made scores, learning steps | `server/constants/scoring.js` |
 | Allowed outfit shapes | `server/constants/outfitShapes.js` |
 | Colour palettes and colour caps | `server/utils/colorPalettes.js` |
 | Patterned-item limit | `passesPatternCheck` in `server/services/styleColorService.js` |

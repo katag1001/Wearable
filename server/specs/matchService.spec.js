@@ -123,10 +123,11 @@ test("findCandidateMatches attaches the outfit's score to every match", () => {
   const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
   const jeans = clothes({ subtype: "Jeans", type: "bottom" });
 
-  const results = findCandidateMatches(newTop, [newTop, jeans], context(openBaseline(["Short t-shirt", "Jeans"], 73)));
+  // Pair 70, 1 colour at mid -> 75: 0.6 * 70 + 0.4 * 75 = 72
+  const results = findCandidateMatches(newTop, [newTop, jeans], context(openBaseline(["Short t-shirt", "Jeans"], 70)));
 
   assert.equal(results.length, 1);
-  assert.equal(results[0].score, 73);
+  assert.equal(results[0].score, 72);
   assert.equal(results[0].userMade, false);
 });
 
@@ -142,7 +143,8 @@ test("findCandidateMatches keeps only the best `limit` outfits, highest score fi
 
   const results = findCandidateMatches(newTop, [newTop, ...bottoms], context(baseline), { limit: 2 });
 
-  assert.deepEqual(results.map((r) => r.score), [90, 60]);
+  // Pairs 90 and 60, 1 colour at mid -> 75: 0.6 * pair + 0.4 * 75
+  assert.deepEqual(results.map((r) => r.score), [84, 66]);
 });
 
 test("findCandidateMatches skips outfits that are already saved and takes the next best", () => {
@@ -272,7 +274,7 @@ test("findShapeCombinations prunes a colour-incompatible candidate during the se
 
 test("findShapeCombinations prunes a candidate that pushes the outfit's distinct colour count over the level's cap", () => {
   // Both items' colours fit comfortably within a single real palette, but
-  // combined they total 8 distinct colours - over "mid"'s cap of 7.
+  // combined they total 8 distinct colours - over "mid"'s cap of 6.
   const newTop = clothes({
     subtype: "Short t-shirt", type: "top",
     colors: ["Cream", "Camel", "Tan", "White"], styles: ["plain"],
@@ -318,8 +320,10 @@ test("findCandidateMatches drops outfits scoring below the minimum", () => {
   const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
   const bottoms = ["Jeans", "Chinos"].map((subtype) => clothes({ subtype, type: "bottom" }));
 
+  // 1 colour at mid scores 75, so a pair of 50 gives exactly
+  // 0.6 * 50 + 0.4 * 75 = 60 (MIN_AUTO_MATCH_SCORE) and 49 gives 59.
   const baseline = openBaseline(["Short t-shirt", "Jeans", "Chinos"]);
-  [["Jeans", MIN_AUTO_MATCH_SCORE], ["Chinos", MIN_AUTO_MATCH_SCORE - 1]].forEach(([subtype, score]) => {
+  [["Jeans", 50], ["Chinos", 49]].forEach(([subtype, score]) => {
     baseline["Short t-shirt"][subtype] = score;
     baseline[subtype]["Short t-shirt"] = score;
   });

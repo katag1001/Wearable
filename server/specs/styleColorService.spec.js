@@ -62,7 +62,7 @@ test("passesColorCheck: 'max' level has no colour-count cap", () => {
   ];
 
   // 8 distinct colours, all from one real palette - should pass under
-  // "max" (no cap) even though it would fail "mid" (cap of 7).
+  // "max" (no cap) even though it would fail "mid" (cap of 6).
   assert.equal(passesColorCheck(items, maxRules), true);
   assert.equal(passesColorCheck(items, colorRules), false);
 });

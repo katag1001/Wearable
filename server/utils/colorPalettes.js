@@ -152,18 +152,21 @@ const colorPalettesByLevel = { min, mid, max };
 
 // Max number of distinct colours allowed across a whole outfit's combined
 // colour set, per level - null means no cap at all.
-const maxColorsByLevel = { min: 4, mid: 7, max: null };
+const maxColorsByLevel = { min: 4, mid: 6, max: null };
 
 const DEFAULT_COLOUR_LEVEL = "mid";
 
 // One resolved unit per level: the palette list and the colour-count cap
-// together, since every caller that needs one needs the other too.
+// together, since every caller that needs one needs the other too. `level`
+// is the resolved level, which picks the colour-count score
+// (outfitScoreService.computeColourScore).
 function getColorRules(level) {
   const resolvedLevel = colorPalettesByLevel[level] ? level : DEFAULT_COLOUR_LEVEL;
 
   return {
     palettes: colorPalettesByLevel[resolvedLevel],
     maxColors: maxColorsByLevel[resolvedLevel],
+    level: resolvedLevel,
   };
 }
 

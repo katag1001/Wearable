@@ -15,16 +15,16 @@ test("all three levels exist and are non-empty", () => {
   });
 });
 
-test("maxColorsByLevel matches the agreed caps: min 4, mid 7, max unlimited", () => {
+test("maxColorsByLevel matches the agreed caps: min 4, mid 6, max unlimited", () => {
   assert.equal(maxColorsByLevel.min, 4);
-  assert.equal(maxColorsByLevel.mid, 7);
+  assert.equal(maxColorsByLevel.mid, 6);
   assert.equal(maxColorsByLevel.max, null);
 });
 
 test("getColorRules returns the matching level's palettes and cap together", () => {
-  assert.deepEqual(getColorRules("min"), { palettes: colorPalettesByLevel.min, maxColors: 4 });
-  assert.deepEqual(getColorRules("mid"), { palettes: colorPalettesByLevel.mid, maxColors: 7 });
-  assert.deepEqual(getColorRules("max"), { palettes: colorPalettesByLevel.max, maxColors: null });
+  assert.deepEqual(getColorRules("min"), { palettes: colorPalettesByLevel.min, maxColors: 4, level: "min" });
+  assert.deepEqual(getColorRules("mid"), { palettes: colorPalettesByLevel.mid, maxColors: 6, level: "mid" });
+  assert.deepEqual(getColorRules("max"), { palettes: colorPalettesByLevel.max, maxColors: null, level: "max" });
 });
 
 test("getColorRules falls back to the default level for null/unknown input", () => {
@@ -32,6 +32,7 @@ test("getColorRules falls back to the default level for null/unknown input", () 
 
   assert.equal(fallback.palettes, colorPalettesByLevel[DEFAULT_COLOUR_LEVEL]);
   assert.equal(fallback.maxColors, maxColorsByLevel[DEFAULT_COLOUR_LEVEL]);
+  assert.equal(fallback.level, DEFAULT_COLOUR_LEVEL);
 
   const unknown = getColorRules("not-a-real-level");
 

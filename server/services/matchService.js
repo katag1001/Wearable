@@ -265,7 +265,9 @@ function findCandidateMatches(
     findShapeCombinations(newItem, shape, pools, context, budget).forEach((itemSet) => {
       scoredItemSets.push({
         itemSet,
-        score: computeOutfitScore(itemSet, context.baselineMatrix, context.adjustments),
+        score: computeOutfitScore(
+          itemSet, context.baselineMatrix, context.adjustments, context.colorRules.level
+        ),
       });
     });
   });
