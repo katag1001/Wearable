@@ -29,7 +29,8 @@
 //
 // Choosing what to save: every item-set the search finds is scored
 // (outfitScoreService.computeOutfitScore). Those scoring below
-// MIN_AUTO_MATCH_SCORE (constants/scoring.js) are dropped, and only the
+// MIN_AUTO_MATCH_SCORE, or whose pair blend is below MIN_AUTO_PAIR_SCORE
+// (constants/scoring.js), are dropped, and only the
 // best MAX_NEW_MATCHES_PER_ITEM that aren't already saved are kept.
 //
 // Search limits: the search stops after MAX_COMBINATIONS_EXPLORED candidate
@@ -60,13 +61,13 @@ const { OUTFIT_SHAPES, ROLES } = require("../constants/outfitShapes.js");
 const { getLayeringRules } = require("../constants/requiresLayering.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
 const { isCompatible, fitsShape } = require("./matrixService.js");
-const { computeOutfitScore } = require("./outfitScoreService.js");
+const { computePairBlend, computeOutfitScore } = require("./outfitScoreService.js");
 const { passesPatternCheck, passesColorCheck } = require("./styleColorService.js");
 const { describeOutfit, validateOutfit, hasSharedSeason } = require("./outfitEvaluator.js");
 const { hasSharedTag } = require("./helpers.js");
 const { clothesKey } = require("../utils/clothesKey.js");
 const { msUntilDeadline } = require("../utils/functionDeadline.js");
-const { MIN_AUTO_MATCH_SCORE } = require("../constants/scoring.js");
+const { MIN_AUTO_MATCH_SCORE, MIN_AUTO_PAIR_SCORE } = require("../constants/scoring.js");
 const {
   getUserMatchingPreferences,
   getBaselineMatrix,
@@ -240,7 +241,8 @@ const dedupeKey = clothesKey;
 
 // Searches every shape with a slot for newItem's role, scores every
 // item-set found, and returns up to `limit` saveable match descriptions
-// scoring at least `minScore`, best score first. Item-sets already saved
+// scoring at least `minScore` (with a pair blend of at least
+// `minPairScore`), best score first. Item-sets already saved
 // (`existingKeys`) are skipped, as is any describeOutfit rejects - the
 // next best one takes their place.
 function findCandidateMatches(
@@ -251,6 +253,7 @@ function findCandidateMatches(
     existingKeys = new Set(),
     limit = MAX_NEW_MATCHES_PER_ITEM,
     minScore = MIN_AUTO_MATCH_SCORE,
+    minPairScore = MIN_AUTO_PAIR_SCORE,
     budget = createBudget(),
   } = {}
 ) {
@@ -263,10 +266,16 @@ function findCandidateMatches(
     }
 
     findShapeCombinations(newItem, shape, pools, context, budget).forEach((itemSet) => {
+      const pairBlend = computePairBlend(itemSet, context.baselineMatrix, context.adjustments);
+
+      if (pairBlend !== null && pairBlend < minPairScore) {
+        return;
+      }
+
       scoredItemSets.push({
         itemSet,
         score: computeOutfitScore(
-          itemSet, context.baselineMatrix, context.adjustments, context.colorRules.level
+          itemSet, context.baselineMatrix, context.adjustments, context.colorRules.level, pairBlend
         ),
       });
     });

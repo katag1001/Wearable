@@ -60,10 +60,9 @@ function computeColourScore(items, colourLevel) {
   return scores[index];
 }
 
-// Pair blend (70% average + 30% lowest pair) weighted with the colour score,
-// rounded to a whole number. An outfit with no scoreable pairs (a single
-// item) gets SINGLE_ITEM_SCORE, with no colour score.
-function computeOutfitScore(items, baselineMatrix, adjustments, colourLevel) {
+// 70% average + 30% lowest of every scoreable pair, not rounded. Null for
+// an outfit with no scoreable pairs (a single item).
+function computePairBlend(items, baselineMatrix, adjustments) {
   const pairScores = [];
 
   for (let i = 0; i < items.length; i += 1) {
@@ -77,16 +76,32 @@ function computeOutfitScore(items, baselineMatrix, adjustments, colourLevel) {
   }
 
   if (!pairScores.length) {
-    return SINGLE_ITEM_SCORE;
+    return null;
   }
 
   const average = pairScores.reduce((sum, score) => sum + score, 0) / pairScores.length;
   const lowest = Math.min(...pairScores);
 
-  const pairScore = average * AVERAGE_PAIR_WEIGHT + lowest * LOWEST_PAIR_WEIGHT;
+  return average * AVERAGE_PAIR_WEIGHT + lowest * LOWEST_PAIR_WEIGHT;
+}
+
+// Pair blend weighted with the colour score, rounded to a whole number. An
+// outfit with no scoreable pairs (a single item) gets SINGLE_ITEM_SCORE,
+// with no colour score. Pass `pairBlend` if it's already been worked out.
+function computeOutfitScore(
+  items,
+  baselineMatrix,
+  adjustments,
+  colourLevel,
+  pairBlend = computePairBlend(items, baselineMatrix, adjustments)
+) {
+  if (pairBlend === null) {
+    return SINGLE_ITEM_SCORE;
+  }
+
   const colourScore = computeColourScore(items, colourLevel);
 
-  return Math.round(pairScore * PAIR_SCORE_WEIGHT + colourScore * COLOUR_SCORE_WEIGHT);
+  return Math.round(pairBlend * PAIR_SCORE_WEIGHT + colourScore * COLOUR_SCORE_WEIGHT);
 }
 
 module.exports = {
@@ -94,5 +109,6 @@ module.exports = {
   clampAdjustment,
   getPairScore,
   computeColourScore,
+  computePairBlend,
   computeOutfitScore,
 };

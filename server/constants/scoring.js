@@ -31,9 +31,9 @@ const COLOUR_SCORE_WEIGHT = 0.4;
 // on; the last entry is used for anything more. Each level's colour cap is
 // in utils/colorPalettes.js (maxColorsByLevel).
 const COLOUR_COUNT_SCORES = {
-  min: [85, 75, 85, 75],
-  mid: [75, 65, 85, 85, 65, 55],
-  max: [55, 65, 75, 85, 85, 75, 65],
+  min: [85, 65, 85, 65],
+  mid: [65, 45, 85, 85, 45, 25],
+  max: [25, 45, 65, 85, 85, 65, 45],
 };
 
 // Outfits with no pairs to score (a onepiece on its own). Not affected by
@@ -43,7 +43,13 @@ const SINGLE_ITEM_SCORE = 80;
 // Automatic outfits scoring below this are never saved - complete matching
 // on a large wardrobe finds tens of thousands of outfits per item, most of
 // them poor. Doesn't apply to outfits the user builds.
-const MIN_AUTO_MATCH_SCORE = 60;
+const MIN_AUTO_MATCH_SCORE = 65;
+
+// Automatic outfits whose pair blend (before the colour score) is below
+// this are never saved either, however good their colours - so colour can
+// only rank outfits whose pairs are already good enough, never rescue one.
+// Doesn't apply to a single item, which has no pairs.
+const MIN_AUTO_PAIR_SCORE = 60;
 
 // Every outfit the user builds (or claims) gets this flat score.
 const USER_MADE_SCORE = 90;
@@ -74,6 +80,7 @@ module.exports = {
   COLOUR_COUNT_SCORES,
   SINGLE_ITEM_SCORE,
   MIN_AUTO_MATCH_SCORE,
+  MIN_AUTO_PAIR_SCORE,
   USER_MADE_SCORE,
   LEARNING_DELTAS,
   REJECTION_SCORE_PENALTY,

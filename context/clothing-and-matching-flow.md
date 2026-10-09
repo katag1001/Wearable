@@ -542,17 +542,21 @@ against the user's colour level. A colour on several items counts once.
 
 | Colours | min | mid | max |
 |---|---|---|---|
-| 1 | 85 | 75 | 55 |
-| 2 | 75 | 65 | 65 |
-| 3 | 85 | 85 | 75 |
-| 4 | 75 | 85 | 85 |
-| 5 | - | 65 | 85 |
-| 6 | - | 55 | 75 |
-| 7+ | - | - | 65 |
+| 1 | 85 | 65 | 25 |
+| 2 | 65 | 45 | 45 |
+| 3 | 85 | 85 | 65 |
+| 4 | 65 | 85 | 85 |
+| 5 | - | 45 | 85 |
+| 6 | - | 25 | 65 |
+| 7+ | - | - | 45 |
 
 `-` is over that level's colour cap (3.6), so it never reaches scoring.
-With 3 colours at mid, the outfit above scores
-0.6 × 48.75 + 0.4 × 85 = **63**.
+With 3 colours at mid, the outfit above would score
+0.6 × 48.75 + 0.4 × 85 = 63, but it is never saved (4.5): its pair blend
+is below 60.
+
+The colour scores are spread widely on purpose (best 85, worst 25) so
+colour can push an outfit under the minimum, not just lift every outfit.
 
 A **favourite is shown and sorted as 100**, without changing the stored
 score - unfavouriting returns the match to its original score.
@@ -583,9 +587,10 @@ for each outfit shape that has a slot for newItem's role:
       fits the shape (layering rules) → compatible with every item so far
       → colour → pattern → season → tag
   ▼
-score every item-set found                   (computeOutfitScore)
+score every item-set found                   (computeOutfitScore;
+                                              pair blend below 60 dropped)
   ▼
-best score first, until 100,000 are kept or the score drops below 60:
+best score first, until 100,000 are kept or the score drops below 65:
   skip if already saved
   describeOutfit   → temperature (from subtypes) + season + tag + descriptive fields
   validateOutfit   → final safety re-check (compatibility, layering, pattern, colour)
@@ -662,10 +667,14 @@ deadline.
 
 ### 4.5 Choosing and finishing outfits
 
-1. **Score** every item-set found (3.10).
+1. **Score** every item-set found (3.10). An outfit whose **pair blend**
+   (before the colour score) is below **`MIN_AUTO_PAIR_SCORE` = 60** is
+   dropped here, however good its colours, so colour can only rank outfits
+   whose pairs are already good enough. A single item has no pair blend and
+   is never dropped by this.
 2. Go through them **best score first** (equal scores keep the order they
    were found in), until **`MAX_NEW_MATCHES_PER_ITEM` = 100,000** are kept,
-   or the score drops below **`MIN_AUTO_MATCH_SCORE` = 60**
+   or the score drops below **`MIN_AUTO_MATCH_SCORE` = 65**
    (`server/constants/scoring.js`). Lower-scoring outfits are never saved
    automatically; outfits the user builds have no minimum.
    1. Skip it if the same set of clothes is already saved, or already
@@ -920,13 +929,13 @@ they're tagged `Work, Everyday`. Outfits with the cardigan are tagged
 
 | Shape | Items | Pair blend | Colours (mid) | Score | Temperature | Result |
 |---|---|---|---|---|---|---|
-| 4 (1 top, 1 bottom) | shirt + trousers | 92 | 2 → 65 | 0.6 × 92 + 0.4 × 65 ≈ **81** | 14–22 | **saved** |
+| 4 (1 top, 1 bottom) | shirt + trousers | 92 | 2 → 45 | 0.6 × 92 + 0.4 × 45 ≈ **73** | 14–22 | **saved** |
 | 5 (+1 outer) | shirt + trousers + trench | 0.7 × 91.3 + 0.3 × 90 ≈ 90.9 | 3 → 85 | **89** | 9–18 | **saved** |
 | 6 (2 tops, 1 bottom) | shirt + cardigan + trousers | 0.7 × 87 + 0.3 × 84 ≈ 86.1 | 3 → 85 | **86** | 14–18 | **saved** |
 | 7 (2 tops, 1 bottom, 1 outer) | shirt + cardigan + trousers + trench | 0.7 × 85.2 + 0.3 × 68 ≈ 80.0 | 4 → 85 | **82** | 6–14 | **saved** |
 
 The 2-item outfit ranks lowest: Cream + Gold is only 2 colours, which a
-mid user scores 65.
+mid user scores 45.
 
 All four are within the best 100, so all are saved, each with its score.
 "View New Matches" polls until they appear.
@@ -1040,6 +1049,7 @@ the project root with `node server/scripts/<name>.js`.
 | `replaceWomensChinos.js` | Women's Chinos items → Cropped trousers | Yes |
 | `mergeColours.js` | Beige → Cream and Lavender → Lilac on items and matches (an item left with one colour becomes Plain) | Yes |
 | `addMatchClothesKey.js` | Sets `clothesKey` on every match and builds the unique `{ userId, clothesKey }` index. Lists any duplicate outfits and changes nothing if there are some | Yes |
+| `rematchAll.js` | **Deletes every match and Today entry for every user** (user-made and favourites too), then runs `processMatches` for every clothing item under the current rules. Personal score adjustments are kept. Only shows counts unless run with `--confirm` | Yes, but each run throws away user-made outfits and favourites |
 
 All of these have been run on the current database.
 
@@ -1065,7 +1075,7 @@ All of these have been run on the current database.
 | Colour palettes and colour caps | `server/utils/colorPalettes.js` |
 | Patterned-item limit | `passesPatternCheck` in `server/services/styleColorService.js` |
 | Search limits and best-N | `MAX_POOL_SIZE_PER_ROLE`, `MAX_COMBINATIONS_EXPLORED`, `SEARCH_TIME_LIMIT_MS`, `MAX_NEW_MATCHES_PER_ITEM` in `matchService.js` |
-| Lowest score an automatic outfit is saved at | `MIN_AUTO_MATCH_SCORE` in `server/constants/scoring.js` |
+| Lowest score / pair blend an automatic outfit is saved at | `MIN_AUTO_MATCH_SCORE` / `MIN_AUTO_PAIR_SCORE` in `server/constants/scoring.js` |
 | Time kept for saving / save chunk size | `SAVE_RESERVE_MS`, `INSERT_CHUNK_SIZE`, `INSERT_STOP_MARGIN_MS` in `matchService.js` |
 | Default gender when missing | `DEFAULT_GENDER` in `matchScoreService.js` |
 | Today page weights | `SCORE_WEIGHTS` in `todayOutfitSort.jsx` |

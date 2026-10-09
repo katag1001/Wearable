@@ -6,6 +6,7 @@ const {
   clampAdjustment,
   getPairScore,
   computeColourScore,
+  computePairBlend,
   computeOutfitScore,
 } = require("../services/outfitScoreService.js");
 const { SINGLE_ITEM_SCORE } = require("../constants/scoring.js");
@@ -49,9 +50,9 @@ test("getPairScore is undefined for a pair that can't be matched", () => {
 test("computeColourScore scores the number of distinct colours for each level", () => {
   const scores = (level, counts) => counts.map((count) => computeColourScore(withColours(count), level));
 
-  assert.deepEqual(scores("min", [1, 2, 3, 4]), [85, 75, 85, 75]);
-  assert.deepEqual(scores("mid", [1, 2, 3, 4, 5, 6]), [75, 65, 85, 85, 65, 55]);
-  assert.deepEqual(scores("max", [1, 2, 3, 4, 5, 6, 7, 8]), [55, 65, 75, 85, 85, 75, 65, 65]);
+  assert.deepEqual(scores("min", [1, 2, 3, 4]), [85, 65, 85, 65]);
+  assert.deepEqual(scores("mid", [1, 2, 3, 4, 5, 6]), [65, 45, 85, 85, 45, 25]);
+  assert.deepEqual(scores("max", [1, 2, 3, 4, 5, 6, 7, 8]), [25, 45, 65, 85, 85, 65, 45, 45]);
 });
 
 test("computeColourScore counts a colour shared by several items once", () => {
@@ -62,22 +63,32 @@ test("computeColourScore counts a colour shared by several items once", () => {
 
 test("computeColourScore falls back to the default level for a missing or unknown level", () => {
   assert.equal(computeColourScore(withColours(3), null), 85);
-  assert.equal(computeColourScore(withColours(1), "not-a-level"), 75);
+  assert.equal(computeColourScore(withColours(1), "not-a-level"), 65);
+});
+
+test("computePairBlend blends 70% average with 30% lowest pair, unrounded", () => {
+  // Pairs: A-B 80, A-C 80, A-D 20, B-C 80, B-D 80, C-D 80
+  // average 70, lowest 20 -> 0.7 * 70 + 0.3 * 20 = 55
+  assert.equal(computePairBlend([item("A"), item("B"), item("C"), item("D")], baseline, null), 55);
+  // A-B 80, A-D 20, B-D 80 -> 0.7 * 60 + 0.3 * 20 = 48
+  assert.equal(computePairBlend([item("A"), item("B"), item("D")], baseline, null), 48);
+});
+
+test("computePairBlend is null for an outfit with no scoreable pairs", () => {
+  assert.equal(computePairBlend([item("A")], baseline, null), null);
 });
 
 test("computeOutfitScore weights the pair blend 60% and the colour score 40%", () => {
-  // Pairs: A-B 80, A-C 80, A-D 20, B-C 80, B-D 80, C-D 80
-  // pair blend: average 70, lowest 20 -> 0.7 * 70 + 0.3 * 20 = 55
-  // 1 colour at mid -> 75; 0.6 * 55 + 0.4 * 75 = 63
+  // pair blend 55 (above); 1 colour at mid -> 65; 0.6 * 55 + 0.4 * 65 = 59
   const items = [item("A"), item("B"), item("C"), item("D")];
-  assert.equal(computeOutfitScore(items, baseline, null, "mid"), 63);
+  assert.equal(computeOutfitScore(items, baseline, null, "mid"), 59);
 });
 
 test("computeOutfitScore uses the user's adjustments and rounds to a whole number", () => {
   const adjustments = new Map([["A B", 5]]);
-  // single pair 85; 3 colours at max -> 75; 0.6 * 85 + 0.4 * 75 = 81
+  // single pair 85; 3 colours at max -> 65; 0.6 * 85 + 0.4 * 65 = 77
   const items = [item("A", ["Black", "White"]), item("B", ["Grey"])];
-  assert.equal(computeOutfitScore(items, baseline, adjustments, "max"), 81);
+  assert.equal(computeOutfitScore(items, baseline, adjustments, "max"), 77);
   assert.equal(Number.isInteger(computeOutfitScore([item("A"), item("B"), item("D")], baseline, null, "min")), true);
 });
 

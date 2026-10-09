@@ -11,7 +11,7 @@ const {
   dedupeKey,
   isOnlyDuplicateKeyErrors,
 } = require("../services/matchService.js");
-const { MIN_AUTO_MATCH_SCORE } = require("../constants/scoring.js");
+const { MIN_AUTO_MATCH_SCORE, MIN_AUTO_PAIR_SCORE } = require("../constants/scoring.js");
 const { OUTFIT_SHAPES } = require("../constants/outfitShapes.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
 
@@ -123,11 +123,11 @@ test("findCandidateMatches attaches the outfit's score to every match", () => {
   const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
   const jeans = clothes({ subtype: "Jeans", type: "bottom" });
 
-  // Pair 70, 1 colour at mid -> 75: 0.6 * 70 + 0.4 * 75 = 72
+  // Pair 70, 1 colour at mid -> 65: 0.6 * 70 + 0.4 * 65 = 68
   const results = findCandidateMatches(newTop, [newTop, jeans], context(openBaseline(["Short t-shirt", "Jeans"], 70)));
 
   assert.equal(results.length, 1);
-  assert.equal(results[0].score, 72);
+  assert.equal(results[0].score, 68);
   assert.equal(results[0].userMade, false);
 });
 
@@ -136,15 +136,15 @@ test("findCandidateMatches keeps only the best `limit` outfits, highest score fi
   const bottoms = ["Jeans", "Chinos", "Cargo pants"].map((subtype) => clothes({ subtype, type: "bottom" }));
 
   const baseline = openBaseline(["Short t-shirt", "Jeans", "Chinos", "Cargo pants"]);
-  [["Jeans", 90], ["Chinos", 60], ["Cargo pants", 30]].forEach(([subtype, score]) => {
+  [["Jeans", 90], ["Chinos", 80], ["Cargo pants", 70]].forEach(([subtype, score]) => {
     baseline["Short t-shirt"][subtype] = score;
     baseline[subtype]["Short t-shirt"] = score;
   });
 
   const results = findCandidateMatches(newTop, [newTop, ...bottoms], context(baseline), { limit: 2 });
 
-  // Pairs 90 and 60, 1 colour at mid -> 75: 0.6 * pair + 0.4 * 75
-  assert.deepEqual(results.map((r) => r.score), [84, 66]);
+  // Pairs 90 and 80, 1 colour at mid -> 65: 0.6 * pair + 0.4 * 65
+  assert.deepEqual(results.map((r) => r.score), [80, 74]);
 });
 
 test("findCandidateMatches skips outfits that are already saved and takes the next best", () => {
@@ -320,10 +320,10 @@ test("findCandidateMatches drops outfits scoring below the minimum", () => {
   const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
   const bottoms = ["Jeans", "Chinos"].map((subtype) => clothes({ subtype, type: "bottom" }));
 
-  // 1 colour at mid scores 75, so a pair of 50 gives exactly
-  // 0.6 * 50 + 0.4 * 75 = 60 (MIN_AUTO_MATCH_SCORE) and 49 gives 59.
+  // 1 colour at mid scores 65, so a pair of 65 gives exactly
+  // 0.6 * 65 + 0.4 * 65 = 65 (MIN_AUTO_MATCH_SCORE) and 64 gives 64.
   const baseline = openBaseline(["Short t-shirt", "Jeans", "Chinos"]);
-  [["Jeans", 50], ["Chinos", 49]].forEach(([subtype, score]) => {
+  [["Jeans", 65], ["Chinos", 64]].forEach(([subtype, score]) => {
     baseline["Short t-shirt"][subtype] = score;
     baseline[subtype]["Short t-shirt"] = score;
   });
@@ -338,10 +338,30 @@ test("findCandidateMatches uses a given minScore instead of the default", () => 
   const jeans = clothes({ subtype: "Jeans", type: "bottom" });
 
   const results = findCandidateMatches(
-    newTop, [newTop, jeans], context(openBaseline(["Short t-shirt", "Jeans"], 30)), { minScore: 0 }
+    newTop, [newTop, jeans], context(openBaseline(["Short t-shirt", "Jeans"], 30)), { minScore: 0, minPairScore: 0 }
   );
 
   assert.equal(results.length, 1);
+});
+
+test("findCandidateMatches drops outfits whose pair blend is below the minimum, however good their colours", () => {
+  // 3 colours at mid score 85. A pair of 59 would score
+  // 0.6 * 59 + 0.4 * 85 = 69 - enough overall, but the pair blend is below
+  // MIN_AUTO_PAIR_SCORE (60). A pair of 60 is kept.
+  const newTop = clothes({ subtype: "Short t-shirt", type: "top", colors: ["Cream", "Camel"] });
+  const bottoms = ["Jeans", "Chinos"].map((subtype) => clothes({ subtype, type: "bottom", colors: ["Tan"] }));
+
+  const baseline = openBaseline(["Short t-shirt", "Jeans", "Chinos"]);
+  [["Jeans", MIN_AUTO_PAIR_SCORE], ["Chinos", MIN_AUTO_PAIR_SCORE - 1]].forEach(([subtype, score]) => {
+    baseline["Short t-shirt"][subtype] = score;
+    baseline[subtype]["Short t-shirt"] = score;
+  });
+
+  const ctx = context(baseline, { colorRules: getColorRules("mid") });
+  const results = findCandidateMatches(newTop, [newTop, ...bottoms], ctx);
+
+  assert.deepEqual(results.map((r) => r.score), [70]);
+  assert.equal(findCandidateMatches(newTop, [newTop, ...bottoms], ctx, { minPairScore: 0 }).length, 2);
 });
 
 test("dedupeKey is the same whatever order the clothing ids are in", () => {
