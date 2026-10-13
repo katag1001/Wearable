@@ -16,6 +16,10 @@ const SEASONS = ["spring", "summer", "autumn", "winter"];
 // never overlap).
 const NEWEST_FIRST = { _id: -1 };
 
+// Matches: favourites first (they show as 100), then highest score, then
+// newest - _id last so equal scores never tie and pages never overlap.
+const HIGHEST_SCORE_FIRST = { favourite: -1, score: -1, _id: -1 };
+
 /* -------------------- Parsing -------------------- */
 
 // Lists arrive comma-separated: ?colors=blue,red
@@ -109,12 +113,14 @@ const resolvePage = (requestedPage, limit, filteredTotal) => {
 
 // Counts, clamps the page and fetches it. `listKey` names the array in
 // the response ("matches" / "items"); `prepare` adds populate etc.
+// `sort` defaults to newest first.
 const findPage = async ({
   Model,
   userId,
   filter,
   paging,
   listKey,
+  sort = NEWEST_FIRST,
   prepare = (query) => query,
 }) => {
   const [filteredTotal, total] = await Promise.all([
@@ -130,7 +136,7 @@ const findPage = async ({
 
   const list = await prepare(
     Model.find(filter)
-      .sort(NEWEST_FIRST)
+      .sort(sort)
       .skip((page - 1) * paging.limit)
       .limit(paging.limit)
   ).lean();
@@ -150,6 +156,7 @@ module.exports = {
   MAX_PAGE_SIZE,
   SEASONS,
   NEWEST_FIRST,
+  HIGHEST_SCORE_FIRST,
   parseList,
   parseNumber,
   parsePositiveInt,

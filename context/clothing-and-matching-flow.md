@@ -292,13 +292,16 @@ If any of `gender`, `colour`, `pattern` or `temperature` is missing, or no
 preferences exist yet (404), `StyleQuizGate` redirects every gated page to
 `/style-quiz`.
 
-The quiz has four steps:
+The quiz has four steps, plus pairing questions for women and unisex:
 
 1. **"How do you usually dress?"**: More feminine → `woman`, More unisex →
    `unisex`, More masculine → `man`. Saved as `gender`.
 2. **"Select all that apply"**: a grid of style images. Only images whose
    `gender` list includes the chosen gender are shown. At least one image
    must be picked.
+   - **Pairing questions** (`woman` and `unisex` only,
+     `PairingQuestionStep.jsx`): one Yes / Sometimes / No question per
+     screen, each with a row of images. See 2.6.
 3. **"What do you generally wear throughout the week?"**
    (`WeeklyTagStep.jsx`): a tag for each day, picked from the tag images.
    Picking a tag moves on to the next day. Every day is optional, and only
@@ -350,6 +353,12 @@ re-calculated and sent **if at least one image is selected**. Otherwise
 they stay as they were. Unlike the quiz, this page shows all 9 images
 regardless of gender.
 
+For `woman` and `unisex` (the gender currently picked on the page) it
+also shows the pairing questions (2.6) under their section headings,
+without pictures (`PairingPreferences.jsx`). Answers aren't stored, so
+they always start unanswered; only the questions answered are sent, and
+clicking the selected answer again clears it.
+
 In `updatePreferences`, if the **gender actually changes**, all of the
 user's personal score adjustments are deleted (`wipeUserScores`). Scoring
 falls back to the new gender's matrix. Changing colour, pattern,
@@ -366,6 +375,7 @@ affects items added and outfits matched afterwards.
 | `colour` | min / mid / max | Which colour palette list is used, the colour-count cap, and the colour-count score (3.10) | `getColorRules`, `computeColourScore` |
 | `pattern` | min / mid / max | **Saved and required by the quiz gate, but not used by matching.** The pattern rule is the same for everyone (3.7). | - |
 | `temperature` | cold / normal / hot | Shifts every new match's temperature range ±2° | `temperature-ranges.md` |
+| `pairingAnswers` (quiz only, not stored) | question key → yes / sometimes / no | Sets the starting personal adjustment of the question's pairs (2.6) | `pairingQuizService.js` |
 | `monday` … `sunday` | a tag name | That day's tag is used to put matching outfits first on the Today page | `todayOutfitSort.jsx` |
 
 ### 2.5 Defaults when something is missing
@@ -379,6 +389,41 @@ the single place the server reads these:
 
 `getBaselineMatrix(gender)` falls back to the **unisex** matrix for an
 unknown gender.
+
+### 2.6 Pairing questions
+
+Files: `src/constants/pairingQuestions.js` (text, headings, images),
+`server/constants/pairingQuestions.js` (which pairs each question sets),
+`server/services/pairingQuizService.js`. The keys must match.
+
+| Key | Question | Pairs |
+|---|---|---|
+| `shirtsOverTops` | Do you like shirts over tops? | Buttondown shirt, Linen shirt × Short t-shirt, Long t-shirt, Vest, Croptop, Bodysuit, Fancy top |
+| `turtlenecksUnderShirts` | Do you like turtlenecks under shirts or blouses? | Short/Long turtleneck × Buttondown shirt, Linen shirt, Floaty blouse, Fancy blouse |
+| `topsUnderDresses` | Do you like t-shirts or turtlenecks under dresses? | Short/Long t-shirt, Short/Long turtleneck × every dress |
+| `smartAndCasual` | Do you like to mix smart and casual? | Hoodie × Blazer, Trench coat, the skirts; Blazer, Trench coat × Sweatpants, Leggings; Cargo pants × Fancy top, Fancy blouse, Blazer |
+| `croptopsLowRise` | Do you like croptops with low-rise bottoms? | Croptop × Low waist jeans, Low waist midi |
+
+The first three are under "A few layering questions...", the last two
+under "And a couple about mixing styles...".
+
+The quiz sends the answers with `PUT /preferences` as `pairingAnswers`.
+They aren't stored on preferences. Instead every pair in an answered
+question has its personal adjustment **set** (not added) to
+`PAIRING_ANSWER_ADJUSTMENTS`: **Yes +10, Sometimes −10**, limited so the
+pair score stays within 0-100, and **No takes the pair score to 0**.
+Retaking the quiz overwrites those pairs again. Pairs the matrix doesn't
+allow (`null`) are skipped, so an answer never changes compatibility.
+
+"No" has to go all the way to 0 because one low pair is diluted by the
+outfit's other pairs: at −40, a shirt + vest outfit with a bottom and a
+coat still scored 65-74 and was saved. At 0 the pair blend can't reach
+60 (4.5) even if every other pair is 100, so the outfit is never
+suggested automatically. It can still be built by hand, and building or
+favouriting it lifts the pair again. The answers are applied after a gender-change wipe, so they
+survive a gender change made in the same save; a later gender change
+deletes them with every other adjustment. Men are never asked, and the
+server ignores answers for them.
 
 ---
 
@@ -557,12 +602,12 @@ against the user's colour level. A colour on several items counts once.
 
 | Colours | min | mid | max |
 |---|---|---|---|
-| 1 | 85 | 65 | 25 |
-| 2 | 65 | 45 | 45 |
-| 3 | 85 | 85 | 65 |
+| 1 | 65 | 65 | 25 |
+| 2 | 75 | 55 | 45 |
+| 3 | 85 | 85 | 75 |
 | 4 | 65 | 85 | 85 |
-| 5 | - | 45 | 85 |
-| 6 | - | 25 | 65 |
+| 5 | - | 65 | 75 |
+| 6 | - | 55 | 65 |
 | 7+ | - | - | 45 |
 
 `-` is over that level's colour cap (3.6), so it never reaches scoring.
@@ -789,6 +834,7 @@ Files: `server/services/matchScoreService.js`,
 
 | Event | Change to every compatible pair in the outfit |
 |---|---|
+| Style quiz pairing answer (2.6) | **set to** +10 / −10 / pair score 0 for that question's pairs |
 | User builds an outfit (Build Matches) | **+5** |
 | User claims an automatic outfit by rebuilding it | **+5** |
 | User favourites an outfit | **+3** |
@@ -891,7 +937,15 @@ in `allControllers.js`. Numbers in `server/constants/scoring.js`.
 - "Today" is the user's local day: the client sends its local midnight
   (`todayStart` / `today_start`); the server falls back to its own.
 
-### 7.3 Temporary score display
+### 7.3 My Outfits order
+
+The match list (`GET /match/`) is paged **favourites first, then highest
+score, then newest** (`HIGHEST_SCORE_FIRST` in
+`server/services/queryHelpers.js`, backed by the
+`{ userId, favourite, score, _id }` index on Match). The clothing list is
+still newest first.
+
+### 7.4 Temporary score display
 
 `src/components/general/matchScoreBadge.jsx` shows a small grey "Score N"
 on the match cards (`viewMatchesCard.jsx`) and on the Today page's main
@@ -944,13 +998,13 @@ they're tagged `Work, Everyday`. Outfits with the cardigan are tagged
 
 | Shape | Items | Pair blend | Colours (mid) | Score | Temperature | Result |
 |---|---|---|---|---|---|---|
-| 4 (1 top, 1 bottom) | shirt + trousers | 92 | 2 → 45 | 0.6 × 92 + 0.4 × 45 ≈ **73** | 14–22 | **saved** |
+| 4 (1 top, 1 bottom) | shirt + trousers | 92 | 2 → 55 | 0.6 × 92 + 0.4 × 55 ≈ **77** | 14–22 | **saved** |
 | 5 (+1 outer) | shirt + trousers + trench | 0.7 × 91.3 + 0.3 × 90 ≈ 90.9 | 3 → 85 | **89** | 9–18 | **saved** |
 | 6 (2 tops, 1 bottom) | shirt + cardigan + trousers | 0.7 × 87 + 0.3 × 84 ≈ 86.1 | 3 → 85 | **86** | 14–18 | **saved** |
 | 7 (2 tops, 1 bottom, 1 outer) | shirt + cardigan + trousers + trench | 0.7 × 85.2 + 0.3 × 68 ≈ 80.0 | 4 → 85 | **82** | 6–14 | **saved** |
 
 The 2-item outfit ranks lowest: Cream + Gold is only 2 colours, which a
-mid user scores 45.
+mid user scores 55.
 
 All four are within the best 100, so all are saved, each with its score.
 "View New Matches" polls until they appear.
@@ -1093,16 +1147,17 @@ All of these have been run on the current database.
 | Lowest score / pair blend an automatic outfit is saved at | `MIN_AUTO_MATCH_SCORE` / `MIN_AUTO_PAIR_SCORE` in `server/constants/scoring.js` |
 | Time kept for saving / save chunk size | `SAVE_RESERVE_MS`, `INSERT_CHUNK_SIZE`, `INSERT_STOP_MARGIN_MS` in `matchService.js` |
 | Default gender when missing | `DEFAULT_GENDER` in `matchScoreService.js` |
+| Style quiz pairing questions / their pairs / answer values | `src/constants/pairingQuestions.js` / `server/constants/pairingQuestions.js` / `PAIRING_ANSWER_ADJUSTMENTS` in `server/constants/scoring.js` (see 2.6) |
 | Today page weights | `SCORE_WEIGHTS` in `todayOutfitSort.jsx` |
 | Rejection penalty / days a rejected outfit is hidden | `REJECTION_SCORE_PENALTY`, `REJECTION_COOLDOWN_DAYS` in `server/constants/scoring.js` |
 | Favourite score | `FAVOURITE_SCORE` in `src/utils/matchScore.js` |
 | Temperature numbers | `server/constants/temperatureGroups.js`, see `temperature-ranges.md` |
-| Remove the temporary score display | see 7.3 |
+| Remove the temporary score display | see 7.4 |
 | One-off database updates | `server/scripts/`, see Part 11 |
 
 Tests: `server/specs/` (`matchService`, `matrixService`,
 `outfitScoreService`, `outfitEvaluator`, `styleColorService`,
-`matchScoreService`, `matchScoreBaseline`, `matchRejectionService`,
+`matchScoreService`, `matchScoreBaseline`, `pairingQuizService`, `matchRejectionService`,
 `matchRefreshService`,
 `presetTemperatureService`,
 `temperatureService`,

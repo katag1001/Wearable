@@ -396,6 +396,56 @@
 
 
 /* ----------------------------------------------------------------
+   Pairing questions (PairingQuestionStep.jsx)
+----------------------------------------------------------------- */
+
+.style-quiz-pairing-images {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 0.75rem;
+
+  width: 100%;
+  max-width: 600px;
+
+  margin: 0 auto 1.5rem;
+}
+
+.style-quiz-pairing-image {
+  display: block;
+
+  width: 100%;
+
+  aspect-ratio: 3 / 4;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  object-fit: cover;
+
+  background: var(--image-background);
+}
+
+.style-quiz-pairing-image--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.5rem;
+
+  border-style: dashed;
+
+  color: var(--secondary-color);
+
+  font-size: var(--description-font-size);
+
+  text-align: center;
+}
+
+
+/* ----------------------------------------------------------------
    Actions
 ----------------------------------------------------------------- */
 
@@ -407,6 +457,10 @@
   width: 100%;
 
   flex-shrink: 0;
+}
+
+.style-quiz-actions--spaced {
+  margin-top: 1.5rem;
 }
 
 .style-quiz-back-button,
@@ -518,7 +572,8 @@
     padding: 0 1rem 1.25rem;
   }
 
-  .style-quiz-image-grid {
+  .style-quiz-image-grid,
+  .style-quiz-pairing-images {
     gap: 0.5rem;
   }
 

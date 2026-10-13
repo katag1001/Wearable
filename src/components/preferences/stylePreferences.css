@@ -76,6 +76,26 @@
 
 
 /* ----------------------------------------------------------------
+   Pairing questions (PairingPreferences.jsx)
+----------------------------------------------------------------- */
+
+.style-preferences-pairing-question + .style-preferences-pairing-question {
+  margin-top: 1rem;
+}
+
+.style-preferences-pairing-question-text {
+  margin: 0 0 0.5rem;
+
+  color: var(--main-color);
+
+  font-size: var(--description-font-size);
+  font-weight: 500;
+
+  letter-spacing: 0.03em;
+}
+
+
+/* ----------------------------------------------------------------
    Choice Options (single-select questions: gender, temperature)
 ----------------------------------------------------------------- */
 

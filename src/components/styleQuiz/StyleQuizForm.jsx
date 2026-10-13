@@ -5,26 +5,49 @@ import {
   temperatureQuestionOptions,
   styleImageOptions,
 } from "../../constants/styleQuizOptions";
+import { pairingQuestionGenders } from "../../constants/pairingQuestions";
 import { resolveStyleQuiz } from "../../utils/resolveStyleQuiz";
 import { emptyWeeklyTags } from "../../constants/weekDays";
 import WeeklyTagStep from "./WeeklyTagStep";
+import PairingQuestionStep from "./PairingQuestionStep";
 import { URL } from "../../config";
 import "./styleQuizForm.css";
+
+// The quiz's steps in order. The pairing questions are only asked for the
+// genders in pairingQuestionGenders.
+const getSteps = (gender) =>
+  pairingQuestionGenders.includes(gender)
+    ? ["gender", "images", "pairing", "weekly", "temperature"]
+    : ["gender", "images", "weekly", "temperature"];
 
 const StyleQuizForm = ({ onComplete }) => {
   const navigate = useNavigate();
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState("gender");
   const [gender, setGender] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [pairingAnswers, setPairingAnswers] = useState({});
+  const [pairingIndex, setPairingIndex] = useState(0);
   const [weeklyTags, setWeeklyTags] = useState(emptyWeeklyTags);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const goToNextStep = () => {
+    const steps = getSteps(gender);
+    setStep(steps[steps.indexOf(step) + 1]);
+    setError("");
+  };
+
+  const handleBack = () => {
+    const steps = getSteps(gender);
+    setStep(steps[steps.indexOf(step) - 1]);
+    setError("");
+  };
+
   const handleGenderSelect = (value) => {
     setGender(value);
     setError("");
-    setStep(2);
+    setStep("images");
   };
 
   const toggleImage = (key) => {
@@ -37,23 +60,12 @@ const StyleQuizForm = ({ onComplete }) => {
     setError("");
   };
 
-  const handleImagesNext = () => {
-    setStep(3);
-    setError("");
+  const handlePairingAnswer = (questionKey, answer) => {
+    setPairingAnswers((current) => ({ ...current, [questionKey]: answer }));
   };
 
   const handleWeeklyTagChange = (dayKey, tagName) => {
     setWeeklyTags((current) => ({ ...current, [dayKey]: tagName }));
-  };
-
-  const handleWeeklyNext = () => {
-    setStep(4);
-    setError("");
-  };
-
-  const handleBack = () => {
-    setStep((current) => current - 1);
-    setError("");
   };
 
   const handleTemperatureSelect = (value) => {
@@ -85,6 +97,8 @@ const StyleQuizForm = ({ onComplete }) => {
           colour,
           pattern,
           temperature,
+          // Only sent for genders that were asked the pairing questions.
+          ...(pairingQuestionGenders.includes(gender) && { pairingAnswers }),
           // Only the days picked, so retaking the quiz never clears a day
           // already set on the Weekly Preferences page.
           ...Object.fromEntries(
@@ -108,7 +122,7 @@ const StyleQuizForm = ({ onComplete }) => {
 
   return (
     <div className="style-quiz">
-      {step === 1 && (
+      {step === "gender" && (
         <div className="style-quiz-step">
           <div className="style-quiz-header">
             <h2 className="page-title">How do you usually dress?</h2>
@@ -131,7 +145,7 @@ const StyleQuizForm = ({ onComplete }) => {
         </div>
       )}
 
-      {step === 2 && (
+      {step === "images" && (
         <div className="style-quiz-step">
           <div className="style-quiz-header">
             <h2 className="page-title">Select all that apply</h2>
@@ -182,7 +196,7 @@ const StyleQuizForm = ({ onComplete }) => {
             <button
               type="button"
               className="style-quiz-finish-button"
-              onClick={handleImagesNext}
+              onClick={goToNextStep}
               disabled={selectedImages.length === 0}
             >
               Next
@@ -191,16 +205,27 @@ const StyleQuizForm = ({ onComplete }) => {
         </div>
       )}
 
-      {step === 3 && (
+      {step === "pairing" && (
+        <PairingQuestionStep
+          answers={pairingAnswers}
+          questionIndex={pairingIndex}
+          onQuestionChange={setPairingIndex}
+          onAnswer={handlePairingAnswer}
+          onBack={handleBack}
+          onNext={goToNextStep}
+        />
+      )}
+
+      {step === "weekly" && (
         <WeeklyTagStep
           weeklyTags={weeklyTags}
           onTagChange={handleWeeklyTagChange}
           onBack={handleBack}
-          onNext={handleWeeklyNext}
+          onNext={goToNextStep}
         />
       )}
 
-      {step === 4 && (
+      {step === "temperature" && (
         <div className="style-quiz-step">
           <div className="style-quiz-header">
             <h2 className="page-title">

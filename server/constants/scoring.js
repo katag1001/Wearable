@@ -31,9 +31,9 @@ const COLOUR_SCORE_WEIGHT = 0.4;
 // on; the last entry is used for anything more. Each level's colour cap is
 // in utils/colorPalettes.js (maxColorsByLevel).
 const COLOUR_COUNT_SCORES = {
-  min: [85, 65, 85, 65],
-  mid: [65, 45, 85, 85, 45, 25],
-  max: [25, 45, 65, 85, 85, 65, 45],
+  min: [65, 75, 85, 65],
+  mid: [65, 55, 85, 85, 65, 55],
+  max: [25, 45, 75, 85, 75, 65, 45],
 };
 
 // Outfits with no pairs to score (a onepiece on its own). Not affected by
@@ -63,6 +63,18 @@ const LEARNING_DELTAS = {
   deleted: -0.25,
 };
 
+// Style quiz pairing questions (constants/pairingQuestions.js): each answer
+// sets the personal adjustment of every pair in that question to this
+// value, replacing whatever was there. "no" takes the pair score down to
+// MIN_SCORE (the adjustment is limited at 0), which keeps every outfit
+// with that pair under MIN_AUTO_PAIR_SCORE so it is never suggested
+// automatically - anything smaller gets diluted by the outfit's other pairs.
+const PAIRING_ANSWER_ADJUSTMENTS = {
+  yes: 10,
+  sometimes: -10,
+  no: -MAX_SCORE,
+};
+
 // Rejecting an outfit on the Today page (at most once per outfit per day)
 // takes this off its stored score, and keeps it out of the Today list for
 // this many days.
@@ -83,6 +95,7 @@ module.exports = {
   MIN_AUTO_PAIR_SCORE,
   USER_MADE_SCORE,
   LEARNING_DELTAS,
+  PAIRING_ANSWER_ADJUSTMENTS,
   REJECTION_SCORE_PENALTY,
   REJECTION_COOLDOWN_DAYS,
 };

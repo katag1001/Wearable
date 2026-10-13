@@ -80,9 +80,9 @@ validate: { validator: Number.isInteger, message: "score must be a whole number"
 },
 });
 
-// My Outfits pages through a user's matches newest first
-// (server/services/queryHelpers.js).
-matchSchema.index({ userId: 1, _id: -1 });
+// My Outfits pages through a user's matches favourites first, then highest
+// score first (HIGHEST_SCORE_FIRST in server/services/queryHelpers.js).
+matchSchema.index({ userId: 1, favourite: -1, score: -1, _id: -1 });
 
 matchSchema.index({ userId: 1, clothesKey: 1 }, { unique: true });
 

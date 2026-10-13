@@ -9,6 +9,7 @@ const { processMatches } = require("../services/matchService");
 const { waitUntil } = require("@vercel/functions");
 const { describeOutfit } = require("../services/outfitEvaluator.js");
 const {
+  getBaselineMatrix,
   getBaselineMatrixForUser,
   getUserMatchingPreferences,
   recordOutfitCreated,
@@ -18,7 +19,12 @@ const {
   wipeUserScores,
 } = require("../services/matchScoreService.js");
 const { USER_MADE_SCORE } = require("../constants/scoring.js");
-const { findPage, parseIdList } = require("../services/queryHelpers.js");
+const { applyPairingAnswers } = require("../services/pairingQuizService.js");
+const {
+  findPage,
+  parseIdList,
+  HIGHEST_SCORE_FIRST,
+} = require("../services/queryHelpers.js");
 const {
   CLOTHES_CARD_FIELDS,
   parseMatchQuery,
@@ -595,6 +601,7 @@ userId,
 filter: buildMatchFilter(userId, filters, matchingClothesIds),
 paging: filters,
 listKey: "matches",
+sort: HIGHEST_SCORE_FIRST,
 prepare: (query) => query.populate("clothes", CLOTHES_CARD_FIELDS),
 });
 
@@ -1037,6 +1044,7 @@ exports.updatePreferences = async (req, res) => {
       colour,
       pattern,
       temperature,
+      pairingAnswers,
     } = req.body;
 
     // A user changing their gender invalidates their personal score
@@ -1081,6 +1089,17 @@ exports.updatePreferences = async (req, res) => {
 
     if (genderChanged) {
       await wipeUserScores(userId);
+    }
+
+    // Style quiz pairing answers set those pairs' adjustments. Applied after
+    // any wipe so a gender change in the same save keeps the new answers.
+    if (pairingAnswers) {
+      await applyPairingAnswers(
+        userId,
+        pairingAnswers,
+        preferences.gender,
+        getBaselineMatrix(preferences.gender)
+      );
     }
 
     return res.json({

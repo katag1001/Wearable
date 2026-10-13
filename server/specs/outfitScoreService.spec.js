@@ -50,9 +50,9 @@ test("getPairScore is undefined for a pair that can't be matched", () => {
 test("computeColourScore scores the number of distinct colours for each level", () => {
   const scores = (level, counts) => counts.map((count) => computeColourScore(withColours(count), level));
 
-  assert.deepEqual(scores("min", [1, 2, 3, 4]), [85, 65, 85, 65]);
-  assert.deepEqual(scores("mid", [1, 2, 3, 4, 5, 6]), [65, 45, 85, 85, 45, 25]);
-  assert.deepEqual(scores("max", [1, 2, 3, 4, 5, 6, 7, 8]), [25, 45, 65, 85, 85, 65, 45, 45]);
+  assert.deepEqual(scores("min", [1, 2, 3, 4]), [65, 75, 85, 65]);
+  assert.deepEqual(scores("mid", [1, 2, 3, 4, 5, 6]), [65, 55, 85, 85, 65, 55]);
+  assert.deepEqual(scores("max", [1, 2, 3, 4, 5, 6, 7, 8]), [25, 45, 75, 85, 75, 65, 45, 45]);
 });
 
 test("computeColourScore counts a colour shared by several items once", () => {
@@ -86,9 +86,9 @@ test("computeOutfitScore weights the pair blend 60% and the colour score 40%", (
 
 test("computeOutfitScore uses the user's adjustments and rounds to a whole number", () => {
   const adjustments = new Map([["A B", 5]]);
-  // single pair 85; 3 colours at max -> 65; 0.6 * 85 + 0.4 * 65 = 77
+  // single pair 85; 3 colours at max -> 75; 0.6 * 85 + 0.4 * 75 = 81
   const items = [item("A", ["Black", "White"]), item("B", ["Grey"])];
-  assert.equal(computeOutfitScore(items, baseline, adjustments, "max"), 77);
+  assert.equal(computeOutfitScore(items, baseline, adjustments, "max"), 81);
   assert.equal(Number.isInteger(computeOutfitScore([item("A"), item("B"), item("D")], baseline, null, "min")), true);
 });
 

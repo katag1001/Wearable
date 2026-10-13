@@ -4,7 +4,9 @@ import {
   temperatureQuestionOptions,
   styleImageOptions,
 } from "../../constants/styleQuizOptions";
+import { pairingQuestionGenders } from "../../constants/pairingQuestions";
 import { resolveStyleQuiz } from "../../utils/resolveStyleQuiz";
+import PairingPreferences from "./PairingPreferences";
 import "./stylePreferences.css";
 import "../../styles/pages.css";
 
@@ -39,6 +41,7 @@ const StylePreferences = () => {
   const [gender, setGender] = useState(null);
   const [temperature, setTemperature] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [pairingAnswers, setPairingAnswers] = useState({});
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -121,6 +124,19 @@ const StylePreferences = () => {
     setSuccess("");
   };
 
+  // A null answer clears the question, so it isn't sent.
+  const handlePairingAnswer = (questionKey, answer) => {
+    setPairingAnswers((current) => {
+      const { [questionKey]: _removed, ...rest } = current;
+      return answer ? { ...rest, [questionKey]: answer } : rest;
+    });
+
+    setError("");
+    setSuccess("");
+  };
+
+  const showPairingQuestions = pairingQuestionGenders.includes(gender);
+
   const handleSave = async () => {
     const token = getToken();
 
@@ -136,6 +152,10 @@ const StylePreferences = () => {
 
       body.colour = colour;
       body.pattern = pattern;
+    }
+
+    if (showPairingQuestions && Object.keys(pairingAnswers).length > 0) {
+      body.pairingAnswers = pairingAnswers;
     }
 
     try {
@@ -167,6 +187,7 @@ const StylePreferences = () => {
       }
 
       setSelectedImages([]);
+      setPairingAnswers({});
       setSuccess("Preferences saved successfully.");
 
       setTimeout(() => {
@@ -298,6 +319,15 @@ const StylePreferences = () => {
           })}
         </div>
       </div>
+
+      {/* PAIRING QUESTIONS (woman / unisex only) */}
+
+      {showPairingQuestions && (
+        <PairingPreferences
+          answers={pairingAnswers}
+          onAnswer={handlePairingAnswer}
+        />
+      )}
 
       {/* SAVE */}
 
