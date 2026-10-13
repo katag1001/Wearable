@@ -43,7 +43,7 @@ module.exports = {
     "Tunic",
     "Mini skirt",
     "Maxi skirt",
-    "Knee-length skirt",
+    "Smart skirt",
     "Midi-skirt",
     "Low waist midi",
     "Cropped jeans",
@@ -118,7 +118,7 @@ module.exports = {
     [null,null,null,null,  74,  76,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  79,  45,  74,  74,  40,  68,  64,  40,  74,  45,  88,  45,  82,  71,  40,  68,  52,  82,  88,  44,  74,  74,  62,  62,  74,  44,  44,null,null,null,null,null,null,null,null,null,null,null,  68,  64,  42,  68,  68,  30,  30,  46,  74,  68,  64,  36,  79], // Tunic
     [  82,  85,  34,  57,  66,  74,  72,  74,  79,  62,  82,  62,  74,  66,  82,  80,  74,  68,  72,  74,  79,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  85,  71,  65,  66,  72,  72,  33,  60,  66,  85,  71,  45,  90], // Mini skirt
     [  45,  65,  70,  60,  74,  80,  78,  84,  70,  74,  85,  85,  85,  75,  85,  85,  50,  57,  88,  88,  45,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  68,  64,  42,  58,  82,  30,  20,  75,  74,  75,  64,  26,  82], // Maxi skirt
-    [  34,  55,  86,  60,  86,  86,  90,  74,  74,  88,  74,  84,  84,  84,  74,  62,  62,  44,  62,  74,  74,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  88,  62,  70,  52,  84,  46,  22,  75,  68,  72,  62,  26,  78], // Knee-length skirt
+    [  34,  55,  86,  60,  86,  86,  90,  74,  74,  88,  74,  84,  84,  84,  74,  62,  62,  44,  62,  74,  74,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  88,  62,  70,  52,  84,  46,  22,  75,  68,  72,  62,  26,  78], // Smart skirt
     [  50,  78,  88,  82,  88,  88,  88,  74,  88,  90,  86,  84,  86,  88,  88,  80,  62,  44,  85,  85,  74,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  86,  62,  72,  52,  88,  46,  22,  86,  68,  78,  62,  26,  82], // Midi-skirt
     [  44,  40,  52,  66,  74,  80,  68,  74,  55,  74,  68,  68,  74,  74,  82,  82,  40,  52,  85,  80,  40,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  68,  68,  52,  58,  68,  40,  30,  46,  74,  68,  68,  36,  74], // Low waist midi
     [  82,  82,  46,  66,  68,  80,  80,  68,  82,  54,  54,  54,  68,  68,  68,  86,  74,  74,  74,  68,  68,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,  82,  74,  46,  74,  78,  22,  52,  32,  74,  62,  88,  60,  68], // Cropped jeans

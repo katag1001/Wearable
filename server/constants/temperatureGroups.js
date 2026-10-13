@@ -34,7 +34,7 @@ const BOTTOM_GROUPS = {
     "Cargo shorts", "Skater shorts", "Fancy Shorts",
   ],
   lightLong: [
-    "Maxi skirt", "Knee-length skirt", "Midi-skirt", "Low waist midi",
+    "Maxi skirt", "Smart skirt", "Midi-skirt", "Low waist midi",
     "Linen pants", "Cropped trousers",
   ],
   long: [

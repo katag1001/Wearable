@@ -48,7 +48,7 @@ values at the time of writing; the file is the source of truth.
 | Bottom group | Subtypes |
 |---|---|
 | short | Mini skirt and all shorts |
-| lightLong | Maxi, Knee-length, Midi and Low waist midi skirts, Linen pants, Cropped trousers |
+| lightLong | Maxi, Smart, Midi and Low waist midi skirts, Linen pants, Cropped trousers |
 | long | All jeans (including Cropped jeans), Tailored trousers, Wide leg trousers, Chinos, Cargo pants, Leather trousers, Leggings, Sweatpants |
 
 `BASE_RANGES` - a top group worn with a bottom group, no outer:

@@ -1019,7 +1019,7 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Skirts",
-      "name": "Knee-length skirt",
+      "name": "Smart skirt",
       "season": [
         "Spring",
         "Summer",
@@ -2153,7 +2153,7 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Skirts",
-      "name": "Knee-length skirt",
+      "name": "Smart skirt",
       "season": [
         "Spring",
         "Summer",

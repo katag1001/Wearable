@@ -121,7 +121,7 @@ tailored trousers
 wide-leg trousers
 leather trousers
 midi skirts
-knee-length skirts
+smart skirts
 maxi skirts
 Excellent under:
 
@@ -161,7 +161,7 @@ linen trousers
 cargo pants
 midi skirts
 maxi skirts
-knee-length skirts
+smart skirts
 shorts
 under waistcoats
 under blazers
@@ -462,7 +462,7 @@ leather jacket
 denim jacket
 This is one of the best places for oversized top + skirt.
 
-Knee-length skirt
+Smart skirt
 Best with relatively controlled tops:
 
 fitted turtleneck
