@@ -223,11 +223,24 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
   e.preventDefault();
 
+  console.log("[add clothing] 1. submit clicked", {
+    isUpdate,
+    saving,
+    validation: currentValidation,
+    formData,
+    hasImage: Boolean(selectedImage),
+    imageSizeKB: selectedImage ? Math.round(selectedImage.size / 1024) : null,
+  });
+
   // Ignore repeat submits (e.g. pressing Enter) while a save is running.
-  if (saving) return;
+  if (saving) {
+    console.log("[add clothing] stopped: a save is already running");
+    return;
+  }
 
   if (!currentValidation.valid) {
 
+    console.log("[add clothing] stopped: form invalid, missing:", currentValidation.missing);
     setShowValidation(true);
     return;
 
@@ -250,6 +263,11 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
     // ------------------------------------------
 
     if (selectedImage) {
+
+      console.log("[add clothing] 2. uploading image to Cloudinary", {
+        cloudName: import.meta.env.VITE_CLOUD_NAME,
+        uploadPreset: import.meta.env.VITE_UPLOAD_PRESET,
+      });
 
       const cloudinaryFormData = new FormData();
 
@@ -292,6 +310,12 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
       cloudinaryData =
         await cloudinaryResponse.json();
 
+      console.log("[add clothing] 2. Cloudinary upload OK", cloudinaryData.public_id);
+
+    } else {
+
+      console.log("[add clothing] 2. no image selected, skipping Cloudinary");
+
     }
 
 
@@ -333,6 +357,11 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
     let response;
 
+    console.log(
+      `[add clothing] 3. sending ${isUpdate ? "PUT" : "POST"} to ${URL}/clothing`,
+      { payload, hasAuthHeader: Boolean(axios.defaults.headers.common["Authorization"]) }
+    );
+
 
     if (isUpdate) {
 
@@ -362,6 +391,8 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
 
     const saved = response.data;
+
+    console.log("[add clothing] 4. server responded", response.status, saved);
 
 
     // ------------------------------------------
@@ -432,6 +463,13 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
 
   } catch (err) {
+
+    console.error(
+      "[add clothing] FAILED - status:",
+      err.response?.status,
+      "message:",
+      err.message
+    );
 
     console.error(
       "Save clothing error:",

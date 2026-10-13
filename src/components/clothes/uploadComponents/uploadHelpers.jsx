@@ -57,9 +57,11 @@ export const detectFromName = (name) => {
 
 
 
-  const detectedTags = tagOptions.filter(tag =>
-    lower.includes(tag.name.toLowerCase())
-  );
+  const detectedTags = tagOptions
+    .filter(tag =>
+      lower.includes(tag.name.toLowerCase())
+    )
+    .map(tag => tag.name);
 
 
 

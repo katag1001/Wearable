@@ -264,11 +264,17 @@ exports.createItem = async (req, res) => {
 const userId = req.user?.userId;
 const { name, type } = req.body;
 
+console.log("[add clothing] server: request received", { userId, name, type, body: req.body });
+
 if (!userId) {
+console.log("[add clothing] server: stopped - no userId");
 return res.status(401).json({ error: "Unauthorized" });
 }
 
-if (!type) return res.status(400).json({ error: "Missing type" });
+if (!type) {
+console.log("[add clothing] server: stopped - missing type");
+return res.status(400).json({ error: "Missing type" });
+}
 
 try {
 const existingItem = await Clothes.findOne({
@@ -278,8 +284,11 @@ userId,
 });
 
 if (existingItem) {
-  return res.json({
-    error: "Duplicate item already exists",
+  console.log("[add clothing] server: stopped - duplicate of", existingItem._id);
+  // 409 so the client treats it as a failed save (shows the error and
+  // cleans up the image it just uploaded) rather than "Item created".
+  return res.status(409).json({
+    error: "You already have an item with this name and type",
     item: existingItem,
   });
 }
@@ -291,13 +300,18 @@ const item = new Clothes({
 
 await item.save();
 
+console.log("[add clothing] server: saved item", item._id);
+
 const allItems = await Clothes.find({ userId });
+
+console.log("[add clothing] server: starting background matching against", allItems.length, "items");
 
 matchInBackground(item, allItems);
 
 return res.json({ ...item.toObject(), processing: true });
 
 } catch (error) {
+console.error("[add clothing] server: FAILED", error);
 return res.status(500).json({ error: error.message });
 }
 };
