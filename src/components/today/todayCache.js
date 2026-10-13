@@ -17,7 +17,7 @@ const getCurrentUser = () => {
    READ
 ------------------------- */
 
-// { todayTag, outfits } saved earlier today by this user, or null.
+// { todayTag, outfits, wornToday } saved earlier today by this user, or null.
 export const getCachedToday = () => {
   try {
     const cached = JSON.parse(
@@ -36,6 +36,7 @@ export const getCachedToday = () => {
     return {
       todayTag: cached.todayTag ?? null,
       outfits: cached.outfits,
+      wornToday: cached.wornToday ?? null,
     };
 
   } catch {
@@ -48,7 +49,7 @@ export const getCachedToday = () => {
    WRITE
 ------------------------- */
 
-export const cacheToday = ({ todayTag, outfits }) => {
+export const cacheToday = ({ todayTag, outfits, wornToday }) => {
   try {
     localStorage.setItem(
       TODAY_CACHE_KEY,
@@ -57,6 +58,7 @@ export const cacheToday = ({ todayTag, outfits }) => {
         user: getCurrentUser(),
         todayTag,
         outfits,
+        wornToday: wornToday ?? null,
       })
     );
 

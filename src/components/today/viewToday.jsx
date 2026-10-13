@@ -59,11 +59,16 @@ const ViewToday = ({ todayReady }) => {
   const [message, setMessage] = useState(null);
 
   // The outfit currently marked "worn today", plus the snapshot needed to
-  // undo it if a different outfit is marked worn later in the same session.
-  const [wornToday, setWornToday] = useState(null);
+  // undo it if a different outfit is marked worn later the same day.
+  // Restored from the cache so coming back to the page keeps the choice.
+  const [wornToday, setWornToday] = useState(
+    cachedToday?.wornToday ?? null
+  );
 
   // Whether the full outfit-selection UI is showing, vs just the worn card.
-  const [showSelector, setShowSelector] = useState(true);
+  const [showSelector, setShowSelector] = useState(
+    !cachedToday?.wornToday
+  );
 
   const [popup, setPopup] = useState({
     open: false,
@@ -430,9 +435,10 @@ const ViewToday = ({ todayReady }) => {
     cacheToday({
       todayTag,
       outfits,
+      wornToday,
     });
 
-  }, [outfits, todayTag, loading]);
+  }, [outfits, todayTag, wornToday, loading]);
 
 
   /* ------------------------- FILTER BY TAG ------------------------- */
