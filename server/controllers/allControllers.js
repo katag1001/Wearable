@@ -35,6 +35,10 @@ const {
   deleteMatchesAndDecrementScores,
   deleteMatchesWithoutScoring,
 } = require("../services/matchLifecycleService.js");
+const {
+  changedMatchingFields,
+  refreshMatchesForItem,
+} = require("../services/matchRefreshService.js");
 const { matchesTodayTemperature } = require("../services/temperatureService.js");
 const {
   resolveTodayStart,
@@ -390,9 +394,21 @@ req.body,
 { new: true, runValidators: true }
 );
 
-const allItems = await Clothes.find({ userId });
+// Only a change to a field matching reads (not e.g. the name) re-checks the
+// item's outfits and searches for new ones.
+const changedFields = changedMatchingFields(existingItem, updatedItem);
 
-matchInBackground(updatedItem, allItems);
+if (changedFields.length) {
+  try {
+    await refreshMatchesForItem(updatedItem, changedFields);
+  } catch (error) {
+    console.error("Match refresh failed:", error.message);
+  }
+
+  const allItems = await Clothes.find({ userId });
+
+  matchInBackground(updatedItem, allItems);
+}
 
 return res.json(updatedItem);
 

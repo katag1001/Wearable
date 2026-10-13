@@ -240,7 +240,7 @@ promise to Vercel's `waitUntil` (`matchInBackground` in
 `allControllers.js`) so the function stays alive until matching finishes,
 up to the 300s `maxDuration` in `vercel.json`. It then responds right away
 with the item plus `processing: true`. `updateItem` does the same after an
-edit.
+edit, but only when a matching field changed (see 1.8).
 
 Clicking **View New Matches** opens `/matches?item=<id>` with
 `state.processing = true`. `src/pages/Matches.jsx` then re-fetches
@@ -255,10 +255,25 @@ appears. Then it shows the matches, filtered to that item.
   doesn't reset seasons or tags. A subtype change still
   updates `type`.
 - Style is still recalculated from the colours (1.4).
-- After the save, `processMatches` runs again for the item. It only **adds**
-  outfits that don't exist yet. Existing outfits containing the item are
-  **not** re-checked, re-scored or removed, even if the edit means they
-  would no longer pass.
+- If no field matching reads changed (`type`, `subtype`, `colors`,
+  `styles`, `tags`, the four seasons) - e.g. only the name - nothing else
+  happens.
+- Otherwise `refreshMatchesForItem` (`server/services/matchRefreshService.js`)
+  runs before the response. It re-checks each existing outfit containing
+  the item against the search's rules (shape, compatibility, layering,
+  colour, pattern, shared season, shared tag):
+  - **Protected** outfits (favourite, user-made, `lastWornDate` set or
+    `timesWorn > 0`) are never deleted.
+  - Unprotected outfits that no longer pass are deleted without lowering
+    pair scores, along with their Today entries.
+  - Every kept outfit has only the fields fed by the changed item fields
+    rewritten (`ITEM_FIELD_TO_OUTFIT_FIELDS`: a season → that season,
+    colours/styles/tags → the same field, subtype → temperature range,
+    type → temperature range and role counts). Manual edits to the
+    outfit's other fields survive. Score, rejections and wear history are
+    never changed.
+- Then `processMatches` runs again for the item in the background and adds
+  outfits that don't exist yet.
 
 ---
 
@@ -1088,6 +1103,7 @@ All of these have been run on the current database.
 Tests: `server/specs/` (`matchService`, `matrixService`,
 `outfitScoreService`, `outfitEvaluator`, `styleColorService`,
 `matchScoreService`, `matchScoreBaseline`, `matchRejectionService`,
+`matchRefreshService`,
 `presetTemperatureService`,
 `temperatureService`,
 `colorPalettes`). Run them with `cd server && node --test specs/*.spec.js`.
