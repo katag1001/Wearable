@@ -642,6 +642,15 @@
 }
 
 
+.buildmatch-scroll-arrow:disabled {
+  opacity: .35;
+
+  cursor: default;
+
+  pointer-events: none;
+}
+
+
 .buildmatch-scroll-arrow:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: 2px;

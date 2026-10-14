@@ -55,6 +55,9 @@ const CreateMatch = () => {
   });
 
 
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(8);
+
   const scrollRef = useRef(null);
 
 
@@ -188,19 +191,48 @@ const CreateMatch = () => {
 
 
   /* --------------------------------------------------------------
-     Scroll
+     Paging
   -------------------------------------------------------------- */
 
-  const scroll = (direction) => {
+  // The grid always shows 2 rows; the column count changes per
+  // breakpoint in the CSS, so read it from the rendered grid.
+  const GRID_ROWS = 2;
 
-    const container = scrollRef.current;
+  useEffect(() => {
 
-    if (!container) return;
+    const measure = () => {
 
-    container.scrollBy({
-      left: direction * 300,
-      behavior: "smooth",
-    });
+      const container = scrollRef.current;
+
+      if (!container) return;
+
+      const columns = getComputedStyle(container)
+        .gridTemplateColumns
+        .split(" ")
+        .filter(Boolean).length;
+
+      setPageSize(Math.max(1, columns) * GRID_ROWS);
+
+    };
+
+    measure();
+
+    window.addEventListener("resize", measure);
+
+    return () =>
+      window.removeEventListener("resize", measure);
+
+  }, []);
+
+
+  const changePage = (direction) => {
+
+    setPage((prev) =>
+      Math.min(
+        Math.max(prev + direction, 0),
+        totalPages - 1
+      )
+    );
 
   };
 
@@ -213,10 +245,7 @@ const CreateMatch = () => {
 
     setSelectedCategory(category);
     setSearchTerm("");
-
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft = 0;
-    }
+    setPage(0);
 
   };
 
@@ -365,6 +394,19 @@ const CreateMatch = () => {
   const currentItems =
     filteredItems(selectedCategory);
 
+  const totalPages = Math.max(
+    1,
+    Math.ceil(currentItems.length / pageSize)
+  );
+
+  // Clamp in case a resize or search shrinks the page count
+  const currentPage = Math.min(page, totalPages - 1);
+
+  const pageItems = currentItems.slice(
+    currentPage * pageSize,
+    (currentPage + 1) * pageSize
+  );
+
 
   /* --------------------------------------------------------------
      Render Clothing
@@ -393,7 +435,8 @@ const CreateMatch = () => {
           <button
             type="button"
             className="buildmatch-scroll-arrow"
-            onClick={() => scroll(-1)}
+            onClick={() => changePage(-1)}
+            disabled={currentPage === 0}
             aria-label={`Previous ${sectionTitles[selectedCategory]}`}
           >
             ‹
@@ -413,7 +456,7 @@ const CreateMatch = () => {
 
             ) : (
 
-              currentItems.map((item) => (
+              pageItems.map((item) => (
 
                 <button
                   type="button"
@@ -460,7 +503,8 @@ const CreateMatch = () => {
           <button
             type="button"
             className="buildmatch-scroll-arrow"
-            onClick={() => scroll(1)}
+            onClick={() => changePage(1)}
+            disabled={currentPage >= totalPages - 1}
             aria-label={`Next ${sectionTitles[selectedCategory]}`}
           >
             ›
@@ -669,9 +713,10 @@ const CreateMatch = () => {
                   className="buildmatch-search-input"
                   placeholder="Search clothing..."
                   value={searchTerm}
-                  onChange={(e) =>
-                    setSearchTerm(e.target.value)
-                  }
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(0);
+                  }}
                 />
 
               </div>
