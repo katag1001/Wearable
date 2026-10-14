@@ -1,0 +1,5 @@
+{
+  "woman": ["Ballerinas", "Loafers", "Flipflops", "Ankle boots", "Knee-high boots", "Heeled boots", "Snow boots", "Walking boots", "Sandals", "Heeled sandals", "Heels", "Smart trainers", "Casual trainers"],
+  "man": ["Loafers", "Formal shoes", "Flipflops", "Boots", "Walking boots", "Snow boots", "Sandals", "Smart trainers", "Casual trainers"],
+  "unisex": ["Ballerinas", "Loafers", "Flipflops", "Ankle boots", "Knee-high boots", "Heeled boots", "Snow boots", "Walking boots", "Sandals", "Heeled sandals", "Heels", "Smart trainers", "Casual trainers", "Formal shoes", "Boots"]
+}

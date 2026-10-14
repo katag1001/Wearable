@@ -76,7 +76,7 @@ const buildFootwearFilter = (userId, filters) =>
 
 /* -------------------- Filter panel options -------------------- */
 
-// The subtypes the user owns, A-Z, e.g. ["Ankle boots", "Trainers"].
+// The subtypes the user owns, A-Z, e.g. ["Ankle boots", "Casual trainers"].
 const listOwnedSubtypes = (subtypes) =>
   [...new Set(subtypes.filter(Boolean))].sort((a, b) => a.localeCompare(b));
 

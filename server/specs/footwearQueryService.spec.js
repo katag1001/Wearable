@@ -58,7 +58,7 @@ test("buildFootwearFilter searches name, colours and styles, case-insensitively"
 
 test("listOwnedSubtypes drops blanks and duplicates and sorts A-Z", () => {
   assert.deepEqual(
-    listOwnedSubtypes(["Trainers", "", "Ankle boots", "Trainers", null]),
-    ["Ankle boots", "Trainers"]
+    listOwnedSubtypes(["Casual trainers", "", "Ankle boots", "Casual trainers", null]),
+    ["Ankle boots", "Casual trainers"]
   );
 });

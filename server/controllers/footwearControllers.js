@@ -7,6 +7,15 @@ const {
   deleteReplacedImage,
 } = require("../services/imageService.js");
 const {
+  rejectFootwearPairing,
+  wearFootwearPairing,
+  unwearFootwearPairing,
+  loadFootwearPairings,
+  wipeFootwearScores,
+} = require("../services/footwearScoreService.js");
+const { getUserMatchingPreferences } = require("../services/matchScoreService.js");
+const { resolveTodayStart } = require("../services/matchRejectionService.js");
+const {
   parseFootwearQuery,
   buildFootwearFilter,
   listOwnedSubtypes,
@@ -15,7 +24,8 @@ const {
 /*
  * Footwear is its own collection, separate from Clothes. Nothing here
  * touches outfits: adding, editing or deleting footwear never creates,
- * re-checks or removes matches.
+ * re-checks or removes matches. The Today page's shoe box ranks footwear
+ * against the worn outfit and learns from it (footwearScoreService.js).
  */
 
 // The client's form also carries clothing-only fields (e.g. `type`) - the
@@ -190,8 +200,175 @@ exports.deleteFootwear = async (req, res) => {
   }
 };
 
-// Used when a user deletes their account: removes their footwear and its
-// images. Image failures are logged and skipped so the account still goes.
+/* -------------------- TODAY PAGE -------------------- */
+
+// A subtype name from a request body, or null if missing / not a string.
+const parseSubtype = (value) =>
+  typeof value === "string" && value.trim() && value.length <= 100
+    ? value.trim()
+    : null;
+
+// Everything the Today page's shoe box needs in one request: all the
+// user's footwear, their learned pairings, their gender (which picks
+// the matrix) and colour level (which picks the palettes). The box ranks
+// the shoes itself.
+exports.getTodayFootwear = async (req, res) => {
+  const userId = req.user?.userId;
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const [items, pairings, { gender, colour }] = await Promise.all([
+      Footwear.find({ userId }).sort({ _id: -1 }).lean(),
+      loadFootwearPairings(userId),
+      getUserMatchingPreferences(userId),
+    ]);
+
+    return res.json({ items, pairings, gender, colourLevel: colour });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// Scrolling past a shoe - counts at most once per pairing per day.
+exports.rejectFootwearPairing = async (req, res) => {
+  const userId = req.user?.userId;
+  const bottomSubtype = parseSubtype(req.body?.bottomSubtype);
+  const footwearSubtype = parseSubtype(req.body?.footwearSubtype);
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  if (!bottomSubtype || !footwearSubtype) {
+    return res.status(400).json({ error: "Missing bottomSubtype or footwearSubtype" });
+  }
+
+  try {
+    const { gender } = await getUserMatchingPreferences(userId);
+
+    const pairing = await rejectFootwearPairing(
+      userId,
+      gender,
+      bottomSubtype,
+      footwearSubtype,
+      resolveTodayStart(req.body?.todayStart)
+    );
+
+    return res.json({ pairing });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// Marks a shoe worn today, with the outfit's bottom (or one-piece) subtype
+// if it has one. Returns the updated shoe and pairing.
+exports.wearFootwear = async (req, res) => {
+  const userId = req.user?.userId;
+  const bottomSubtype = parseSubtype(req.body?.bottomSubtype);
+  const wornDate = new Date(req.body?.wornDate || Date.now());
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  if (Number.isNaN(wornDate.getTime())) {
+    return res.status(400).json({ error: "Invalid wornDate" });
+  }
+
+  try {
+    const item = await Footwear.findOne({ _id: req.params.id, userId });
+
+    if (!item) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+
+    const wornYear = wornDate.getFullYear();
+
+    item.lastWornDate = wornDate;
+    item.timesWorn = (item.timesWorn || 0) + 1;
+    item.timesWornThisYear =
+      item.wornYear === wornYear ? (item.timesWornThisYear || 0) + 1 : 1;
+    item.wornYear = wornYear;
+
+    await item.save();
+
+    let pairing = null;
+
+    if (bottomSubtype) {
+      const { gender } = await getUserMatchingPreferences(userId);
+
+      pairing = await wearFootwearPairing(
+        userId,
+        gender,
+        bottomSubtype,
+        item.subtype,
+        resolveTodayStart(req.body?.todayStart)
+      );
+    }
+
+    return res.json({ item, pairing });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// Undoes wearFootwear when a different shoe or outfit is worn instead the
+// same day: restores the shoe's exact previous worn values and takes the
+// pairing's worn delta back off.
+exports.unwearFootwear = async (req, res) => {
+  const userId = req.user?.userId;
+  const bottomSubtype = parseSubtype(req.body?.bottomSubtype);
+  const snapshot = req.body?.snapshot || {};
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const item = await Footwear.findOneAndUpdate(
+      { _id: req.params.id, userId },
+      {
+        $set: {
+          lastWornDate: snapshot.lastWornDate ?? null,
+          timesWorn: snapshot.timesWorn ?? 0,
+          timesWornThisYear: snapshot.timesWornThisYear ?? 0,
+          wornYear: snapshot.wornYear ?? null,
+        },
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!item) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+
+    let pairing = null;
+
+    if (bottomSubtype) {
+      const { gender } = await getUserMatchingPreferences(userId);
+
+      pairing = await unwearFootwearPairing(
+        userId,
+        gender,
+        bottomSubtype,
+        item.subtype
+      );
+    }
+
+    return res.json({ item, pairing });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+/* -------------------- ACCOUNT -------------------- */
+
+// Used when a user deletes their account: removes their footwear, its
+// images and their learned footwear pairings. Image failures are logged
+// and skipped so the account still goes.
 exports.deleteAllFootwearForUser = async (userId) => {
   const items = await Footwear.find({ userId }).select("cloudinaryId");
 
@@ -202,4 +379,5 @@ exports.deleteAllFootwearForUser = async (userId) => {
   }
 
   await Footwear.deleteMany({ userId });
+  await wipeFootwearScores(userId);
 };

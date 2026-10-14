@@ -1,0 +1,81 @@
+/* ================================================================
+   TODAY - SHOE BOX
+   Beside the worn outfit card (.today-worn-section). The card look,
+   image grid, arrows and button come from viewToday.css.
+================================================================ */
+
+.today-worn-section {
+  gap: 1rem;
+}
+
+
+.today-worn-section .today-footwear-box {
+  max-width: 300px;
+}
+
+
+.today-footwear-title {
+  margin: 0 0 .5rem;
+
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+
+.today-footwear-content {
+  height: 220px;
+}
+
+
+.today-footwear-name {
+  margin: 0;
+
+  font-size: .95rem;
+  text-align: center;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.today-footwear-position {
+  margin: .15rem 0 .55rem;
+
+  font-size: .8rem;
+  text-align: center;
+  opacity: .7;
+}
+
+
+.today-footwear-message {
+  margin: auto 0;
+
+  font-size: .9rem;
+  text-align: center;
+}
+
+
+.today-footwear-box .regular-button:disabled {
+  cursor: default;
+  opacity: .7;
+}
+
+
+/* Stack the shoe box under the outfit on narrow screens. */
+
+@media (max-width: 900px) {
+
+  .today-worn-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+
+  /* Same width as the outfit card above it. */
+  .today-worn-section .today-footwear-box {
+    max-width: 480px;
+    min-height: 0;
+  }
+}

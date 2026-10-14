@@ -81,8 +81,18 @@ const PAIRING_ANSWER_ADJUSTMENTS = {
 const REJECTION_SCORE_PENALTY = 3;
 const REJECTION_COOLDOWN_DAYS = 5;
 
+// Footwear on the Today page (server/services/footwearScoreService.js):
+// the change to an outfit-bottom + shoe pairing's personal adjustment.
+// Scrolling past a shoe counts at most once per pairing per day; wearing it
+// takes back a rejection from the same day.
+const FOOTWEAR_LEARNING_DELTAS = {
+  rejected: -0.125,
+  worn: 0.25,
+};
+
 module.exports = {
   MIN_SCORE,
+  FOOTWEAR_LEARNING_DELTAS,
   MAX_SCORE,
   MAX_BASELINE_SCORE,
   AVERAGE_PAIR_WEIGHT,

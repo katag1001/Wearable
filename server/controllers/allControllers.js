@@ -9,6 +9,7 @@ const { processMatches } = require("../services/matchService");
 const { waitUntil } = require("@vercel/functions");
 const { deleteAllFootwearForUser } = require("./footwearControllers.js");
 const { deleteReplacedImage } = require("../services/imageService.js");
+const { wipeFootwearScores } = require("../services/footwearScoreService.js");
 const { describeOutfit } = require("../services/outfitEvaluator.js");
 const {
   getBaselineMatrix,
@@ -1000,7 +1001,12 @@ exports.getToday = async (req, res) => {
         path: "matchId",
         populate: {
           path: "clothes",
-          select: "name imageUrl type",
+          // subtype: the shoe box pairs shoes with the outfit's bottom.
+          // lastWornDate: clothing freshness in todayOutfitSort.jsx.
+          // The worn fields together: the snapshot viewToday takes before
+          // marking an outfit worn, restored if another is worn instead.
+          select:
+            "name imageUrl type subtype lastWornDate timesWorn timesWornThisYear wornYear",
         },
       });
 
@@ -1111,6 +1117,8 @@ exports.updatePreferences = async (req, res) => {
 
     if (genderChanged) {
       await wipeUserScores(userId);
+      // Footwear pairings were learned against the old gender's matrix too.
+      await wipeFootwearScores(userId);
     }
 
     // Style quiz pairing answers set those pairs' adjustments. Applied after

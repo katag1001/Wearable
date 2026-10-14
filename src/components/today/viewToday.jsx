@@ -11,6 +11,7 @@ import { rejectOutfit, wasRejectedToday } from "./outfitRejection";
 import { getCachedToday, cacheToday } from "./todayCache";
 import { tagOptions } from "../../constants/optionsBank";
 import { getImageUrl } from "../../utils/getImageUrl";
+import TodayFootwearBox from "./footwear/todayFootwearBox.jsx";
 
 
 // The tagOptions entry for the weekly-preference tag (matched without
@@ -1126,6 +1127,14 @@ const ViewToday = ({ todayReady }) => {
             </div>
 
           </div>
+
+
+          {/* SHOES FOR THE WORN OUTFIT */}
+
+          <TodayFootwearBox
+            outfit={wornOutfit}
+            todayTag={todayTag}
+          />
 
         </div>
 

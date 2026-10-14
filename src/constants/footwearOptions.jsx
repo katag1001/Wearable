@@ -2,9 +2,15 @@
 //
 // Each gender's footwear types, with the seasons and tags that pre-fill
 // page two of the Add Footwear form. Footwear is separate from clothing
-// (its own Footwear collection) and never takes part in outfit matching,
-// so unlike typeOptions.jsx there is no role or category, and nothing on
-// the server needs to be kept in step with this file.
+// (its own Footwear collection) and has no role or category.
+//
+// The type names per gender come from shared/footwearByGender.json, which
+// the footwear score matrices (shared/footwearMatrices.json) are checked
+// against. Unisex is every type from the woman and man lists. A type added
+// there needs an entry in FOOTWEAR_DEFAULTS below and a column in the
+// matrices.
+
+import footwearByGender from "../../shared/footwearByGender.json";
 
 const ALL_SEASONS = ["Spring", "Summer", "Autumn", "Winter"];
 
@@ -42,11 +48,23 @@ const FOOTWEAR_DEFAULTS = {
     season: ["Spring", "Summer"],
     tags: ["Beach", "Everyday", "Dinner", "Date night"],
   },
+  "Walking boots": {
+    season: ["Spring", "Autumn", "Winter"],
+    tags: ["Outdoor", "Everyday"],
+  },
+  "Heeled sandals": {
+    season: ["Spring", "Summer"],
+    tags: ["Party", "Dinner", "Date night", "Wedding"],
+  },
   "Heels": {
     season: ALL_SEASONS,
     tags: ["Work", "Dinner", "Date night", "Party", "Wedding"],
   },
-  "Trainers": {
+  "Smart trainers": {
+    season: ALL_SEASONS,
+    tags: ["Work", "Everyday", "Dinner", "Date night"],
+  },
+  "Casual trainers": {
     season: ALL_SEASONS,
     tags: ["Gym", "Everyday", "Outdoor", "Loungewear"],
   },
@@ -60,39 +78,13 @@ const FOOTWEAR_DEFAULTS = {
   },
 };
 
-const WOMAN_FOOTWEAR = [
-  "Ballerinas",
-  "Loafers",
-  "Flipflops",
-  "Ankle boots",
-  "Knee-high boots",
-  "Heeled boots",
-  "Snow boots",
-  "Sandals",
-  "Heels",
-  "Trainers",
-];
-
-const MAN_FOOTWEAR = [
-  "Loafers",
-  "Formal shoes",
-  "Flipflops",
-  "Boots",
-  "Snow boots",
-  "Sandals",
-  "Trainers",
-];
-
-// Unisex is every type from both lists, like unisex clothing.
-const UNISEX_FOOTWEAR = [...new Set([...WOMAN_FOOTWEAR, ...MAN_FOOTWEAR])];
-
 const toOptions = (names) =>
   names.map((name) => ({ name, ...FOOTWEAR_DEFAULTS[name] }));
 
 const footwearOptionsByGender = {
-  woman: toOptions(WOMAN_FOOTWEAR),
-  man: toOptions(MAN_FOOTWEAR),
-  unisex: toOptions(UNISEX_FOOTWEAR),
+  woman: toOptions(footwearByGender.woman),
+  man: toOptions(footwearByGender.man),
+  unisex: toOptions(footwearByGender.unisex),
 };
 
 // Extra keywords for suggesting a type from the item's name, on top of
@@ -106,11 +98,15 @@ export const FOOTWEAR_SYNONYMS = {
   "knee-high boots": ["knee high", "tall boots", "riding boots"],
   "heeled boots": ["heeled boot", "stiletto boots"],
   "snow boots": ["uggs", "ugg", "moon boots", "winter boots"],
+  "walking boots": ["walking boot", "hiking boots", "hiking boot", "hikers", "trail boots"],
   "sandals": ["sandal", "slides", "sliders", "espadrilles"],
+  "heeled sandals": ["heeled sandal", "strappy heels", "block heel sandals", "wedges", "wedge sandals"],
   "heels": ["heel", "pumps", "stilettos", "stiletto", "court shoes", "slingbacks", "mules"],
-  "trainers": ["trainer", "sneakers", "sneaker", "runners", "running shoes", "kicks"],
+  // "trainers" on its own matches both trainer types by their names.
+  "smart trainers": ["smart trainer", "leather trainers", "white trainers", "smart sneakers", "leather sneakers"],
+  "casual trainers": ["casual trainer", "sneakers", "sneaker", "runners", "running shoes", "kicks"],
   "formal shoes": ["brogues", "oxfords", "derby", "derbies", "dress shoes"],
-  "boots": ["boot", "chelsea", "work boots", "hiking boots"],
+  "boots": ["boot", "chelsea", "work boots"],
 };
 
 export const getFootwearOptions = (gender) =>

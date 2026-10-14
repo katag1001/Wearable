@@ -223,8 +223,9 @@ matchScoreSchema.index(
 /* -------------------- FOOTWEAR -------------------- */
 
 // Kept apart from Clothes: footwear is never matched into outfits, so it has
-// no role (`type`) - just a subtype from src/constants/footwearOptions.jsx.
-// The worn fields mirror Clothes, ready for footwear being worn with outfits.
+// no role (`type`) - just a subtype from shared/footwearByGender.json. The
+// Today page suggests shoes for the worn outfit and marks them worn
+// (FootwearScore below).
 const footwearSchema = new mongoose.Schema({
 name: { type: String, required: true },
 imageUrl: { type: String, default: "" },
@@ -262,6 +263,39 @@ winter: { type: Boolean, required: true },
 footwearSchema.index({ userId: 1, _id: -1 });
 
 
+/* -------------------- FOOTWEAR SCORE -------------------- */
+
+// A user's personal adjustment for pairing an outfit's bottom (or
+// one-piece) subtype with a footwear type, learned on the Today page
+// (server/services/footwearScoreService.js). Sparse like MatchScore: a
+// document only exists once the user has scrolled past or worn that
+// pairing. The score is the baseline (shared/footwearMatrices.json) plus
+// this adjustment.
+const footwearScoreSchema = new mongoose.Schema({
+
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    index: true,
+  },
+
+  bottomSubtype: { type: String, required: true },
+  footwearSubtype: { type: String, required: true },
+
+  adjustment: { type: Number, default: 0 },
+
+  // Scrolling past counts at most once per pairing per day.
+  lastRejectedDate: { type: Date, default: null },
+
+});
+
+footwearScoreSchema.index(
+  { userId: 1, bottomSubtype: 1, footwearSubtype: 1 },
+  { unique: true }
+);
+
+
 /* -------------------- MODELS -------------------- */
 
 module.exports = {
@@ -270,6 +304,7 @@ Match: mongoose.model("Match", matchSchema),
 Today: mongoose.model("Today", todaySchema),
 Clothes: mongoose.model("Clothes", clothesSchema),
 Footwear: mongoose.model("Footwear", footwearSchema),
+FootwearScore: mongoose.model("FootwearScore", footwearScoreSchema),
 Preferences: mongoose.model("Preferences", preferencesSchema),
 MatchScore: mongoose.model("MatchScore", matchScoreSchema),
 };

@@ -155,8 +155,17 @@ key), plus:
   re-sorting the pair if the new name sorts differently.
 - Matches only store clothing ids, so they need no change.
 
-`server/scripts/renameWideLegTrousers.js` is a ready example of a rename
-(items + score adjustments), and `server/scripts/replaceWomensChinos.js`
-of removing a subtype for one gender by switching items to another.
+Do this with a one-off script in `server/scripts/` that connects with
+`MONGO` from `server/.env` (like the scripts there), then delete it once
+it's been run:
+
+- **Rename:** `Clothes.updateMany({ subtype: OLD }, { $set: { subtype: NEW } })`,
+  then for each `MatchScore` with `OLD` as `subtypeA` or `subtypeB`, swap
+  in `NEW` and re-sort the pair with `canonicalPairKey`
+  (`services/matrixService.js`).
+- **Removing a subtype for one gender:** find that gender's users in
+  `Preferences`, and switch their items with the old subtype to the
+  closest remaining one.
+
 Keeping the old spelling as a `SUBTYPE_SYNONYMS` entry means typing it
 still suggests the subtype.

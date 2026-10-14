@@ -540,7 +540,7 @@ can't change:
 
 ### 3.6 Colour rules
 
-`server/utils/colorPalettes.js` holds a separate palette list for each
+`shared/colorPalettes.json` (read by `server/utils/colorPalettes.js`) holds a separate palette list for each
 colour level:
 
 | Level | Palettes | Palette size | Max distinct colours in an outfit |
@@ -1107,23 +1107,20 @@ undone by accident:
 
 ---
 
-## Part 11 - One-off database scripts
+## Part 11 - Database scripts
 
 All in `server/scripts/`. Each reads `MONGO` from `server/.env`. Run from
 the project root with `node server/scripts/<name>.js`.
 
 | Script | What it does | Safe to run again? |
 |---|---|---|
-| `matchingOverhaulMigration.js` | Renames the first set of subtypes, men's Waistcoat → top, removes the old `style` preference, **deletes all personal score adjustments**, reports matches without a score | Steps 1-3 and 5 yes; **step 4 no** - it would wipe learned adjustments |
-| `removeClothingTemperatures.js` | Removes `min_temp`/`max_temp` from clothing items (`--backup <file>` saves them first) | Yes |
 | `resetMatchTemperatures.js` | Recalculates every match's temperature range from the current presets (`--dry-run`, `--backup <file>`). Also overwrites ranges edited by hand | Yes - run it after changing `temperatureGroups.js` |
-| `renameWideLegTrousers.js` | Wideleg trousers → Wide leg trousers on items and score adjustments | Yes |
-| `replaceWomensChinos.js` | Women's Chinos items → Cropped trousers | Yes |
-| `mergeColours.js` | Beige → Cream and Lavender → Lilac on items and matches (an item left with one colour becomes Plain) | Yes |
-| `addMatchClothesKey.js` | Sets `clothesKey` on every match and builds the unique `{ userId, clothesKey }` index. Lists any duplicate outfits and changes nothing if there are some | Yes |
 | `rematchAll.js` | **Deletes every match and Today entry for every user** (user-made and favourites too), then runs `processMatches` for every clothing item under the current rules. Personal score adjustments are kept. Only shows counts unless run with `--confirm` | Yes, but each run throws away user-made outfits and favourites |
 
-All of these have been run on the current database.
+The one-off migrations for the changes in Part 10 (subtype renames, the
+score-adjustment reset, colour merges, removing clothing temperatures,
+adding `clothesKey`) were run on the database and then deleted. They're in
+the git history if one is ever needed again.
 
 ---
 
@@ -1144,7 +1141,7 @@ All of these have been run on the current database.
 | Tops that need layering / onepieces that need a top | `server/constants/requiresLayering.js` |
 | Outfit score blend, colour-count scores, single-item / user-made scores, learning steps | `server/constants/scoring.js` |
 | Allowed outfit shapes | `server/constants/outfitShapes.js` |
-| Colour palettes and colour caps | `server/utils/colorPalettes.js` |
+| Colour palettes and colour caps | `shared/colorPalettes.json` (loaded by `server/utils/colorPalettes.js`) |
 | Patterned-item limit | `passesPatternCheck` in `server/services/styleColorService.js` |
 | Search limits and best-N | `MAX_POOL_SIZE_PER_ROLE`, `MAX_COMBINATIONS_EXPLORED`, `SEARCH_TIME_LIMIT_MS`, `MAX_NEW_MATCHES_PER_ITEM` in `matchService.js` |
 | Lowest score / pair blend an automatic outfit is saved at | `MIN_AUTO_MATCH_SCORE` / `MIN_AUTO_PAIR_SCORE` in `server/constants/scoring.js` |
