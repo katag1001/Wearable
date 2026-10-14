@@ -11,7 +11,10 @@ import { useClothingDetection } from "../clothes/uploadComponents/useClothingDet
 import { formatMissingFields } from "../clothes/uploadComponents/uploadHelpers";
 import { getFootwearOptions } from "../../constants/footwearOptions";
 import { useUserGender } from "../../hooks/useUserGender";
-import { uploadImageToCloudinary } from "../../utils/cloudinaryImage";
+import {
+  uploadImageToCloudinary,
+  deleteUnusedImage
+} from "../../utils/cloudinaryImage";
 
 import "../../styles/modal.css";
 
@@ -162,11 +165,14 @@ const AddUpdateFootwear = ({ item, onClose, onBack, refresh }) => {
     setShowValidation(false);
     setSaving(true);
 
+    // Outside the try so a failed save can remove the image it uploaded.
+    let cloudinaryData = null;
+
     try {
 
-      const cloudinaryData = selectedImage
-        ? await uploadImageToCloudinary(selectedImage)
-        : null;
+      if (selectedImage) {
+        cloudinaryData = await uploadImageToCloudinary(selectedImage);
+      }
 
       const payload = { ...formData };
 
@@ -199,6 +205,10 @@ const AddUpdateFootwear = ({ item, onClose, onBack, refresh }) => {
     } catch (err) {
 
       console.error("Save footwear error:", err, err.response?.data);
+
+      if (cloudinaryData?.public_id) {
+        await deleteUnusedImage(cloudinaryData.public_id);
+      }
 
       setMessage(
         err.response?.data?.error ||

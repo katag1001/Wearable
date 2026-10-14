@@ -198,10 +198,13 @@ for style on the form.
 3. **Request.**
    - New item: `POST /clothing` (plus `username`, which the schema ignores).
    - Edit: `PUT /clothing/:id`.
-4. **Old image cleanup (edits only).** If the image was replaced, the old
-   one is deleted via `POST /cloudinary/delete`.
+4. **Old image cleanup (edits only).** If the image was replaced, the
+   server deletes the old one as part of `PUT /clothing/:id`
+   (`deleteReplacedImage`, `server/services/imageService.js`).
 5. **On failure.** If the save fails after the image was uploaded, the new
-   image is deleted again so Cloudinary doesn't keep orphans.
+   image is deleted again via `POST /cloudinary/delete`, so Cloudinary
+   doesn't keep orphans. That endpoint only deletes an image no clothing or
+   footwear item uses, so it can't remove anyone's saved image.
 6. **On success.** The modal shows "Item created"/"Item updated" and two
    buttons: **View New Matches** and (new items only) **Add Another Item**.
 

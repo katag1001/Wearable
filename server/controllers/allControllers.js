@@ -8,6 +8,7 @@ const { User, Match, Today, Clothes, Preferences } = require("../models/AllModel
 const { processMatches } = require("../services/matchService");
 const { waitUntil } = require("@vercel/functions");
 const { deleteAllFootwearForUser } = require("./footwearControllers.js");
+const { deleteReplacedImage } = require("../services/imageService.js");
 const { describeOutfit } = require("../services/outfitEvaluator.js");
 const {
   getBaselineMatrix,
@@ -417,6 +418,9 @@ const updatedItem = await Clothes.findOneAndUpdate(
 req.body,
 { new: true, runValidators: true }
 );
+
+// A new image was uploaded - the old one is no longer used.
+await deleteReplacedImage(existingItem, updatedItem);
 
 // Only a change to a field matching reads (not e.g. the name) re-checks the
 // item's outfits and searches for new ones.

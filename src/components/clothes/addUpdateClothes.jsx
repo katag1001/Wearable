@@ -12,6 +12,7 @@ import { useClothingDetection } from "./uploadComponents/useClothingDetection";
 import { formatMissingFields } from "./uploadComponents/uploadHelpers";
 import { getTypeOptions } from "../../constants/typeOptions";
 import { useUserGender } from "../../hooks/useUserGender";
+import { deleteUnusedImage } from "../../utils/cloudinaryImage";
 
 import "../../styles/modal.css";
 
@@ -340,48 +341,9 @@ const AddUpdateClothes = ({ item, onClose, onBack, refresh }) => {
 
 
     // ------------------------------------------
-    // 4. If updating with a new image,
-    //    delete the OLD Cloudinary image
-    // ------------------------------------------
-
-    if (
-      isUpdate &&
-      selectedImage &&
-      item.cloudinaryId &&
-      cloudinaryData?.public_id &&
-      item.cloudinaryId !== cloudinaryData.public_id
-    ) {
-
-      try {
-
-        await axios.post(
-          `${URL}/cloudinary/delete`,
-          {
-            publicId:
-              item.cloudinaryId
-          },
-          {
-            headers: {
-              Authorization:
-                `Bearer ${localStorage.getItem("token")}`
-            }
-          }
-        );
-
-      } catch (deleteError) {
-
-        console.error(
-          "Failed to delete old Cloudinary image:",
-          deleteError
-        );
-
-      }
-
-    }
-
-
-    // ------------------------------------------
-    // 5. Successful save
+    // 4. Successful save
+    //    (if the image was replaced, the server
+    //    has already deleted the old one)
     // ------------------------------------------
 
     setJustSavedItem({
@@ -427,39 +389,14 @@ const AddUpdateClothes = ({ item, onClose, onBack, refresh }) => {
 
 
     // ------------------------------------------
-    // 6. IMPORTANT:
+    // 5. IMPORTANT:
     //    If Cloudinary uploaded successfully
     //    but the clothing save failed, delete
     //    the newly uploaded image.
     // ------------------------------------------
 
     if (cloudinaryData?.public_id) {
-
-      try {
-
-        await axios.post(
-          `${URL}/cloudinary/delete`,
-          {
-            publicId:
-              cloudinaryData.public_id
-          },
-          {
-            headers: {
-              Authorization:
-                `Bearer ${localStorage.getItem("token")}`
-            }
-          }
-        );
-
-      } catch (cleanupError) {
-
-        console.error(
-          "Failed to clean up Cloudinary image after save failure:",
-          cleanupError
-        );
-
-      }
-
+      await deleteUnusedImage(cloudinaryData.public_id);
     }
 
 

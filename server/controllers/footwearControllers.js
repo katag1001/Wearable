@@ -3,6 +3,10 @@ const cloudinary = require("../cloudinary.js");
 const { Footwear } = require("../models/AllModels.js");
 const { findPage } = require("../services/queryHelpers.js");
 const {
+  destroyImage,
+  deleteReplacedImage,
+} = require("../services/imageService.js");
+const {
   parseFootwearQuery,
   buildFootwearFilter,
   listOwnedSubtypes,
@@ -153,18 +157,7 @@ exports.updateFootwear = async (req, res) => {
     );
 
     // A new image was uploaded - the old one is no longer used.
-    const oldImageId = existingItem.cloudinaryId;
-
-    if (oldImageId && oldImageId !== updatedItem.cloudinaryId) {
-      try {
-        await cloudinary.uploader.destroy(oldImageId);
-      } catch (cloudinaryError) {
-        console.error(
-          `Failed to delete old Cloudinary image ${oldImageId}:`,
-          cloudinaryError.message
-        );
-      }
-    }
+    await deleteReplacedImage(existingItem, updatedItem);
 
     return res.json(updatedItem);
   } catch (error) {
@@ -203,15 +196,8 @@ exports.deleteAllFootwearForUser = async (userId) => {
   const items = await Footwear.find({ userId }).select("cloudinaryId");
 
   for (const item of items) {
-    if (!item.cloudinaryId) continue;
-
-    try {
-      await cloudinary.uploader.destroy(item.cloudinaryId);
-    } catch (cloudinaryError) {
-      console.error(
-        `Failed to delete Cloudinary image ${item.cloudinaryId}:`,
-        cloudinaryError.message
-      );
+    if (item.cloudinaryId) {
+      await destroyImage(item.cloudinaryId, "account deleted");
     }
   }
 

@@ -42,5 +42,7 @@ clothing).
 
 `GET /footwear/options` returns `{ colors, styles, tags, subtypes }`.
 
-Replacing a footwear image on update deletes the old Cloudinary image on
-the server. Deleting footwear deletes its image.
+Image clean-up works the same as clothing (`server/services/imageService.js`):
+replacing a footwear image on update deletes the old one on the server,
+deleting footwear deletes its image, and a save that fails after uploading
+removes the new image via `POST /cloudinary/delete`.

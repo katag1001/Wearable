@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const allControllers = require("../controllers/allControllers");
 const footwearControllers = require("../controllers/footwearControllers");
+const cloudinaryControllers = require("../controllers/cloudinaryControllers");
 const { authMiddleware } = require("../middleware/authMiddleware");
 
 /* USER ROUTES */
@@ -33,6 +34,10 @@ router.get("/footwear/options", authMiddleware, footwearControllers.getFootwearF
 router.get("/footwear/:id", authMiddleware, footwearControllers.getFootwearById);
 router.put("/footwear/:id", authMiddleware, footwearControllers.updateFootwear);
 router.delete("/footwear/:id", authMiddleware, footwearControllers.deleteFootwear);
+
+/* IMAGE ROUTES */
+// Removes an uploaded image no item uses (after a failed save).
+router.post("/cloudinary/delete", authMiddleware, cloudinaryControllers.deleteUnusedImage);
 
 /* MATCH ROUTES */
 router.post("/match/matches", authMiddleware, allControllers.createMatch);
