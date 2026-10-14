@@ -22,6 +22,37 @@ export const getTodayDayOfWeek = () => {
 
 
 /* -------------------------
+   GET SEASON
+------------------------- */
+
+const TROPIC_LATITUDE = 23.5;
+
+const northernSeasonsByMonth = [
+  "winter", "winter",
+  "spring", "spring", "spring",
+  "summer", "summer", "summer",
+  "autumn", "autumn", "autumn",
+  "winter",
+];
+
+// Meteorological season for a date and latitude. The tropics have no real
+// four seasons, so they count as summer all year. The southern hemisphere is
+// shifted by six months. No latitude (location unknown) falls back to northern.
+export const getSeason = (date = new Date(), latitude = null) => {
+  const hasLatitude = typeof latitude === "number";
+
+  if (hasLatitude && Math.abs(latitude) < TROPIC_LATITUDE) {
+    return "summer";
+  }
+
+  const month = date.getMonth();
+  const isSouthern = hasLatitude && latitude < 0;
+
+  return northernSeasonsByMonth[isSouthern ? (month + 6) % 12 : month];
+};
+
+
+/* -------------------------
    LOCAL DAY HELPERS
 ------------------------- */
 

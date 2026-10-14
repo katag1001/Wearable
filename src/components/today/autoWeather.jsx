@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useGeolocation } from "@uidotdev/usehooks";
 import "./autoWeather.css";
 import { URL } from "../../config";
-import { getTodayDayOfWeek, getTodayStartISO } from "./todayHelpers";
+import {
+  getTodayDayOfWeek,
+  getTodayStartISO,
+  getSeason,
+  isDateToday,
+} from "./todayHelpers";
 
 
 const AutoWeather = ({ setTodayReady }) => {
@@ -10,29 +15,6 @@ const AutoWeather = ({ setTodayReady }) => {
   const TODAY_KEY = "today_created";
 
   const location = useGeolocation();
-
-
-  const isToday = (dateString) => {
-    const today = new Date();
-    const storedDate = new Date(dateString);
-
-    return (
-      today.getFullYear() === storedDate.getFullYear() &&
-      today.getMonth() === storedDate.getMonth() &&
-      today.getDate() === storedDate.getDate()
-    );
-  };
-
-
-  const getSeason = () => {
-    const month = new Date().getMonth();
-
-    if ([2, 3, 4].includes(month)) return "spring";
-    if ([5, 6, 7].includes(month)) return "summer";
-    if ([8, 9, 10].includes(month)) return "autumn";
-
-    return "winter";
-  };
 
 
   const getCachedWeather = () => {
@@ -43,7 +25,7 @@ const AutoWeather = ({ setTodayReady }) => {
     try {
       const parsed = JSON.parse(cached);
 
-      if (parsed.date && isToday(parsed.date)) {
+      if (parsed.date && isDateToday(parsed.date)) {
         return parsed;
       }
 
@@ -66,6 +48,13 @@ const AutoWeather = ({ setTodayReady }) => {
   const [error, setError] = useState(null);
 
 
+  // Live location first, then the location stored with today's cached weather.
+  const season = getSeason(
+    new Date(),
+    location.latitude ?? cached?.location?.latitude
+  );
+
+
   const triggerCreateToday = async (
     min,
     max,
@@ -78,7 +67,7 @@ const AutoWeather = ({ setTodayReady }) => {
 
     if (
       alreadyCreated &&
-      isToday(alreadyCreated)
+      isDateToday(alreadyCreated)
     ) {
 
       console.log(
@@ -214,7 +203,7 @@ const AutoWeather = ({ setTodayReady }) => {
       await triggerCreateToday(
         weatherData.min,
         weatherData.max,
-        getSeason()
+        getSeason(new Date(), latitude)
       );
 
 
@@ -253,7 +242,10 @@ const AutoWeather = ({ setTodayReady }) => {
           await triggerCreateToday(
             cached.weather.min,
             cached.weather.max,
-            getSeason()
+            getSeason(
+              new Date(),
+              cached.location?.latitude
+            )
           );
 
 
@@ -309,10 +301,8 @@ const AutoWeather = ({ setTodayReady }) => {
 
           {" · "}
 
-          {getSeason()
-            .charAt(0)
-            .toUpperCase() +
-            getSeason().slice(1)}
+          {season.charAt(0).toUpperCase() +
+            season.slice(1)}
 
           {" · "}
 
