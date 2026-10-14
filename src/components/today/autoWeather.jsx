@@ -6,6 +6,8 @@ import {
   getTodayDayOfWeek,
   getTodayStartISO,
   getSeason,
+  getWeatherEmoji,
+  getWeatherTempOffset,
   isDateToday,
 } from "./todayHelpers";
 
@@ -55,11 +57,15 @@ const AutoWeather = ({ setTodayReady }) => {
   );
 
 
+  // Outfits are matched against the forecast shifted by the weather offset;
+  // the real forecast is what gets cached and displayed.
   const triggerCreateToday = async (
-    min,
-    max,
+    weather,
     season
   ) => {
+
+    const offset =
+      getWeatherTempOffset(weather.code);
 
     const alreadyCreated =
       localStorage.getItem(TODAY_KEY);
@@ -98,8 +104,8 @@ const AutoWeather = ({ setTodayReady }) => {
           },
 
           body: JSON.stringify({
-            min_temp_today: min,
-            max_temp_today: max,
+            min_temp_today: weather.min + offset,
+            max_temp_today: weather.max + offset,
             season_today: season,
             today_start: getTodayStartISO(),
           }),
@@ -150,7 +156,7 @@ const AutoWeather = ({ setTodayReady }) => {
       const url =
         `https://api.open-meteo.com/v1/forecast?latitude=${latitude}` +
         `&longitude=${longitude}` +
-        `&daily=temperature_2m_max,temperature_2m_min` +
+        `&daily=temperature_2m_max,temperature_2m_min,weather_code` +
         `&timezone=auto`;
 
 
@@ -175,6 +181,10 @@ const AutoWeather = ({ setTodayReady }) => {
         max:
           data.daily
             .temperature_2m_max[0],
+
+        code:
+          data.daily
+            .weather_code?.[0],
       };
 
 
@@ -201,8 +211,7 @@ const AutoWeather = ({ setTodayReady }) => {
 
 
       await triggerCreateToday(
-        weatherData.min,
-        weatherData.max,
+        weatherData,
         getSeason(new Date(), latitude)
       );
 
@@ -240,8 +249,7 @@ const AutoWeather = ({ setTodayReady }) => {
         async () => {
 
           await triggerCreateToday(
-            cached.weather.min,
-            cached.weather.max,
+            cached.weather,
             getSeason(
               new Date(),
               cached.location?.latitude
@@ -305,6 +313,9 @@ const AutoWeather = ({ setTodayReady }) => {
             season.slice(1)}
 
           {" · "}
+
+          {getWeatherEmoji(weather.code) &&
+            `${getWeatherEmoji(weather.code)} `}
 
           {weather.min}°C - {weather.max}°C
 

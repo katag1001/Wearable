@@ -3,9 +3,9 @@ import { getEffectiveMatchScore } from "../../utils/matchScore";
 const STORAGE_KEY = "weather_cache";
 
 const SCORE_WEIGHTS = {
-  clothingFreshness: 0.30,
-  outfitFreshness: 0.30,
-  score: 0.40
+  clothingFreshness: 0.35,
+  outfitFreshness: 0.35,
+  score: 0.30
 };
 
 
