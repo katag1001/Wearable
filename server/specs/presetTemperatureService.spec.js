@@ -11,7 +11,7 @@ const {
   NO_OUTER_MIN_TEMP,
   OUTER_MIN_TEMPS,
   TOP_LAYER_POINTS,
-  OUTER_LAYER_OVERLAP,
+  LAYERED_MAX_TEMPS,
   OUTER_CEILING_BASE,
   TEMPERATURE_PREFERENCE_SHIFT,
   LONG_BOTTOM_MAX_TEMP,
@@ -32,9 +32,9 @@ const range = (items, preference) => {
   return [min_temp, max_temp];
 };
 
-// Every long-bottom outfit's saved maximum is capped as the last step.
-const capLong = ([min, max]) =>
-  max > LONG_BOTTOM_MAX_TEMP ? [Math.min(min, LONG_BOTTOM_MAX_TEMP), LONG_BOTTOM_MAX_TEMP] : [min, max];
+// The maximum caps (layers, long bottom), applied before the preference.
+const cap = ([min, max], limit) => (max > limit ? [Math.min(min, limit), limit] : [min, max]);
+const capLong = (pair) => cap(pair, LONG_BOTTOM_MAX_TEMP);
 
 const withFloor = ([min, max], floor) => (min < floor ? [floor, Math.max(max, floor)] : [min, max]);
 
@@ -62,9 +62,34 @@ test("top + bottom uses the base range for their groups, floored without an oute
 test("the innermost top sets the base and each top over it moves the range down", () => {
   const [min, max] = BASE_RANGES.short.long;
   const points = TOP_LAYER_POINTS.warm;
-  const expected = capLong(withFloor([min - points, max - points], NO_OUTER_MIN_TEMP));
+  const expected = capLong(cap(withFloor([min - points, max - points], NO_OUTER_MIN_TEMP), LAYERED_MAX_TEMPS.warmJumper));
 
   assert.deepEqual(range([top("Warm jumper"), top("Short t-shirt"), bottom("Jeans")]), expected);
+});
+
+test("a light jumper/cardigan layer caps the maximum", () => {
+  const [min, max] = BASE_RANGES.short.short;
+  const points = TOP_LAYER_POINTS.long;
+  const expected = cap(withFloor([min - points, max - points], NO_OUTER_MIN_TEMP), LAYERED_MAX_TEMPS.lightJumper);
+
+  assert.deepEqual(range([top("Short t-shirt"), top("Light cardigan"), bottom("Mini skirt")]), expected);
+});
+
+test("a non-jumper layer uses the 'other' cap", () => {
+  const [min, max] = BASE_RANGES.short.short;
+  const points = TOP_LAYER_POINTS.long;
+  const expected = cap(withFloor([min - points, max - points], NO_OUTER_MIN_TEMP), LAYERED_MAX_TEMPS.other);
+
+  assert.deepEqual(range([top("Short t-shirt"), top("Buttondown shirt"), bottom("Mini skirt")]), expected);
+});
+
+test("with several layers the warmest layer's cap wins", () => {
+  const [, max] = range([top("Short t-shirt"), top("Buttondown shirt"), top("Light jumper"), bottom("Mini skirt")]);
+  assert.ok(max <= LAYERED_MAX_TEMPS.lightJumper);
+});
+
+test("a single top has no layer cap", () => {
+  assert.deepEqual(range([top("Light cardigan"), bottom("Mini skirt")]), withFloor(BASE_RANGES.long.short, NO_OUTER_MIN_TEMP));
 });
 
 test("an outer moves the range down by its points, capped at the ceiling and floored at its minimum", () => {
@@ -86,10 +111,11 @@ test("two outers add their points together and have no floor", () => {
   assert.deepEqual(range([top("Short t-shirt"), bottom("Jeans"), outer("Jacket"), outer("Puffer coat")]), expected);
 });
 
-test("an outfit with a long bottom is never saved with a maximum above the cap, whatever the preference", () => {
+test("the long-bottom cap is applied before the preference shift", () => {
   [null, "cold", "hot"].forEach((preference) => {
     const [, max] = range([top("Vest"), bottom("Jeans")], preference);
-    assert.ok(max <= LONG_BOTTOM_MAX_TEMP, `${preference}: max ${max} is above ${LONG_BOTTOM_MAX_TEMP}`);
+    const shift = TEMPERATURE_PREFERENCE_SHIFT[preference] || 0;
+    assert.equal(max, LONG_BOTTOM_MAX_TEMP + shift, `${preference}`);
   });
 });
 
@@ -98,13 +124,10 @@ test("a onepiece alone uses its own range", () => {
   assert.deepEqual(range([onepiece("Summer dress")]), expected);
 });
 
-test("a cover-up over a onepiece moves it down and caps the maximum", () => {
+test("a top over a onepiece moves it down and uses the same layer caps", () => {
   const [min, max] = ONEPIECE_RANGES["Summer dress"];
   const points = TOP_LAYER_POINTS.long;
-  const expected = withFloor(
-    [min - points, Math.min(max - points, min + OUTER_LAYER_OVERLAP)],
-    NO_OUTER_MIN_TEMP
-  );
+  const expected = cap(withFloor([min - points, max - points], NO_OUTER_MIN_TEMP), LAYERED_MAX_TEMPS.lightJumper);
 
   assert.deepEqual(range([onepiece("Summer dress"), top("Light cardigan")]), expected);
 });

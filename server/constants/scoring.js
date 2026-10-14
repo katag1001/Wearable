@@ -38,7 +38,7 @@ const COLOUR_COUNT_SCORES = {
 
 // Outfits with no pairs to score (a onepiece on its own). Not affected by
 // the colour score.
-const SINGLE_ITEM_SCORE = 80;
+const SINGLE_ITEM_SCORE = 85;
 
 // Automatic outfits scoring below this are never saved - complete matching
 // on a large wardrobe finds tens of thousands of outfits per item, most of

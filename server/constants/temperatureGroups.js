@@ -113,10 +113,17 @@ const OUTER_MIN_TEMPS = {
 // onepiece.
 const TOP_LAYER_POINTS = { short: 1, long: 4, warm: 11, };
 
-// A long/warm top worn over a onepiece (a cardigan over a dress) is for
-// days colder than the onepiece suits on its own, so the maximum is capped
-// this many degrees above the onepiece's own minimum.
-const OUTER_LAYER_OVERLAP = 4;
+// Layered tops: an outfit with a top worn as an extra layer (over the
+// innermost top, or any top worn with a onepiece) never has a maximum above
+// the cap for its warmest layer. Tops listed here are jumpers/cardigans;
+// any other top worn as a layer (a shirt over a t-shirt, a waistcoat, a
+// blouse over a dress) uses the "other" cap.
+const LAYER_KINDS = {
+  warmJumper: ["Hoodie/sweatshirt", "Warm jumper", "Turtleneck jumper", "Warm cardigan"],
+  lightJumper: ["Light jumper", "Light cardigan"],
+};
+
+const LAYERED_MAX_TEMPS = { warmJumper: 18, lightJumper: 24, other: 28 };
 
 // The warmest day an outfit with outers is still comfortable on is this
 // minus the outers' total warmth points - e.g. 23° with a blazer (2),
@@ -130,9 +137,9 @@ const OUTER_CEILING_BASE = 25;
 // the cold means needing warmer days.
 const TEMPERATURE_PREFERENCE_SHIFT = { cold: 2, normal: 0, hot: -2 };
 
-// Final cap: any outfit with a bottom from the "long" group is never saved
-// with a maximum above this. Applied after everything else, including the
-// preference shift - the rest of the calculation is unchanged.
+// Any outfit with a bottom from the "long" group never has a maximum above
+// this. Applied with the layer caps, before the preference shift - so a
+// "cold" user's saved maximum can be this + 2.
 const LONG_BOTTOM_MAX_TEMP = 25;
 
 // The same bounds as the temperature sliders.
@@ -147,7 +154,8 @@ module.exports = {
   NO_OUTER_MIN_TEMP,
   OUTER_MIN_TEMPS,
   TOP_LAYER_POINTS,
-  OUTER_LAYER_OVERLAP,
+  LAYER_KINDS,
+  LAYERED_MAX_TEMPS,
   OUTER_CEILING_BASE,
   TEMPERATURE_PREFERENCE_SHIFT,
   LONG_BOTTOM_MAX_TEMP,

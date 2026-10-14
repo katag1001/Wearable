@@ -591,7 +591,7 @@ claiming it, 5.3, or rejecting it on the Today page, 7.2):
 | Match | Score |
 |---|---|
 | Automatic, 2+ items | **60% × pair blend + 40% × colour score**, rounded. Pair blend = 70% × average pair score + 30% × lowest pair score |
-| Automatic, single item (a onepiece alone) | **80** (no colour score) |
+| Automatic, single item (a onepiece alone) | **85** (no colour score) |
 | User-built, or a claimed automatic match (5.3) | **90** |
 
 A **pair score** is the matrix baseline plus the user's personal

@@ -16,9 +16,11 @@ In short:
    days.
 4. **Minimums** stop an outfit going colder than makes sense without a coat,
    or with a particular coat.
-5. The user's **temperature preference** shifts the whole range.
-6. Any outfit with a **long bottom** is capped at a maximum of 25° - the
-   last step, after everything else.
+5. **Maximum caps**: an outfit with **layered tops** is capped by its
+   warmest layer (warm jumper/cardigan 18°, light jumper/cardigan 24°,
+   anything else 28°), and one with a **long bottom** at 25°.
+6. The user's **temperature preference** shifts the whole range - after
+   the caps, so it still moves a capped maximum.
 
 Files:
 
@@ -29,6 +31,7 @@ Files:
 | `server/services/outfitEvaluator.js` | `describeOutfit` calls it for every new match |
 | `server/services/temperatureService.js` | Matching a saved range against today's weather |
 | `server/scripts/resetMatchTemperatures.js` | Recalculates every existing match after the numbers change |
+| `server/scripts/rescoreMatches.js` | Recalculates every non-favourite match's score **and** range, without rematching |
 
 ---
 
@@ -81,11 +84,14 @@ values at the time of writing; the file is the source of truth.
 - `OUTER_CEILING_BASE` (25) - an outfit with outers is never suitable above
   this minus the outers' total points (23° with a blazer, 14° with a puffer
   coat).
-- `OUTER_LAYER_OVERLAP` (4) - a long or warm top over a onepiece (a
-  cardigan over a dress) caps the maximum this far above the onepiece's own
-  minimum.
-- `LONG_BOTTOM_MAX_TEMP` (25) - the highest saved maximum for any outfit
-  with a long bottom (Part 2, step 6).
+- `LAYERED_MAX_TEMPS` - the highest maximum for an outfit with a top worn
+  as an extra layer, by the warmest layer's kind (`LAYER_KINDS`):
+  **warmJumper** 18 (Hoodie/sweatshirt, Warm jumper, Turtleneck jumper,
+  Warm cardigan), **lightJumper** 24 (Light jumper, Light cardigan),
+  **other** 28 (any other top - a shirt over a t-shirt, a waistcoat, a
+  blouse over a dress). Part 2, step 5.
+- `LONG_BOTTOM_MAX_TEMP` (25) - the highest maximum for any outfit with a
+  long bottom (Part 2, step 5).
 - `TEMPERATURE_LIMITS` (−20 to 50) - the same bounds as the sliders.
 
 ### 1.5 The temperature preference
@@ -114,10 +120,10 @@ It reads only each item's `type` (role) and `subtype`.
 
 - **Tops with a bottom:** every top other than the innermost moves the
   whole range down by its `TOP_LAYER_POINTS`.
-- **Tops with a onepiece:** a short top (a t-shirt under overalls) moves
-  the whole range down. A long or warm top is a cover-up: it moves the range
-  down and caps the maximum `OUTER_LAYER_OVERLAP` above the onepiece's own
-  minimum.
+- **Tops with a onepiece:** every top is an extra layer and moves the
+  whole range down by its `TOP_LAYER_POINTS`.
+
+Every extra layer also brings a maximum cap (step 5).
 
 ### Step 3 - Outers
 
@@ -134,18 +140,25 @@ minus the total.
 If that lifts the minimum above the maximum, the maximum is raised to
 match - the outfit becomes a single temperature rather than being rejected.
 
-### Step 5 - Preference
+### Step 5 - Maximum caps
+
+- **Layered tops:** with any extra layer (step 2), the maximum is never
+  above `LAYERED_MAX_TEMPS` for the warmest layer - with several layers,
+  the lowest cap wins. Short t-shirt + Light cardigan + Mini skirt is
+  18–24, not 18–34. A single top has no layer cap.
+- **Long bottom:** with a bottom from the "long" group, the maximum is
+  never above `LONG_BOTTOM_MAX_TEMP` (25): Short t-shirt + Wide leg jeans
+  is 17–25, not 17–28.
+
+If the minimum is above a cap it's lowered to it. Coat outfits usually
+already sit under these caps (step 3); the exception is a warm jumper under
+a light outer, which the 18° cap brings lower.
+
+### Step 6 - Preference
 
 Both ends move by `TEMPERATURE_PREFERENCE_SHIFT`, and are kept within
-`TEMPERATURE_LIMITS`.
-
-### Step 6 - Long-bottom cap
-
-If the outfit has a bottom from the "long" group, its saved maximum is
-never above `LONG_BOTTOM_MAX_TEMP` (25). This is applied last, after the
-preference shift, so it's the real saved value: Short t-shirt + Wide leg
-jeans is 17–25 (19–25 for "cold"), not 17–28. If the minimum were above 25
-it would be lowered to 25. Outfits without a long bottom are untouched.
+`TEMPERATURE_LIMITS`. This comes after the caps, so a "cold" user's Short
+t-shirt + Wide leg jeans is 19–27.
 
 ### Unknown subtypes
 
@@ -165,8 +178,8 @@ preference, with the values above:
 | 2. Warm jumper over it, −11 | 6–17 |
 | 3. Denim jacket, −2 (maximum capped at 25 − 2 = 23) | 4–15 |
 | 4. One outer: minimum raised to the Denim jacket's 10 | 10–15 |
-| 5. "cold" +2 | 12–17 |
-| 6. Long-bottom cap: 17 is already under 25 | **12–17** |
+| 5. Caps: warm jumper layer 18, long bottom 25 - 15 is already under both | 10–15 |
+| 6. "cold" +2 | **12–17** |
 
 ---
 
@@ -227,7 +240,7 @@ preference, with the values above:
 | Outer warmth | `OUTER_WARMTH_POINTS` |
 | Minimum with no outer / one outer | `NO_OUTER_MIN_TEMP` / `OUTER_MIN_TEMPS` |
 | Warmest day for an outfit with outers | `OUTER_CEILING_BASE` |
-| Cardigan-over-dress cap | `OUTER_LAYER_OVERLAP` |
+| Highest maximum with layered tops / which tops count as jumpers | `LAYERED_MAX_TEMPS` / `LAYER_KINDS` |
 | Preference shift | `TEMPERATURE_PREFERENCE_SHIFT` |
 | Highest maximum with a long bottom | `LONG_BOTTOM_MAX_TEMP` |
 | Today overlap threshold | `MIN_TODAY_OVERLAP_FRACTION` in `server/services/temperatureService.js` |

@@ -6,18 +6,13 @@
 //
 // 1. Base range:
 //    - with a onepiece: that onepiece's own range (if a user-built outfit
-//      has more than one, the warmest is used);
+//      has more than one, the coldest is used);
 //    - otherwise: the base range for the innermost top (the lightest top's
 //      group) + the warmest bottom's group. With no top the "short" top
 //      row is used; with no bottom the "long" bottom column is used.
-// 2. Extra top layers:
-//    - every other top is worn over the innermost one and moves the whole
-//      range down by its group's layer points;
-//    - tops worn with a onepiece all count as layers. A long or warm top
-//      is a cover-up (a cardigan over a dress), so the range moves down
-//      and the maximum is capped OUTER_LAYER_OVERLAP above the onepiece's
-//      own minimum. A short top (a t-shirt under overalls) just moves the
-//      range down.
+// 2. Extra top layers - every other top worn over the innermost one, or
+//    every top worn with a onepiece - move the whole range down by their
+//    group's layer points.
 // 3. Outers: their warmth points are added together and move the whole
 //    range down, with the maximum never above OUTER_CEILING_BASE minus the
 //    points.
@@ -25,10 +20,12 @@
 //    or the outer's OUTER_MIN_TEMPS value with exactly one outer. (Two
 //    outers have no floor.) If that lifts the minimum above the maximum,
 //    the maximum is raised to match.
-// 5. The user's temperature preference shifts the whole range.
-// 6. Any outfit with a long bottom has its maximum capped at
-//    LONG_BOTTOM_MAX_TEMP (the saved value; the minimum is lowered to match
-//    if it was above it).
+// 5. Caps: an outfit with extra top layers never has a maximum above
+//    LAYERED_MAX_TEMPS for its warmest layer (jumper/cardigan or not, see
+//    LAYER_KINDS), and one with a long bottom never above
+//    LONG_BOTTOM_MAX_TEMP. The minimum is lowered to match if it was above
+//    the cap.
+// 6. The user's temperature preference shifts the whole range.
 //
 // Subtypes missing from the presets fall back to a middle value (a "long"
 // top or bottom, a 15-25 onepiece, a 5-point outer) and are reported in
@@ -43,7 +40,8 @@ const {
   NO_OUTER_MIN_TEMP,
   OUTER_MIN_TEMPS,
   TOP_LAYER_POINTS,
-  OUTER_LAYER_OVERLAP,
+  LAYER_KINDS,
+  LAYERED_MAX_TEMPS,
   OUTER_CEILING_BASE,
   TEMPERATURE_PREFERENCE_SHIFT,
   LONG_BOTTOM_MAX_TEMP,
@@ -73,6 +71,7 @@ function invertGroups(groups) {
 
 const TOP_GROUP_OF = invertGroups(TOP_GROUPS);
 const BOTTOM_GROUP_OF = invertGroups(BOTTOM_GROUPS);
+const LAYER_KIND_OF = invertGroups(LAYER_KINDS);
 
 function warmest(groups, order) {
   return groups.reduce((best, group) =>
@@ -91,22 +90,31 @@ function clampTemperature(value) {
   return Math.min(highest, Math.max(lowest, value));
 }
 
-// A cover-up layer over a onepiece: moves the range down by `points` and
-// caps the maximum OUTER_LAYER_OVERLAP above the minimum it started from.
-function coverUp([min, max], points) {
-  if (!points) {
-    return [min, max];
-  }
-
-  return [min - points, Math.min(max - points, min + OUTER_LAYER_OVERLAP)];
-}
-
 function addOuters([min, max], points) {
   if (!points) {
     return [min, max];
   }
 
   return [min - points, Math.min(max - points, OUTER_CEILING_BASE - points)];
+}
+
+// Lowest cap for the tops worn as extra layers, or undefined with none.
+function layeredMaxTemp(layerSubtypes) {
+  if (!layerSubtypes.length) {
+    return undefined;
+  }
+
+  return Math.min(
+    ...layerSubtypes.map((subtype) => LAYERED_MAX_TEMPS[LAYER_KIND_OF[subtype] || "other"])
+  );
+}
+
+function capMax([min, max], cap) {
+  if (cap === undefined || max <= cap) {
+    return [min, max];
+  }
+
+  return [Math.min(min, cap), cap];
 }
 
 function computePresetTemperatureRange(items, temperaturePreference = null) {
@@ -129,6 +137,7 @@ function computePresetTemperatureRange(items, temperaturePreference = null) {
   const topGroups = tops.map((top) => lookup(TOP_GROUP_OF, top.subtype, FALLBACK_TOP_GROUP));
 
   let range;
+  let layerTops;
 
   if (onepieces.length) {
     const onepieceRanges = onepieces.map((onepiece) =>
@@ -138,11 +147,11 @@ function computePresetTemperatureRange(items, temperaturePreference = null) {
       current[0] < best[0] ? current : best
     );
 
-    const sumPoints = (groups) => groups.reduce((sum, group) => sum + TOP_LAYER_POINTS[group], 0);
-    const underPoints = sumPoints(topGroups.filter((group) => group === "short"));
-    const coverUpPoints = sumPoints(topGroups.filter((group) => group !== "short"));
+    // Every top worn with a onepiece is an extra layer.
+    layerTops = tops;
+    const layerPoints = topGroups.reduce((sum, group) => sum + TOP_LAYER_POINTS[group], 0);
 
-    range = coverUp([baseMin - underPoints, baseMax - underPoints], coverUpPoints);
+    range = [baseMin - layerPoints, baseMax - layerPoints];
   } else {
     // The innermost (lightest) top sets the base; the rest go over it.
     const topGroup = topGroups.length ? lightest(topGroups, TOP_GROUP_ORDER) : "short";
@@ -154,9 +163,11 @@ function computePresetTemperatureRange(items, temperaturePreference = null) {
       : FALLBACK_BOTTOM_GROUP;
 
     // Every other top is a layer over the innermost one.
-    const overLayers = [...topGroups];
-    overLayers.splice(overLayers.indexOf(topGroup), 1);
-    const layerPoints = overLayers.reduce((sum, group) => sum + TOP_LAYER_POINTS[group], 0);
+    const innermostIndex = topGroups.indexOf(topGroup);
+    layerTops = tops.filter((_, index) => index !== innermostIndex);
+    const layerPoints = topGroups
+      .filter((_, index) => index !== innermostIndex)
+      .reduce((sum, group) => sum + TOP_LAYER_POINTS[group], 0);
 
     const [min, max] = BASE_RANGES[topGroup][bottomGroup];
     range = [min - layerPoints, max - layerPoints];
@@ -179,22 +190,17 @@ function computePresetTemperatureRange(items, temperaturePreference = null) {
     range = [floor, Math.max(range[1], floor)];
   }
 
-  const shift = TEMPERATURE_PREFERENCE_SHIFT[temperaturePreference] || 0;
-  const min_temp = clampTemperature(range[0] + shift);
-  const max_temp = Math.max(min_temp, clampTemperature(range[1] + shift));
-
-  // Final cap for long bottoms (unknown bottoms count as long, as above).
+  // Unknown bottoms count as long, as above.
   const hasLongBottom = bottoms.some(
     (bottom) => (BOTTOM_GROUP_OF[bottom.subtype] || FALLBACK_BOTTOM_GROUP) === "long"
   );
 
-  if (hasLongBottom && max_temp > LONG_BOTTOM_MAX_TEMP) {
-    return {
-      min_temp: Math.min(min_temp, LONG_BOTTOM_MAX_TEMP),
-      max_temp: LONG_BOTTOM_MAX_TEMP,
-      unknownSubtypes,
-    };
-  }
+  range = capMax(range, layeredMaxTemp(layerTops.map((top) => top.subtype)));
+  range = capMax(range, hasLongBottom ? LONG_BOTTOM_MAX_TEMP : undefined);
+
+  const shift = TEMPERATURE_PREFERENCE_SHIFT[temperaturePreference] || 0;
+  const min_temp = clampTemperature(range[0] + shift);
+  const max_temp = Math.max(min_temp, clampTemperature(range[1] + shift));
 
   return { min_temp, max_temp, unknownSubtypes };
 }
