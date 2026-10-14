@@ -87,7 +87,7 @@ const Header = ({ loggedIn }) => {
               </Link>
 
               <Link to="/clothes" className="nav-link" onClick={closeMenu}>
-                Clothes
+                Wardrobe
               </Link>
 
               <Link to="/matches" className="nav-link" onClick={closeMenu}>

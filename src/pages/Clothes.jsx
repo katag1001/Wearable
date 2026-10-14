@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../components/header";
 import ViewClothes from "../components/clothes/viewClothes";
 import ViewClothesTop from "../components/clothes/viewClothesTop";
-import AddUpdateClothes from "../components/clothes/addUpdateClothes";
+import AddWardrobeItem from "../components/clothes/addWardrobeItem";
 import Filter from "../components/general/filter";
 import Pagination from "../components/general/pagination";
 
@@ -11,6 +11,7 @@ import { usePagedCache } from "../context/usePagedCache";
 import { usePagedList } from "../hooks/usePagedList";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { buildClothingFilterQuery } from "../utils/clothingQuery";
+import { buildFootwearFilterQuery } from "../utils/footwearQuery";
 import { withPage, formatListCount } from "../utils/pageQuery";
 
 import "../styles/pages.css";
@@ -23,6 +24,10 @@ const defaultFilters = {
   subtypes: [],
 };
 
+// The Footwear button shows the separate footwear collection; every
+// other button (and no button) shows clothes.
+const FOOTWEAR = "footwear";
+
 const Clothes = ({ loggedIn }) => {
   const {
     fetchFilterOptions,
@@ -30,6 +35,8 @@ const Clothes = ({ loggedIn }) => {
     getSavedView,
     saveView,
   } = usePagedCache("clothes");
+
+  const footwearCache = usePagedCache("footwear");
 
   // Pick up the search / filters / page from last time.
   const [savedView] = useState(() => getSavedView());
@@ -39,6 +46,9 @@ const Clothes = ({ loggedIn }) => {
   const [showClothingModal, setShowClothingModal] =
     useState(false);
   const [selectedItem, setSelectedItem] =
+    useState(null);
+  // "clothing" or "footwear" - which form an edited item opens in.
+  const [selectedKind, setSelectedKind] =
     useState(null);
 
   const [showFilters, setShowFilters] =
@@ -53,7 +63,9 @@ const Clothes = ({ loggedIn }) => {
     savedView?.filters ?? defaultFilters
   );
 
-  const [filterOptions, setFilterOptions] =
+  const [clothingFilterOptions, setClothingFilterOptions] =
+    useState(null);
+  const [footwearFilterOptions, setFootwearFilterOptions] =
     useState(null);
 
   const clothingTypes = [
@@ -61,6 +73,7 @@ const Clothes = ({ loggedIn }) => {
     "outer",
     "bottom",
     "onepiece",
+    FOOTWEAR,
   ];
 
   const typeTitles = {
@@ -68,17 +81,25 @@ const Clothes = ({ loggedIn }) => {
     outer: "Outerwear",
     bottom: "Bottom Half",
     onepiece: "One-Pieces",
+    [FOOTWEAR]: "Footwear",
   };
+
+  const isFootwear = selectedType === FOOTWEAR;
 
   /* -------------------- Query -------------------- */
 
   const debouncedSearch = useDebouncedValue(searchTerm);
 
-  const filterQuery = buildClothingFilterQuery({
-    search: debouncedSearch,
-    type: selectedType,
-    filters,
-  });
+  const filterQuery = isFootwear
+    ? buildFootwearFilterQuery({
+        search: debouncedSearch,
+        filters,
+      })
+    : buildClothingFilterQuery({
+        search: debouncedSearch,
+        type: selectedType,
+        filters,
+      });
 
   // The page number belongs to the filters it was chosen under, so any
   // change to search / type / filters goes back to page 1 without a
@@ -90,14 +111,22 @@ const Clothes = ({ loggedIn }) => {
   const page =
     pageState.filterQuery === filterQuery ? pageState.page : 1;
 
+  // Both lists are kept, but only the one on show fetches.
+  const clothesList = usePagedList("clothes", withPage(filterQuery, page), {
+    enabled: !isFootwear,
+    errorMessage: "Failed to fetch clothing items",
+  });
+
+  const footwearList = usePagedList("footwear", withPage(filterQuery, page), {
+    enabled: isFootwear,
+    errorMessage: "Failed to fetch footwear",
+  });
+
   const {
     data,
     loading,
     error: pageError,
-    reload,
-  } = usePagedList("clothes", withPage(filterQuery, page), {
-    errorMessage: "Failed to fetch clothing items",
-  });
+  } = isFootwear ? footwearList : clothesList;
 
   useEffect(() => {
     saveView({ searchTerm, selectedType, filters, pageState });
@@ -107,11 +136,29 @@ const Clothes = ({ loggedIn }) => {
 
   const loadFilterOptions = () => {
     fetchFilterOptions()
-      .then(setFilterOptions)
+      .then(setClothingFilterOptions)
       .catch((err) => {
         // The panel falls back to showing every option.
         console.error("Failed to load filter options:", err);
       });
+
+    footwearCache
+      .fetchFilterOptions()
+      .then(setFootwearFilterOptions)
+      .catch((err) => {
+        console.error("Failed to load footwear filter options:", err);
+      });
+  };
+
+  const filterOptions = isFootwear
+    ? footwearFilterOptions
+    : clothingFilterOptions;
+
+  // The subtype row under the type buttons - footwear's own subtypes sit
+  // under the Footwear button.
+  const subtypesByType = {
+    ...clothingFilterOptions?.subtypesByType,
+    [FOOTWEAR]: footwearFilterOptions?.subtypes,
   };
 
   useEffect(() => {
@@ -125,8 +172,10 @@ const Clothes = ({ loggedIn }) => {
   // options can all have changed.
   const refresh = () => {
     invalidateFilterOptions();
+    footwearCache.invalidateFilterOptions();
     loadFilterOptions();
-    reload();
+    clothesList.reload();
+    footwearList.reload();
   };
 
   const handlePageChange = (newPage) => {
@@ -172,17 +221,21 @@ const Clothes = ({ loggedIn }) => {
 
   const handleAddItem = () => {
     setSelectedItem(null);
+    setSelectedKind(null);
     setShowClothingModal(true);
   };
 
+  // The cards on show are all footwear or all clothes.
   const handleEdit = (item) => {
     setSelectedItem(item);
+    setSelectedKind(isFootwear ? "footwear" : "clothing");
     setShowClothingModal(true);
   };
 
   const closeModal = () => {
     setShowClothingModal(false);
     setSelectedItem(null);
+    setSelectedKind(null);
   };
 
   const count = formatListCount(data);
@@ -195,7 +248,7 @@ const Clothes = ({ loggedIn }) => {
 
       <div className="main-container">
       <h2 className="page-title">
-        My Clothes
+        My Wardrobe
         {count && (
           <>
             {" "}
@@ -227,7 +280,7 @@ const Clothes = ({ loggedIn }) => {
         typeTitles={typeTitles}
         selectedType={selectedType}
         toggleTypeFilter={toggleTypeFilter}
-        subtypesByType={filterOptions?.subtypesByType}
+        subtypesByType={subtypesByType}
         selectedSubtypes={filters.subtypes}
         toggleSubtypeFilter={toggleSubtypeFilter}
         setShowFilters={setShowFilters}
@@ -237,7 +290,7 @@ const Clothes = ({ loggedIn }) => {
         {!data ? (
           loading && (
             <p className="no-items-text">
-              Loading clothes...
+              {isFootwear ? "Loading footwear..." : "Loading clothes..."}
             </p>
           )
         ) : (
@@ -247,6 +300,11 @@ const Clothes = ({ loggedIn }) => {
               onEdit={handleEdit}
               refresh={refresh}
               setError={setError}
+              {...(isFootwear && {
+                deletePath: "/footwear",
+                emptyText: "No footwear found.",
+                deleteTitle: "Delete Footwear",
+              })}
             />
 
             <Pagination
@@ -275,8 +333,9 @@ const Clothes = ({ loggedIn }) => {
       />
 
       {showClothingModal && (
-        <AddUpdateClothes
+        <AddWardrobeItem
           item={selectedItem}
+          kind={selectedKind}
           onClose={closeModal}
           refresh={refresh}
         />

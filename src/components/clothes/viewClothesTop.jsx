@@ -116,7 +116,7 @@ const ViewClothesTop = ({
 
           <input
             type="text"
-            placeholder="Search clothes..."
+            placeholder="Search wardrobe..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="top-search-input"

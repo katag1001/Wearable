@@ -2,7 +2,7 @@ import { useContext } from "react";
 
 import { PagedCacheContext } from "./pagedCacheContext";
 
-// name: "matches" or "clothes" (see PagedCacheProvider.jsx)
+// name: "matches", "clothes" or "footwear" (see PagedCacheProvider.jsx)
 export const usePagedCache = (name) => {
   const caches = useContext(PagedCacheContext);
 

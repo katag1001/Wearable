@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const allControllers = require("../controllers/allControllers");
+const footwearControllers = require("../controllers/footwearControllers");
 const { authMiddleware } = require("../middleware/authMiddleware");
 
 /* USER ROUTES */
@@ -23,6 +24,15 @@ router.get("/clothing/:id", authMiddleware, allControllers.getItemById);
 router.put("/clothing/:id", authMiddleware, allControllers.updateItem);
 router.delete("/clothing/:id", authMiddleware, allControllers.deleteItem);
 /*router.get("/clothing/:type/:name", authMiddleware, allControllers.getItemByName);*/
+
+/* FOOTWEAR ROUTES */
+router.post("/footwear/", authMiddleware, footwearControllers.createFootwear);
+router.get("/footwear/", authMiddleware, footwearControllers.getAllFootwear);
+// Must stay above /footwear/:id or "options" is read as an item id.
+router.get("/footwear/options", authMiddleware, footwearControllers.getFootwearFilterOptions);
+router.get("/footwear/:id", authMiddleware, footwearControllers.getFootwearById);
+router.put("/footwear/:id", authMiddleware, footwearControllers.updateFootwear);
+router.delete("/footwear/:id", authMiddleware, footwearControllers.deleteFootwear);
 
 /* MATCH ROUTES */
 router.post("/match/matches", authMiddleware, allControllers.createMatch);

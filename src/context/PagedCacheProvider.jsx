@@ -12,6 +12,7 @@ export const PagedCacheProvider = ({ loggedIn, children }) => {
   const [caches] = useState(() => ({
     matches: createPagedCache({ endpoint: "/match/", listKey: "matches" }),
     clothes: createPagedCache({ endpoint: "/clothing/", listKey: "items" }),
+    footwear: createPagedCache({ endpoint: "/footwear/", listKey: "items" }),
   }));
 
   useEffect(() => {

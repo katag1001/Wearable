@@ -220,6 +220,48 @@ matchScoreSchema.index(
 );
 
 
+/* -------------------- FOOTWEAR -------------------- */
+
+// Kept apart from Clothes: footwear is never matched into outfits, so it has
+// no role (`type`) - just a subtype from src/constants/footwearOptions.jsx.
+// The worn fields mirror Clothes, ready for footwear being worn with outfits.
+const footwearSchema = new mongoose.Schema({
+name: { type: String, required: true },
+imageUrl: { type: String, default: "" },
+
+cloudinaryId: {
+    type: String,
+    default: ""
+  },
+
+userId: {
+type: mongoose.Schema.Types.ObjectId,
+ref: "User",
+required: true,
+index: true,
+},
+
+colors: { type: [String], required: true },
+styles: { type: [String], required: true },
+subtype: { type: String, required: true },
+
+lastWornDate: { type: Date, default: null },
+tags: { type: [String], required: false },
+
+timesWorn: { type: Number, default: 0 },
+timesWornThisYear: { type: Number, default: 0 },
+wornYear: { type: Number, default: null },
+
+spring: { type: Boolean, required: true },
+summer: { type: Boolean, required: true },
+autumn: { type: Boolean, required: true },
+winter: { type: Boolean, required: true },
+});
+
+// The Footwear tab pages through a user's footwear newest first.
+footwearSchema.index({ userId: 1, _id: -1 });
+
+
 /* -------------------- MODELS -------------------- */
 
 module.exports = {
@@ -227,6 +269,7 @@ User: mongoose.model("User", userSchema),
 Match: mongoose.model("Match", matchSchema),
 Today: mongoose.model("Today", todaySchema),
 Clothes: mongoose.model("Clothes", clothesSchema),
+Footwear: mongoose.model("Footwear", footwearSchema),
 Preferences: mongoose.model("Preferences", preferencesSchema),
 MatchScore: mongoose.model("MatchScore", matchScoreSchema),
 };

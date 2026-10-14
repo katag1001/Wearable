@@ -7,6 +7,7 @@ const jwt_secret = process.env.JWT_SECRET;
 const { User, Match, Today, Clothes, Preferences } = require("../models/AllModels.js");
 const { processMatches } = require("../services/matchService");
 const { waitUntil } = require("@vercel/functions");
+const { deleteAllFootwearForUser } = require("./footwearControllers.js");
 const { describeOutfit } = require("../services/outfitEvaluator.js");
 const {
   getBaselineMatrix,
@@ -186,10 +187,13 @@ exports.deleteUser = async (req, res) => {
     // 5. Delete all clothes belonging to the user
     await Clothes.deleteMany({ userId });
 
-    // 6. Delete the user's preferences
+    // 6. Delete all footwear (and its images) belonging to the user
+    await deleteAllFootwearForUser(userId);
+
+    // 7. Delete the user's preferences
     await Preferences.deleteOne({ userId });
 
-    // 7. Finally delete the user
+    // 8. Finally delete the user
     const deletedUser = await User.findByIdAndDelete(userId);
 
     if (!deletedUser) {

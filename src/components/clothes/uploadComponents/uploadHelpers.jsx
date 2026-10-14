@@ -17,6 +17,17 @@ export const getInitialState = () => ({
   lastWornDate: null
 });
 
+// "a name", "a name and a type", "a name, a type and an image" - for the
+// "Please enter ..." validation message.
+export const formatMissingFields = (fields) => {
+
+  if (fields.length <= 1) {
+    return fields.join("");
+  }
+
+  return `${fields.slice(0, -1).join(", ")} and ${fields[fields.length - 1]}`;
+};
+
 // Other words for a colour in colorOptions, so an item name using them
 // still picks the colour up (e.g. "Beige trench" -> Cream).
 const COLOR_NAME_ALIASES = {
@@ -134,7 +145,7 @@ const SUBTYPE_SYNONYMS = {
 
 const STOPWORDS = new Set(["and", "the", "or", "a", "an", "of"]);
 
-const buildKeywords = (option) => {
+const buildKeywords = (option, synonyms) => {
   const optionName = option.name.toLowerCase();
 
   const baseKeywords = [
@@ -144,14 +155,20 @@ const buildKeywords = (option) => {
     ...optionName.split(/[\s/-]+/),
   ];
 
-  const extraKeywords = SUBTYPE_SYNONYMS[optionName] || [];
+  const extraKeywords = synonyms[optionName] || [];
 
   return [...new Set([...baseKeywords, ...extraKeywords])].filter(
     keyword => keyword.length > 2 && !STOPWORDS.has(keyword)
   );
 };
 
-export const suggestSubtypesFromName = (name, typeOptions) => {
+// `synonyms` defaults to the clothing ones; footwear passes its own
+// (FOOTWEAR_SYNONYMS in src/constants/footwearOptions.jsx).
+export const suggestSubtypesFromName = (
+  name,
+  typeOptions,
+  synonyms = SUBTYPE_SYNONYMS
+) => {
 
   if (!name) return [];
 
@@ -165,7 +182,7 @@ export const suggestSubtypesFromName = (name, typeOptions) => {
 
   const matches = typeOptions.filter(option => {
 
-    const keywords = buildKeywords(option);
+    const keywords = buildKeywords(option, synonyms);
 
     return keywords.some(keyword =>
       text.includes(keyword) || keyword.includes(text)

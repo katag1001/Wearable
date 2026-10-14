@@ -15,6 +15,10 @@ const ViewClothes = ({
   onEdit,
   refresh,
   setError,
+  // Footwear reuses these cards with its own endpoint and wording.
+  deletePath = "/clothing",
+  emptyText = "No clothes found.",
+  deleteTitle = "Delete Clothing Item",
 }) => {
   const [deleteItem, setDeleteItem] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -45,7 +49,7 @@ const ViewClothes = ({
       }
 
       const response = await fetch(
-        `${URL}/clothing/${deleteItem}`,
+        `${URL}${deletePath}/${deleteItem}`,
         {
           method: "DELETE",
           headers: {
@@ -74,7 +78,7 @@ const ViewClothes = ({
     <>
       {items.length === 0 && (
         <p className="no-items-text">
-          No clothes found.
+          {emptyText}
         </p>
       )}
 
@@ -145,7 +149,7 @@ const ViewClothes = ({
 
       <DeletePopup
         isOpen={!!deleteItem}
-        title="Delete Clothing Item"
+        title={deleteTitle}
         message="Are you sure you want to delete this item?"
         loading={deleting}
         onConfirm={confirmDelete}

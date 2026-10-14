@@ -9,61 +9,27 @@ import ModalTwo from "./uploadComponents/modalTwo";
 
 import { useClothingForm } from "./uploadComponents/useClothingForm";
 import { useClothingDetection } from "./uploadComponents/useClothingDetection";
+import { formatMissingFields } from "./uploadComponents/uploadHelpers";
 import { getTypeOptions } from "../../constants/typeOptions";
+import { useUserGender } from "../../hooks/useUserGender";
 
 import "../../styles/modal.css";
 
 
-const AddUpdateClothes = ({ item, onClose, refresh }) => {
+// onBack (new items only) returns to the Clothing / Footwear choice.
+const AddUpdateClothes = ({ item, onClose, onBack, refresh }) => {
 
   const navigate = useNavigate();
 
   const isUpdate = !!item;
 
   // Defaults to "unisex" until the user's gender preference loads.
-  const [gender, setGender] = useState("unisex");
+  const gender = useUserGender();
 
   const typeOptions = useMemo(
     () => getTypeOptions(gender),
     [gender]
   );
-
-
-  useEffect(() => {
-
-    const fetchPreferences = async () => {
-
-      const token = localStorage.getItem("token");
-
-      if (!token) return;
-
-      try {
-
-        const response = await axios.get(
-          `${URL}/preferences`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        );
-
-        const fetchedGender =
-          response.data?.data?.gender;
-
-        if (fetchedGender) {
-          setGender(fetchedGender);
-        }
-
-      } catch {
-        // No preferences saved yet - keep the unisex default.
-      }
-
-    };
-
-    fetchPreferences();
-
-  }, []);
 
 
   const {
@@ -177,28 +143,6 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
 
   const currentValidation =
     pageValidation[currentPage];
-
-
-  const formatMissingFields = (fields) => {
-
-    if (fields.length === 1) {
-      return `${fields[0]}`;
-    }
-
-    if (fields.length === 2) {
-      return `${fields[0]} and ${fields[1]}`;
-    }
-
-    return (
-      fields
-        .slice(0, -1)
-        .map(field => `${field}`)
-        .join(", ")
-      +
-      ` and ${fields[fields.length - 1]}`
-    );
-
-  };
 
 
   const handleNext = () => {
@@ -637,7 +581,7 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
               <div className="modal-navigation">
 
 
-                {currentPage > 1 && (
+                {(currentPage > 1 || onBack) && (
 
                   <button
                     type="button"
@@ -646,6 +590,11 @@ const AddUpdateClothes = ({ item, onClose, refresh }) => {
                     onClick={() => {
 
                       setShowValidation(false);
+
+                      if (currentPage === 1) {
+                        onBack();
+                        return;
+                      }
 
                       setCurrentPage(
                         prev => prev - 1
