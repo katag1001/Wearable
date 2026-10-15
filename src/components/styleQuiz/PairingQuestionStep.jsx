@@ -1,38 +1,10 @@
-import {
-  pairingQuestions,
-  pairingAnswerOptions,
-} from "../../constants/pairingQuestions";
+import { pairingAnswerOptions } from "@core/constants/pairingQuestions.js";
 
 // Style quiz step: one Yes / Sometimes / No pairing question at a time.
-// Answering moves on to the next question; after the last one, onNext.
-// Back goes to the previous question, or out of the step from the first.
-const PairingQuestionStep = ({
-  answers,
-  questionIndex,
-  onQuestionChange,
-  onAnswer,
-  onBack,
-  onNext,
-}) => {
-  const { key, section, question, images } = pairingQuestions[questionIndex];
-
-  const handleAnswer = (value) => {
-    onAnswer(key, value);
-
-    if (questionIndex < pairingQuestions.length - 1) {
-      onQuestionChange(questionIndex + 1);
-    } else {
-      onNext();
-    }
-  };
-
-  const handleBack = () => {
-    if (questionIndex > 0) {
-      onQuestionChange(questionIndex - 1);
-    } else {
-      onBack();
-    }
-  };
+// Moving between questions is handled by useStyleQuiz
+// (answerPairing / backFromPairing).
+const PairingQuestionStep = ({ question: pairingQuestion, answer, onAnswer, onBack }) => {
+  const { section, question, images } = pairingQuestion;
 
   return (
     <div className="style-quiz-step">
@@ -67,9 +39,9 @@ const PairingQuestionStep = ({
             key={option.value}
             type="button"
             className={`style-quiz-choice-card ${
-              answers[key] === option.value ? "style-quiz-choice-card--selected" : ""
+              answer === option.value ? "style-quiz-choice-card--selected" : ""
             }`}
-            onClick={() => handleAnswer(option.value)}
+            onClick={() => onAnswer(option.value)}
           >
             {option.label}
           </button>
@@ -80,7 +52,7 @@ const PairingQuestionStep = ({
         <button
           type="button"
           className="style-quiz-back-button"
-          onClick={handleBack}
+          onClick={onBack}
         >
           Back
         </button>

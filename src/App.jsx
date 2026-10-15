@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,8 +6,6 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
-import axios from "axios";
-import { URL } from "./config";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
@@ -31,8 +29,9 @@ import Enter from "./components/login/Enter";
 import ProtectedRoute from "./components/login/ProtectedRoute";
 import StyleQuizGate from "./components/login/StyleQuizGate";
 
-/* Context */
-import { PagedCacheProvider } from "./context/PagedCacheProvider";
+/* Shared with the mobile app */
+import { PagedCacheProvider } from "@core/cache/PagedCacheProvider.jsx";
+import { useAuthSession } from "@core/hooks/useAuthSession.js";
 
 /* -------------------- SCROLL TO TOP -------------------- */
 const ScrollToTop = () => {
@@ -46,102 +45,14 @@ const ScrollToTop = () => {
 };
 
 const App = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
-  const [isCheckingToken, setIsCheckingToken] = useState(true);
-  const [needsStyleQuiz, setNeedsStyleQuiz] = useState(false);
-
-  /* -------------------- STYLE QUIZ CHECK --------------------
-     Called once per login / session restore (never on route
-     navigation) so we don't hit /preferences repeatedly. */
-  const checkNeedsStyleQuiz = async () => {
-    try {
-      const res = await axios.get(`${URL}/preferences`);
-      const prefs = res.data?.data;
-
-      const isComplete =
-        prefs?.gender &&
-        prefs?.colour &&
-        prefs?.pattern &&
-        prefs?.temperature;
-
-      setNeedsStyleQuiz(!isComplete);
-    } catch (err) {
-      if (err.response?.status === 404) {
-        setNeedsStyleQuiz(true);
-      } else {
-        console.error("Failed to check style quiz status:", err);
-      }
-    }
-  };
-
-  /* -------------------- RESTORE SESSION -------------------- */
-  useEffect(() => {
-    const restoreSession = async () => {
-      const token = localStorage.getItem("token");
-      const email = localStorage.getItem("user");
-
-      if (!token) {
-        setLoggedIn(false);
-        setIsCheckingToken(false);
-        return;
-      }
-
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      try {
-        const res = await axios.post(`${URL}/users/verify_token`);
-
-        if (res.data.ok) {
-          const decodedEmail = res.data.decoded?.email || email || "";
-
-          setUserEmail(decodedEmail);
-          localStorage.setItem("user", decodedEmail);
-
-          await checkNeedsStyleQuiz();
-
-          setLoggedIn(true);
-        } else {
-          setLoggedIn(false);
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-        }
-      } catch {
-        setLoggedIn(false);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-      } finally {
-        setIsCheckingToken(false);
-      }
-    };
-
-    restoreSession();
-  }, []);
-
-  /* -------------------- LOGIN -------------------- */
-  const login = async (token, email) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", email);
-
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-    await checkNeedsStyleQuiz();
-
-    setLoggedIn(true);
-    setUserEmail(email);
-  };
-
-  /* -------------------- LOGOUT -------------------- */
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    delete axios.defaults.headers.common["Authorization"];
-
-    setLoggedIn(false);
-    setUserEmail("");
-    setNeedsStyleQuiz(false);
-  };
+  const {
+    isCheckingToken,
+    loggedIn,
+    needsStyleQuiz,
+    login,
+    logout,
+    completeStyleQuiz,
+  } = useAuthSession();
 
   if (isCheckingToken) {
     return <div className="loading">Loading...</div>;
@@ -190,7 +101,7 @@ const App = () => {
               <ProtectedRoute loggedIn={loggedIn}>
                 <StyleQuiz
                   loggedIn={loggedIn}
-                  onComplete={() => setNeedsStyleQuiz(false)}
+                  onComplete={completeStyleQuiz}
                 />
               </ProtectedRoute>
             }

@@ -1,43 +1,35 @@
 import React, { useState } from "react";
 import UploadImages from "../uploadImages";
-import { suggestSubtypesFromName } from "./uploadHelpers";
+import {
+  getCategories,
+  getCategoryOf,
+  getOptionsInCategory,
+} from "@core/wardrobe/typeChoices.js";
 import "../../../styles/modal.css";
 
 
 const ModalOne = ({
   formData,
   updateField,
-  handleSubtypeChange,
+  chooseSubtype,
   setSelectedImage,
-  typeOptions
+  typeOptions,
+  subtypeSuggestions
 }) => {
 
 
   const [selectedCategory, setSelectedCategory] = useState(
-    () =>
-      typeOptions.find(
-        option => option.name === formData.subtype
-      )?.category || null
+    () => getCategoryOf(typeOptions, formData.subtype)
   );
 
 
-  const categories = [
-    ...new Set(
-      typeOptions.map(option => option.category)
-    )
-  ];
+  const categories = getCategories(typeOptions);
 
 
-  const subtypesInCategory = typeOptions.filter(
-    option => option.category === selectedCategory
+  const subtypesInCategory = getOptionsInCategory(
+    typeOptions,
+    selectedCategory
   );
-
-
-  const subtypeSuggestions =
-    suggestSubtypesFromName(
-      formData.name,
-      typeOptions
-    );
 
 
   return (
@@ -121,12 +113,7 @@ const ModalOne = ({
                         suggestion.category
                       );
 
-                      handleSubtypeChange({
-                        target: {
-                          value:
-                            suggestion.name
-                        }
-                      });
+                      chooseSubtype(suggestion.name);
 
                     }}
                   >
@@ -224,12 +211,7 @@ const ModalOne = ({
                           : "selection-button"
                       }
                       onClick={() =>
-                        handleSubtypeChange({
-                          target: {
-                            value:
-                              subtype.name
-                          }
-                        })
+                        chooseSubtype(subtype.name)
                       }
                     >
 

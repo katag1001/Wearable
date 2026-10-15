@@ -1,193 +1,34 @@
 import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import "./createMatch.css";
-import { URL } from "../../config";
-import { getImageUrl } from "../../utils/getImageUrl";
+import { getImageUrl } from "@core/utils/getImageUrl.js";
+import {
+  ITEM_CATEGORIES as categories,
+  ITEM_CATEGORY_LABELS as sectionTitles,
+} from "@core/filters/filterDefaults.js";
+import { useCreateMatch } from "@core/hooks/useCreateMatch.js";
 import MessagePopup from "../general/messagePopup.jsx";
 
 
-const sectionTitles = {
-  top: "Tops",
-  bottom: "Bottoms",
-  outer: "Outerwear",
-  onepiece: "One-Pieces",
-};
-
-
-const categories = [
-  "top",
-  "bottom",
-  "outer",
-  "onepiece",
-];
-
-
+// The outfit-building logic lives in useCreateMatch (shared with the
+// mobile app). The paging here fits the web grid, so it stays.
 const CreateMatch = () => {
 
-  /* --------------------------------------------------------------
-     State
-  -------------------------------------------------------------- */
+  const builder = useCreateMatch();
 
-  const [formData, setFormData] = useState({
-    top: [],
-    bottom: [],
-    outer: [],
-    onepiece: [],
-  });
+  const {
+    selectedItems,
+    isSelected,
+    searchTerm,
+    result,
+  } = builder;
 
-  const [clothesData, setClothesData] = useState({
-    top: [],
-    bottom: [],
-    outer: [],
-    onepiece: [],
-  });
-
-  const [selectedCategory, setSelectedCategory] = useState("top");
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const [response, setResponse] = useState(null);
-
-  const [showPopup, setShowPopup] = useState(false);
-
-  const [popupContent, setPopupContent] = useState({
-    title: "",
-    message: "",
-  });
-
+  const selectedCategory = builder.category;
+  const handleSelect = builder.toggleItem;
 
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(8);
 
   const scrollRef = useRef(null);
-
-
-  /* --------------------------------------------------------------
-     Authentication
-  -------------------------------------------------------------- */
-
-  const getToken = () => localStorage.getItem("token");
-
-
-  /* --------------------------------------------------------------
-     Fetch Clothing
-  -------------------------------------------------------------- */
-
-  useEffect(() => {
-
-    const fetchClothes = async () => {
-
-      const token = getToken();
-
-      if (!token) {
-        console.error("No user logged in");
-        return;
-      }
-
-      try {
-
-        const res = await axios.get(`${URL}/clothing/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const grouped = {
-          top: [],
-          bottom: [],
-          outer: [],
-          onepiece: [],
-        };
-
-        res.data.forEach((item) => {
-
-          if (grouped[item.type]) {
-            grouped[item.type].push(item);
-          }
-
-        });
-
-        setClothesData(grouped);
-
-      } catch (err) {
-
-        console.error(
-          "Error fetching clothing data:",
-          err
-        );
-
-      }
-
-    };
-
-    fetchClothes();
-
-  }, []);
-
-
-  /* --------------------------------------------------------------
-     Selection
-  -------------------------------------------------------------- */
-
-  const handleSelect = (category, item) => {
-
-    setFormData((prev) => {
-
-      const exists = prev[category].some(
-        (selected) => selected._id === item._id
-      );
-
-      return {
-        ...prev,
-
-        [category]: exists
-          ? prev[category].filter(
-              (selected) => selected._id !== item._id
-            )
-          : [...prev[category], item],
-      };
-
-    });
-
-  };
-
-
-  const isSelected = (category, item) => {
-
-    return formData[category].some(
-      (selected) => selected._id === item._id
-    );
-
-  };
-
-
-  /* --------------------------------------------------------------
-     Search
-  -------------------------------------------------------------- */
-
-  const filteredItems = (category) => {
-
-    const term = searchTerm.trim().toLowerCase();
-
-    if (!term) {
-      return clothesData[category];
-    }
-
-    return clothesData[category].filter((item) => {
-
-      return (
-        item.name?.toLowerCase().includes(term) ||
-        item.brand?.toLowerCase().includes(term) ||
-        item.colors?.some((color) =>
-          color.toLowerCase().includes(term)
-        ) ||
-        item.tags?.some((tag) =>
-          tag.toLowerCase().includes(term)
-        )
-      );
-
-    });
-
-  };
 
 
   /* --------------------------------------------------------------
@@ -243,156 +84,25 @@ const CreateMatch = () => {
 
   const handleCategoryChange = (category) => {
 
-    setSelectedCategory(category);
-    setSearchTerm("");
+    builder.chooseCategory(category);
     setPage(0);
 
   };
 
 
-  /* --------------------------------------------------------------
-     Submit
-  -------------------------------------------------------------- */
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
 
     e.preventDefault();
-
-    const token = getToken();
-
-    if (!token) {
-
-      setPopupContent({
-        title: "Unable to Submit Outfit",
-        message: "No user is currently logged in.",
-      });
-
-      setShowPopup(true);
-
-      return;
-    }
-
-
-    const selectedItems = Object.values(formData).flat();
-
-
-    if (selectedItems.length === 0) {
-
-      setPopupContent({
-        title: "No Clothing Selected",
-        message: "Please select at least one clothing item.",
-      });
-
-      setShowPopup(true);
-
-      return;
-    }
-
-
-    // Only the clothing ids are needed - the server works out
-    // everything else (temperature, seasons, colours, tags, etc.)
-    // from the items themselves (describeOutfit).
-    const payload = {
-      clothes: selectedItems.map((item) => item._id),
-    };
-
-
-    try {
-
-      const res = await fetch(
-        `${URL}/match/matches`,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-
-          body: JSON.stringify(payload),
-        }
-      );
-
-
-      const result = await res.json();
-
-
-      if (!res.ok) {
-        throw new Error(
-          result.error ||
-          "Failed to create match"
-        );
-      }
-
-
-      setResponse(result);
-
-
-      setPopupContent({
-        title: "Outfit Submitted!",
-        message:
-          "Your outfit has been successfully added to the matches database.",
-      });
-
-
-      setShowPopup(true);
-
-
-      setFormData({
-        top: [],
-        bottom: [],
-        outer: [],
-        onepiece: [],
-      });
-
-
-    } catch (err) {
-
-      console.error(
-        "Submit failed:",
-        err
-      );
-
-
-      setResponse({
-        error: err.message,
-      });
-
-
-      setPopupContent({
-        title: "Unable to Submit Outfit",
-        message: err.message,
-      });
-
-
-      setShowPopup(true);
-
-    }
+    builder.submit();
 
   };
-
-
-  /* --------------------------------------------------------------
-     Selected Outfit
-  -------------------------------------------------------------- */
-
-  const selectedItems = categories.flatMap(
-    (category) =>
-      (formData[category] || []).map(
-        (item) => ({
-          category,
-          item,
-        })
-      )
-  );
 
 
   /* --------------------------------------------------------------
      Current Category Items
   -------------------------------------------------------------- */
 
-  const currentItems =
-    filteredItems(selectedCategory);
+  const currentItems = builder.categoryItems;
 
   const totalPages = Math.max(
     1,
@@ -537,10 +247,10 @@ const CreateMatch = () => {
 
 
       <MessagePopup
-        isOpen={showPopup}
-        title={popupContent.title}
-        message={popupContent.message}
-        onClose={() => setShowPopup(false)}
+        isOpen={!!result}
+        title={result?.title}
+        message={result?.message}
+        onClose={builder.clearResult}
       />
 
 
@@ -624,16 +334,7 @@ const CreateMatch = () => {
                           type="button"
                           className="remove-selected-button"
                           onClick={() =>
-                            setFormData((prev) => ({
-                              ...prev,
-
-                              [category]:
-                                prev[category].filter(
-                                  (selected) =>
-                                    selected._id !==
-                                    item._id
-                                ),
-                            }))
+                            builder.toggleItem(category, item)
                           }
                           aria-label={`Remove ${item.name || "item"}`}
                         >
@@ -714,7 +415,7 @@ const CreateMatch = () => {
                   placeholder="Search clothing..."
                   value={searchTerm}
                   onChange={(e) => {
-                    setSearchTerm(e.target.value);
+                    builder.setSearchTerm(e.target.value);
                     setPage(0);
                   }}
                 />
@@ -741,12 +442,6 @@ const CreateMatch = () => {
 
       </div>
 
-
-      {response?.error && (
-        <div className="error-text">
-          {response.error}
-        </div>
-      )}
 
     </div>
 

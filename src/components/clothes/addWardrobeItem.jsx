@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
-import AddUpdateClothes from "./addUpdateClothes";
-import AddUpdateFootwear from "../footwear/addUpdateFootwear";
+import AddUpdateItem from "./addUpdateItem";
+import { WARDROBE_KIND_LIST as KINDS } from "@core/wardrobe/itemKinds.js";
 
 import "../../styles/modal.css";
 
@@ -12,11 +12,6 @@ import "../../styles/modal.css";
  * form the item belongs to.
  */
 
-const KINDS = [
-  { kind: "clothing", label: "Clothing" },
-  { kind: "footwear", label: "Footwear" },
-];
-
 const AddWardrobeItem = ({ item, kind, onClose, refresh }) => {
 
   const isUpdate = !!item;
@@ -26,20 +21,10 @@ const AddWardrobeItem = ({ item, kind, onClose, refresh }) => {
   // Only a new item can go back to the choice.
   const onBack = isUpdate ? undefined : () => setChosenKind(null);
 
-  if (chosenKind === "clothing") {
+  if (chosenKind) {
     return (
-      <AddUpdateClothes
-        item={item}
-        onClose={onClose}
-        onBack={onBack}
-        refresh={refresh}
-      />
-    );
-  }
-
-  if (chosenKind === "footwear") {
-    return (
-      <AddUpdateFootwear
+      <AddUpdateItem
+        kind={chosenKind}
         item={item}
         onClose={onClose}
         onBack={onBack}

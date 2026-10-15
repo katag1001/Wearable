@@ -1,0 +1,21 @@
+// core/storageKeys.js
+//
+// Every storage key core/ uses. Same names as the web app has always used,
+// so existing web sessions and caches carry on working.
+
+export const STORAGE_KEYS = {
+  // The login token and the logged-in user's email.
+  token: "token",
+  user: "user",
+
+  // Today's forecast + location (core/weather/weatherCache.js).
+  weather: "weather_cache",
+  // When /today/create last ran - once a day (core/today/createTodayOnce.js).
+  todayCreated: "today_created",
+  // Today's outfit order, fixed for the day (core/today/outfitOrderCache.js).
+  todayOutfitOrder: "today_outfit_sort_cache",
+  // Today's sorted outfits (core/today/todayCache.js).
+  todayOutfits: "today_outfits_cache",
+  // Today's shoe order and worn shoe (core/footwear/footwearCache.js).
+  todayFootwear: "today_footwear_cache",
+};

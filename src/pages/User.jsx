@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Header from '../components/header';
 import MessagePopup from '../components/general/messagePopup';
-import { URL } from '../config';
+import { useDeleteAccount } from '@core/hooks/useDeleteAccount.js';
 import '../styles/pages.css';
 import '../styles/userPage.css';
 import WeeklyPreferences from '../components/preferences/weeklyPreferences';
@@ -11,48 +11,19 @@ import Stats from '../components/stats/stats';
 const User = ({ loggedIn, logout }) => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
   const [activeScreen, setActiveScreen] =
     useState('weekly-preferences');
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleDeleteAccount = async () => {
-    setDeleting(true);
-
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(`${URL}/users/delete`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const text = await response.text();
-      const data = text ? JSON.parse(text) : {};
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to delete account."
-        );
-      }
-
-      // Account successfully deleted
+  // On failure the popup stays open so the user can try again.
+  const { deleting, deleteAccount: handleDeleteAccount } = useDeleteAccount({
+    onDeleted: () => {
       setShowDeletePopup(false);
-
-      // Clear the user's login state
       logout();
-
-    } catch (error) {
-      console.error("Delete account error:", error);
-
-      setDeleting(false);
-      setShowDeletePopup(true);
-    }
-  };
+    },
+  });
 
   const handleLogout = () => {
     setShowLogoutPopup(false);

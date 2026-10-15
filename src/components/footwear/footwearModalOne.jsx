@@ -1,7 +1,5 @@
 import React from "react";
 import UploadImages from "../clothes/uploadImages";
-import { suggestSubtypesFromName } from "../clothes/uploadComponents/uploadHelpers";
-import { FOOTWEAR_SYNONYMS } from "../../constants/footwearOptions";
 import "../../styles/modal.css";
 
 // Page one of the footwear form: name, image and type. Footwear has a
@@ -10,17 +8,13 @@ import "../../styles/modal.css";
 const FootwearModalOne = ({
   formData,
   updateField,
+  chooseSubtype,
   setSelectedImage,
-  footwearOptions
+  footwearOptions,
+  subtypeSuggestions
 }) => {
 
-  const subtypeSuggestions = suggestSubtypesFromName(
-    formData.name,
-    footwearOptions,
-    FOOTWEAR_SYNONYMS
-  );
-
-  const selectSubtype = (subtype) => updateField("subtype", subtype);
+  const selectSubtype = chooseSubtype;
 
   const renderSubtypeButton = (option) => (
     <button

@@ -1,35 +1,14 @@
-import { useState } from "react";
-import { tagOptions } from "../../constants/optionsBank";
-import { weekDays } from "../../constants/weekDays";
+import { tagOptions } from "@core/constants/optionsBank.js";
+import { weekDays } from "@core/constants/weekDays.js";
+import { useWeekTagPicker } from "@core/hooks/useWeekTagPicker.js";
+import { getTagOption } from "@core/utils/tagOptions.js";
 
 // Style quiz step: pick a tag for each day of the week. Saved as the same
 // weekly preferences the Weekly Preferences page edits, and used to pick
 // today's outfits. Every day is optional.
 const WeeklyTagStep = ({ weeklyTags, onTagChange, onBack, onNext }) => {
-  const [activeDay, setActiveDay] = useState(weekDays[0].key);
-
-  const getTag = (tagName) =>
-    tagOptions.find((tag) => tag.name === tagName) || null;
-
-  // Picking a tag sets it for the active day and moves on to the next day.
-  // Picking the day's current tag again clears it.
-  const handleTagSelect = (tagName) => {
-    const isCurrent = weeklyTags[activeDay] === tagName;
-
-    onTagChange(activeDay, isCurrent ? null : tagName);
-
-    if (!isCurrent) {
-      const index = weekDays.findIndex((day) => day.key === activeDay);
-      const nextDay = weekDays[index + 1];
-
-      if (nextDay) {
-        setActiveDay(nextDay.key);
-      }
-    }
-  };
-
-  const activeDayLabel =
-    weekDays.find((day) => day.key === activeDay)?.label;
+  const { activeDay, setActiveDay, activeDayLabel, selectTag } =
+    useWeekTagPicker(weeklyTags, onTagChange);
 
   return (
     <div className="style-quiz-step">
@@ -44,7 +23,7 @@ const WeeklyTagStep = ({ weeklyTags, onTagChange, onBack, onNext }) => {
 
       <div className="style-quiz-week">
         {weekDays.map((day) => {
-          const tag = getTag(weeklyTags[day.key]);
+          const tag = getTagOption(weeklyTags[day.key]);
           const isActive = activeDay === day.key;
 
           return (
@@ -92,7 +71,7 @@ const WeeklyTagStep = ({ weeklyTags, onTagChange, onBack, onNext }) => {
               className={`style-quiz-tag-card ${
                 isSelected ? "style-quiz-tag-card--selected" : ""
               }`}
-              onClick={() => handleTagSelect(tag.name)}
+              onClick={() => selectTag(tag.name)}
               aria-pressed={isSelected}
             >
               <img

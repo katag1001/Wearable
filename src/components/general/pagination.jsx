@@ -1,6 +1,6 @@
 import React from "react";
 
-import { getPageNumbers, PAGE_GAP } from "../../utils/pageNumbers";
+import { getPageNumbers, PAGE_GAP } from "@core/utils/pageNumbers.js";
 
 import "./pagination.css";
 

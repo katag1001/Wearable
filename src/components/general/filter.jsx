@@ -1,47 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "./filter.css";
 import TemperatureSlider from "./temperatureSlider";
-import { getImageUrl } from "../../utils/getImageUrl";
+import { getImageUrl } from "@core/utils/getImageUrl.js";
 import {
-  seasonOptions,
-  colorOptions,
-  styleOptions,
-  tagOptions,
-} from "../../constants/optionsBank";
+  ITEM_CATEGORIES as itemCategories,
+  ITEM_CATEGORY_LABELS as itemCategoryLabels,
+  FILTER_TEMPERATURE_RANGE,
+} from "@core/filters/filterDefaults.js";
+import { useFilterPanel } from "@core/hooks/useFilterPanel.js";
 
-const itemCategories = [
-  "top",
-  "bottom",
-  "outer",
-  "onepiece",
-];
-
-const itemCategoryLabels = {
-  top: "Tops",
-  bottom: "Bottoms",
-  outer: "Outerwear",
-  onepiece: "One-Pieces",
-};
-
-const defaultFilters = {
-  seasons: [],
-  colors: [],
-  styles: [],
-  tags: [],
-  // Set from the type buttons on My Clothes, not from this panel -
-  // listed here so Reset clears them too.
-  subtypes: [],
-  minTemp: null,
-  maxTemp: null,
-  favourite: false,
-  items: {
-    top: null,
-    bottom: null,
-    outer: null,
-    onepiece: null,
-  },
-};
-
+// The panel logic lives in useFilterPanel (shared with the mobile app);
+// this only renders it.
 const Filter = ({
   isOpen,
   onClose,
@@ -64,148 +33,34 @@ const Filter = ({
   showTemperature = true,
   showFavourites = false,
 }) => {
-  const [localFilters, setLocalFilters] = useState({
-    ...defaultFilters,
-    ...filters,
+  const {
+    draft: localFilters,
+    view,
+    setView,
+    seasons,
+    colors,
+    styles,
+    tags,
+    toggleInList: toggleArrayFilter,
+    toggleFavourite,
+    setTemperature: handleTemperatureChange,
+    itemSearchTerm,
+    searchItems: handleItemSearchChange,
+    getCurrentCategoryItem,
+    stepCategory: changeCategoryIndex,
+    toggleCategoryItem: selectCategoryItem,
+    apply: applyFilters,
+    reset: resetFilters,
+  } = useFilterPanel({
+    isOpen,
+    filters,
+    setFilters,
+    onClose,
+    availableColors,
+    availableStyles,
+    availableTags,
+    clothesByCategory,
   });
-
-  // "main" shows the standard filters, "items" shows the
-  // filter-by-item carousel menu.
-  const [view, setView] = useState("main");
-
-  const [itemSearchTerm, setItemSearchTerm] = useState("");
-
-  const [categoryIndex, setCategoryIndex] = useState({
-    top: 0,
-    bottom: 0,
-    outer: 0,
-    onepiece: 0,
-  });
-
-  useEffect(() => {
-    setLocalFilters({
-      ...defaultFilters,
-      ...filters,
-    });
-  }, [filters]);
-
-  useEffect(() => {
-    if (isOpen) {
-      setView("main");
-    }
-  }, [isOpen]);
-
-  const seasons = seasonOptions;
-
-  const colors =
-    availableColors.length > 0
-      ? colorOptions.filter((color) =>
-          availableColors.includes(color.name)
-        )
-      : colorOptions;
-
-  const styles =
-    availableStyles.length > 0
-      ? styleOptions.filter((style) =>
-          availableStyles.includes(style)
-        )
-      : styleOptions;
-
-  const tags =
-    availableTags.length > 0
-      ? tagOptions.filter((tag) =>
-          availableTags.includes(tag.name)
-        )
-      : tagOptions;
-
-  const toggleArrayFilter = (field, value) => {
-    setLocalFilters((prev) => {
-      const current = prev[field] || [];
-
-      return {
-        ...prev,
-        [field]: current.includes(value)
-          ? current.filter((item) => item !== value)
-          : [...current, value],
-      };
-    });
-  };
-
-  const getFilteredCategoryItems = (category) => {
-    const term = itemSearchTerm.trim().toLowerCase();
-    const items = clothesByCategory[category] || [];
-
-    if (!term) {
-      return items;
-    }
-
-    return items.filter((item) =>
-      item.name?.toLowerCase().includes(term)
-    );
-  };
-
-  const getCurrentCategoryItem = (category) => {
-    const items = getFilteredCategoryItems(category);
-
-    if (items.length === 0) {
-      return null;
-    }
-
-    const rawIndex = categoryIndex[category] || 0;
-    const safeIndex =
-      ((rawIndex % items.length) + items.length) % items.length;
-
-    return items[safeIndex];
-  };
-
-  const changeCategoryIndex = (category, direction) => {
-    setCategoryIndex((prev) => ({
-      ...prev,
-      [category]: (prev[category] || 0) + direction,
-    }));
-  };
-
-  const handleItemSearchChange = (value) => {
-    setItemSearchTerm(value);
-
-    setCategoryIndex({
-      top: 0,
-      bottom: 0,
-      outer: 0,
-      onepiece: 0,
-    });
-  };
-
-  const selectCategoryItem = (category, item) => {
-    setLocalFilters((prev) => ({
-      ...prev,
-      items: {
-        ...prev.items,
-        [category]:
-          prev.items[category] === item._id
-            ? null
-            : item._id,
-      },
-    }));
-  };
-
-  const handleTemperatureChange = (minTemp, maxTemp) => {
-    setLocalFilters((prev) => ({
-      ...prev,
-      minTemp,
-      maxTemp,
-    }));
-  };
-
-  const applyFilters = () => {
-    setFilters(localFilters);
-    onClose();
-  };
-
-  const resetFilters = () => {
-    setLocalFilters(defaultFilters);
-    setFilters(defaultFilters);
-  };
 
   if (!isOpen) return null;
 
@@ -349,12 +204,7 @@ return (
               <input
                 type="checkbox"
                 checked={!!localFilters.favourite}
-                onChange={() =>
-                  setLocalFilters((prev) => ({
-                    ...prev,
-                    favourite: !prev.favourite,
-                  }))
-                }
+                onChange={toggleFavourite}
               />
 
               Favourites only
@@ -407,10 +257,10 @@ return (
             <h3>Temperature</h3>
 
             <TemperatureSlider
-              min={-10}
-              max={50}
-              valueMin={localFilters.minTemp ?? -10}
-              valueMax={localFilters.maxTemp ?? 50}
+              min={FILTER_TEMPERATURE_RANGE.min}
+              max={FILTER_TEMPERATURE_RANGE.max}
+              valueMin={localFilters.minTemp ?? FILTER_TEMPERATURE_RANGE.min}
+              valueMax={localFilters.maxTemp ?? FILTER_TEMPERATURE_RANGE.max}
               step={1}
               onChange={handleTemperatureChange}
             />

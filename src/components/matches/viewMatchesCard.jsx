@@ -1,20 +1,22 @@
 import React, {
   useEffect,
   useRef,
-  useState,
 } from "react";
 
-import { tagOptions } from "../../constants/optionsBank";
-import { URL } from "../../config";
+import { tagOptions } from "@core/constants/optionsBank.js";
 import "./viewMatches.css";
 import "./viewMatchesCard.css";
 import "./matchSelection.css";
 
 import TemperatureSlider from "../general/temperatureSlider";
 import MatchScoreBadge from "../general/matchScoreBadge";
-import { getImageUrl } from "../../utils/getImageUrl";
-import { isDateToday } from "../today/todayHelpers";
-import { wasRejectedToday } from "../today/outfitRejection";
+import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { useMatchCard } from "@core/hooks/useMatchCard.js";
+import {
+  TEMPERATURE_RANGE,
+  formatMatchSeasons,
+} from "@core/matches/matchFields.js";
+import { seasonOptions } from "@core/constants/optionsBank.js";
 
 const ViewMatchesCard = ({
   match,
@@ -29,22 +31,26 @@ const ViewMatchesCard = ({
   isSelected = false,
   onToggleSelect,
 }) => {
-  const [updateData, setUpdateData] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [markingWorn, setMarkingWorn] = useState(false);
+  // The card logic lives in useMatchCard (shared with the mobile app).
+  const card = useMatchCard({
+    match,
+    onChanged: refresh,
+    onFavouriteToggle,
+    onError: setError,
+  });
 
-  // Once worn today, the button locks so the wear counts
-  // can't be bumped twice in one day.
-  const wornToday = isDateToday(match.lastWornDate);
-
-  const cardRef = useRef(null);
-  const togglingFavouriteRef = useRef(false);
-
-  const getToken = () =>
-    localStorage.getItem("token");
+  const {
+    draft: updateData,
+    saving,
+    markingWorn,
+    wornToday,
+    toggleTag,
+  } = card;
 
   const capitalize = (word) =>
     word.charAt(0).toUpperCase() + word.slice(1);
+
+  const cardRef = useRef(null);
 
   /*
    * Scroll the expanded card into the center
@@ -70,262 +76,38 @@ const ViewMatchesCard = ({
    * Open / close editor
    */
   const handleCardClick = () => {
-  if (!editable) {
-    return;
-  }
+    if (!editable) {
+      return;
+    }
 
-  if (isExpanded) {
-    closeEditor();
-    return;
-  }
+    if (isExpanded) {
+      closeEditor();
+      return;
+    }
 
-  onExpand();
-
-  setUpdateData({
-    spring: match.spring || false,
-    summer: match.summer || false,
-    autumn: match.autumn || false,
-    winter: match.winter || false,
-    min_temp: match.min_temp ?? "",
-    max_temp: match.max_temp ?? "",
-    tags: match.tags || [],
-  });
-};
-
+    onExpand();
+    card.startEditing();
+  };
 
   const closeEditor = () => {
     onCollapse();
-    setUpdateData(null);
+    card.stopEditing();
   };
 
-  /*
-   * Form changes
-   */
-  const handleChange = (e) => {
-    const {
-      name,
-      value,
-      type,
-      checked,
-    } = e.target;
-
-    setUpdateData((prev) => ({
-      ...prev,
-      [name]:
-        type === "checkbox"
-          ? checked
-          : value,
-    }));
-  };
-
-  /*
-   * Toggle tag
-   */
-  const toggleTag = (tagName) => {
-    setUpdateData((prev) => ({
-      ...prev,
-      tags: prev.tags.includes(tagName)
-        ? prev.tags.filter(
-            (tag) => tag !== tagName
-          )
-        : [...prev.tags, tagName],
-    }));
-  };
-
-  /*
-   * Save update
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const token = getToken();
-
-    if (!token) {
-      setError?.("No user logged in");
-      return;
-    }
-
-    setSaving(true);
-
-    const body = {
-      spring: updateData.spring,
-      summer: updateData.summer,
-      autumn: updateData.autumn,
-      winter: updateData.winter,
-      min_temp: Number(updateData.min_temp),
-      max_temp: Number(updateData.max_temp),
-      tags: updateData.tags,
-    };
-
-    try {
-      const response = await fetch(
-        `${URL}/match/${match._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(body),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError?.(
-          data?.error ||
-            data?.message ||
-            "Failed to update match"
-        );
-        return;
-      }
-
-      if (data.error) {
-        setError?.(data.error);
-        return;
-      }
-
-      closeEditor();
-      refresh();
-    } catch (err) {
-      console.error("Update error:", err);
-      setError?.("Failed to update match");
-    } finally {
-      setSaving(false);
+    if (await card.save()) {
+      onCollapse();
     }
   };
 
-  /*
-   * Mark as worn today - the same request the Today page
-   * sends, which also updates every item in the outfit.
-   */
-  const handleMarkAsWorn = async () => {
-    const token = getToken();
+  const handleMarkAsWorn = () => card.markWorn();
 
-    if (!token) {
-      setError?.("No user logged in");
-      return;
-    }
-
-    setMarkingWorn(true);
-
-    try {
-      const response = await fetch(
-        `${URL}/match/${match._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            lastWornDate: new Date().toISOString(),
-
-            // Wearing an outfit rejected earlier today takes the
-            // rejection back.
-            undoRejection: wasRejectedToday(match),
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError?.(
-          data?.error ||
-            data?.message ||
-            "Failed to mark as worn"
-        );
-        return;
-      }
-
-      refresh();
-    } catch (err) {
-      console.error("Mark as worn error:", err);
-      setError?.("Failed to mark as worn");
-    } finally {
-      setMarkingWorn(false);
-    }
-  };
-
-  /*
-   * Toggle favourite
-   */
-  const handleToggleFavourite = async (e) => {
+  const handleToggleFavourite = (e) => {
     e.stopPropagation();
-
-    // Ignore rapid repeat clicks while a request is in flight,
-    // without visually disabling the button.
-    if (togglingFavouriteRef.current) {
-      return;
-    }
-
-    const token = getToken();
-
-    if (!token) {
-      setError?.("No user logged in");
-      return;
-    }
-
-    const newValue = !match.favourite;
-
-    // Optimistically reflect the change locally instead of
-    // waiting on (and paying the cost of) a full match refetch.
-    onFavouriteToggle?.(match._id, newValue);
-
-    togglingFavouriteRef.current = true;
-
-    try {
-      const response = await fetch(
-        `${URL}/match/${match._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            favourite: newValue,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Roll back the optimistic update on failure.
-        if (onFavouriteToggle) {
-          onFavouriteToggle(match._id, !newValue);
-        } else {
-          refresh();
-        }
-
-        setError?.(
-          data?.error ||
-            data?.message ||
-            "Failed to update favourite"
-        );
-        return;
-      }
-
-      if (!onFavouriteToggle) {
-        refresh();
-      }
-    } catch (err) {
-      console.error("Favourite toggle error:", err);
-
-      if (onFavouriteToggle) {
-        onFavouriteToggle(match._id, !newValue);
-      } else {
-        refresh();
-      }
-
-      setError?.("Failed to update favourite");
-    } finally {
-      togglingFavouriteRef.current = false;
-    }
+    card.toggleFavourite();
   };
 
   /*
@@ -483,17 +265,7 @@ const ViewMatchesCard = ({
             </div>
 
             <div>
-              {[
-                "spring",
-                "summer",
-                "autumn",
-                "winter",
-              ]
-                .filter(
-                  (season) => match[season]
-                )
-                .map(capitalize)
-                .join(", ") || "N/A"}
+              {formatMatchSeasons(match)}
             </div>
 
             <MatchScoreBadge match={match} />
@@ -546,12 +318,7 @@ const ViewMatchesCard = ({
               </label>
 
               <fieldset className="season-group">
-                {[
-                  "spring",
-                  "summer",
-                  "autumn",
-                  "winter",
-                ].map((season) => (
+                {seasonOptions.map((season) => (
                   <label
                     key={season}
                     className="season-label"
@@ -563,7 +330,9 @@ const ViewMatchesCard = ({
                       checked={
                         updateData[season]
                       }
-                      onChange={handleChange}
+                      onChange={() =>
+                        card.toggleSeason(season)
+                      }
                     />
 
                     {" "}
@@ -582,8 +351,8 @@ const ViewMatchesCard = ({
               </label>
 
               <TemperatureSlider
-                min={-20}
-                max={50}
+                min={TEMPERATURE_RANGE.min}
+                max={TEMPERATURE_RANGE.max}
                 valueMin={Number(
                   updateData.min_temp
                 )}
@@ -591,16 +360,7 @@ const ViewMatchesCard = ({
                   updateData.max_temp
                 )}
                 step={1}
-                onChange={(
-                  minTemp,
-                  maxTemp
-                ) =>
-                  setUpdateData((prev) => ({
-                    ...prev,
-                    min_temp: minTemp,
-                    max_temp: maxTemp,
-                  }))
-                }
+                onChange={card.setTemperature}
               />
             </div>
 

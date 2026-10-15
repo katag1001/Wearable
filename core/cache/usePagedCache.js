@@ -1,0 +1,14 @@
+import { useContext } from "react";
+
+import { PagedCacheContext } from "./pagedCacheContext.js";
+
+// name: "matches", "clothes" or "footwear" (see PagedCacheProvider.jsx)
+export const usePagedCache = (name) => {
+  const caches = useContext(PagedCacheContext);
+
+  if (!caches) {
+    throw new Error("usePagedCache must be used inside a PagedCacheProvider");
+  }
+
+  return caches[name];
+};

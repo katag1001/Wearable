@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 
 import AutoWeather from './autoWeather';
 import ViewToday from './viewToday';
-import { fetchTodayInfo } from "./todayHelpers";
-import { getCachedToday } from "./todayCache";
+import { fetchTodayInfo } from "@core/today/todayInfo.js";
+import { getCachedToday } from "@core/today/todayCache.js";
+import { formatTodayTitle } from "@core/weather/weatherText.js";
 
 import './todayFullBlock.css';
 import '../../styles/pages.css';
@@ -32,10 +33,7 @@ const TodayFullBlock = () => {
       <div className="today-top">
 
         <h1 className="page-title">
-          Today's {' '}
-          {todayTag
-            ? `${todayTag.charAt(0).toUpperCase()}${todayTag.slice(1)}`
-            : ''} Outfit
+          {formatTodayTitle(todayTag)}
         </h1>
 
         <AutoWeather

@@ -1,5 +1,5 @@
 import React from "react";
-import { seasonOptions, colorOptions, tagOptions } from "../../../constants/optionsBank";
+import { seasonOptions, colorOptions, tagOptions } from "@core/constants/optionsBank.js";
 
 const ModalTwo = ({
   formData,

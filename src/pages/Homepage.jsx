@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { usePagedList } from "../hooks/usePagedList";
-import { buildMatchFilterQuery } from "../utils/matchQuery";
-import { buildClothingFilterQuery } from "../utils/clothingQuery";
-import { withPage } from "../utils/pageQuery";
+import { useSeasonPreviews } from "@core/hooks/useSeasonPreviews.js";
+import { deleteWardrobeItem } from "@core/wardrobe/itemKinds.js";
 
 import TodayFullBlock from '../components/today/todayFullBlock';
 import ViewMatches from '../components/matches/viewMatches';
@@ -15,69 +13,28 @@ import '../styles/homepage.css';
 
 
 
-const Homepage = ({ loggedIn, logout }) => {
+const Homepage = ({ loggedIn }) => {
 
-  /*------------------------- Season----------------------------------*/
- 
-  const getCurrentSeason = () => {
-    const month = new Date().getMonth();
+  // This season's clothes and outfits (useSeasonPreviews, shared with the
+  // mobile Today tab) - the "View All" links have the rest.
+  const {
+    clothes: seasonClothes,
+    outfits: seasonMatches,
+    reloadClothes,
+    reloadOutfits: reloadMatches,
+  } = useSeasonPreviews({ enabled: loggedIn });
 
-    if ([2, 3, 4].includes(month)) return "spring";
-    if ([5, 6, 7].includes(month)) return "summer";
-    if ([8, 9, 10].includes(month)) return "autumn";
-
-    return "winter";
+  // The preview shows clothes only. Failures are logged; the card stays.
+  const deleteSeasonItem = async (id) => {
+    try {
+      await deleteWardrobeItem("clothing", id);
+      reloadClothes();
+      return true;
+    } catch (err) {
+      console.error("Delete item error:", err);
+      return false;
+    }
   };
-
-  const [currentSeason] = useState(
-    getCurrentSeason()
-  );
-
-  /*-------------------------Clothes-------------------------*/
-
-  // A preview of this season's newest clothes / outfits - the "View All"
-  // links have the rest. Both are cached for the session, so returning
-  // here is instant.
-  const HOME_CLOTHES_LIMIT = 14;
-  const HOME_MATCHES_LIMIT = 8;
-
-  const homeClothesQuery = withPage(
-    buildClothingFilterQuery({
-      filters: { seasons: [currentSeason] },
-      limit: HOME_CLOTHES_LIMIT,
-    }),
-    1
-  );
-
-  const {
-    data: clothesData,
-    reload: reloadClothes,
-  } = usePagedList("clothes", homeClothesQuery, {
-    enabled: loggedIn,
-    errorMessage: "Failed to fetch clothes",
-  });
-
-  /*-------------------------Matches-------------------------*/
-
-  const homeMatchesQuery = withPage(
-    buildMatchFilterQuery({
-      season: currentSeason,
-      limit: HOME_MATCHES_LIMIT,
-    }),
-    1
-  );
-
-  const {
-    data: matchesData,
-    reload: reloadMatches,
-  } = usePagedList("matches", homeMatchesQuery, {
-    enabled: loggedIn,
-    errorMessage: "Failed to fetch matches",
-  });
-
-  const seasonClothes = clothesData?.items ?? [];
-
-  const seasonMatches = matchesData?.matches ?? [];
 
   return (
     <>
@@ -109,7 +66,7 @@ const Homepage = ({ loggedIn, logout }) => {
                   <ViewClothes
                     items={seasonClothes}
                     onEdit={() => {}}
-                    refresh={reloadClothes}
+                    onDelete={deleteSeasonItem}
                   />
 
                 </div>

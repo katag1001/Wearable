@@ -1,123 +1,22 @@
-import { useEffect, useState } from "react";
-import { URL } from "../../config";
-import { getImageUrl } from "../../utils/getImageUrl";
+import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { useStats } from "@core/hooks/useStats.js";
+import { formatWornCount as formatCount } from "@core/stats/topWorn.js";
 import "./stats.css";
 import "../../styles/pages.css";
 
 
+// The logic lives in useStats (shared with the mobile app); this only
+// renders it.
 const Stats = () => {
-  const [matches, setMatches] = useState([]);
-  const [clothes, setClothes] = useState([]);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const [mode, setMode] = useState("allTime");
-
-
-  const getToken = () => {
-    return localStorage.getItem("token");
-  };
-
-
-  useEffect(() => {
-    const fetchStats = async () => {
-
-      const token = getToken();
-
-      if (!token) {
-        setError(
-          "You must be logged in to view your stats."
-        );
-
-        setLoading(false);
-
-        return;
-      }
-
-      try {
-
-        const [matchesResponse, clothesResponse] =
-          await Promise.all([
-            fetch(`${URL}/match/`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }),
-
-            fetch(`${URL}/clothing/`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }),
-          ]);
-
-        if (!matchesResponse.ok || !clothesResponse.ok) {
-          throw new Error("Failed to load stats.");
-        }
-
-        const matchesData = await matchesResponse.json();
-        const clothesData = await clothesResponse.json();
-
-        setMatches(
-          Array.isArray(matchesData) ? matchesData : []
-        );
-
-        setClothes(
-          Array.isArray(clothesData) ? clothesData : []
-        );
-
-      } catch (err) {
-
-        console.error(
-          "Error fetching stats:",
-          err
-        );
-
-        setError(
-          err.message || "Failed to load stats."
-        );
-
-      } finally {
-
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
-
-
-  /* ------------------------- COUNT HELPERS ------------------------- */
-
-  const countField =
-    mode === "thisYear"
-      ? "timesWornThisYear"
-      : "timesWorn";
-
-
-  const getTopByCount = (items, limit) => {
-
-    return [...items]
-      .filter(
-        (item) => (item?.[countField] || 0) > 0
-      )
-      .sort(
-        (a, b) =>
-          (b?.[countField] || 0) -
-          (a?.[countField] || 0)
-      )
-      .slice(0, limit);
-  };
-
-
-  const topOutfits = getTopByCount(matches, 3);
-  const topClothes = getTopByCount(clothes, 5);
-
-
-  const formatCount = (count) => {
-    return `Worn ${count} ${count === 1 ? "time" : "times"}`;
-  };
+  const {
+    loading,
+    error,
+    mode,
+    setMode,
+    countField,
+    topOutfits,
+    topClothes,
+  } = useStats();
 
 
   /* ------------------------- RENDER OUTFIT IMAGES ------------------------- */

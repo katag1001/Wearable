@@ -1,24 +1,24 @@
 import React, { useState } from "react";
-import axios from "axios";
 
 import DeletePopup from "../general/deletePopup.jsx";
 import ViewMatchesCard from "./viewMatchesCard.jsx";
 import MatchSelectionBar from "./matchSelectionBar.jsx";
-import { useMatchSelection } from "./useMatchSelection.js";
-
-import { URL } from "../../config";
+import { useMatchSelection } from "@core/hooks/useMatchSelection.js";
 
 import "./viewMatches.css";
 import "../../styles/pagesBottom.css";
 import "../../styles/pages.css";
 
+// onDeleteMatches(ids) deletes and resolves to true if it worked (the
+// page refreshes and shows any error) - useMatchesPage.deleteMatches.
+// Only needed when `editable`.
 const ViewMatches = ({
   matches = [],
-  onEdit,
   refresh,
   editable = true,
   setError,
   onFavouriteToggle,
+  onDeleteMatches,
 }) => {
   // The outfit ids waiting on the delete confirmation - one from a
   // card's Delete button, or every ticked outfit from the bin.
@@ -33,9 +33,6 @@ const ViewMatches = ({
     toggleSelected,
     clearSelection,
   } = useMatchSelection(matches);
-
-  const getToken = () =>
-    localStorage.getItem("token");
 
   /*
    * Open delete confirmation for one outfit
@@ -52,25 +49,6 @@ const ViewMatches = ({
   };
 
   /*
-   * Send the delete - the single route for one outfit,
-   * the delete-many route for several.
-   */
-  const requestDelete = (ids, token) => {
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
-
-    if (ids.length === 1) {
-      return axios.delete(`${URL}/match/${ids[0]}`, { headers });
-    }
-
-    return axios.delete(`${URL}/match/`, {
-      headers,
-      data: { ids },
-    });
-  };
-
-  /*
    * Confirm delete
    */
   const confirmDelete = async () => {
@@ -82,31 +60,15 @@ const ViewMatches = ({
     setPendingDeleteIds(null);
     setDeleting(true);
 
-    try {
-      const token = getToken();
+    const deleted = await onDeleteMatches(ids);
 
-      if (!token) {
-        setError?.("No user logged in");
-        return;
-      }
-
-      await requestDelete(ids, token);
-
+    if (deleted) {
       // Close any expanded card and drop the ticks after deletion.
       setExpandedMatchId(null);
       clearSelection();
-
-      refresh();
-    } catch (err) {
-      console.error("Delete error:", err);
-      setError?.(
-        ids.length === 1
-          ? "Failed to delete match"
-          : "Failed to delete matches"
-      );
-    } finally {
-      setDeleting(false);
     }
+
+    setDeleting(false);
   };
 
   const pendingCount = pendingDeleteIds?.length ?? 0;

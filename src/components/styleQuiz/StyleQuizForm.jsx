@@ -1,124 +1,40 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   genderQuestionOptions,
   temperatureQuestionOptions,
-  styleImageOptions,
-} from "../../constants/styleQuizOptions";
-import { pairingQuestionGenders } from "../../constants/pairingQuestions";
-import { resolveStyleQuiz } from "../../utils/resolveStyleQuiz";
-import { emptyWeeklyTags } from "../../constants/weekDays";
+} from "@core/constants/styleQuizOptions.js";
+import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
 import WeeklyTagStep from "./WeeklyTagStep";
 import PairingQuestionStep from "./PairingQuestionStep";
-import { URL } from "../../config";
 import "./styleQuizForm.css";
 
-// The quiz's steps in order. The pairing questions are only asked for the
-// genders in pairingQuestionGenders.
-const getSteps = (gender) =>
-  pairingQuestionGenders.includes(gender)
-    ? ["gender", "images", "pairing", "weekly", "temperature"]
-    : ["gender", "images", "weekly", "temperature"];
-
+// The quiz logic lives in useStyleQuiz (core/hooks/useStyleQuiz.js),
+// shared with the mobile app; this only renders it.
 const StyleQuizForm = ({ onComplete }) => {
   const navigate = useNavigate();
 
-  const [step, setStep] = useState("gender");
-  const [gender, setGender] = useState(null);
-  const [selectedImages, setSelectedImages] = useState([]);
-  const [pairingAnswers, setPairingAnswers] = useState({});
-  const [pairingIndex, setPairingIndex] = useState(0);
-  const [weeklyTags, setWeeklyTags] = useState(emptyWeeklyTags);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  const goToNextStep = () => {
-    const steps = getSteps(gender);
-    setStep(steps[steps.indexOf(step) + 1]);
-    setError("");
-  };
-
-  const handleBack = () => {
-    const steps = getSteps(gender);
-    setStep(steps[steps.indexOf(step) - 1]);
-    setError("");
-  };
-
-  const handleGenderSelect = (value) => {
-    setGender(value);
-    setError("");
-    setStep("images");
-  };
-
-  const toggleImage = (key) => {
-    setSelectedImages((current) =>
-      current.includes(key)
-        ? current.filter((selectedKey) => selectedKey !== key)
-        : [...current, key]
-    );
-
-    setError("");
-  };
-
-  const handlePairingAnswer = (questionKey, answer) => {
-    setPairingAnswers((current) => ({ ...current, [questionKey]: answer }));
-  };
-
-  const handleWeeklyTagChange = (dayKey, tagName) => {
-    setWeeklyTags((current) => ({ ...current, [dayKey]: tagName }));
-  };
-
-  const handleTemperatureSelect = (value) => {
-    handleFinish(value);
-  };
-
-  const handleFinish = async (temperature) => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setError("You must be logged in to save your preferences.");
-      return;
-    }
-
-    const { colour, pattern } = resolveStyleQuiz(selectedImages);
-
-    try {
-      setSaving(true);
-      setError("");
-
-      const response = await fetch(`${URL}/preferences`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          gender,
-          colour,
-          pattern,
-          temperature,
-          // Only sent for genders that were asked the pairing questions.
-          ...(pairingQuestionGenders.includes(gender) && { pairingAnswers }),
-          // Only the days picked, so retaking the quiz never clears a day
-          // already set on the Weekly Preferences page.
-          ...Object.fromEntries(
-            Object.entries(weeklyTags).filter(([, tagName]) => tagName)
-          ),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save your answers. Please try again.");
-      }
-
+  const quiz = useStyleQuiz({
+    onComplete: () => {
       onComplete?.();
       navigate("/");
-    } catch (err) {
-      setError(err.message || "Failed to save your answers.");
-    } finally {
-      setSaving(false);
-    }
-  };
+    },
+  });
+
+  const {
+    step,
+    goToNextStep,
+    goBack,
+    saving,
+    error,
+    gender,
+    chooseGender,
+    imageOptions,
+    selectedImages,
+    toggleImage,
+    weeklyTags,
+    setWeeklyTag,
+    finish,
+  } = quiz;
 
   return (
     <div className="style-quiz">
@@ -136,7 +52,7 @@ const StyleQuizForm = ({ onComplete }) => {
                 className={`style-quiz-choice-card ${
                   gender === option.value ? "style-quiz-choice-card--selected" : ""
                 }`}
-                onClick={() => handleGenderSelect(option.value)}
+                onClick={() => chooseGender(option.value)}
               >
                 {option.label}
               </button>
@@ -153,8 +69,7 @@ const StyleQuizForm = ({ onComplete }) => {
           </div>
 
           <div className="style-quiz-image-grid">
-            {styleImageOptions
-              .filter((option) => option.gender.includes(gender))
+            {imageOptions
               .map((option) => {
                 const isSelected = selectedImages.includes(option.key);
 
@@ -188,7 +103,7 @@ const StyleQuizForm = ({ onComplete }) => {
             <button
               type="button"
               className="style-quiz-back-button"
-              onClick={handleBack}
+              onClick={goBack}
             >
               Back
             </button>
@@ -207,20 +122,18 @@ const StyleQuizForm = ({ onComplete }) => {
 
       {step === "pairing" && (
         <PairingQuestionStep
-          answers={pairingAnswers}
-          questionIndex={pairingIndex}
-          onQuestionChange={setPairingIndex}
-          onAnswer={handlePairingAnswer}
-          onBack={handleBack}
-          onNext={goToNextStep}
+          question={quiz.pairingQuestion}
+          answer={quiz.pairingAnswer}
+          onAnswer={quiz.answerPairing}
+          onBack={quiz.backFromPairing}
         />
       )}
 
       {step === "weekly" && (
         <WeeklyTagStep
           weeklyTags={weeklyTags}
-          onTagChange={handleWeeklyTagChange}
-          onBack={handleBack}
+          onTagChange={setWeeklyTag}
+          onBack={goBack}
           onNext={goToNextStep}
         />
       )}
@@ -239,7 +152,7 @@ const StyleQuizForm = ({ onComplete }) => {
                 key={option.value}
                 type="button"
                 className="style-quiz-choice-card"
-                onClick={() => handleTemperatureSelect(option.value)}
+                onClick={() => finish(option.value)}
                 disabled={saving}
               >
                 {option.label}
@@ -251,7 +164,7 @@ const StyleQuizForm = ({ onComplete }) => {
             <button
               type="button"
               className="style-quiz-back-button"
-              onClick={handleBack}
+              onClick={goBack}
               disabled={saving}
             >
               Back

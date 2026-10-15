@@ -1,380 +1,33 @@
-import { useEffect, useState } from "react";
-import { tagOptions } from "../../constants/optionsBank";
+import { tagOptions } from "@core/constants/optionsBank.js";
+import { weekDays as days } from "@core/constants/weekDays.js";
+import { useWeeklyPreferences } from "@core/hooks/useWeeklyPreferences.js";
+import { getTagOption } from "@core/utils/tagOptions.js";
 import "./weeklyPreferences.css";
 import "../../styles/pages.css";
 
-
-import { URL } from "../../config"
-import {
-  weekDays as days,
-  emptyWeeklyTags as emptyPreferences,
-} from "../../constants/weekDays";
-
+// The logic lives in useWeeklyPreferences (shared with the mobile app);
+// this only renders it.
 const WeeklyPreferences = () => {
-  const [preferences, setPreferences] =
-    useState(emptyPreferences);
+  const {
+    weeklyTags: preferences,
+    selectedDay,
+    selectedDayLabel,
+    selectDay,
+    selectTag,
+    clearDay,
+    save,
+    loading,
+    saving,
+    error,
+    success,
+  } = useWeeklyPreferences();
 
-  const [selectedDay, setSelectedDay] =
-    useState("monday");
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [saving, setSaving] =
-    useState(false);
-
-  const [error, setError] =
-    useState("");
-
-  const [success, setSuccess] =
-    useState("");
-
-  const getToken = () => {
-    const token = localStorage.getItem("token");
-
-
-    if (!token) {
-      console.error(
-        "No authentication token found in localStorage."
-      );
-    }
-
-    return token;
-  };
-
-  const getResponseData = async (response) => {
-    const text = await response.text();
-
-    if (!text) {
-      return null;
-    }
-
-    try {
-      return JSON.parse(text);
-    } catch (err) {
-      console.error(
-        "Response was not valid JSON:",
-        err
-      );
-
-      return null;
-    }
-  };
-
-  useEffect(() => {
-    const fetchPreferences = async () => {
-
-      const token = getToken();
-
-      if (!token) {
-        setError(
-          "You must be logged in to view your preferences."
-        );
-
-        setLoading(false);
-
-        return;
-      }
-
-      const requestUrl =
-        `${URL}/preferences`;
-
-      console.log(
-        "GET URL:",
-        requestUrl
-      );
-
-      try {
-        const response = await fetch(
-          requestUrl,
-          {
-            method: "GET",
-
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-        console.log(
-          "GET status:",
-          response.status
-        );
-
-        console.log(
-          "GET response URL:",
-          response.url
-        );
-
-        const result =
-          await getResponseData(response);
-
-        console.log(
-          "GET result:",
-          result
-        );
-
-        if (response.status === 404) {
-          console.log(
-            "No preferences found. Starting with empty preferences."
-          );
-
-          setPreferences(
-            emptyPreferences
-          );
-
-          return;
-        }
-
-        if (response.status === 401) {
-          console.error(
-            "Authentication failed while fetching preferences."
-          );
-
-          throw new Error(
-            result?.message ||
-              "Your session has expired. Please log in again."
-          );
-        }
-
-        if (!response.ok) {
-          throw new Error(
-            result?.message ||
-              `Failed to load preferences (${response.status}).`
-          );
-        }
-
-        if (result?.data) {
-          const loadedPreferences = {
-            monday:
-              result.data.monday ?? null,
-
-            tuesday:
-              result.data.tuesday ?? null,
-
-            wednesday:
-              result.data.wednesday ?? null,
-
-            thursday:
-              result.data.thursday ?? null,
-
-            friday:
-              result.data.friday ?? null,
-
-            saturday:
-              result.data.saturday ?? null,
-
-            sunday:
-              result.data.sunday ?? null,
-          };
-
-          console.log(
-            "Loaded preferences:",
-            loadedPreferences
-          );
-
-          setPreferences(
-            loadedPreferences
-          );
-        } else {
-          setPreferences(
-            emptyPreferences
-          );
-        }
-      } catch (err) {
-        console.error(
-          "Error fetching preferences:",
-          err
-        );
-
-        setError(
-          err.message ||
-            "Failed to load preferences."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPreferences();
-  }, []);
-
-  const handleDaySelect = (dayKey) => {
-    console.log(
-      "Selected day:",
-      dayKey
-    );
-
-    setSelectedDay(dayKey);
-
-    setError("");
-    setSuccess("");
-  };
-
-  const handleTagSelect = (tagName) => {
-    console.log(
-      "Selected tag:",
-      tagName,
-      "for:",
-      selectedDay
-    );
-
-    setPreferences((current) => ({
-      ...current,
-      [selectedDay]: tagName,
-    }));
-
-    setError("");
-    setSuccess("");
-  };
-
-  const handleClearDay = () => {
-    console.log(
-      "Clearing preference for:",
-      selectedDay
-    );
-
-    setPreferences((current) => ({
-      ...current,
-      [selectedDay]: null,
-    }));
-
-    setError("");
-    setSuccess("");
-  };
-
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-
-
-    const token = getToken();
-
-    if (!token) {
-      setError(
-        "You must be logged in to save your preferences."
-      );
-
-      return;
-    }
-
-    const requestUrl =
-      `${URL}/preferences`;
-
-    try {
-      setSaving(true);
-      setError("");
-      setSuccess("");
-
-      const response = await fetch(
-        requestUrl,
-        {
-          method: "PUT",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Authorization:
-              `Bearer ${token}`,
-          },
-
-          body: JSON.stringify(
-            preferences
-          ),
-        }
-      );
-
-      const result =
-        await getResponseData(response);
-
-      console.log(
-        "PUT result:",
-        result
-      );
-
-      if (response.status === 401) {
-        console.error(
-          "Authentication failed while saving preferences."
-        );
-
-        throw new Error(
-          result?.message ||
-            "Your session has expired. Please log in again."
-        );
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          result?.message ||
-            `Failed to save preferences (${response.status}).`
-        );
-      }
-
-      if (result?.data) {
-        const savedPreferences = {
-          monday:
-            result.data.monday ?? null,
-
-          tuesday:
-            result.data.tuesday ?? null,
-
-          wednesday:
-            result.data.wednesday ?? null,
-
-          thursday:
-            result.data.thursday ?? null,
-
-          friday:
-            result.data.friday ?? null,
-
-          saturday:
-            result.data.saturday ?? null,
-
-          sunday:
-            result.data.sunday ?? null,
-        };
-
-        setPreferences(
-          savedPreferences
-        );
-      }
-
-     setSuccess("Preferences saved successfully.");
-
-setTimeout(() => {
-  setSuccess("");
-}, 3000);
-
-
-    } catch (err) {
-      console.error(
-        "Error saving preferences:",
-        err
-      );
-
-      setError(
-        err.message ||
-          "Failed to save preferences."
-      );
-    } finally {
-      setSaving(false);
-    }
+    save();
   };
 
-  const getTag = (tagName) => {
-    return tagOptions.find(
-      (tag) => tag.name === tagName
-    );
-  };
-
-  const selectedDayObject = days.find(
-    (day) => day.key === selectedDay
-  );
-
-  const selectedTag = getTag(
-    preferences[selectedDay]
-  );
+  const selectedTag = getTagOption(preferences[selectedDay]);
 
   if (loading) {
     return (
@@ -408,7 +61,7 @@ setTimeout(() => {
 
       <div className="weekly-preferences-week">
         {days.map((day) => {
-          const tag = getTag(
+          const tag = getTagOption(
             preferences[day.key]
           );
 
@@ -425,7 +78,7 @@ setTimeout(() => {
                   : ""
               }`}
               onClick={() =>
-                handleDaySelect(
+                selectDay(
                   day.key
                 )
               }
@@ -469,7 +122,7 @@ setTimeout(() => {
         <div className="tag-selector-header">
           <div className="tag-selector-header-name">
             <h3>
-              {selectedDayObject?.label}
+              {selectedDayLabel}
             </h3>
 
             <p>
@@ -483,7 +136,7 @@ setTimeout(() => {
               type="button"
               className="clear-button"
               onClick={
-                handleClearDay
+                clearDay
               }
             >
               Clear
@@ -509,7 +162,7 @@ setTimeout(() => {
                     : ""
                 }`}
                 onClick={() =>
-                  handleTagSelect(
+                  selectTag(
                     tag.name
                   )
                 }

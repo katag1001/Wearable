@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { URL } from '../../config';
+import { register } from '@core/api/auth.js';
+import { getErrorMessage } from '@core/api/errors.js';
 
 const RegisterForm = () => {
   const [form, setForm] = useState({
@@ -23,11 +23,11 @@ const RegisterForm = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(`${URL}/users/register`, form);
+      const data = await register(form);
 
-      setMessage(res.data.message);
+      setMessage(data.message);
 
-      if (res.data.ok) {
+      if (data.ok) {
         setForm({
           email: '',
           password: '',
@@ -38,9 +38,7 @@ const RegisterForm = () => {
       console.error('❌ Registration error:', error);
 
       // Show the message returned by the backend
-      setMessage(
-        error.response?.data?.message || 'Registration failed'
-      );
+      setMessage(getErrorMessage(error, 'Registration failed'));
     }
   };
 

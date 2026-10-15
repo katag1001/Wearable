@@ -79,9 +79,11 @@ app.use((err, req, res, next) => {
   console.error("🔥 SERVER ERROR:");
   console.error(err);
 
+  // The stack trace helps locally but mustn't reach the public
+  // (Vercel sets NODE_ENV=production).
   res.status(500).json({
     message: err.message,
-    stack: err.stack,
+    ...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
   });
 });
 

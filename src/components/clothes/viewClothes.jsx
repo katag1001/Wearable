@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { tagOptions } from "../../constants/optionsBank";
+import { tagOptions } from "@core/constants/optionsBank.js";
 
 import DeletePopup from "../general/deletePopup.jsx";
 
@@ -7,23 +7,20 @@ import "./viewClothes.css";
 import "../../styles/pagesBottom.css";
 import "../../styles/pages.css";
 
-import { URL } from "../../config";
-import { getImageUrl } from "../../utils/getImageUrl";
+import { getImageUrl } from "@core/utils/getImageUrl.js";
 
+// onDelete(id) deletes the item and resolves to true if it worked (the
+// page refreshes and shows any error) - e.g. useWardrobePage.deleteItem.
 const ViewClothes = ({
   items = [],
   onEdit,
-  refresh,
-  setError,
-  // Footwear reuses these cards with its own endpoint and wording.
-  deletePath = "/clothing",
+  onDelete,
+  // Footwear reuses these cards with its own wording.
   emptyText = "No clothes found.",
   deleteTitle = "Delete Clothing Item",
 }) => {
   const [deleteItem, setDeleteItem] = useState(null);
   const [deleting, setDeleting] = useState(false);
-
-  const getToken = () => localStorage.getItem("token");
 
   const getTagImages = (tags = []) => {
     return tagOptions.filter((tag) =>
@@ -40,37 +37,12 @@ const ViewClothes = ({
 
     setDeleting(true);
 
-    try {
-      const token = getToken();
+    const deleted = await onDelete(deleteItem);
 
-      if (!token) {
-        setError?.("No user logged in");
-        return;
-      }
+    setDeleting(false);
 
-      const response = await fetch(
-        `${URL}${deletePath}/${deleteItem}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.error) {
-        setError?.(data.error);
-      } else {
-        setDeleteItem(null);
-        refresh();
-      }
-    } catch (error) {
-      console.error("Delete item error:", error);
-      setError?.("Failed to delete item");
-    } finally {
-      setDeleting(false);
+    if (deleted) {
+      setDeleteItem(null);
     }
   };
 

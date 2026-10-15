@@ -1,204 +1,32 @@
-import { useEffect, useState } from "react";
 import {
   genderQuestionOptions,
   temperatureQuestionOptions,
   styleImageOptions,
-} from "../../constants/styleQuizOptions";
-import { pairingQuestionGenders } from "../../constants/pairingQuestions";
-import { resolveStyleQuiz } from "../../utils/resolveStyleQuiz";
+} from "@core/constants/styleQuizOptions.js";
+import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
 import PairingPreferences from "./PairingPreferences";
 import "./stylePreferences.css";
 import "../../styles/pages.css";
 
-import { URL } from "../../config";
-
-const getToken = () => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    console.error("No authentication token found in localStorage.");
-  }
-
-  return token;
-};
-
-const getResponseData = async (response) => {
-  const text = await response.text();
-
-  if (!text) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(text);
-  } catch (err) {
-    console.error("Response was not valid JSON:", err);
-    return null;
-  }
-};
-
+// The logic lives in useStylePreferences (shared with the mobile app);
+// this only renders it.
 const StylePreferences = () => {
-  const [gender, setGender] = useState(null);
-  const [temperature, setTemperature] = useState(null);
-  const [selectedImages, setSelectedImages] = useState([]);
-  const [pairingAnswers, setPairingAnswers] = useState({});
-
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  useEffect(() => {
-    const fetchPreferences = async () => {
-      const token = getToken();
-
-      if (!token) {
-        setError("You must be logged in to view your preferences.");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(`${URL}/preferences`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.status === 404) {
-          setGender(null);
-          setTemperature(null);
-          return;
-        }
-
-        if (response.status === 401) {
-          const result = await getResponseData(response);
-
-          throw new Error(
-            result?.message ||
-              "Your session has expired. Please log in again."
-          );
-        }
-
-        if (!response.ok) {
-          throw new Error(
-            `Failed to load preferences (${response.status}).`
-          );
-        }
-
-        const result = await getResponseData(response);
-
-        setGender(result?.data?.gender ?? null);
-        setTemperature(result?.data?.temperature ?? null);
-      } catch (err) {
-        setError(err.message || "Failed to load preferences.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPreferences();
-  }, []);
-
-  const handleGenderSelect = (value) => {
-    setGender(value);
-    setError("");
-    setSuccess("");
-  };
-
-  const handleTemperatureSelect = (value) => {
-    setTemperature(value);
-    setError("");
-    setSuccess("");
-  };
-
-  const toggleImage = (key) => {
-    setSelectedImages((current) =>
-      current.includes(key)
-        ? current.filter((selectedKey) => selectedKey !== key)
-        : [...current, key]
-    );
-
-    setError("");
-    setSuccess("");
-  };
-
-  // A null answer clears the question, so it isn't sent.
-  const handlePairingAnswer = (questionKey, answer) => {
-    setPairingAnswers((current) => {
-      const { [questionKey]: _removed, ...rest } = current;
-      return answer ? { ...rest, [questionKey]: answer } : rest;
-    });
-
-    setError("");
-    setSuccess("");
-  };
-
-  const showPairingQuestions = pairingQuestionGenders.includes(gender);
-
-  const handleSave = async () => {
-    const token = getToken();
-
-    if (!token) {
-      setError("You must be logged in to save your preferences.");
-      return;
-    }
-
-    const body = { gender, temperature };
-
-    if (selectedImages.length > 0) {
-      const { colour, pattern } = resolveStyleQuiz(selectedImages);
-
-      body.colour = colour;
-      body.pattern = pattern;
-    }
-
-    if (showPairingQuestions && Object.keys(pairingAnswers).length > 0) {
-      body.pairingAnswers = pairingAnswers;
-    }
-
-    try {
-      setSaving(true);
-      setError("");
-      setSuccess("");
-
-      const response = await fetch(`${URL}/preferences`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (response.status === 401) {
-        const result = await getResponseData(response);
-
-        throw new Error(
-          result?.message || "Your session has expired. Please log in again."
-        );
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to save preferences (${response.status}).`
-        );
-      }
-
-      setSelectedImages([]);
-      setPairingAnswers({});
-      setSuccess("Preferences saved successfully.");
-
-      setTimeout(() => {
-        setSuccess("");
-      }, 3000);
-    } catch (err) {
-      setError(err.message || "Failed to save preferences.");
-    } finally {
-      setSaving(false);
-    }
-  };
+  const {
+    gender,
+    chooseGender: handleGenderSelect,
+    temperature,
+    chooseTemperature: handleTemperatureSelect,
+    selectedImages,
+    toggleImage,
+    pairingAnswers,
+    answerPairing: handlePairingAnswer,
+    showPairingQuestions,
+    save: handleSave,
+    loading,
+    saving,
+    error,
+    success,
+  } = useStylePreferences();
 
   if (loading) {
     return (

@@ -1,16 +1,17 @@
 // src/components/LoginForm.jsx
 import React, { useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
-import { URL } from "../../config";
+import { getErrorMessage } from "@core/api/errors.js";
 import "./loginForm.css";
 
+// `login` comes from useAuthSession (core/hooks/useAuthSession.js), which
+// saves the token and email and checks the style quiz.
 const LoginForm = ({ login }) => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
-  
+
 
     setForm((prev) => ({
       ...prev,
@@ -22,22 +23,10 @@ const LoginForm = ({ login }) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(`${URL}/users/login`, form);
-
-      setMessage(res.data.message);
-
-      if (res.data.ok && res.data.token) {
-
-        // ✅ ONLY STORE TOKEN (secure baseline improvement)
-        localStorage.setItem("token", res.data.token);
-
-        login(res.data.token);
-      } else {
-        console.log("⚠️ Login failed - no token returned");
-      }
+      await login(form.email, form.password);
     } catch (error) {
 
-      setMessage(error.response?.data?.message || "Login failed");
+      setMessage(getErrorMessage(error, "Login failed"));
     }
   };
 
