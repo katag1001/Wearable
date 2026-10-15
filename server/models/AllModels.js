@@ -135,8 +135,10 @@ clothesSchema.index({ userId: 1, _id: -1 });
 
 /* -------------------- TODAY -------------------- */
 
-// One document per outfit suitable for today - a user has many. createToday
-// (allControllers.js) replaces the whole set each time it runs.
+// One document per outfit in today's list - a user has up to
+// TODAY_OUTFIT_LIMIT (server/constants/todayOutfits.js). createToday
+// (allControllers.js) builds the set once per day; getToday returns it in
+// `rank` order.
 const todaySchema = new mongoose.Schema({
 
   userId: {
@@ -150,6 +152,12 @@ const todaySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Match",
     required: true,
+  },
+
+  // 0 = best. Lists built before ranking moved to the server have none.
+  rank: {
+    type: Number,
+    default: null,
   },
 
   dateCreated: {

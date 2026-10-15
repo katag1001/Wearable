@@ -379,7 +379,7 @@ affects items added and outfits matched afterwards.
 | `pattern` | min / mid / max | **Saved and required by the quiz gate, but not used by matching.** The pattern rule is the same for everyone (3.7). | - |
 | `temperature` | cold / normal / hot | Shifts every new match's temperature range ±2° | `temperature-ranges.md` |
 | `pairingAnswers` (quiz only, not stored) | question key → yes / sometimes / no | Sets the starting personal adjustment of the question's pairs (2.6) | `pairingQuizService.js` |
-| `monday` … `sunday` | a tag name | That day's tag is used to put matching outfits first on the Today page | `todayOutfitSort.jsx` |
+| `monday` … `sunday` | a tag name | That day's tag is used to put matching outfits first on the Today page | `server/services/todayRankingService.js` |
 
 ### 2.5 Defaults when something is missing
 
@@ -884,39 +884,68 @@ so toggling on and off adds and removes the same 3 points.
 
 ### 7.1 The Today page
 
-`src/components/today/todayOutfitSort.jsx`. Outfits are split into four
-groups, shown in this order:
+Today's list is chosen, ordered and capped **on the server, once a day**
+(`createToday` in `allControllers.js`), and every device shows it in that
+order. Files: `server/services/todaySelectionService.js` (which outfits),
+`server/services/todayRankingService.js` (the order), numbers in
+`server/constants/todayOutfits.js`.
 
-1. Fits today's weather + has today's tag
-2. Fits today's weather, no tag
-3. Outside today's weather + has today's tag
-4. Outside today's weather, no tag
+**Today's weather.** The client (`core/weather/openMeteo.js`, web and
+mobile) takes the min and max of Open-Meteo's **hourly** temperatures from
+**07:00 to 23:59** local time (`core/constants/daytimeHours.js`) - the
+overnight low isn't what anyone dresses for. It's shifted by the weather
+offset (sunny / rain) and sent to `/today/create` with the season and the
+user's weekday.
 
-An outfit fits the weather when its range covers the whole forecast
-(`min_temp <= today's min` and `max_temp >= today's max`). With no cached
-weather every outfit counts as fitting; with no today tag every outfit
-counts as tagged. Within each group, outfits are sorted by a weighted total
-of factors that each run from 0 to 10:
+**Which outfits** (`selectTodayMatches`), from those marked for today's
+season and not rejected recently (7.2):
+
+1. **Tier 1** - the outfit's range covers **all** of today's daytime range
+   (`todayCoverageFraction` = 1: `min_temp <= today's min` and
+   `max_temp >= today's max`).
+2. **Tier 2** - only if tier 1 has fewer than **`TODAY_OUTFIT_LIMIT` =
+   200**: outfits covering at least **`PARTIAL_COVERAGE` = 70%** of today's
+   range. They always come after every tier 1 outfit.
+3. The list is cut to **200**, best first.
+
+Coverage is measured against the **day's** range, so a narrow outfit
+inside a wide day only counts the part of the day it covers (a 14–16°
+outfit on a 10–20° day covers 20%).
+
+**The order** (`rankTodayMatches`), within each tier: outfits with today's
+weekly-preference tag first, then the rest; each group by a weighted total
+of factors that each run from 0 to 10. Temperature isn't part of it - the
+tiers already decided that.
 
 | Factor | Weight |
 |---|---|
-| Clothing freshness | 0.30 |
-| Outfit freshness | 0.30 |
-| **Match score** (`score` ÷ 10, or 10 for a favourite) | **0.40** |
+| Clothing freshness (average of the outfit's clothes) | 0.35 |
+| Outfit freshness | 0.35 |
+| **Match score** (`score` ÷ 10, or 10 for a favourite) | **0.30** |
 
-The match score comes from `getEffectiveMatchScore` in
-`src/utils/matchScore.js`, which returns 100 for a favourite and the stored
-score otherwise.
+Freshness is 10 for never worn, rising from 0 (worn today) to 10 after
+`FRESHNESS_FULL_DAYS` = 30 days.
+
+**Once a day.** `/today/create` does nothing if the user's list was already
+built today (and ranked), so a second device gets the same list. Each
+Today entry stores its `rank`; `/today/get` returns them in rank order.
+
+**Worn today.** `/today/get` also returns the most recently worn outfit
+since the user's local midnight - from Today on any device or the Outfits
+page - and the page opens on it. Marking a different one worn undoes the
+first only if this device marked it (it holds the undo snapshot); one
+marked elsewhere stays counted. The shoe box does the same with the
+footwear's `lastWornDate`.
 
 The page shows one outfit at a time with ‹ / › arrows (wrapping round at
-either end), and the "Filter by Tag" panel beside it. The filter starts on
-today's weekly-preference tag (click it to clear), with a
-"Today's <tag> outfit" subtitle under the panel title.
+either end), and the "Filter by Tag" panel beside it - it filters the 200
+on show. The filter starts on today's weekly-preference tag (click it to
+clear), with a "Today's <tag> outfit" subtitle under the panel title.
 
 ### 7.2 Rejecting an outfit
 
 Files: `server/services/matchRejectionService.js`,
-`src/components/today/outfitRejection.js`, `rejectMatch` and `createToday`
+`core/today/outfitRejection.js`, `rejectMatch` and `createToday`
 in `allControllers.js`. Numbers in `server/constants/scoring.js`.
 
 - Pressing **›** rejects the outfit being left (`PUT /match/:id/reject`),
@@ -929,8 +958,8 @@ in `allControllers.js`. Numbers in `server/constants/scoring.js`.
   a repeat anyway.
 - **`createToday`** leaves out outfits rejected in the last
   **`REJECTION_COOLDOWN_DAYS` = 5** days - one rejected on the 2nd is
-  hidden up to and including the 7th. If every outfit for today's weather
-  was rejected recently, none are left out. Today's list is built once a
+  hidden up to and including the 7th. If every outfit that could get into
+  today's tiers was rejected recently, none are left out. Today's list is built once a
   day, so an outfit rejected today stays reachable with ‹ until tomorrow.
 - **Marking as worn** an outfit rejected today undoes the rejection
   (count −1, score +3, `lastRejectedDate` back to null). The previous
@@ -1148,7 +1177,7 @@ the git history if one is ever needed again.
 | Time kept for saving / save chunk size | `SAVE_RESERVE_MS`, `INSERT_CHUNK_SIZE`, `INSERT_STOP_MARGIN_MS` in `matchService.js` |
 | Default gender when missing | `DEFAULT_GENDER` in `matchScoreService.js` |
 | Style quiz pairing questions / their pairs / answer values | `src/constants/pairingQuestions.js` / `server/constants/pairingQuestions.js` / `PAIRING_ANSWER_ADJUSTMENTS` in `server/constants/scoring.js` (see 2.6) |
-| Today page weights | `SCORE_WEIGHTS` in `todayOutfitSort.jsx` |
+| Today page weights, tiers and cap | `server/constants/todayOutfits.js` |
 | Rejection penalty / days a rejected outfit is hidden | `REJECTION_SCORE_PENALTY`, `REJECTION_COOLDOWN_DAYS` in `server/constants/scoring.js` |
 | Favourite score | `FAVOURITE_SCORE` in `src/utils/matchScore.js` |
 | Temperature numbers | `server/constants/temperatureGroups.js`, see `temperature-ranges.md` |

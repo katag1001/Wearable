@@ -7,15 +7,15 @@ import { markMatchWorn } from "../matches/matchActions.js";
 import { rejectOutfit, wasRejectedToday } from "../today/outfitRejection.js";
 import { cacheToday, getCachedToday } from "../today/todayCache.js";
 import { fetchTodayInfo } from "../today/todayInfo.js";
-import {
-  orderTodayOutfits,
-  outfitIdsChanged,
-} from "../today/todayOutfitOrder.js";
+import { outfitIdsChanged } from "../today/outfitIds.js";
 import {
   applyWornSnapshot,
+  fromAnotherDevice,
+  hasSnapshot,
   pickWornUpdate,
   takeWornSnapshot,
 } from "../today/wornSnapshot.js";
+import { getTodayStartISO } from "../utils/dates.js";
 import { findTagOption } from "../utils/tagOptions.js";
 
 // The server builds today's outfits after /today/create, so an empty list
@@ -24,11 +24,17 @@ const RETRY_MS = 1000;
 const MAX_RETRIES = 10;
 
 /*
- * The Today outfits: today's list (sorted once a day), filtered by a tag,
- * one at a time. Next rejects the outfit being left (at most once a day).
- * "Mark as worn" picks today's outfit; picking a different one later
- * undoes the first (wornSnapshot.js). Everything is cached for the day,
- * so coming back shows it straight away and refreshes in the background.
+ * The Today outfits: today's list - chosen, ordered and capped once a day
+ * on the server, so every device shows the same - filtered by a tag, one
+ * at a time. Next rejects the outfit being left (at most once a day).
+ *
+ * "Mark as worn" picks today's outfit. Picking a different one later
+ * undoes the first if this device picked it (wornSnapshot.js); one picked
+ * on another device stays counted. Whatever was worn today - on any
+ * device, or from the Outfits page - is opened on (the server sends it).
+ *
+ * Everything is cached for the day, so coming back shows it straight away
+ * and refreshes in the background.
  *
  * `todayReady`: true once today's weather is known and /today/create has
  * run (useWeather).
@@ -64,6 +70,8 @@ export const useToday = ({ todayReady }) => {
   // Read by the background refresh, which outlives the render it began in.
   const outfitsRef = useRef(outfits);
   outfitsRef.current = outfits;
+  const wornTodayRef = useRef(wornToday);
+  wornTodayRef.current = wornToday;
 
   const unmounted = useRef(false);
   useEffect(() => () => {
@@ -72,22 +80,46 @@ export const useToday = ({ todayReady }) => {
 
   /* -------------------- Load -------------------- */
 
+  // The outfit the server says was worn today (the most recent, from any
+  // device or the Outfits page). If this device picked the same one it
+  // keeps its undo snapshot; otherwise it's shown without one, and opened
+  // on. Nothing worn per the server leaves this device's choice as it is.
+  const applyServerWorn = (serverWorn) => {
+    const matchId = serverWorn?.matchId?._id;
+
+    if (!matchId) return;
+
+    const local = wornTodayRef.current;
+
+    if (local?.matchId === matchId) {
+      setWornToday({ ...local, outfit: serverWorn });
+      return;
+    }
+
+    setWornToday(fromAnotherDevice(serverWorn));
+    setShowSelector(false);
+  };
+
   // silent: cached outfits are already showing, so refresh them without
   // the loading messages and without moving the user's place.
-  const loadOutfits = async (todayTagName, silent, attempt = 0) => {
+  const loadOutfits = async (silent, attempt = 0) => {
     try {
-      const data = await fetchTodayOutfits();
+      const { outfits: fresh, wornToday: serverWorn } = await fetchTodayOutfits(
+        getTodayStartISO()
+      );
 
       if (unmounted.current) return;
 
+      applyServerWorn(serverWorn);
+
       // Today is still being created.
-      if (data.length === 0) {
+      if (fresh.length === 0) {
         if (attempt < MAX_RETRIES) {
           if (!silent) setCheckingToday(true);
 
           setTimeout(() => {
             if (!unmounted.current) {
-              loadOutfits(todayTagName, silent, attempt + 1);
+              loadOutfits(silent, attempt + 1);
             }
           }, RETRY_MS);
 
@@ -101,10 +133,9 @@ export const useToday = ({ todayReady }) => {
         return;
       }
 
-      const sorted = orderTodayOutfits(data, todayTagName);
-      const changed = outfitIdsChanged(outfitsRef.current, sorted);
+      const changed = outfitIdsChanged(outfitsRef.current, fresh);
 
-      setOutfits(sorted);
+      setOutfits(fresh);
 
       if (!silent || changed) {
         setCurrentIndex(0);
@@ -145,7 +176,7 @@ export const useToday = ({ todayReady }) => {
         setSelectedTag(todayTagName);
       }
 
-      await loadOutfits(todayTagName, Boolean(cachedToday));
+      await loadOutfits(Boolean(cachedToday));
     };
 
     loadToday();
@@ -225,7 +256,11 @@ export const useToday = ({ todayReady }) => {
 
   /* -------------------- Worn today -------------------- */
 
+  // Only possible for an outfit this device marked worn - one from another
+  // device has no snapshot, so it stays counted.
   const undoWorn = async (snapshot) => {
+    if (!hasSnapshot(snapshot)) return;
+
     try {
       await restoreMatchSnapshot(snapshot);
 

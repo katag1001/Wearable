@@ -118,7 +118,7 @@ platforms.
 | `src/components/clothes/uploadComponents/useClothingForm.jsx`, `useClothingDetection.jsx`, `uploadHelpers.jsx` | `core/clothes/` (`.js`) |
 | `src/components/matches/useMatchSelection.js` | `core/hooks/` |
 | `src/components/today/todayHelpers.jsx` | Split: day/season helpers → `core/utils/dates.js`; weather offset + emoji → `core/weather/weatherCodes.js`; `fetchTodayInfo` → `core/today/todayInfo.js` (the unused `fetchTodayTag` dropped) |
-| `src/components/today/todayCache.js`, `todayOutfitSort.jsx`, `outfitRejection.js` | `core/today/` (`.js`); the reject request → `core/api/matches.js` |
+| `src/components/today/todayCache.js`, `todayOutfitSort.jsx`, `outfitRejection.js` | `core/today/` (`.js`); the reject request → `core/api/matches.js`. The sort later moved to the server (see "After the build") |
 | `src/components/today/footwear/footwearCache.js`, `footwearRanking.js` | `core/footwear/` |
 | `src/components/today/footwear/footwearApi.js` | `core/api/footwear.js` |
 | Fetch + cache half of `src/components/today/autoWeather.jsx` | `core/weather/weatherCache.js` (shared with the outfit sort and shoe box, which had their own copies), `core/weather/openMeteo.js`, `core/today/createTodayOnce.js` + `core/api/today.js` |
@@ -425,7 +425,7 @@ moves" above.
 | `core/hooks/useWardrobePage.js`, `useFilterPanel.js`, `useWardrobeItemForm.js`, `useAccumulatedPages.js` | Wardrobe list, filter panel, add/edit form, infinite scroll |
 | `core/hooks/useMatchesPage.js`, `useMatchCard.js`, `useCreateMatch.js`, `core/matches/` | Outfits list (+ new-match polling), card actions, building an outfit, field formatting |
 | `core/hooks/useToday.js`, `useTodayFootwear.js`, `useWeather.js`, `useSeasonPreviews.js` | Today outfits, shoes, weather + /today/create, this season's previews |
-| `core/today/` (`todayOutfitOrder`, `outfitOrderCache`, `wornSnapshot`, ...), `core/footwear/footwearOrder.js`, `core/weather/weatherText.js` | Today helpers |
+| `core/today/` (`wornSnapshot`, `todayCache`, `createTodayOnce`, ...), `core/footwear/footwearOrder.js`, `core/weather/weatherText.js` | Today helpers |
 | `core/wardrobe/` | `itemKinds` (clothing vs footwear), `itemValidation`, `saveWardrobeItem` (upload → save → clean up), `typeChoices`, `wardrobeTypes` |
 | `core/filters/filterDefaults.js` | The filter panel's fields and item categories |
 | `src/components/clothes/addUpdateItem.jsx` | The web add/edit modal for both kinds (replaces `addUpdateClothes.jsx` and `addUpdateFootwear.jsx`) |
@@ -473,3 +473,13 @@ Small behaviour changes on the web:
 
 Run the mobile app with `cd mobile` → `npx expo start` → scan the QR code
 with Expo Go.
+
+## After the build: Today reworked (2026-10-15)
+
+Today's list is now chosen, ordered and capped **on the server** (top 200,
+weather tiers over the 07:00-23:59 range, ranking without temperature),
+built **once a day** so every device shows the same list, and `/today/get`
+also returns the outfit worn today so any device opens on it. The client
+sort (`core/today/todayOutfitSort.js`) and the per-device order cache are
+gone. Details: `context/clothing-and-matching-flow.md` 7.1 and
+`context/temperature-ranges.md` 4.1.

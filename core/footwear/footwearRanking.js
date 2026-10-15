@@ -16,7 +16,7 @@ import {
  *   - weather: every shoe today's weather doesn't penalise comes before
  *     every shoe it does (constants/footwearWeather.js), so nothing else
  *     can lift an unsuitable shoe above a suitable one;
- *   - then, within each, like the Today outfits (core/today/todayOutfitSort.js):
+ *   - then, within each, grouped by season and tag:
  *     in today's season and has today's tag, season only, tag only,
  *     neither. With no season or no tag known, every shoe fits it.
  *

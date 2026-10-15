@@ -205,20 +205,24 @@ preference, with the values above:
 
 ### 4.1 Today's outfits
 
-1. `src/components/today/autoWeather.jsx` gets today's min/max from
-   Open-Meteo (cached for the day in `localStorage`). It works out the
-   season from the month (northern hemisphere) and posts all three to
-   `/today/create`.
-2. The `createToday` controller keeps matches that are marked for today's
-   season **and** pass `matchesTodayTemperature`: at least **50%** of the
-   match's own range (`MIN_TODAY_OVERLAP_FRACTION`) must fall within
-   today's min–max. A single-temperature match (e.g. 12–12) passes if that
-   temperature is within today's range.
-3. `src/components/today/todayOutfitSort.jsx` sorts what's left.
-   Temperature is not part of the score. Instead, matches whose range
-   covers the whole forecast (`min_temp <= min` and `max_temp >= max`)
-   are listed before matches that don't, and each group is sorted by
-   score separately (today's tag orders outfits within each group).
+1. The client (`core/weather/openMeteo.js`, web and mobile) gets today's
+   **daytime** min/max from Open-Meteo's hourly temperatures, **07:00 to
+   23:59** local time (`core/constants/daytimeHours.js`) - the overnight
+   low is left out. It's cached for the day, shifted by the weather offset
+   (sunny / rain), and posted to `/today/create` with the season and the
+   user's weekday.
+2. `createToday` (once per day) keeps matches marked for today's season
+   whose range covers enough of today's range -
+   `todayCoverageFraction` in `server/services/temperatureService.js`,
+   measured against the **day's** range:
+   - **tier 1**: covers all of it (`min_temp <= min` and
+     `max_temp >= max`);
+   - **tier 2**, only while tier 1 has fewer than 200: covers at least
+     **70%** of it, ranked below every tier 1 outfit.
+3. `server/services/todayRankingService.js` orders each tier (today's
+   tag, freshness, score - temperature isn't part of it) and the list is
+   capped at **200**. Details: `context/clothing-and-matching-flow.md`
+   7.1; numbers in `server/constants/todayOutfits.js`.
 
 ### 4.2 Filters
 
@@ -243,7 +247,8 @@ preference, with the values above:
 | Highest maximum with layered tops / which tops count as jumpers | `LAYERED_MAX_TEMPS` / `LAYER_KINDS` |
 | Preference shift | `TEMPERATURE_PREFERENCE_SHIFT` |
 | Highest maximum with a long bottom | `LONG_BOTTOM_MAX_TEMP` |
-| Today overlap threshold | `MIN_TODAY_OVERLAP_FRACTION` in `server/services/temperatureService.js` |
+| Today's weather tiers and cap | `FULL_COVERAGE` / `PARTIAL_COVERAGE` / `TODAY_OUTFIT_LIMIT` in `server/constants/todayOutfits.js` |
+| Daytime hours for today's weather | `core/constants/daytimeHours.js` |
 
 After changing them, restart the server and run the reset script (Part 3)
 so existing matches follow.

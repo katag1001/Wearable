@@ -23,7 +23,12 @@ import { isDateToday } from "../utils/dates.js";
  * (footwearRanking.js). Moving past a shoe lowers its pairing with the
  * outfit's bottom (at most once a day); "Wear these" marks it worn and
  * raises the pairing. Wearing a different shoe - or a different outfit -
- * undoes the previous shoe's worn values and its pairing boost.
+ * undoes the previous shoe's worn values and its pairing boost, if this
+ * device marked it worn.
+ *
+ * A shoe worn today on another device (this device has no record of its
+ * own) is found from its lastWornDate and opened on - but, with no
+ * snapshot, can't be undone; it stays counted.
  */
 export const useTodayFootwear = ({ outfit, todayTag }) => {
   const matchId = outfit?.matchId?._id ?? null;
@@ -39,6 +44,11 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
 
   const [worn, setWorn] = useState(() => getCachedFootwear().worn);
   const [saving, setSaving] = useState(false);
+
+  // Whether this device had its own record of today's shoe when the box
+  // opened. Only without one is a shoe worn elsewhere picked up - with one,
+  // this device's choice (and its undo) wins.
+  const [hadLocalWorn] = useState(() => Boolean(getCachedFootwear().worn));
 
   const pendingRejections = useRef(new Set());
 
@@ -91,8 +101,28 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
 
     setOrder(ids);
 
+    // A shoe worn today elsewhere (the first found), when this device has
+    // no shoe of its own for today.
+    let currentWorn = worn;
+
+    if (!currentWorn && !hadLocalWorn) {
+      const shoeWornToday = data.items.find((item) => isDateToday(item.lastWornDate));
+
+      if (shoeWornToday) {
+        currentWorn = {
+          footwearId: shoeWornToday._id,
+          matchId,
+          bottomSubtype,
+          snapshot: null,
+        };
+        setWorn(currentWorn);
+      }
+    }
+
     // Open on today's shoe if one is worn with this outfit.
-    const wornIndex = ids.indexOf(worn?.matchId === matchId ? worn.footwearId : null);
+    const wornIndex = ids.indexOf(
+      currentWorn?.matchId === matchId ? currentWorn.footwearId : null
+    );
     setIndex(Math.max(0, wornIndex));
 
     // Ranked once per outfit - pairings/worn changing later must not
@@ -144,7 +174,11 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
 
   /* -------------------- Undo a worn shoe -------------------- */
 
+  // Only for a shoe this device marked worn - one worn elsewhere has no
+  // snapshot, so it stays counted.
   const undoWorn = async (entry) => {
+    if (!entry.snapshot) return;
+
     const { item, pairing } = await unwearFootwear(
       entry.footwearId,
       entry.bottomSubtype,

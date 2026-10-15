@@ -48,7 +48,9 @@ const {
   changedMatchingFields,
   refreshMatchesForItem,
 } = require("../services/matchRefreshService.js");
-const { matchesTodayTemperature } = require("../services/temperatureService.js");
+const { todayCoverageFraction } = require("../services/temperatureService.js");
+const { selectTodayMatches } = require("../services/todaySelectionService.js");
+const { PARTIAL_COVERAGE } = require("../constants/todayOutfits.js");
 const {
   resolveTodayStart,
   applyRejection,
@@ -915,6 +917,33 @@ return res.status(500).json({ error: error.message });
 
 /* -------------------- TODAY CONTROLLERS -------------------- */
 
+const WEEK_DAYS = [
+  "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+];
+
+// The clothes fields Today needs: subtype (the shoe box pairs shoes with
+// the outfit's bottom), lastWornDate (clothing freshness), and the worn
+// fields together (the snapshot the client takes before marking an outfit
+// worn, restored if another is worn instead on the same device).
+const TODAY_CLOTHES_FIELDS =
+  "name imageUrl type subtype lastWornDate timesWorn timesWornThisYear wornYear";
+
+// Today's tag from the weekly preferences, for the user's weekday (sent by
+// the client - "today" is the user's local day). null if none.
+const getTodayTag = async (userId, dayOfWeek) => {
+  if (!WEEK_DAYS.includes(dayOfWeek)) return null;
+
+  const preferences = await Preferences.findOne({ userId }).select(dayOfWeek).lean();
+
+  return preferences?.[dayOfWeek] || null;
+};
+
+// Builds today's outfit list - once per day. A second device (or a second
+// visit with its storage cleared) gets the list already built, so every
+// device shows the same outfits in the same order. Lists built before
+// ranking moved to the server (no rank) are rebuilt.
+//
+// The weather tiers, ranking and cap: services/todaySelectionService.js.
 exports.createToday = async (req, res) => {
   const userId = req.user?.userId;
 
@@ -924,6 +953,7 @@ exports.createToday = async (req, res) => {
       max_temp_today,
       season_today,
       today_start,
+      day_of_week,
     } = req.body;
 
     if (
@@ -937,33 +967,51 @@ exports.createToday = async (req, res) => {
       });
     }
 
-    const seasonFilter = {};
-    seasonFilter[season_today] = true;
+    const todayStart = resolveTodayStart(today_start);
+
+    const alreadyBuilt = await Today.exists({
+      userId,
+      dateCreated: { $gte: todayStart },
+      rank: { $ne: null },
+    });
+
+    if (alreadyBuilt) {
+      return res.json({
+        message: "Today's outfits are already built.",
+        success: true,
+        alreadyBuilt: true,
+      });
+    }
 
     const seasonMatches = await Match.find({
       userId,
-      ...seasonFilter,
-    });
+      [season_today]: true,
+    }).populate("clothes", "lastWornDate");
 
     const todayRange = { min: min_temp_today, max: max_temp_today };
 
-    const weatherMatches = seasonMatches.filter((match) =>
-      matchesTodayTemperature(
-        { min: match.min_temp, max: match.max_temp },
-        todayRange
-      )
+    // Anything that could get into a weather tier...
+    const candidates = seasonMatches.filter(
+      (match) =>
+        todayCoverageFraction(
+          { min: match.min_temp, max: match.max_temp },
+          todayRange
+        ) >= PARTIAL_COVERAGE
     );
 
-    // Outfits rejected in the last few days are skipped, unless every
-    // outfit for today's weather was.
-    const matches = excludeRecentlyRejected(
-      weatherMatches,
-      resolveTodayStart(today_start)
-    );
+    // ...without outfits rejected in the last few days, unless every
+    // candidate was.
+    const matches = excludeRecentlyRejected(candidates, todayStart);
+
+    const selected = selectTodayMatches({
+      matches,
+      todayRange,
+      todayTag: await getTodayTag(userId, day_of_week),
+    });
 
     await Today.deleteMany({ userId });
 
-    if (!matches.length) {
+    if (!selected.length) {
       return res.json({
         message: "No matching outfits found for today.",
         success: true,
@@ -971,20 +1019,18 @@ exports.createToday = async (req, res) => {
       });
     }
 
-    const todayOutfits = matches.map((match, index) => ({
-      userId,
-      matchId: match._id
-    }));
-
-    const inserted = await Today.insertMany(todayOutfits);
+    const inserted = await Today.insertMany(
+      selected.map((match, rank) => ({ userId, matchId: match._id, rank }))
+    );
 
     return res.json({
       message: `${inserted.length} outfits saved.`,
       success: true,
       matchesFound: true,
-      data: inserted,
     });
   } catch (err) {
+    console.error(err);
+
     return res.status(500).json({
       message: "Internal server error.",
       success: false,
@@ -992,32 +1038,35 @@ exports.createToday = async (req, res) => {
   }
 };
 
+// Today's outfits in rank order, plus the outfit worn today (if any - the
+// most recently worn, from anywhere: Today on any device, or the Outfits
+// page), so every device opens on it. Both as { matchId: <match> }.
+//
+// `today_start` (query): the user's local midnight, as for createToday.
 exports.getToday = async (req, res) => {
   const userId = req.user?.userId;
 
   try {
-    const outfits = await Today.find({ userId })
-      .populate({
-        path: "matchId",
-        populate: {
-          path: "clothes",
-          // subtype: the shoe box pairs shoes with the outfit's bottom.
-          // lastWornDate: clothing freshness in todayOutfitSort.jsx.
-          // The worn fields together: the snapshot viewToday takes before
-          // marking an outfit worn, restored if another is worn instead.
-          select:
-            "name imageUrl type subtype lastWornDate timesWorn timesWornThisYear wornYear",
-        },
-      });
+    const todayStart = resolveTodayStart(req.query.today_start);
 
-    if (!outfits.length) {
-      return res.json({
-        message: "No outfits found for today.",
-      });
-    }
+    const [outfits, wornMatch] = await Promise.all([
+      Today.find({ userId })
+        .sort({ rank: 1, _id: 1 })
+        .populate({
+          path: "matchId",
+          populate: { path: "clothes", select: TODAY_CLOTHES_FIELDS },
+        }),
 
-    return res.json(outfits);
+      Match.findOne({ userId, lastWornDate: { $gte: todayStart } })
+        .sort({ lastWornDate: -1 })
+        .populate("clothes", TODAY_CLOTHES_FIELDS),
+    ]);
 
+    return res.json({
+      // An outfit deleted since the list was built has no match left.
+      outfits: outfits.filter((outfit) => outfit.matchId),
+      wornToday: wornMatch ? { matchId: wornMatch } : null,
+    });
   } catch (err) {
     console.error(err);
 

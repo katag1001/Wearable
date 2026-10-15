@@ -1,11 +1,17 @@
 // core/today/createTodayOnce.js
 //
-// Asks the server to build today's outfit list, at most once a day.
+// Asks the server to build today's outfit list, at most once a day from
+// this device. The server also builds it only once a day, so a second
+// device gets the same list (core/api/today.js).
 
 import { getStorage } from "../config.js";
 import { STORAGE_KEYS } from "../storageKeys.js";
 import { createToday } from "../api/today.js";
-import { getTodayStartISO, isDateToday } from "../utils/dates.js";
+import {
+  getTodayDayOfWeek,
+  getTodayStartISO,
+  isDateToday,
+} from "../utils/dates.js";
 import { getWeatherTempOffset } from "../weather/weatherCodes.js";
 
 // Outfits are matched against the forecast shifted by the weather offset;
@@ -28,6 +34,7 @@ export const createTodayOnce = async (weather, season) => {
       maxTemp: weather.max + offset,
       season,
       todayStart: getTodayStartISO(),
+      dayOfWeek: getTodayDayOfWeek(),
     });
 
     console.log("Created today:", data);

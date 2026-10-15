@@ -2,8 +2,9 @@
 //
 // Marking an outfit worn today bumps its wear counts and its clothes'.
 // Wearing a different outfit later the same day undoes that, using a
-// snapshot of the values from before - kept in memory/the day's cache
-// only, not on the server.
+// snapshot of the values from before - kept in memory/the day's cache of
+// the device that marked it only, not on the server. So another device
+// can show what was worn but not undo it.
 
 // The wear values of a match, clothing item or shoe.
 export const wornValuesOf = (entry) => ({
@@ -23,6 +24,20 @@ export const takeWornSnapshot = (outfit) => ({
     clothesId: item._id,
     ...wornValuesOf(item),
   })),
+});
+
+// Whether this worn record can be undone (it was marked worn on this
+// device, which took the snapshot).
+export const hasSnapshot = (worn) =>
+  Boolean(worn?.matchSnapshot && worn?.clothesSnapshots);
+
+// A worn record for an outfit marked worn elsewhere (another device, or
+// the Outfits page) - shown, but with no snapshot it can't be undone.
+export const fromAnotherDevice = (outfit) => ({
+  matchId: outfit.matchId._id,
+  outfit,
+  matchSnapshot: null,
+  clothesSnapshots: null,
 });
 
 // The outfit with the snapshot's values put back (the server has been
