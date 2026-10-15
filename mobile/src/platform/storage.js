@@ -16,6 +16,12 @@ import { STORAGE_KEYS } from "@core/storageKeys.js";
 
 const SECURE_KEYS = new Set([STORAGE_KEYS.token]);
 
+// Android's AsyncStorage accepts bigger values but can't read back one
+// over about 2 MB ("Row too big to fit into CursorWindow"). Values above
+// this (e.g. a long list of today's outfits) stay in memory for the
+// session only and are fetched again next time.
+const MAX_SAVED_LENGTH = 1_000_000;
+
 const values = new Map();
 
 // Each save waits for the one before, so a quick set-then-remove can't
@@ -23,6 +29,12 @@ const values = new Map();
 let saveQueue = Promise.resolve();
 
 const saveToDevice = (key, value) => {
+  const tooBig = value !== null && value.length > MAX_SAVED_LENGTH;
+
+  if (tooBig) {
+    console.warn(`"${key}" is too big to save on the device - kept in memory only.`);
+  }
+
   const save = () => {
     if (SECURE_KEYS.has(key)) {
       return value === null
@@ -30,7 +42,8 @@ const saveToDevice = (key, value) => {
         : SecureStore.setItemAsync(key, value);
     }
 
-    return value === null
+    // A too-big value replaces any older copy, so that isn't read later.
+    return value === null || tooBig
       ? AsyncStorage.removeItem(key)
       : AsyncStorage.setItem(key, value);
   };
@@ -40,15 +53,27 @@ const saveToDevice = (key, value) => {
     .catch((error) => console.error(`Failed to save "${key}":`, error));
 };
 
-const loadAsyncStorage = async () => {
-  const keys = await AsyncStorage.getAllKeys();
-  const entries = await AsyncStorage.multiGet(keys);
+// One key at a time, so a value that can't be read (too big, saved before
+// the limit above) loses only itself - and is deleted so it can't fail
+// again - instead of every saved value.
+const loadSavedKey = async (key) => {
+  try {
+    const value = await AsyncStorage.getItem(key);
 
-  entries.forEach(([key, value]) => {
     if (value !== null) {
       values.set(key, value);
     }
-  });
+  } catch (error) {
+    console.warn(`Couldn't read saved "${key}" - removing it:`, error.message);
+
+    await AsyncStorage.removeItem(key).catch(() => {});
+  }
+};
+
+const loadAsyncStorage = async () => {
+  const keys = await AsyncStorage.getAllKeys();
+
+  await Promise.all(keys.map(loadSavedKey));
 };
 
 const loadSecureStore = async () => {
