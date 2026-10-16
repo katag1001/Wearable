@@ -1,39 +1,62 @@
-// The shoes for today's worn outfit, best first. Logic: useTodayFootwear
-// (shared with the web's shoe box).
+// The shoes for today's worn outfit, best first, swiped like cards (next
+// lowers the pairing with the outfit). The heart wears them today, the bin
+// deletes them from the wardrobe. Logic: useTodayFootwear (shared with the
+// web's shoe box).
 
 import { Image } from "expo-image";
-import { StyleSheet, Text } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { useTodayFootwear } from "@core/hooks/useTodayFootwear.js";
-import { colors, fontSizes, radius } from "@core/theme/tokens.js";
+import { colors, fontSizes, radius, spacing } from "@core/theme/tokens.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import { Button, Card, Loading, SectionTitle } from "../ui";
-import { Stepper } from "./Stepper";
+import { Loading } from "../ui";
+import { ActionButton, ActionRow } from "./ActionButton";
+import { SwipeDeck } from "./SwipeDeck";
 
 export const ShoeBox = ({ outfit, todayTag }) => {
   const shoes = useTodayFootwear({ outfit, todayTag });
   const { current } = shoes;
 
-  const body = () => {
-    if (shoes.error && shoes.loading) {
-      return <Text style={styles.message}>{shoes.error}</Text>;
-    }
+  if (shoes.error && shoes.loading) {
+    return <Text style={styles.message}>{shoes.error}</Text>;
+  }
 
-    if (shoes.loading) {
-      return <Loading text="Loading footwear..." />;
-    }
+  if (shoes.loading) {
+    return <Loading text="Loading footwear..." />;
+  }
 
-    if (!shoes.shoes.length) {
-      return (
-        <Text style={styles.message}>
-          Add footwear in your Wardrobe to get shoe suggestions here.
-        </Text>
-      );
-    }
-
+  if (!current) {
     return (
-      <>
+      <Text style={styles.message}>
+        Add footwear in your Wardrobe to get shoe suggestions here.
+      </Text>
+    );
+  }
+
+  const confirmDelete = () =>
+    Alert.alert(
+      "Delete shoes",
+      `Are you sure you want to delete ${current.name} from your wardrobe permanently? This cannot be undone.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: shoes.deleteCurrent,
+        },
+      ]
+    );
+
+  return (
+    <View style={styles.box}>
+      <SwipeDeck
+        enabled={shoes.shoes.length > 1}
+        onNext={shoes.goNext}
+        onPrev={shoes.goPrev}
+        noun="shoes"
+        fill
+      >
         <Image
           source={current.imageUrl ? getImageUrl(current.imageUrl, 600) : null}
           style={styles.image}
@@ -41,51 +64,43 @@ export const ShoeBox = ({ outfit, todayTag }) => {
           transition={150}
           accessibilityLabel={current.name}
         />
-        <Text style={styles.name}>{current.name}</Text>
+      </SwipeDeck>
 
-        <Stepper
-          index={shoes.index}
-          total={shoes.shoes.length}
-          onPrev={shoes.goPrev}
-          onNext={shoes.goNext}
-          noun="shoes"
+      {shoes.error ? <Text style={styles.message}>{shoes.error}</Text> : null}
+
+      <ActionRow>
+        <ActionButton
+          icon="trash-2"
+          label="Delete shoes"
+          onPress={confirmDelete}
+          loading={shoes.deleting}
         />
-
-        {shoes.error ? <Text style={styles.message}>{shoes.error}</Text> : null}
-
-        <Button
-          label={shoes.isWearingCurrent ? "Wearing today" : "Wear these"}
-          variant="secondary"
+        <ActionButton
+          icon="heart"
+          label={shoes.isWearingCurrent ? "Wearing today" : "Wear these today"}
           onPress={shoes.wearCurrent}
           loading={shoes.saving}
-          disabled={shoes.isWearingCurrent}
+          active={shoes.isWearingCurrent}
         />
-      </>
-    );
-  };
-
-  return (
-    <Card>
-      <SectionTitle title="Shoes" />
-      {body()}
-    </Card>
+      </ActionRow>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  box: {
+    flex: 1,
+    gap: spacing.md,
+  },
   image: {
+    flex: 1,
     width: "100%",
-    aspectRatio: 4 / 3,
     borderRadius: radius.lg,
     backgroundColor: colors.imageBackground,
-  },
-  name: {
-    fontSize: fontSizes.body,
-    color: colors.main,
-    textAlign: "center",
   },
   message: {
     fontSize: fontSizes.small,
     color: colors.secondary,
+    textAlign: "center",
   },
 });

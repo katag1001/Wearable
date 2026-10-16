@@ -1,7 +1,9 @@
 // A Tinder-style card: drag it sideways, or tap the narrow arrows either
 // side, and it flies off and the next one slides in. Left goes to the
 // next card, right to the previous one. Nothing is swipeable with one
-// card or fewer (`enabled` false).
+// card or fewer (`enabled` false). `fill`: the deck takes all the height
+// it's given and the card stretches to it (otherwise it's as tall as its
+// content).
 //
 // Built on PanResponder + Animated, so no gesture library is needed.
 
@@ -53,7 +55,14 @@ const Arrow = ({ name, label, onPress, hidden }) => (
   </Pressable>
 );
 
-export const SwipeDeck = ({ enabled, onNext, onPrev, noun, children }) => {
+export const SwipeDeck = ({
+  enabled,
+  onNext,
+  onPrev,
+  noun,
+  fill = false,
+  children,
+}) => {
   const x = useRef(new Animated.Value(0)).current;
   const animating = useRef(false);
 
@@ -125,7 +134,7 @@ export const SwipeDeck = ({ enabled, onNext, onPrev, noun, children }) => {
   });
 
   return (
-    <View style={styles.deck}>
+    <View style={[styles.deck, fill && styles.fill]}>
       <Arrow
         name="chevron-left"
         label={`Previous ${noun}`}
@@ -155,6 +164,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.xs,
+  },
+  fill: {
+    flex: 1,
+    alignItems: "stretch",
   },
   card: {
     flex: 1,

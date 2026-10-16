@@ -2,36 +2,13 @@
 // cards (next rejects the one being left). The heart wears it today, the
 // bin deletes it. Logic: useToday.
 
-import Feather from "@expo/vector-icons/Feather";
-import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
 
+import { ActionButton, ActionRow } from "./ActionButton";
 import { OutfitImages } from "./OutfitImages";
 import { SwipeDeck } from "./SwipeDeck";
-
-const ActionButton = ({ icon, label, onPress, loading }) => (
-  <Pressable
-    onPress={onPress}
-    disabled={loading}
-    accessibilityRole="button"
-    accessibilityLabel={label}
-    style={({ pressed }) => [styles.actionButton, pressed && styles.pressed]}
-  >
-    {loading ? (
-      <ActivityIndicator color={colors.main} />
-    ) : (
-      <Feather name={icon} size={28} color={colors.main} />
-    )}
-  </Pressable>
-);
 
 export const OutfitPicker = ({ today }) => {
   const { filteredOutfits, selectedOutfit } = today;
@@ -67,7 +44,7 @@ export const OutfitPicker = ({ today }) => {
         </SwipeDeck>
       </View>
 
-      <View style={styles.actions}>
+      <ActionRow>
         <ActionButton
           icon="trash-2"
           label="Delete outfit"
@@ -79,7 +56,7 @@ export const OutfitPicker = ({ today }) => {
           label="Wear this outfit today"
           onPress={today.markAsWornToday}
         />
-      </View>
+      </ActionRow>
     </View>
   );
 };
@@ -92,22 +69,6 @@ const styles = StyleSheet.create({
   deck: {
     flex: 1,
     justifyContent: "center",
-  },
-  actions: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: spacing.xxl,
-  },
-  actionButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.imageBackground,
-  },
-  pressed: {
-    opacity: 0.6,
   },
   empty: {
     fontSize: fontSizes.body,

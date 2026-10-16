@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  deleteFootwear,
   fetchTodayFootwear,
   rejectFootwearPairing,
   unwearFootwear,
@@ -44,6 +45,7 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
 
   const [worn, setWorn] = useState(() => getCachedFootwear().worn);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Whether this device had its own record of today's shoe when the box
   // opened. Only without one is a shoe worn elsewhere picked up - with one,
@@ -280,6 +282,38 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
     }
   };
 
+  /* -------------------- Delete -------------------- */
+
+  // Deletes the current shoe from the wardrobe for good. Nothing to undo
+  // if it was today's shoe - it's gone.
+  const deleteCurrent = async () => {
+    if (!current || deleting) return;
+
+    const id = current._id;
+    setDeleting(true);
+
+    try {
+      await deleteFootwear(id);
+
+      if (worn?.footwearId === id) {
+        setWorn(null);
+      }
+
+      setData((prev) => prev && {
+        ...prev,
+        items: prev.items.filter((item) => item._id !== id),
+      });
+      setOrder((prev) => prev && prev.filter((entry) => entry !== id));
+      // The next shoe slides into this one's place (wrapping at the end).
+      setIndex((prev) => (prev >= shoes.length - 1 ? 0 : prev));
+    } catch (err) {
+      console.error("Failed to delete shoe:", err);
+      setError("Couldn't delete these shoes - please try again.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return {
     loading: !data || !order,
     error,
@@ -291,5 +325,7 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
     isWearingCurrent: isWornShoe(current),
     wearCurrent,
     saving,
+    deleteCurrent,
+    deleting,
   };
 };
