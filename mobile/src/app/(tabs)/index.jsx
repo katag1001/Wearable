@@ -1,38 +1,27 @@
 // Today tab: the weather, then today's outfit filling the rest of the
-// page (swipe to pick one, or the one worn today - a small fixed share at
-// the top, "Change outfit" at its top right - with its shoes to swipe
-// through below).
+// page - swipe to pick one (OutfitPicker), then its shoes and the finished
+// look (WornToday), with confetti when the shoes are picked.
 // Logic: useWeather, useToday, useTodayFootwear - all shared with the web
 // homepage.
 
-import { useEffect } from "react";
-import {
-  Alert,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { useToday } from "@core/hooks/useToday.js";
 import { useWeather } from "@core/hooks/useWeather.js";
-import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
+import { colors, fontSizes } from "@core/theme/tokens.js";
 import {
   formatTodayTitle,
   formatWeatherLine,
 } from "@core/weather/weatherText.js";
 
-import { Button, Loading, Message, Screen } from "../../components/ui";
-import { OutfitImages } from "../../components/today/OutfitImages";
+import { Loading, Message, Screen } from "../../components/ui";
+import { Confetti } from "../../components/today/Confetti";
 import { OutfitPicker } from "../../components/today/OutfitPicker";
-import { ShoeBox } from "../../components/today/ShoeBox";
+import { WornToday } from "../../components/today/WornToday";
 import { useLocation } from "../../platform/useLocation";
 
-// The worn outfit's share of the screen height; the shoes get the rest.
-const WORN_OUTFIT_SHARE = 0.3;
-
 export default function TodayScreen() {
-  const { height: windowHeight } = useWindowDimensions();
   const location = useLocation();
   const weather = useWeather({
     latitude: location.latitude,
@@ -40,6 +29,9 @@ export default function TodayScreen() {
     locationUnavailable: Boolean(location.error),
   });
   const today = useToday({ todayReady: weather.ready, tagFilter: false });
+
+  // Over the whole page while true.
+  const [celebrating, setCelebrating] = useState(false);
 
   // Results of marking worn / deleting.
   useEffect(() => {
@@ -73,26 +65,7 @@ export default function TodayScreen() {
 
     if (showingWorn) {
       return (
-        <>
-          <View
-            style={[
-              styles.worn,
-              { height: Math.round(windowHeight * WORN_OUTFIT_SHARE) },
-            ]}
-          >
-            <Button
-              label="Change outfit"
-              variant="secondary"
-              onPress={today.showOutfitPicker}
-              style={styles.change}
-            />
-            <OutfitImages match={today.wornOutfit?.matchId} fit />
-          </View>
-
-          <View style={styles.shoes}>
-            <ShoeBox outfit={today.wornOutfit} todayTag={today.todayTag} />
-          </View>
-        </>
+        <WornToday today={today} onCelebrate={() => setCelebrating(true)} />
       );
     }
 
@@ -102,7 +75,7 @@ export default function TodayScreen() {
   return (
     <Screen
       title={formatTodayTitle(today.todayTag)}
-      // Fixed to the screen (no scrolling) so the outfit and shoes split it.
+      // Fixed to the screen (no scrolling) so the worn views fit it.
       scroll={!showingWorn}
     >
       {weather.weather ? (
@@ -118,25 +91,14 @@ export default function TodayScreen() {
       <Message text={weather.error} />
 
       <View style={styles.outfit}>{outfitSection()}</View>
+
+      {celebrating ? <Confetti onDone={() => setCelebrating(false)} /> : null}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   outfit: {
-    flex: 1,
-    gap: spacing.lg,
-  },
-  worn: {
-    gap: spacing.sm,
-  },
-  // Compact, at the top right of the outfit.
-  change: {
-    alignSelf: "flex-end",
-    minHeight: 36,
-    paddingHorizontal: spacing.md,
-  },
-  shoes: {
     flex: 1,
   },
   weather: {

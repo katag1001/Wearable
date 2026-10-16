@@ -220,6 +220,13 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
   const isWornShoe = (shoe) =>
     Boolean(shoe) && worn?.footwearId === shoe._id && worn?.matchId === matchId;
 
+  // Today's shoe for this outfit. hasWornShoe is known straight away (from
+  // the cache); wornShoe once the footwear has loaded.
+  const hasWornShoe = Boolean(matchId) && worn?.matchId === matchId;
+  const wornShoe = hasWornShoe
+    ? data?.items.find((item) => item._id === worn.footwearId) ?? null
+    : null;
+
   /* -------------------- Moving past -------------------- */
 
   // Lowers the pairing - at most once a day, never for the shoe worn
@@ -257,8 +264,9 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
 
   /* -------------------- Wear -------------------- */
 
+  // Resolves true once the shoe is saved as worn (false if it wasn't).
   const wearCurrent = async () => {
-    if (!current || saving || isWornShoe(current)) return;
+    if (!current || saving || isWornShoe(current)) return false;
 
     setSaving(true);
 
@@ -274,9 +282,11 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
       updatePairing(pairing);
 
       setWorn({ footwearId: current._id, matchId, bottomSubtype, snapshot });
+      return true;
     } catch (err) {
       console.error("Failed to mark shoe worn:", err);
       setError("Couldn't mark these as worn - please try again.");
+      return false;
     } finally {
       setSaving(false);
     }
@@ -323,6 +333,8 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
     goNext,
     goPrev,
     isWearingCurrent: isWornShoe(current),
+    hasWornShoe,
+    wornShoe,
     wearCurrent,
     saving,
     deleteCurrent,

@@ -1,12 +1,11 @@
 // The shoes for today's worn outfit, best first, swiped like cards (next
-// lowers the pairing with the outfit). The heart wears them today, the bin
-// deletes them from the wardrobe. Logic: useTodayFootwear (shared with the
-// web's shoe box).
+// lowers the pairing with the outfit). The heart picks them (onWear), the
+// bin deletes them from the wardrobe. `shoes` is useTodayFootwear's result
+// (shared with the web's shoe box), owned by WornToday.
 
 import { Image } from "expo-image";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
-import { useTodayFootwear } from "@core/hooks/useTodayFootwear.js";
 import { colors, fontSizes, radius, spacing } from "@core/theme/tokens.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
@@ -14,8 +13,7 @@ import { Loading } from "../ui";
 import { ActionButton, ActionRow } from "./ActionButton";
 import { SwipeDeck } from "./SwipeDeck";
 
-export const ShoeBox = ({ outfit, todayTag }) => {
-  const shoes = useTodayFootwear({ outfit, todayTag });
+export const ShoeBox = ({ shoes, onWear }) => {
   const { current } = shoes;
 
   if (shoes.error && shoes.loading) {
@@ -78,7 +76,7 @@ export const ShoeBox = ({ outfit, todayTag }) => {
         <ActionButton
           icon="heart"
           label={shoes.isWearingCurrent ? "Wearing today" : "Wear these today"}
-          onPress={shoes.wearCurrent}
+          onPress={onWear}
           loading={shoes.saving}
           active={shoes.isWearingCurrent}
         />

@@ -3,7 +3,8 @@
 // underneath (outfitRows). Each photo is half the width, so a row holds two
 // and a fuller one wraps; a lone item is full width. `match` is a
 // populated match. `fit`: fill the height it's given and shrink the photos
-// so the whole outfit fits inside it.
+// so the whole outfit fits inside it. `footwear`: a shoe shown as its own
+// row under the clothes, the same size as them.
 //
 // The photos get exact pixel sizes from the measured row width: a
 // percentage width + aspectRatio inside a wrapping row in a scroll view
@@ -20,14 +21,15 @@ import { getImageUrl } from "@core/utils/getImageUrl.js";
 const PHOTO_ASPECT = 4 / 3; // height / width
 const PHOTO_SCALE = 0.95;
 
-export const OutfitImages = ({ match, fit = false }) => {
+export const OutfitImages = ({ match, footwear, fit = false }) => {
   const [size, setSize] = useState({ width: 0, height: 0 });
   const rowWidth = size.width;
 
   const clothes = (match?.clothes || []).filter((item) => item?.imageUrl);
-  const rows = outfitRows(clothes);
+  const shoes = footwear?.imageUrl ? [footwear] : [];
+  const rows = [...outfitRows(clothes), shoes].filter((row) => row.length > 0);
 
-  const columns = clothes.length === 1 ? 1 : 2;
+  const columns = clothes.length + shoes.length === 1 ? 1 : 2;
   // Rounded down and a touch under the full share, so two always fit side
   // by side - an exact fit can wrap from sub-pixel rounding.
   const widthFit = ((rowWidth - spacing.sm * (columns - 1)) / columns) * PHOTO_SCALE;
