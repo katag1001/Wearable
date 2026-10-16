@@ -41,6 +41,8 @@ export default function EditItemScreen() {
     kind,
     item,
     onSaved: markWardrobeChanged,
+    // One scrolling page, not the web's two.
+    singlePage: true,
   });
 
   // An edit opened without its item (e.g. after a reload) can't work.
@@ -68,12 +70,6 @@ export default function EditItemScreen() {
       { text: "Cancel", style: "cancel" },
       { text: "Delete", style: "destructive", onPress: deleteItem },
     ]);
-
-  const handleBack = () => {
-    if (!form.goBack()) {
-      router.back();
-    }
-  };
 
   /* -------------------- Saved -------------------- */
 
@@ -115,52 +111,45 @@ export default function EditItemScreen() {
   return (
     <>
       <Stack.Screen options={{ title: form.title }} />
-      <Screen key={form.page} edges={["bottom"]}>
-        {form.page === 1 ? (
-          <>
-            <TextField
-              label="Name"
-              value={form.formData.name}
-              onChangeText={(text) => form.updateField("name", text)}
-              placeholder="e.g. Navy linen shirt"
-            />
+      <Screen edges={["bottom"]}>
+        <TextField
+          label="Name"
+          value={form.formData.name}
+          onChangeText={(text) => form.updateField("name", text)}
+          onEndEditing={form.fillDetailsFromName}
+          placeholder="e.g. Navy linen shirt"
+        />
 
-            <PhotoPicker
-              selectedImage={form.selectedImage}
-              savedImageUrl={form.formData.imageUrl}
-              onPick={form.setSelectedImage}
-            />
+        <PhotoPicker
+          selectedImage={form.selectedImage}
+          savedImageUrl={form.formData.imageUrl}
+          onPick={form.setSelectedImage}
+        />
 
-            <TypeChooser form={form} />
-          </>
-        ) : (
-          <ItemDetailsPage form={form} />
-        )}
+        <TypeChooser form={form} />
+
+        <ItemDetailsPage form={form} />
 
         <Message text={form.validationMessage} />
         <Message text={form.error} />
 
         <View style={styles.actions}>
           <Button
-            label="Back"
+            label="Cancel"
             variant="secondary"
-            onPress={handleBack}
+            onPress={() => router.back()}
             disabled={form.saving}
             style={styles.action}
           />
-          {form.isLastPage ? (
-            <Button
-              label="Save"
-              onPress={form.save}
-              loading={form.saving}
-              style={styles.action}
-            />
-          ) : (
-            <Button label="Next" onPress={form.goNext} style={styles.action} />
-          )}
+          <Button
+            label="Save"
+            onPress={form.save}
+            loading={form.saving}
+            style={styles.action}
+          />
         </View>
 
-        {form.isUpdate && form.page === 1 && (
+        {form.isUpdate && (
           <Button
             label="Delete item"
             variant="text"

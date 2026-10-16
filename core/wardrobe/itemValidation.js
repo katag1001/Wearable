@@ -26,3 +26,12 @@ export const validateItemPage = (page, formData, hasNewImage) => {
 
   return { valid: missing.length === 0, missing };
 };
+
+// Every page at once, for a form shown on one page (the mobile app).
+export const validateItem = (formData, hasNewImage) => {
+  const missing = Object.keys(PAGE_CHECKS).flatMap(
+    (page) => validateItemPage(page, formData, hasNewImage).missing
+  );
+
+  return { valid: missing.length === 0, missing };
+};

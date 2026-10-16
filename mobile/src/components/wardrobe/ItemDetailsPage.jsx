@@ -1,5 +1,5 @@
-// Page two of the item form: seasons, colours and tags (pre-filled for a
-// new item from its name and type).
+// The lower half of the item form: seasons, colours and tags (pre-filled
+// for a new item from its name and type).
 
 import {
   colorOptions,

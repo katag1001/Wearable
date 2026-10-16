@@ -3,6 +3,9 @@
 // Item photos live on Cloudinary. The app uploads them there directly,
 // then saves the returned URL on the item through the API.
 
+// The browser and React Native both provide XMLHttpRequest.
+/* global XMLHttpRequest */
+
 import { getCoreConfig } from "../config.js";
 import { api } from "./client.js";
 

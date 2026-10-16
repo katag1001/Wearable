@@ -8,7 +8,7 @@ import {
   suggestSubtypesFromName,
 } from "../clothes/uploadHelpers.js";
 import { WARDROBE_KINDS } from "../wardrobe/itemKinds.js";
-import { validateItemPage } from "../wardrobe/itemValidation.js";
+import { validateItem, validateItemPage } from "../wardrobe/itemValidation.js";
 import { saveWardrobeItem } from "../wardrobe/saveWardrobeItem.js";
 import { useUserGender } from "./useUserGender.js";
 
@@ -22,10 +22,15 @@ const LAST_PAGE = 2;
  * in from the name and type when a NEW item moves on from page one
  * (useClothingDetection). Editing changes only what the user changes.
  *
+ * `singlePage` shows everything on one page instead (the mobile app):
+ * there's no Next, Save checks every field, and page two's fields are
+ * filled in when the type is chosen or the name is finished
+ * (fillDetailsFromName) - the moments the user would have left page one.
+ *
  * The chosen image is only uploaded on save. `onSaved` runs after a
  * successful save (e.g. to refresh the list).
  */
-export const useWardrobeItemForm = ({ kind, item, onSaved }) => {
+export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false }) => {
   const config = WARDROBE_KINDS[kind];
   const isUpdate = !!item;
 
@@ -62,7 +67,9 @@ export const useWardrobeItemForm = ({ kind, item, onSaved }) => {
     }
   }, [formData.colors, formData.styles, updateField]);
 
-  const validation = validateItemPage(page, formData, !!selectedImage);
+  const validation = singlePage
+    ? validateItem(formData, !!selectedImage)
+    : validateItemPage(page, formData, !!selectedImage);
 
   // "Please enter a name and a type." while the user has tried to move on.
   const validationMessage =
@@ -75,6 +82,25 @@ export const useWardrobeItemForm = ({ kind, item, onSaved }) => {
     typeOptions,
     config.synonyms
   );
+
+  /* -------------------- Single page -------------------- */
+
+  // On one page, choosing the type fills in seasons, colours and tags
+  // straight away (on two pages, that waits for Next).
+  const chooseSubtype = (subtype) => {
+    form.chooseSubtype(subtype);
+
+    if (singlePage) {
+      applyDetection(formData.name, subtype);
+    }
+  };
+
+  // For when the user finishes typing the name on a single page.
+  const fillDetailsFromName = () => {
+    if (singlePage && formData.name.trim()) {
+      applyDetection(formData.name, formData.subtype);
+    }
+  };
 
   /* -------------------- Pages -------------------- */
 
@@ -173,13 +199,14 @@ export const useWardrobeItemForm = ({ kind, item, onSaved }) => {
     toggleColor: form.toggleColor,
     toggleTag: form.toggleTag,
     toggleSeason: form.toggleSeason,
-    chooseSubtype: form.chooseSubtype,
+    chooseSubtype,
+    fillDetailsFromName,
 
     selectedImage,
     setSelectedImage,
 
     page,
-    isLastPage: page === LAST_PAGE,
+    isLastPage: singlePage || page === LAST_PAGE,
     goNext,
     goBack,
     validationMessage,
