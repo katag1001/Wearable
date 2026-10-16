@@ -1,10 +1,10 @@
-// Today tab: the weather, today's outfit (pick one, or the one worn
-// today with its shoes), then this season's clothes and outfits.
-// Logic: useWeather, useToday, useTodayFootwear, useSeasonPreviews - all
-// shared with the web homepage.
+// Today tab: the weather, then today's outfit filling the rest of the
+// page (swipe to pick one, or the one worn today with its shoes).
+// Logic: useWeather, useToday, useTodayFootwear - all shared with the web
+// homepage.
 
 import { useEffect } from "react";
-import { Alert, StyleSheet, Text } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { useToday } from "@core/hooks/useToday.js";
 import { useWeather } from "@core/hooks/useWeather.js";
@@ -17,7 +17,6 @@ import {
 import { Button, Card, Loading, Message, Screen } from "../../components/ui";
 import { OutfitImages } from "../../components/today/OutfitImages";
 import { OutfitPicker } from "../../components/today/OutfitPicker";
-import { SeasonPreviews } from "../../components/today/SeasonPreviews";
 import { ShoeBox } from "../../components/today/ShoeBox";
 import { useLocation } from "../../platform/useLocation";
 
@@ -28,7 +27,7 @@ export default function TodayScreen() {
     longitude: location.longitude,
     locationUnavailable: Boolean(location.error),
   });
-  const today = useToday({ todayReady: weather.ready });
+  const today = useToday({ todayReady: weather.ready, tagFilter: false });
 
   // Results of marking worn / deleting.
   useEffect(() => {
@@ -87,14 +86,15 @@ export default function TodayScreen() {
       <Message text={location.error} />
       <Message text={weather.error} />
 
-      {outfitSection()}
-
-      <SeasonPreviews />
+      <View style={styles.outfit}>{outfitSection()}</View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  outfit: {
+    flex: 1,
+  },
   weather: {
     fontSize: fontSizes.body,
     color: colors.secondary,

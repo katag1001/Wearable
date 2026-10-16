@@ -1,5 +1,8 @@
-// An outfit's clothes as large photos, two to a row, with its tags'
-// icons underneath. `match` is a populated match.
+// An outfit's clothes as large photos, laid out the way they're worn:
+// tops then outerwear on the upper row, one-pieces and bottoms centred
+// underneath (outfitRows). Each photo is half the width, so a row holds two
+// and a fuller one wraps; a lone item is full width. `match` is a
+// populated match.
 //
 // The photos get exact pixel sizes from the measured row width: a
 // percentage width + aspectRatio inside a wrapping row in a scroll view
@@ -10,79 +13,65 @@ import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 
 import { colors, radius, spacing } from "@core/theme/tokens.js";
+import { outfitRows } from "@core/today/outfitRows.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
-import { getTagOption } from "@core/utils/tagOptions.js";
 
 const PHOTO_ASPECT = 4 / 3; // height / width
+const PHOTO_SCALE = 0.95;
 
 export const OutfitImages = ({ match }) => {
   const [rowWidth, setRowWidth] = useState(0);
 
   const clothes = (match?.clothes || []).filter((item) => item?.imageUrl);
-  const tags = (match?.tags || []).map(getTagOption).filter(Boolean);
+  const rows = outfitRows(clothes);
 
   const columns = clothes.length === 1 ? 1 : 2;
-  const photoWidth = (rowWidth - spacing.sm * (columns - 1)) / columns;
+  // Rounded down and a touch under the full share, so two always fit side
+  // by side - an exact fit can wrap from sub-pixel rounding.
+  const photoWidth = Math.floor(
+    ((rowWidth - spacing.sm * (columns - 1)) / columns) * PHOTO_SCALE
+  );
 
   return (
-    <View style={styles.outfit}>
-      <View
-        style={styles.images}
-        onLayout={(event) => setRowWidth(event.nativeEvent.layout.width)}
-      >
-        {rowWidth > 0 &&
-          clothes.map((item) => (
-            <Image
-              key={item._id}
-              source={{ uri: getImageUrl(item.imageUrl, 800) }}
-              style={[
-                styles.image,
-                { width: photoWidth, height: photoWidth * PHOTO_ASPECT },
-              ]}
-              contentFit="contain"
-              transition={150}
-              accessibilityLabel={item.name}
-            />
-          ))}
-      </View>
-
-      {tags.length > 0 && (
-        <View style={styles.tags}>
-          {tags.map((tag) => (
-            <Image
-              key={tag.name}
-              source={tag.image}
-              style={styles.tag}
-              contentFit="contain"
-              accessibilityLabel={tag.name}
-            />
-          ))}
-        </View>
-      )}
+    <View
+      style={styles.outfit}
+      onLayout={(event) => setRowWidth(event.nativeEvent.layout.width)}
+    >
+      {rowWidth > 0 &&
+        rows.map((row) => (
+          <View key={row[0]._id} style={styles.row}>
+            {row.map((item) => (
+              <Image
+                key={item._id}
+                source={{ uri: getImageUrl(item.imageUrl, 800) }}
+                style={[
+                  styles.image,
+                  { width: photoWidth, height: photoWidth * PHOTO_ASPECT },
+                ]}
+                contentFit="contain"
+                transition={150}
+                accessibilityLabel={item.name}
+              />
+            ))}
+          </View>
+        ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   outfit: {
+    alignSelf: "stretch",
     gap: spacing.sm,
   },
-  images: {
-    alignSelf: "stretch",
+  row: {
     flexDirection: "row",
     flexWrap: "wrap",
+    justifyContent: "center",
     gap: spacing.sm,
   },
   image: {
     borderRadius: radius.lg,
     backgroundColor: colors.imageBackground,
-  },
-  tags: {
-    flexDirection: "row",
-    gap: spacing.sm,
-  },
-  tag: {
-    width: 26,
-    height: 26,
   },
 });

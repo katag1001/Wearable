@@ -38,8 +38,10 @@ const MAX_RETRIES = 10;
  *
  * `todayReady`: true once today's weather is known and /today/create has
  * run (useWeather).
+ * `tagFilter`: false shows all of today's outfits, unfiltered (mobile has
+ * no tag picker).
  */
-export const useToday = ({ todayReady }) => {
+export const useToday = ({ todayReady, tagFilter = true }) => {
   const [cachedToday] = useState(getCachedToday);
 
   const [outfits, setOutfits] = useState(cachedToday?.outfits ?? []);
@@ -47,7 +49,9 @@ export const useToday = ({ todayReady }) => {
 
   // Today's tag from the weekly preferences (a tagOptions name), or null.
   const [todayTag, setTodayTag] = useState(cachedToday?.todayTag ?? null);
-  const [selectedTag, setSelectedTag] = useState(cachedToday?.todayTag ?? null);
+  const [selectedTag, setSelectedTag] = useState(
+    tagFilter ? cachedToday?.todayTag ?? null : null
+  );
 
   const [loading, setLoading] = useState(!cachedToday);
   const [checkingToday, setCheckingToday] = useState(false);
@@ -172,7 +176,7 @@ export const useToday = ({ todayReady }) => {
 
       // Start filtered to today's tag - unless cached outfits are already
       // showing, where the user may have picked a different tag.
-      if (!cachedToday) {
+      if (!cachedToday && tagFilter) {
         setSelectedTag(todayTagName);
       }
 

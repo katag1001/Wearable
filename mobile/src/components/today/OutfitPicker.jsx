@@ -1,20 +1,37 @@
-// Choosing today's outfit: the sorted outfits one at a time (next rejects
-// the one being left), filtered by a tag. Logic: useToday.
+// Choosing today's outfit: the sorted outfits one at a time, swiped like
+// cards (next rejects the one being left). The heart wears it today, the
+// bin deletes it. Logic: useToday.
 
-import { Alert, StyleSheet, Text, View } from "react-native";
+import Feather from "@expo/vector-icons/Feather";
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-import { tagOptions } from "@core/constants/optionsBank.js";
 import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
 
-import {
-  Button,
-  Card,
-  Grid,
-  SectionTitle,
-  TagTile,
-} from "../ui";
 import { OutfitImages } from "./OutfitImages";
-import { Stepper } from "./Stepper";
+import { SwipeDeck } from "./SwipeDeck";
+
+const ActionButton = ({ icon, label, onPress, loading }) => (
+  <Pressable
+    onPress={onPress}
+    disabled={loading}
+    accessibilityRole="button"
+    accessibilityLabel={label}
+    style={({ pressed }) => [styles.actionButton, pressed && styles.pressed]}
+  >
+    {loading ? (
+      <ActivityIndicator color={colors.main} />
+    ) : (
+      <Feather name={icon} size={28} color={colors.main} />
+    )}
+  </Pressable>
+);
 
 export const OutfitPicker = ({ today }) => {
   const { filteredOutfits, selectedOutfit } = today;
@@ -33,71 +50,64 @@ export const OutfitPicker = ({ today }) => {
       ]
     );
 
+  if (!selectedOutfit) {
+    return <Text style={styles.empty}>No outfits saved for today.</Text>;
+  }
+
   return (
-    <>
-      <Card>
-        {selectedOutfit ? (
-          <>
-            <OutfitImages match={selectedOutfit.matchId} />
+    <View style={styles.picker}>
+      <View style={styles.deck}>
+        <SwipeDeck
+          enabled={filteredOutfits.length > 1}
+          onNext={today.goNext}
+          onPrev={today.goPrev}
+          noun="outfit"
+        >
+          <OutfitImages match={selectedOutfit.matchId} />
+        </SwipeDeck>
+      </View>
 
-            <Stepper
-              index={today.currentIndex}
-              total={filteredOutfits.length}
-              onPrev={today.goPrev}
-              onNext={today.goNext}
-              noun="outfit"
-            />
-
-            <View style={styles.actions}>
-              <Button
-                label="Mark as worn today"
-                onPress={today.markAsWornToday}
-                style={styles.action}
-              />
-              <Button
-                label="Delete"
-                variant="secondary"
-                onPress={confirmDelete}
-                loading={today.deleting}
-              />
-            </View>
-          </>
-        ) : (
-          <Text style={styles.empty}>
-            {today.outfits.length === 0
-              ? "No outfits saved for today."
-              : "No outfits saved for this tag."}
-          </Text>
-        )}
-      </Card>
-
-      <SectionTitle
-        title="Filter by tag"
-        description={
-          today.todayTag ? `Today's ${today.todayTag} outfit` : undefined
-        }
-      />
-      <Grid columns={5} gap={spacing.sm}>
-        {tagOptions.map((tag) => (
-          <TagTile
-            key={tag.name}
-            tag={tag}
-            selected={today.selectedTag === tag.name}
-            onPress={() => today.selectTag(tag.name)}
-          />
-        ))}
-      </Grid>
-    </>
+      <View style={styles.actions}>
+        <ActionButton
+          icon="trash-2"
+          label="Delete outfit"
+          onPress={confirmDelete}
+          loading={today.deleting}
+        />
+        <ActionButton
+          icon="heart"
+          label="Wear this outfit today"
+          onPress={today.markAsWornToday}
+        />
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  picker: {
+    flex: 1,
+    gap: spacing.lg,
+  },
+  deck: {
+    flex: 1,
+    justifyContent: "center",
+  },
   actions: {
     flexDirection: "row",
-    gap: spacing.sm,
+    justifyContent: "center",
+    gap: spacing.xxl,
   },
-  action: {
-    flex: 1,
+  actionButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.imageBackground,
+  },
+  pressed: {
+    opacity: 0.6,
   },
   empty: {
     fontSize: fontSizes.body,
