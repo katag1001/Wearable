@@ -9,9 +9,11 @@ import { api } from "./client.js";
 // Uploads an image and returns Cloudinary's response
 // ({ secure_url, public_id, ... }). `file` is whatever the platform's
 // FormData takes: a File on the web, { uri, name, type } on a phone.
-// Uses fetch rather than the API client so the login token is NOT sent
-// to Cloudinary.
-export const uploadImageToCloudinary = async (file) => {
+// Doesn't use the API client, so the login token is NOT sent to
+// Cloudinary. Uses XMLHttpRequest rather than fetch: on the phone, Expo's
+// fetch can't send { uri, name, type } parts ("Unsupported FormDataPart
+// implementation"), but React Native's XMLHttpRequest can.
+export const uploadImageToCloudinary = (file) => {
   const { cloudName, uploadPreset } = getCoreConfig();
 
   const formData = new FormData();
@@ -19,19 +21,28 @@ export const uploadImageToCloudinary = async (file) => {
   formData.append("file", file);
   formData.append("upload_preset", uploadPreset);
 
-  const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-    {
-      method: "POST",
-      body: formData
-    }
-  );
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
 
-  if (!response.ok) {
-    throw new Error(`Cloudinary upload failed: ${await response.text()}`);
-  }
+    request.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
 
-  return response.json();
+    request.onload = () => {
+      if (request.status < 200 || request.status >= 300) {
+        reject(new Error(`Cloudinary upload failed: ${request.responseText}`));
+        return;
+      }
+
+      try {
+        resolve(JSON.parse(request.responseText));
+      } catch {
+        reject(new Error("Cloudinary upload failed: invalid response"));
+      }
+    };
+
+    request.onerror = () => reject(new Error("Cloudinary upload failed: network error"));
+
+    request.send(formData);
+  });
 };
 
 // Removes an image uploaded for a save that then failed. The server only
