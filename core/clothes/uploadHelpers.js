@@ -34,6 +34,9 @@ const COLOR_NAME_ALIASES = {
   beige: "Cream",
   lavender: "Lilac",
   maroon: "Burgundy",
+  cobalt: "Bright Blue",
+  "royal blue": "Bright Blue",
+  "electric blue": "Bright Blue",
 };
 
 export const detectFromName = (name) => {

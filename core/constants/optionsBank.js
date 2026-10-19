@@ -72,9 +72,11 @@ export const seasonOptions = [
 
 export const colorOptions = [
   { name: "Black", value: "#000000" },
+  { name: "Bright Blue", value: "#1E6FFF" },
   { name: "Brown", value: "#8B4513" },
   { name: "Burgundy", value: "#800000" },
   { name: "Camel", value: "#C19A6B" },
+  { name: "Copper", value: "#B87333" },
   { name: "Cream", value: "#FFFDD0" },
   { name: "Dark Blue", value: "#00008B" },
   { name: "Forest Green", value: "#228B22" },

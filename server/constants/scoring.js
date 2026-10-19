@@ -40,9 +40,9 @@ const COLOUR_SCORE_WEIGHT = 0.4;
 // on; the last entry is used for anything more. Each level's colour cap is
 // in shared/colorPalettes.json (maxColors).
 const COLOUR_COUNT_SCORES = {
-  min: [65, 75, 85, 65],
-  mid: [65, 55, 85, 85, 65, 55],
-  max: [25, 45, 75, 85, 75, 65, 45],
+  min: [65, 70, 70, 65],
+  mid: [65, 65, 70, 70, 60, 50],
+  max: [20, 40, 65, 70, 70, 60, 60],
 };
 
 // Score for each palette tier (shared/colorPalettes.json), per colour level:
@@ -56,7 +56,7 @@ const PALETTE_TIER_SCORES = {
 
 // Added when the outfit's colours fit one of the user's favourite palettes
 // (Preferences.favouritePalettes), at any level.
-const FAVOURITE_PALETTE_BONUS = 10;
+const FAVOURITE_PALETTE_BONUS = 8;
 
 // Change for the number of bright colours in an outfit
 // (brightColours in shared/colorPalettes.json), per colour level. Entry 0 is
@@ -64,7 +64,7 @@ const FAVOURITE_PALETTE_BONUS = 10;
 // more.
 const BRIGHT_COLOUR_ADJUSTMENTS = {
   min: [0, -5, -20],
-  mid: [0, 5, -15],
+  mid: [0, 3, -15],
   max: [0, 0, 0],
 };
 

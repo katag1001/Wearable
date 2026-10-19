@@ -57,9 +57,9 @@ function context(baselineMatrix, overrides = {}) {
 }
 
 // One made-up "mid" palette of the given tier, so scores don't depend on
-// the real palette file. At mid, common scores 85 and bold 65; 1 colour
-// scores 65 and 2 colours 55. So 1 Cream item in a common palette has a
-// colour score of (65 + 85) / 2 = 75.
+// the real palette file. At mid, common scores 85 and bold 65; 1 or 2
+// colours score 65. So 1 Cream item in a common palette has a colour score
+// of (65 + 85) / 2 = 75.
 function testColourRules(tier = "common") {
   return {
     palettes: [{ id: "test", tier, levels: ["mid"], colours: ["Cream", "Camel", "Tan"] }],
@@ -352,20 +352,27 @@ test("findCandidateMatches drops outfits whose pair blend is below the minimum, 
 });
 
 test("findCandidateMatches drops outfits whose colour score is below the minimum, however good their pairs", () => {
-  // Bold palette at mid scores 65. 1 colour (65) -> colour 65, kept;
-  // 2 colours (55) -> colour 60, dropped even with a pair of 90.
+  // Cream alone: colour (65 + 85) / 2 = 75, kept. Cream + Red + Orange:
+  // (70 + 85) / 2 - 15 for two bright colours = 62.5, dropped even with a
+  // pair of 90.
   const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
   const creamJeans = clothes({ subtype: "Jeans", type: "bottom" });
-  const camelChinos = clothes({ subtype: "Chinos", type: "bottom", colors: ["Camel"] });
+  const brightChinos = clothes({ subtype: "Chinos", type: "bottom", colors: ["Red", "Orange"] });
+
+  const colorRules = {
+    palettes: [{ id: "common", tier: "common", levels: ["mid"], colours: ["Cream", "Red", "Orange"] }],
+    maxColors: 6,
+    level: "mid",
+  };
 
   const results = findCandidateMatches(
     newTop,
-    [newTop, creamJeans, camelChinos],
-    scoringContext(openBaseline(["Short t-shirt", "Jeans", "Chinos"], 90), "bold")
+    [newTop, creamJeans, brightChinos],
+    context(openBaseline(["Short t-shirt", "Jeans", "Chinos"], 90), { colorRules })
   );
 
-  // 0.6 * 90 + 0.4 * 65 = 80
-  assert.deepEqual(results.map((r) => r.score), [80]);
+  // 0.6 * 90 + 0.4 * 75 = 84
+  assert.deepEqual(results.map((r) => r.score), [84]);
   assert.deepEqual(new Set(results[0].clothes), new Set(["Short t-shirt", "Jeans"]));
 });
 
@@ -397,12 +404,13 @@ test("scoreItemSet is null when the pair blend or colour score is below MIN_AUTO
   const top = clothes({ subtype: "Short t-shirt", type: "top" });
   const jeans = clothes({ subtype: "Jeans", type: "bottom", colors: ["Camel"] });
 
-  // 2 colours, bold: colour (55 + 65) / 2 = 60
-  assert.equal(scoreItemSet([top, jeans], scoringContext(openBaseline(["Short t-shirt", "Jeans"], 90), "bold")), null);
-  // 2 colours, common: colour (55 + 85) / 2 = 70; pair 64
+  // 2 colours, bold, at min: colour (70 + 30) / 2 = 50
+  const minBold = { ...testColourRules("bold"), level: "min" };
+  assert.equal(scoreItemSet([top, jeans], context(openBaseline(["Short t-shirt", "Jeans"], 90), { colorRules: minBold })), null);
+  // 2 colours, common: colour (65 + 85) / 2 = 75; pair 64
   assert.equal(scoreItemSet([top, jeans], scoringContext(openBaseline(["Short t-shirt", "Jeans"], 64))), null);
-  // pair 65, colour 70: 0.6 * 65 + 0.4 * 70 = 67
-  assert.equal(scoreItemSet([top, jeans], scoringContext(openBaseline(["Short t-shirt", "Jeans"], 65))), 67);
+  // pair 65, colour 75: 0.6 * 65 + 0.4 * 75 = 69
+  assert.equal(scoreItemSet([top, jeans], scoringContext(openBaseline(["Short t-shirt", "Jeans"], 65))), 69);
 });
 
 test("dedupeKey is the same whatever order the clothing ids are in", () => {

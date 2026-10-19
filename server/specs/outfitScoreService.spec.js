@@ -5,7 +5,6 @@ const {
   clampScore,
   clampAdjustment,
   getPairScore,
-  computeColourCountScore,
   computePaletteTierScore,
   computeFavouriteBonus,
   computeBrightAdjustment,
@@ -29,7 +28,6 @@ const item = (subtype, colors = ["Cream"]) => ({ subtype, colors });
 // Made-up palettes, so scores don't depend on the real palette file.
 const rules = (level, palettes) => ({ palettes, maxColors: null, level });
 const palette = (tier, colours) => ({ id: `test-${tier}`, tier, levels: ["min", "mid", "max"], colours });
-const neutrals = ["Cream", "Camel", "Tan", "White", "Brown", "Navy", "Grey", "Black"];
 
 test("clampScore keeps a value between 0 and 100", () => {
   assert.equal(clampScore(-5), 0);
@@ -55,14 +53,6 @@ test("getPairScore is baseline + adjustment, kept within 0-100", () => {
 test("getPairScore is undefined for a pair that can't be matched", () => {
   assert.equal(getPairScore(baseline, null, "A", "A"), undefined);
   assert.equal(getPairScore(baseline, null, "A", "Missing"), undefined);
-});
-
-test("computeColourCountScore scores the number of distinct colours for each level", () => {
-  const scores = (level, counts) => counts.map((count) => computeColourCountScore(neutrals.slice(0, count), level));
-
-  assert.deepEqual(scores("min", [1, 2, 3, 4]), [65, 75, 85, 65]);
-  assert.deepEqual(scores("mid", [1, 2, 3, 4, 5, 6]), [65, 55, 85, 85, 65, 55]);
-  assert.deepEqual(scores("max", [1, 2, 3, 4, 5, 6, 7, 8]), [25, 45, 75, 85, 75, 65, 45, 45]);
 });
 
 test("computePaletteTierScore uses the best tier among the palettes the colours fit", () => {
@@ -96,7 +86,7 @@ test("computeBrightAdjustment depends on the number of bright colours and the le
   ].map((brights) => computeBrightAdjustment(["Navy", ...brights], level));
 
   assert.deepEqual(adjustments("min"), [0, -5, -20, -20]);
-  assert.deepEqual(adjustments("mid"), [0, 5, -15, -15]);
+  assert.deepEqual(adjustments("mid"), [0, 3, -15, -15]);
   assert.deepEqual(adjustments("max"), [0, 0, 0, 0]);
 });
 
@@ -104,19 +94,19 @@ test("computeColourScore averages count and tier, then adds the favourite bonus 
   const palettes = [palette("common", ["Navy", "Cream", "Red"])];
   const items = [item("A", ["Navy"]), item("B", ["Red"]), item("C", ["Cream", "Navy"])];
 
-  // 3 colours at mid: count 85, common 85 -> 85; one bright colour +5 = 90.
-  assert.equal(computeColourScore(items, rules("mid", palettes)), 90);
-  // At min: count 85, common 60 -> 72.5; one bright colour -5 = 67.5.
-  assert.equal(computeColourScore(items, rules("min", palettes)), 67.5);
+  // 3 colours at mid: count 70, common 85 -> 77.5; one bright colour +3 = 80.5.
+  assert.equal(computeColourScore(items, rules("mid", palettes)), 80.5);
+  // At min: count 70, common 60 -> 65; one bright colour -5 = 60.
+  assert.equal(computeColourScore(items, rules("min", palettes)), 60);
 });
 
-test("computeColourScore adds the favourite bonus and stays within 0-100", () => {
+test("computeColourScore adds the favourite bonus", () => {
   const items = [item("A", ["Navy"]), item("B", ["Cream"]), item("C", ["White"])];
   const real = rules("min", [palette("classic", ["Navy", "Cream", "White"])]);
 
-  // 3 colours at min: count 85, classic 95 -> 90; favourite +10 = 100.
-  assert.equal(computeColourScore(items, real, ["navy-cream-white"]), 100);
-  assert.equal(computeColourScore(items, real, []), 90);
+  // 3 colours at min: count 70, classic 95 -> 82.5; favourite +8 = 90.5.
+  assert.equal(computeColourScore(items, real, ["navy-cream-white"]), 90.5);
+  assert.equal(computeColourScore(items, real, []), 82.5);
 });
 
 test("computePairBlend blends 70% average with 30% lowest pair, unrounded", () => {
@@ -151,8 +141,8 @@ test("computeOutfitScore scores a whole outfit from the matching context", () =>
     favouritePalettes: [],
   };
 
-  // pair 85; 2 colours at mid: count 55, common 85 -> 70; 0.6 * 85 + 0.4 * 70 = 79
-  assert.equal(computeOutfitScore([item("A", ["Cream"]), item("B", ["Navy"])], context), 79);
+  // pair 85; 2 colours at mid: count 65, common 85 -> 75; 0.6 * 85 + 0.4 * 75 = 81
+  assert.equal(computeOutfitScore([item("A", ["Cream"]), item("B", ["Navy"])], context), 81);
 });
 
 test("computeOutfitScore gives a single item the fixed single-item score, whatever its colours", () => {

@@ -157,10 +157,13 @@ so:
   `"Tank top"` → `Tan`, `"Embroidered blouse"` → `Red`, `"Golden …"` →
   `Gold`.
 - Some other words count as a colour (`COLOR_NAME_ALIASES`): `"beige"` →
-  `Cream`, `"lavender"` → `Lilac`. Beige and Lavender were merged into
-  those colours and can't be picked any more.
-- There is no plain "Blue". Only `Dark Blue`, `Light Blue`, `Navy`,
-  `Teal` and `Turquoise` exist, so `"Blue jeans"` detects no colour. The
+  `Cream`, `"lavender"` → `Lilac`, `"maroon"` → `Burgundy`, and
+  `"cobalt"`, `"royal blue"`, `"electric blue"` → `Bright Blue`. Beige
+  and Lavender were merged into those colours and Maroon was renamed, so
+  they can't be picked any more.
+- There is no plain "Blue". Only `Bright Blue`, `Dark Blue`,
+  `Light Blue`, `Navy`, `Teal` and `Turquoise` exist, so `"Blue jeans"`
+  detects no colour. The
   user has to pick one, because page two needs at least one colour.
 
 The user can correct all of this on page two.
@@ -390,7 +393,7 @@ affects items added and outfits matched afterwards.
 |---|---|---|---|
 | `gender` | man / woman / unisex | Which subtype list the add form shows. Which matrix is used. Which layering lists are used. | `typeOptions.jsx`, `getBaselineMatrix`, `getLayeringRules` |
 | `colour` | min / mid / max | Which colour palette list is used, the colour-count cap, and the colour score (3.10) | `getColorRules`, `computeColourScore` |
-| `favouritePalettes` | palette ids | Outfits fitting one get +10 on their colour score (3.10). Unknown ids are dropped on save (`cleanFavouritePalettes`) | `computeFavouriteBonus` |
+| `favouritePalettes` | palette ids | Outfits fitting one get +8 on their colour score (3.10). Unknown ids are dropped on save (`cleanFavouritePalettes`) | `computeFavouriteBonus` |
 | `pattern` | min / mid / max | **Saved and required by the quiz gate, but not used by matching.** The pattern rule is the same for everyone (3.7). | - |
 | `temperature` | cold / normal / hot | Shifts every new match's temperature range ±2° | `temperature-ranges.md` |
 | `pairingAnswers` (quiz only, not stored) | question key → yes / sometimes / no | Sets the starting personal adjustment of the question's pairs (2.6) | `pairingQuizService.js` |
@@ -565,9 +568,9 @@ palettes. Each is `{ id, tier, levels, colours }`:
 
 | Level | Palettes | Max distinct colours in an outfit |
 |---|---|---|
-| min | 35 | 4 |
-| mid | 58 | 6 |
-| max | 58 | no cap |
+| min | 39 | 4 |
+| mid | 70 | 6 |
+| max | 81 | no cap |
 
 An outfit passes if **all of its colours together fit inside at least one
 of its level's palettes**, and the number of distinct colours is within
@@ -580,9 +583,20 @@ The levels only grow: every `min` palette fits inside some `mid` palette,
 and every `mid` palette fits inside some `max` palette. A palette *can*
 fit inside another one - the classic combinations (Navy + Cream + White,
 Brown + Cream/Tan + Olive Green, Light Blue + Grey + White,
-Burgundy + Cream/Tan + Grey, Black + White + Tan) are their own `classic`
+Burgundy + Cream/Tan + Grey, Burgundy + Black + Grey, Black + White + Tan)
+are their own `classic`
 palettes at every level, so an outfit made of just those colours gets the
 classic score even where a bigger palette also contains them.
+
+Bright Blue has its own palettes: with White, Navy and Light Blue at every
+level; with Grey/Black, with Camel/Cream/Tan, and with Turquoise/Teal at mid
+and max; and bold contrasts (Orange, Yellow, Red, Fuchsia) at max only.
+
+Copper (a warm metallic, not a bright colour) has its own palettes too:
+with Cream/Brown/Camel (classic) and Olive Green/Cream/Tan at every level;
+with Navy/Cream/White (classic), Black/Burgundy/Cream, Peach/Pink/Cream and
+Teal/Cream/Brown (bold) at mid and max; and Forest Green/Burgundy/Gold and
+Turquoise/White/Navy (bold) at max only.
 
 The server refuses to start if a palette has a duplicate id, an unknown
 tier or level, or no colours (`checkPalettes`). The tests also check every
@@ -656,13 +670,13 @@ distinct colours against the user's colour level:
 
 | Colours | min | mid | max |
 |---|---|---|---|
-| 1 | 65 | 65 | 25 |
-| 2 | 75 | 55 | 45 |
-| 3 | 85 | 85 | 75 |
-| 4 | 65 | 85 | 85 |
-| 5 | - | 65 | 75 |
-| 6 | - | 55 | 65 |
-| 7+ | - | - | 45 |
+| 1 | 65 | 65 | 20 |
+| 2 | 70 | 65 | 40 |
+| 3 | 70 | 70 | 65 |
+| 4 | 65 | 70 | 70 |
+| 5 | - | 60 | 70 |
+| 6 | - | 50 | 60 |
+| 7+ | - | - | 60 |
 
 `-` is over that level's colour cap (3.6), so it never reaches scoring.
 
@@ -676,35 +690,36 @@ to classic combinations, max-colour users to bold ones:
 | common | 60 | 85 | 75 |
 | bold | 30 | 65 | 90 |
 
-**Favourite bonus** (`FAVOURITE_PALETTE_BONUS`): **+10** if the colours fit
+**Favourite bonus** (`FAVOURITE_PALETTE_BONUS`): **+8** if the colours fit
 one of the user's `favouritePalettes` - at any level, not only theirs.
 
 **Bright-colour adjustment** (`BRIGHT_COLOUR_ADJUSTMENTS`), by how many of
 the outfit's colours are in `brightColours` (Fuchsia, Lime Green, Red,
-Orange, Yellow, Turquoise - in `shared/colorPalettes.json`). At mid, one
+Orange, Yellow, Turquoise, Bright Blue - in `shared/colorPalettes.json`). At mid, one
 bright colour is best:
 
 | Bright colours | min | mid | max |
 |---|---|---|---|
 | 0 | 0 | 0 | 0 |
-| 1 | −5 | +5 | 0 |
+| 1 | −5 | +3 | 0 |
 | 2+ | −20 | −15 | 0 |
 
 Example at mid: Navy + Cream + Red, fitting only a common palette:
-(85 + 85) / 2 + 5 = 90. At min the same outfit is (85 + 60) / 2 − 5 = 67.5.
+(70 + 85) / 2 + 3 = 80.5. At min the same outfit is (70 + 60) / 2 − 5 = 60,
+so it's dropped.
 
 How strict the colour check is, counting every colour combination the
 palettes allow (no favourites):
 
 | Colours | min | mid | max |
 |---|---|---|---|
-| 1 | 16 of 27 pass | all 27 | **none** |
-| 2 | 89 of 110 | 153 of 163 | 142 of 213 |
-| 3 | 118 of 133 | 278 of 286 | all 600 |
-| 4 | 57 of 75 | 188 of 195 | all 816 |
+| 1 | 16 of 28 pass | all 28 | **none** |
+| 2 | 88 of 112 | 163 of 167 | 149 of 221 |
+| 3 | 111 of 134 | 273 of 283 | 494 of 568 |
+| 4 | 56 of 75 | 175 of 184 | all 685 |
 
-A one-colour outfit at max can only pass through the favourite bonus
-((25 + 90) / 2 + 10 = 67.5).
+A one-colour outfit at max can never pass, even with the favourite bonus
+((20 + 90) / 2 + 8 = 63).
 
 A **favourite is shown and sorted as 100**, without changing the stored
 score - unfavouriting returns the match to its original score.
@@ -1121,13 +1136,13 @@ they're tagged `Work, Everyday`. Outfits with the cardigan are tagged
 | Wide leg trousers + Trench coat | 90 |
 
 Colour scores at mid: Cream + Gold fits a `common` palette (85) with 2
-colours (55) → (55 + 85) / 2 = **70**. Cream + Gold + Camel only fits
-`classic` palettes (80), 3 colours (85) → **82.5**.
+colours (65) → (65 + 85) / 2 = **75**. Cream + Gold + Camel only fits
+`classic` palettes (80), 3 colours (70) → **75**.
 
 | Shape | Items | Pair blend | Colour score | Score | Result |
 |---|---|---|---|---|---|
-| 4 (1 top, 1 bottom) | shirt + trousers | 88 | 70 | 0.6 × 88 + 0.4 × 70 ≈ **81** | **saved** |
-| 5 (+1 outer) | shirt + trousers + trench | 0.7 × 88.7 + 0.3 × 88 ≈ 88.5 | 82.5 | **86** | **saved** |
+| 4 (1 top, 1 bottom) | shirt + trousers | 88 | 75 | 0.6 × 88 + 0.4 × 75 ≈ **83** | **saved** |
+| 5 (+1 outer) | shirt + trousers + trench | 0.7 × 88.7 + 0.3 × 88 ≈ 88.5 | 75 | **83** | **saved** |
 | 6 (2 tops, 1 bottom) | shirt + cardigan + trousers | - | - | - | **dropped** |
 | 7 (2 tops, 1 bottom, 1 outer) | shirt + cardigan + trousers + trench | - | - | - | **dropped** |
 
@@ -1141,7 +1156,7 @@ Both outfits left are within the best 100, so both are saved, each with its scor
 **Learning.** She deletes the 2-item outfit. Its pair gets −0.25, so
 Buttondown shirt + Wide leg trousers drops from 88 to 87.75. **Nothing
 stops matching** - the shirt and trousers are still compatible, and the
-3-item outfit keeps its score of 86. Future outfits with that pair just
+3-item outfit keeps its score of 83. Future outfits with that pair just
 score slightly lower. If she favourites the 3-item outfit, it shows as 100
 and its 3 pairs get +0.5. If she builds shirt + cardigan + trousers
 herself, it's saved (user-made outfits have no minimum) and the shirt +
