@@ -77,9 +77,15 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   const wornTodayRef = useRef(wornToday);
   wornTodayRef.current = wornToday;
 
+  // Reset on mount too: StrictMode (dev) unmounts and remounts once, and
+  // the ref survives that - left true, every load would be dropped.
   const unmounted = useRef(false);
-  useEffect(() => () => {
-    unmounted.current = true;
+  useEffect(() => {
+    unmounted.current = false;
+
+    return () => {
+      unmounted.current = true;
+    };
   }, []);
 
   /* -------------------- Load -------------------- */
