@@ -69,7 +69,7 @@ test("computePaletteTierScore uses the best tier among the palettes the colours 
 });
 
 test("computeFavouriteBonus applies when the colours fit a favourite palette, at any level", () => {
-  const favourite = allPalettes.find((p) => p.id === "navy-cream-white");
+  const favourite = allPalettes.find((p) => p.id === "peach-cream-white");
 
   assert.equal(computeFavouriteBonus(["Navy", "White"], [favourite.id]), FAVOURITE_PALETTE_BONUS);
   assert.equal(computeFavouriteBonus(["Navy", "Red"], [favourite.id]), 0);
@@ -80,19 +80,19 @@ test("computeFavouriteBonus applies when the colours fit a favourite palette, at
 test("computeBrightAdjustment depends on the number of bright colours and the level", () => {
   const adjustments = (level) => [
     [],
-    ["Red"],
-    ["Red", "Yellow"],
-    ["Red", "Yellow", "Fuchsia"],
+    ["Orange"],
+    ["Orange", "Yellow"],
+    ["Orange", "Yellow", "Fuchsia"],
   ].map((brights) => computeBrightAdjustment(["Navy", ...brights], level));
 
-  assert.deepEqual(adjustments("min"), [0, -5, -20, -20]);
+  assert.deepEqual(adjustments("min"), [0, 0, -10, -30]);
   assert.deepEqual(adjustments("mid"), [0, 3, -15, -15]);
   assert.deepEqual(adjustments("max"), [0, 0, 0, 0]);
 });
 
 test("computeColourScore averages count and tier, then adds the favourite bonus and bright adjustment", () => {
-  const palettes = [palette("common", ["Navy", "Cream", "Red"])];
-  const items = [item("A", ["Navy"]), item("B", ["Red"]), item("C", ["Cream", "Navy"])];
+  const palettes = [palette("common", ["Navy", "Cream", "Orange"])];
+  const items = [item("A", ["Navy"]), item("B", ["Orange"]), item("C", ["Cream", "Navy"])];
 
   // 3 colours at mid: count 70, common 85 -> 77.5; one bright colour +3 = 80.5.
   assert.equal(computeColourScore(items, rules("mid", palettes)), 80.5);
@@ -105,7 +105,7 @@ test("computeColourScore adds the favourite bonus", () => {
   const real = rules("min", [palette("classic", ["Navy", "Cream", "White"])]);
 
   // 3 colours at min: count 70, classic 95 -> 82.5; favourite +8 = 90.5.
-  assert.equal(computeColourScore(items, real, ["navy-cream-white"]), 90.5);
+  assert.equal(computeColourScore(items, real, ["peach-cream-white"]), 90.5);
   assert.equal(computeColourScore(items, real, []), 82.5);
 });
 

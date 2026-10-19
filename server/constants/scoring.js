@@ -49,9 +49,9 @@ const COLOUR_COUNT_SCORES = {
 // min favours classic combinations, max favours bold ones. An outfit that
 // fits several of its level's palettes gets the best of their scores.
 const PALETTE_TIER_SCORES = {
-  min: { classic: 95, common: 60, bold: 30 },
+  min: { classic: 95, common: 70, bold: 30 },
   mid: { classic: 80, common: 85, bold: 65 },
-  max: { classic: 60, common: 75, bold: 90 },
+  max: { classic: 65, common: 75, bold: 90 },
 };
 
 // Added when the outfit's colours fit one of the user's favourite palettes
@@ -63,7 +63,7 @@ const FAVOURITE_PALETTE_BONUS = 8;
 // no bright colours, entry 1 is one; the last entry is used for anything
 // more.
 const BRIGHT_COLOUR_ADJUSTMENTS = {
-  min: [0, -5, -20],
+  min: [0, 0, -10, -30],
   mid: [0, 3, -15],
   max: [0, 0, 0],
 };

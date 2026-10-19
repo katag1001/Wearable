@@ -92,9 +92,9 @@ test("checkPalettes rejects a duplicate id, an unknown tier or level, and a pale
 
 test("cleanFavouritePalettes keeps only real palette ids, once each", () => {
   assert.deepEqual(
-    cleanFavouritePalettes(["navy-cream-white", "nope", "navy-cream-white"]),
-    ["navy-cream-white"]
+    cleanFavouritePalettes(["peach-cream-white", "nope", "peach-cream-white"]),
+    ["peach-cream-white"]
   );
-  assert.deepEqual(cleanFavouritePalettes("navy-cream-white"), []);
+  assert.deepEqual(cleanFavouritePalettes("peach-cream-white"), []);
   assert.equal(cleanFavouritePalettes(undefined), undefined);
 });

@@ -569,8 +569,8 @@ palettes. Each is `{ id, tier, levels, colours }`:
 | Level | Palettes | Max distinct colours in an outfit |
 |---|---|---|
 | min | 39 | 4 |
-| mid | 70 | 6 |
-| max | 81 | no cap |
+| mid | 68 | 6 |
+| max | 79 | no cap |
 
 An outfit passes if **all of its colours together fit inside at least one
 of its level's palettes**, and the number of distinct colours is within
@@ -581,21 +581,24 @@ its colours one outfit uses, not the size of the palette.
 
 The levels only grow: every `min` palette fits inside some `mid` palette,
 and every `mid` palette fits inside some `max` palette. A palette *can*
-fit inside another one - the classic combinations (Navy + Cream + White,
-Brown + Cream/Tan + Olive Green, Light Blue + Grey + White,
-Burgundy + Cream/Tan + Grey, Burgundy + Black + Grey, Black + White + Tan)
-are their own `classic`
-palettes at every level, so an outfit made of just those colours gets the
-classic score even where a bigger palette also contains them.
+fit inside another one at the same level, but only if its tier is
+different - otherwise it adds nothing (same pass/fail, same score) and
+should be removed. The classic combinations (Brown + Tan + Olive Green,
+Light Blue + Grey + White, Burgundy + Cream/Tan + Grey,
+Burgundy + Black + Grey, Black + Red + White) are their own `classic`
+palettes at every level.
+Navy + Cream + White, Brown + Cream + Olive Green and Black + White + Tan
+don't need their own: bigger `classic` palettes already contain them at
+every level.
 
 Bright Blue has its own palettes: with White, Navy and Light Blue at every
 level; with Grey/Black, with Camel/Cream/Tan, and with Turquoise/Teal at mid
 and max; and bold contrasts (Orange, Yellow, Red, Fuchsia) at max only.
 
 Copper (a warm metallic, not a bright colour) has its own palettes too:
-with Cream/Brown/Camel (classic) and Olive Green/Cream/Tan at every level;
-with Navy/Cream/White (classic), Black/Burgundy/Cream, Peach/Pink/Cream and
-Teal/Cream/Brown (bold) at mid and max; and Forest Green/Burgundy/Gold and
+with Cream/Brown/Camel (classic), Olive Green/Cream/Tan and
+Black/Burgundy/Cream at every level; with Navy/Cream/White (classic),
+Peach/Pink/Cream and Teal/Cream/Brown (bold) at mid and max; and Forest Green/Burgundy/Gold and
 Turquoise/White/Navy (bold) at max only.
 
 The server refuses to start if a palette has a duplicate id, an unknown
@@ -694,17 +697,19 @@ to classic combinations, max-colour users to bold ones:
 one of the user's `favouritePalettes` - at any level, not only theirs.
 
 **Bright-colour adjustment** (`BRIGHT_COLOUR_ADJUSTMENTS`), by how many of
-the outfit's colours are in `brightColours` (Fuchsia, Lime Green, Red,
-Orange, Yellow, Turquoise, Bright Blue - in `shared/colorPalettes.json`). At mid, one
+the outfit's colours are in `brightColours` (Fuchsia, Lime Green, Orange,
+Yellow, Turquoise, Bright Blue - in `shared/colorPalettes.json`). Red isn't
+one - it's treated like a classic colour. At mid, one
 bright colour is best:
 
 | Bright colours | min | mid | max |
 |---|---|---|---|
 | 0 | 0 | 0 | 0 |
-| 1 | −5 | +3 | 0 |
-| 2+ | −20 | −15 | 0 |
+| 1 | 0 | +3 | 0 |
+| 2 | −10 | −15 | 0 |
+| 3+ | −30 | −15 | 0 |
 
-Example at mid: Navy + Cream + Red, fitting only a common palette:
+Example at mid: Navy + Cream + Orange, fitting only a common palette:
 (70 + 85) / 2 + 3 = 80.5. At min the same outfit is (70 + 60) / 2 − 5 = 60,
 so it's dropped.
 
