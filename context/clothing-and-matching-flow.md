@@ -545,17 +545,25 @@ colour level:
 
 | Level | Palettes | Palette size | Max distinct colours in an outfit |
 |---|---|---|---|
-| min | 30 | 3–4 | 4 |
-| mid | 41 | 4–5 | 6 |
-| max | 52 | 5–8 | no cap |
+| min | 28 | 2–7 | 4 |
+| mid | 51 | 4–7 | 6 |
+| max | 51 | 4–8 | no cap |
 
 An outfit passes if **all of its colours together fit inside at least one
 palette**, and the number of distinct colours is within the cap.
 
+A palette can be bigger than its level's cap. The cap limits how many of
+its colours one outfit uses, not the size of the palette.
+
+The levels only grow: every `min` palette fits inside some `mid` palette,
+and every `mid` palette fits inside some `max` palette. No palette fits
+inside another one at the same level (it would be redundant), and every
+palette colour is one the user can pick (`colorOptions`).
+
 Colours don't need to be close to each other. They just need to appear
-together in some palette. For example, Black + Navy is never allowed at
-`min`, but is allowed at `mid` and `max`. Black + Camel isn't allowed at any
-level.
+together in some palette. For example, Red + Orange isn't allowed at `min`,
+but is allowed at `mid` and `max`. Black + Purple is only allowed at `max`.
+Black + Pink isn't allowed at any level.
 
 ### 3.7 The pattern rule
 
@@ -1077,15 +1085,11 @@ These are behaviours found in the code that may not be intended.
    anything named "Forest green …", "Olive green …" or "Lime green …".
 5. **Changing gender** wipes personal adjustments. Existing items whose
    subtypes aren't in the new gender's list stop being matched.
-6. **Palettes reference colours that can't be picked.** `Coral` and
-   `Kharki` appear in the palettes but not in `colorOptions`. They do no
-   harm, but they make some palettes effectively one colour smaller. The
-   last palette in the `max` list is also an exact copy of an earlier one.
-7. **Matching runs after the response is sent.** It's kept alive with
+6. **Matching runs after the response is sent.** It's kept alive with
    `waitUntil`, but the client polling (8 × 1 s) can finish before a large
    run has saved its matches, so new matches may only show on a later
    load.
-8. **Three colour-palette tests fail** (`styleColorService.spec.js` ×2 and
+7. **Two colour-palette tests fail** (`styleColorService.spec.js` ×1 and
    the colour-cap test in `matchService.spec.js`). They were failing before
    the matching overhaul - the palette data no longer contains the
    combinations the tests expect.

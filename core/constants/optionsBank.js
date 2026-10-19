@@ -74,7 +74,6 @@ export const colorOptions = [
   { name: "Light Blue", value: "#ADD8E6" },
   { name: "Lilac", value: "#C8A2C8" },
   { name: "Lime Green", value: "#32CD32" },
-  { name: "Magenta", value: "#FF00FF" },
   { name: "Maroon", value: "#800000" },
   { name: "Navy", value: "#000080" },
   { name: "Olive Green", value: "#808000" },
