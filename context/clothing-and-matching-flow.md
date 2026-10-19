@@ -170,7 +170,7 @@ of it:
 - **Seasons.** Checkboxes (`toggleSeason`).
 - **Colours.** A grid of the 28 `colorOptions` (`toggleColor`).
 - **Tags.** The 10 `tagOptions`: Work, Gym, Loungewear, Party, Date night,
-  Wedding, Beach, Outdoor, Dinner, Everyday.
+  Formal, Beach, Outdoor, Dinner, Everyday.
 
 There is no temperature on the form - items don't have one.
 
@@ -1013,7 +1013,7 @@ suggestions include **Buttondown shirt** (keyword `"buttondown shirt"`),
 and she picks it. Clicking Next fills in:
 
 - colours **Cream, Gold** (from the name) → style **Patterned**
-- seasons **Spring, Autumn, Winter** and tags **Work, Wedding, Date night,
+- seasons **Spring, Autumn, Winter** and tags **Work, Formal, Date night,
   Everyday** (from the subtype)
 
 She saves. The item passes every check and is stored, and `processMatches`

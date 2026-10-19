@@ -78,7 +78,7 @@ Add one entry per gender, in the same shape as the others:
   "category": "Tops",
   "name": "Fancy top",
   "season": ["Spring", "Summer", "Autumn", "Winter"],
-  "tags": ["Work", "Party", "Dinner", "Wedding", "Date night", "Everyday"]
+  "tags": ["Work", "Party", "Dinner", "Formal", "Date night", "Everyday"]
 }
 ```
 

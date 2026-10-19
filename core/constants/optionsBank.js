@@ -3,11 +3,13 @@ import gym from "../assets/icons/gym.png";
 import loungewear from "../assets/icons/loungewear.png";
 import party from "../assets/icons/party.png";
 import date_night from "../assets/icons/date_night.png";
-import wedding from "../assets/icons/wedding.png";
+import formal from "../assets/icons/formal.png";
 import beach from "../assets/icons/beach.png";
 import outdoor from "../assets/icons/outdoor.png";
 import dinner from "../assets/icons/dinner.png";
 import everyday from "../assets/icons/everyday.png";
+import comfortable from "../assets/icons/comfortable.png";
+import lunch from "../assets/icons/lunch.png";
 
 export const tagOptions = [
   {
@@ -23,6 +25,10 @@ export const tagOptions = [
     image: loungewear
   },
   {
+    name: "Comfortable",
+    image: comfortable
+  },
+  {
     name: "Party",
     image: party
   },
@@ -31,8 +37,8 @@ export const tagOptions = [
     image: date_night
   },
   {
-    name: "Wedding",
-    image: wedding
+    name: "Formal",
+    image: formal
   },
   {
     name: "Beach",
@@ -41,6 +47,10 @@ export const tagOptions = [
   {
     name: "Outdoor",
     image: outdoor
+  },
+  {
+    name: "Lunch",
+    image: lunch
   },
   {
     name: "Dinner",

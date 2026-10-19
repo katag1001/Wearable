@@ -18,63 +18,63 @@ const ALL_SEASONS = ["Spring", "Summer", "Autumn", "Winter"];
 const FOOTWEAR_DEFAULTS = {
   "Ballerinas": {
     season: ["Spring", "Summer", "Autumn"],
-    tags: ["Work", "Everyday", "Dinner", "Date night", "Party"],
+    tags: ["Work", "Everyday", "Dinner", "Date night", "Party", "Comfortable", "Lunch"],
   },
   "Loafers": {
     season: ALL_SEASONS,
-    tags: ["Work", "Everyday", "Dinner", "Date night"],
+    tags: ["Work", "Everyday", "Dinner", "Date night", "Comfortable", "Lunch"],
   },
   "Flipflops": {
     season: ["Summer"],
-    tags: ["Beach", "Loungewear", "Everyday"],
+    tags: ["Beach", "Loungewear", "Everyday", "Comfortable"],
   },
   "Ankle boots": {
     season: ["Spring", "Autumn", "Winter"],
-    tags: ["Work", "Everyday", "Dinner", "Date night", "Outdoor"],
+    tags: ["Work", "Everyday", "Dinner", "Date night", "Outdoor", "Lunch"],
   },
   "Knee-high boots": {
     season: ["Autumn", "Winter"],
-    tags: ["Everyday", "Dinner", "Date night", "Party"],
+    tags: ["Everyday", "Dinner", "Date night", "Party", "Lunch"],
   },
   "Heeled boots": {
     season: ["Autumn", "Winter"],
-    tags: ["Work", "Dinner", "Date night", "Party"],
+    tags: ["Work", "Dinner", "Date night", "Party", "Lunch"],
   },
   "Snow boots": {
     season: ["Winter"],
-    tags: ["Outdoor", "Everyday"],
+    tags: ["Outdoor", "Everyday", "Comfortable"],
   },
   "Sandals": {
     season: ["Spring", "Summer"],
-    tags: ["Beach", "Everyday", "Dinner", "Date night"],
+    tags: ["Beach", "Everyday", "Dinner", "Date night", "Comfortable", "Lunch"],
   },
   "Walking boots": {
     season: ["Spring", "Autumn", "Winter"],
-    tags: ["Outdoor", "Everyday"],
+    tags: ["Outdoor", "Everyday", "Comfortable"],
   },
   "Heeled sandals": {
     season: ["Spring", "Summer"],
-    tags: ["Party", "Dinner", "Date night", "Wedding"],
+    tags: ["Party", "Dinner", "Date night", "Formal", "Lunch"],
   },
   "Heels": {
     season: ALL_SEASONS,
-    tags: ["Work", "Dinner", "Date night", "Party", "Wedding"],
+    tags: ["Work", "Dinner", "Date night", "Party", "Formal", "Lunch"],
   },
   "Smart trainers": {
     season: ALL_SEASONS,
-    tags: ["Work", "Everyday", "Dinner", "Date night"],
+    tags: ["Work", "Everyday", "Dinner", "Date night", "Comfortable", "Lunch"],
   },
   "Casual trainers": {
     season: ALL_SEASONS,
-    tags: ["Gym", "Everyday", "Outdoor", "Loungewear"],
+    tags: ["Gym", "Everyday", "Outdoor", "Loungewear", "Comfortable", "Lunch"],
   },
   "Formal shoes": {
     season: ALL_SEASONS,
-    tags: ["Work", "Dinner", "Wedding", "Party", "Date night"],
+    tags: ["Work", "Dinner", "Formal", "Party", "Date night", "Lunch"],
   },
   "Boots": {
     season: ["Spring", "Autumn", "Winter"],
-    tags: ["Everyday", "Outdoor", "Work", "Dinner", "Date night"],
+    tags: ["Everyday", "Outdoor", "Work", "Dinner", "Date night", "Comfortable", "Lunch"],
   },
 };
 

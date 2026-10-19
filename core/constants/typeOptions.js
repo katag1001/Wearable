@@ -28,7 +28,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -43,7 +45,9 @@ const typeOptionsByGender = {
         "Work",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -57,7 +61,9 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Loungewear",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -77,7 +83,9 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -93,9 +101,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -110,8 +119,10 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Beach",
-        "Wedding",
-        "Everyday"
+        "Formal",
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -128,7 +139,8 @@ const typeOptionsByGender = {
         "Loungewear",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -149,7 +161,9 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -168,7 +182,9 @@ const typeOptionsByGender = {
         "Dinner",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -187,7 +203,9 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -204,7 +222,8 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Date night"
+        "Date night",
+        "Lunch"
       ]
     },
     {
@@ -221,7 +240,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -236,7 +256,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -254,7 +275,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -269,7 +291,9 @@ const typeOptionsByGender = {
       "tags": [
         "Gym",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -287,7 +311,9 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -304,7 +330,8 @@ const typeOptionsByGender = {
         "Gym",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable"
       ]
     },
     {
@@ -322,7 +349,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -337,7 +365,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -350,7 +380,8 @@ const typeOptionsByGender = {
       "tags": [
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -363,7 +394,9 @@ const typeOptionsByGender = {
       "tags": [
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -379,7 +412,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -393,7 +428,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -405,7 +442,9 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -421,7 +460,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -437,7 +478,8 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Dinner",
-        "Date night"
+        "Date night",
+        "Lunch"
       ]
     },
     {
@@ -452,7 +494,8 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -469,7 +512,8 @@ const typeOptionsByGender = {
         "Gym",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -486,7 +530,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -498,7 +543,9 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -517,9 +564,11 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Outdoor",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -539,9 +588,11 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Outdoor",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -557,7 +608,8 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Loungewear",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -573,7 +625,9 @@ const typeOptionsByGender = {
       "tags": [
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -589,7 +643,9 @@ const typeOptionsByGender = {
         "Gym",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -606,7 +662,8 @@ const typeOptionsByGender = {
         "Dinner",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     }
   ],
@@ -625,7 +682,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -640,7 +699,9 @@ const typeOptionsByGender = {
         "Work",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -655,7 +716,9 @@ const typeOptionsByGender = {
         "Work",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -669,7 +732,9 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Loungewear",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -689,7 +754,9 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -708,7 +775,9 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -722,9 +791,10 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Work",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -739,8 +809,10 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Beach",
-        "Wedding",
-        "Everyday"
+        "Formal",
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -757,9 +829,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -776,9 +849,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -795,9 +869,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -812,7 +887,8 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Work",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -829,7 +905,8 @@ const typeOptionsByGender = {
         "Loungewear",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -847,7 +924,8 @@ const typeOptionsByGender = {
         "Dinner",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -862,7 +940,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -883,7 +962,9 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -902,7 +983,9 @@ const typeOptionsByGender = {
         "Dinner",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -921,7 +1004,9 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -940,7 +1025,8 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -957,9 +1043,10 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Beach",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -974,9 +1061,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -994,7 +1082,8 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1011,9 +1100,10 @@ const typeOptionsByGender = {
         "Work",
         "Dinner",
         "Beach",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1030,9 +1120,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1049,9 +1140,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1068,9 +1160,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1087,7 +1180,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1103,7 +1197,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1119,7 +1214,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1135,7 +1231,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1151,7 +1248,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1167,7 +1265,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1180,7 +1279,9 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1198,7 +1299,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1213,7 +1315,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1229,9 +1332,10 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1247,9 +1351,10 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1264,7 +1369,9 @@ const typeOptionsByGender = {
       "tags": [
         "Gym",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1281,7 +1388,9 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1298,7 +1407,9 @@ const typeOptionsByGender = {
         "Gym",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1315,7 +1426,8 @@ const typeOptionsByGender = {
         "Gym",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable"
       ]
     },
     {
@@ -1329,7 +1441,8 @@ const typeOptionsByGender = {
         "Gym",
         "Party",
         "Dinner",
-        "Date night"
+        "Date night",
+        "Lunch"
       ]
     },
     {
@@ -1344,7 +1457,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1357,7 +1472,8 @@ const typeOptionsByGender = {
       "tags": [
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1370,7 +1486,9 @@ const typeOptionsByGender = {
       "tags": [
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1386,7 +1504,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1403,9 +1523,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1422,7 +1543,9 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1438,7 +1561,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1452,7 +1577,9 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1466,7 +1593,7 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Wedding"
+        "Formal"
       ]
     },
     {
@@ -1482,7 +1609,7 @@ const typeOptionsByGender = {
       "tags": [
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night"
       ]
     },
@@ -1508,7 +1635,9 @@ const typeOptionsByGender = {
       "name": "Winter dress",
       "season": [],
       "tags": [
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1521,7 +1650,9 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Loungewear",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1533,7 +1664,8 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Work",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1549,7 +1681,8 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Dinner",
-        "Date night"
+        "Date night",
+        "Lunch"
       ]
     },
     {
@@ -1565,7 +1698,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1580,7 +1715,8 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1597,7 +1733,8 @@ const typeOptionsByGender = {
         "Gym",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1613,9 +1750,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1632,7 +1770,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1644,7 +1783,9 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1663,9 +1804,11 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Outdoor",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1685,9 +1828,11 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Outdoor",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1703,7 +1848,8 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Loungewear",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1719,7 +1865,9 @@ const typeOptionsByGender = {
         "Gym",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1736,7 +1884,8 @@ const typeOptionsByGender = {
         "Dinner",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     }
   ],
@@ -1755,7 +1904,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1770,7 +1921,9 @@ const typeOptionsByGender = {
         "Work",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1785,7 +1938,9 @@ const typeOptionsByGender = {
         "Work",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1799,7 +1954,9 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Loungewear",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1819,7 +1976,9 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1838,7 +1997,9 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1854,9 +2015,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1871,8 +2033,10 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Beach",
-        "Wedding",
-        "Everyday"
+        "Formal",
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -1889,9 +2053,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1908,9 +2073,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1927,9 +2093,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1944,8 +2111,9 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Work",
-        "Wedding",
-        "Everyday"
+        "Formal",
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1962,7 +2130,8 @@ const typeOptionsByGender = {
         "Loungewear",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1979,9 +2148,10 @@ const typeOptionsByGender = {
         "Loungewear",
         "Dinner",
         "Outdoor",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -1996,7 +2166,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2017,7 +2188,9 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2036,7 +2209,9 @@ const typeOptionsByGender = {
         "Dinner",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2055,7 +2230,9 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2074,7 +2251,8 @@ const typeOptionsByGender = {
         "Beach",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2091,9 +2269,10 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Beach",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2108,9 +2287,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2128,7 +2308,8 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2145,9 +2326,10 @@ const typeOptionsByGender = {
         "Work",
         "Dinner",
         "Beach",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2164,9 +2346,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2183,9 +2366,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2202,9 +2386,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2221,7 +2406,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2237,7 +2423,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2253,7 +2440,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2269,7 +2457,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2285,7 +2474,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2301,7 +2491,8 @@ const typeOptionsByGender = {
         "Party",
         "Dinner",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2314,7 +2505,9 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2331,9 +2524,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2347,9 +2541,10 @@ const typeOptionsByGender = {
       "tags": [
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2365,9 +2560,10 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2384,9 +2580,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2401,7 +2598,9 @@ const typeOptionsByGender = {
       "tags": [
         "Gym",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2418,9 +2617,11 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Outdoor",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2437,7 +2638,9 @@ const typeOptionsByGender = {
         "Gym",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2454,7 +2657,8 @@ const typeOptionsByGender = {
         "Gym",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable"
       ]
     },
     {
@@ -2471,9 +2675,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2487,7 +2692,8 @@ const typeOptionsByGender = {
         "Gym",
         "Party",
         "Dinner",
-        "Date night"
+        "Date night",
+        "Lunch"
       ]
     },
     {
@@ -2502,7 +2708,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2515,7 +2723,8 @@ const typeOptionsByGender = {
       "tags": [
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2528,7 +2737,9 @@ const typeOptionsByGender = {
       "tags": [
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2544,7 +2755,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2558,7 +2771,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2574,9 +2789,10 @@ const typeOptionsByGender = {
       "tags": [
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2593,7 +2809,9 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2605,7 +2823,9 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2621,7 +2841,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2635,7 +2857,9 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2649,7 +2873,7 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Wedding"
+        "Formal"
       ]
     },
     {
@@ -2665,7 +2889,7 @@ const typeOptionsByGender = {
       "tags": [
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night"
       ]
     },
@@ -2691,7 +2915,9 @@ const typeOptionsByGender = {
       "name": "Winter dress",
       "season": [],
       "tags": [
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2704,7 +2930,9 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Loungewear",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2716,7 +2944,8 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Work",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2732,8 +2961,9 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Dinner",
-        "Wedding",
-        "Date night"
+        "Formal",
+        "Date night",
+        "Lunch"
       ]
     },
     {
@@ -2749,7 +2979,9 @@ const typeOptionsByGender = {
         "Loungewear",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2764,7 +2996,8 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2781,7 +3014,8 @@ const typeOptionsByGender = {
         "Gym",
         "Beach",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2797,9 +3031,10 @@ const typeOptionsByGender = {
         "Work",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2815,9 +3050,10 @@ const typeOptionsByGender = {
         "Loungewear",
         "Party",
         "Dinner",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2829,7 +3065,9 @@ const typeOptionsByGender = {
       ],
       "tags": [
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2848,9 +3086,11 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Outdoor",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2870,9 +3110,11 @@ const typeOptionsByGender = {
         "Dinner",
         "Beach",
         "Outdoor",
-        "Wedding",
+        "Formal",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2888,7 +3130,8 @@ const typeOptionsByGender = {
       "tags": [
         "Work",
         "Loungewear",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     },
     {
@@ -2904,7 +3147,9 @@ const typeOptionsByGender = {
       "tags": [
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2920,7 +3165,9 @@ const typeOptionsByGender = {
         "Gym",
         "Loungewear",
         "Outdoor",
-        "Everyday"
+        "Everyday",
+        "Comfortable",
+        "Lunch"
       ]
     },
     {
@@ -2937,7 +3184,8 @@ const typeOptionsByGender = {
         "Dinner",
         "Outdoor",
         "Date night",
-        "Everyday"
+        "Everyday",
+        "Lunch"
       ]
     }
   ]
