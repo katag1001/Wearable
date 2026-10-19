@@ -11,6 +11,7 @@ import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
 import { useSession } from "../auth/SessionProvider";
 import { ImagesStep } from "../components/styleQuiz/ImagesStep";
 import { PairingStep } from "../components/styleQuiz/PairingStep";
+import { PalettesStep } from "../components/styleQuiz/PalettesStep";
 import { QuizActions } from "../components/styleQuiz/QuizActions";
 import { WeeklyStep } from "../components/styleQuiz/WeeklyStep";
 import { Button, ChoiceCard, Message, Screen } from "../components/ui";
@@ -20,6 +21,10 @@ const STEP_TITLES = {
   images: {
     title: "Select all that apply",
     subtitle: "Pick every image that feels like you.",
+  },
+  palettes: {
+    title: "Pick the colours you love",
+    subtitle: "Outfits in these palettes will be suggested first. You can skip this and change it later.",
   },
   weekly: {
     title: "What do you wear through the week?",
@@ -59,6 +64,8 @@ export default function StyleQuizScreen() {
       )}
 
       {quiz.step === "images" && <ImagesStep quiz={quiz} />}
+
+      {quiz.step === "palettes" && <PalettesStep quiz={quiz} />}
 
       {quiz.step === "pairing" && <PairingStep quiz={quiz} />}
 

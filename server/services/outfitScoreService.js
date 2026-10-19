@@ -4,9 +4,10 @@
 //
 //  - A pair's score is its baseline (matrix file) plus the user's personal
 //    adjustment, kept between 0 and 100.
-//  - An automatic outfit's score is a blend of its pair scores and a score
-//    for how many colours it has, given the user's colour level (see
-//    constants/scoring.js), worked out once when the match is created.
+//  - An automatic outfit's score is a blend of its pair scores and its
+//    colour score (colour count, palette tier, favourite palettes, bright
+//    colours - see constants/scoring.js), worked out once when the match is
+//    created.
 //
 // Scores never decide whether items can be matched - that's
 // matrixService.isCompatible, which never reads personal adjustments.
@@ -17,12 +18,16 @@ const {
   MAX_SCORE,
   AVERAGE_PAIR_WEIGHT,
   LOWEST_PAIR_WEIGHT,
+  MIN_PAIR_SCORE,
   PAIR_SCORE_WEIGHT,
   COLOUR_SCORE_WEIGHT,
   COLOUR_COUNT_SCORES,
+  PALETTE_TIER_SCORES,
+  FAVOURITE_PALETTE_BONUS,
+  BRIGHT_COLOUR_ADJUSTMENTS,
   SINGLE_ITEM_SCORE,
 } = require("../constants/scoring.js");
-const { DEFAULT_COLOUR_LEVEL } = require("../utils/colorPalettes.js");
+const { allPalettes, paletteFits, BRIGHT_COLOURS } = require("../utils/colorPalettes.js");
 
 function clampScore(value) {
   return Math.min(MAX_SCORE, Math.max(MIN_SCORE, value));
@@ -50,18 +55,68 @@ function getPairScore(baselineMatrix, adjustments, subtypeA, subtypeB) {
   return clampScore(baseline + adjustment);
 }
 
-// Score for the outfit's number of distinct colours at the user's colour
-// level. Counts past the end of the level's list use its last entry.
-function computeColourScore(items, colourLevel) {
-  const scores = COLOUR_COUNT_SCORES[colourLevel] || COLOUR_COUNT_SCORES[DEFAULT_COLOUR_LEVEL];
-  const colourCount = new Set(items.flatMap((item) => item.colors || [])).size;
-  const index = Math.min(Math.max(colourCount, 1), scores.length) - 1;
-
-  return scores[index];
+function distinctColours(items) {
+  return [...new Set(items.flatMap((item) => item.colors || []))];
 }
 
-// 70% average + 30% lowest of every scoreable pair, not rounded. Null for
-// an outfit with no scoreable pairs (a single item).
+// The entry for `count` in a per-level list, using the last entry for
+// anything past the end.
+function entryFor(list, count) {
+  return list[Math.min(count, list.length - 1)];
+}
+
+// Score for the outfit's number of distinct colours at the user's colour
+// level.
+function computeColourCountScore(colours, level) {
+  return entryFor(COLOUR_COUNT_SCORES[level], Math.max(colours.length, 1) - 1);
+}
+
+// Best tier score among the level's palettes the colours fit. 0 if they fit
+// none (the palette check means an automatic outfit always fits one).
+function computePaletteTierScore(colours, colorRules) {
+  const tierScores = PALETTE_TIER_SCORES[colorRules.level];
+
+  return colorRules.palettes
+    .filter((palette) => paletteFits(palette, colours))
+    .reduce((best, palette) => Math.max(best, tierScores[palette.tier]), 0);
+}
+
+// FAVOURITE_PALETTE_BONUS if the colours fit one of the user's favourite
+// palettes, whichever levels that palette is used at.
+function computeFavouriteBonus(colours, favouritePalettes = []) {
+  const favourites = new Set(favouritePalettes);
+  const fitsFavourite = allPalettes.some(
+    (palette) => favourites.has(palette.id) && paletteFits(palette, colours)
+  );
+
+  return fitsFavourite ? FAVOURITE_PALETTE_BONUS : 0;
+}
+
+function computeBrightAdjustment(colours, level) {
+  const brightCount = colours.filter((colour) => BRIGHT_COLOURS.includes(colour)).length;
+
+  return entryFor(BRIGHT_COLOUR_ADJUSTMENTS[level], brightCount);
+}
+
+// Average of the colour-count and palette tier scores, plus the favourite
+// bonus and bright-colour adjustment, kept between 0 and 100. Not rounded.
+// `colorRules` is the user's resolved level (utils/colorPalettes.js
+// getColorRules).
+function computeColourScore(items, colorRules, favouritePalettes = []) {
+  const colours = distinctColours(items);
+  const { level } = colorRules;
+
+  const average =
+    (computeColourCountScore(colours, level) + computePaletteTierScore(colours, colorRules)) / 2;
+
+  return clampScore(
+    average + computeFavouriteBonus(colours, favouritePalettes) + computeBrightAdjustment(colours, level)
+  );
+}
+
+// 70% average + 30% lowest of every scoreable pair, not rounded - unless a
+// pair is below MIN_PAIR_SCORE, in which case it's that pair's score. Null
+// for an outfit with no scoreable pairs (a single item).
 function computePairBlend(items, baselineMatrix, adjustments) {
   const pairScores = [];
 
@@ -82,33 +137,42 @@ function computePairBlend(items, baselineMatrix, adjustments) {
   const average = pairScores.reduce((sum, score) => sum + score, 0) / pairScores.length;
   const lowest = Math.min(...pairScores);
 
+  if (lowest < MIN_PAIR_SCORE) {
+    return lowest;
+  }
+
   return average * AVERAGE_PAIR_WEIGHT + lowest * LOWEST_PAIR_WEIGHT;
+}
+
+// The final score for a pair blend and colour score, rounded.
+function combineScores(pairBlend, colourScore) {
+  return Math.round(pairBlend * PAIR_SCORE_WEIGHT + colourScore * COLOUR_SCORE_WEIGHT);
 }
 
 // Pair blend weighted with the colour score, rounded to a whole number. An
 // outfit with no scoreable pairs (a single item) gets SINGLE_ITEM_SCORE,
-// with no colour score. Pass `pairBlend` if it's already been worked out.
-function computeOutfitScore(
-  items,
-  baselineMatrix,
-  adjustments,
-  colourLevel,
-  pairBlend = computePairBlend(items, baselineMatrix, adjustments)
-) {
+// with no colour score. `context` is matchService's matching context
+// ({ baselineMatrix, adjustments, colorRules, favouritePalettes }).
+function computeOutfitScore(items, context) {
+  const pairBlend = computePairBlend(items, context.baselineMatrix, context.adjustments);
+
   if (pairBlend === null) {
     return SINGLE_ITEM_SCORE;
   }
 
-  const colourScore = computeColourScore(items, colourLevel);
-
-  return Math.round(pairBlend * PAIR_SCORE_WEIGHT + colourScore * COLOUR_SCORE_WEIGHT);
+  return combineScores(pairBlend, computeColourScore(items, context.colorRules, context.favouritePalettes));
 }
 
 module.exports = {
   clampScore,
   clampAdjustment,
   getPairScore,
+  computeColourCountScore,
+  computePaletteTierScore,
+  computeFavouriteBonus,
+  computeBrightAdjustment,
   computeColourScore,
   computePairBlend,
+  combineScores,
   computeOutfitScore,
 };

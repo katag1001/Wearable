@@ -192,6 +192,10 @@ const preferencesSchema = new mongoose.Schema({
   pattern: { type: String, enum: ["max", "mid", "min"], default: null },
   temperature: { type: String, enum: ["cold", "hot", "normal"], default: null },
 
+  // Palette ids (shared/colorPalettes.json) the user likes - automatic
+  // outfits that fit one score FAVOURITE_PALETTE_BONUS higher.
+  favouritePalettes: { type: [String], default: [] },
+
 });
 
 /* -------------------- MATCH SCORE -------------------- */

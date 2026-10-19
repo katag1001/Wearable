@@ -8,6 +8,7 @@ import { asksPairingQuestions } from "./quizSteps.js";
 export const buildQuizPreferences = ({
   gender,
   selectedImages,
+  favouritePalettes,
   pairingAnswers,
   weeklyTags,
   temperature,
@@ -19,6 +20,7 @@ export const buildQuizPreferences = ({
     colour,
     pattern,
     temperature,
+    favouritePalettes,
     // Only sent for genders that were asked the pairing questions.
     ...(asksPairingQuestions(gender) && { pairingAnswers }),
     // Only the days picked, so retaking the quiz never clears a day

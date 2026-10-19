@@ -1,9 +1,11 @@
-// api/services/styleColorService.js
+// server/services/styleColorService.js
 //
 // Pure pattern and colour checks for a finished candidate outfit's items.
 // No DB access here. These are the two checks that (along with the matrix
 // clique check in matrixService) make up validateOutfit's gate for
 // auto-generated candidates - never applied to user-made outfits.
+
+const { paletteFits } = require("../utils/colorPalettes.js");
 
 // Counts items whose styles include "patterned", case-insensitively -
 // addUpdateClothes.jsx stores it as "Patterned".
@@ -18,7 +20,7 @@ function passesPatternCheck(items) {
 
 // `colorRules` is the caller's already-resolved { palettes, maxColors } for
 // their own Preferences.colour level (min/mid/max) - see
-// api/utils/colorPalettes.js. An outfit must both fit within one shared
+// server/utils/colorPalettes.js. An outfit must both fit within one shared
 // palette AND stay within the level's distinct-colour-count cap
 // (maxColors === null means no cap).
 function passesColorCheck(items, colorRules) {
@@ -28,9 +30,7 @@ function passesColorCheck(items, colorRules) {
     return false;
   }
 
-  return colorRules.palettes.some((palette) =>
-    combinedColors.every((color) => palette.includes(color))
-  );
+  return colorRules.palettes.some((palette) => paletteFits(palette, combinedColors));
 }
 
 module.exports = { passesPatternCheck, passesColorCheck };

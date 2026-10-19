@@ -6,16 +6,19 @@ import { pairingQuestions } from "../constants/pairingQuestions.js";
 import { styleImageOptions } from "../constants/styleQuizOptions.js";
 import { buildQuizPreferences } from "../styleQuiz/quizAnswers.js";
 import { getQuizSteps } from "../styleQuiz/quizSteps.js";
+import { favouritePaletteOptions, toggleFavouritePalette } from "../utils/colourPalettes.js";
+import { resolveStyleQuiz } from "../utils/resolveStyleQuiz.js";
 
 /*
- * The style quiz a new user takes: gender → style images → pairing
- * questions (some genders only) → weekly tags → temperature, which saves
+ * The style quiz a new user takes: gender → style images → favourite
+ * palettes → pairing questions (some genders only) → weekly tags → temperature, which saves
  * everything. `onComplete` runs once the answers are saved.
  */
 export const useStyleQuiz = ({ onComplete } = {}) => {
   const [step, setStep] = useState("gender");
   const [gender, setGender] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [favouritePalettes, setFavouritePalettes] = useState([]);
   const [pairingAnswers, setPairingAnswers] = useState({});
   const [pairingIndex, setPairingIndex] = useState(0);
   const [weeklyTags, setWeeklyTags] = useState(emptyWeeklyTags);
@@ -57,6 +60,18 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
     );
 
     setError("");
+  };
+
+  /* -------------------- Favourite palettes -------------------- */
+  // Optional. Offered at the colour level the style images give.
+
+  const paletteOptions = favouritePaletteOptions(
+    resolveStyleQuiz(selectedImages).colour,
+    favouritePalettes
+  );
+
+  const togglePalette = (id) => {
+    setFavouritePalettes((current) => toggleFavouritePalette(current, id));
   };
 
   /* -------------------- Pairing questions -------------------- */
@@ -104,6 +119,7 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
         buildQuizPreferences({
           gender,
           selectedImages,
+          favouritePalettes,
           pairingAnswers,
           weeklyTags,
           temperature,
@@ -131,6 +147,10 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
     imageOptions,
     selectedImages,
     toggleImage,
+
+    paletteOptions,
+    favouritePalettes,
+    togglePalette,
 
     pairingQuestion,
     pairingAnswer: pairingAnswers[pairingQuestion.key],

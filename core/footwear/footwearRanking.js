@@ -2,6 +2,7 @@ import footwearMatrices from "../../shared/footwearMatrices.json";
 import footwearScoring from "../../shared/footwearScoring.json";
 import colorPalettes from "../../shared/colorPalettes.json";
 import { FOOTWEAR_WEATHER_RULES } from "../constants/footwearWeather.js";
+import { palettesForLevel, resolveColourLevel } from "../utils/colourPalettes.js";
 import {
   ADD_COLOUR_UP_TO,
   COLOUR_POINTS,
@@ -90,16 +91,15 @@ export const getWeatherPoints = (footwearSubtype, weather) => {
 
 /* -------------------- Colour + pattern -------------------- */
 
-export const resolveColourLevel = (level) =>
-  colorPalettes.palettes[level] ? level : colorPalettes.defaultLevel;
+export { resolveColourLevel };
 
 const fitsAPalette = (colors, palettes) =>
-  palettes.some((palette) => colors.every((color) => palette.includes(color)));
+  palettes.some((palette) => colors.every((color) => palette.colours.includes(color)));
 
 // { fits, points } for one shoe against the outfit's colours. `fits` is
 // false when outfit + shoe break the level's palettes or colour cap.
 export const getColourResult = (item, outfitColors = [], level) => {
-  const palettes = colorPalettes.palettes[level];
+  const palettes = palettesForLevel(level);
   const maxColors = colorPalettes.maxColors[level];
 
   const shoeColors = item.colors || [];

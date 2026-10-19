@@ -23,6 +23,7 @@ const {
 } = require("../services/matchScoreService.js");
 const { USER_MADE_SCORE } = require("../constants/scoring.js");
 const { applyPairingAnswers } = require("../services/pairingQuizService.js");
+const { cleanFavouritePalettes } = require("../utils/colorPalettes.js");
 const {
   findPage,
   parseIdList,
@@ -1118,6 +1119,7 @@ exports.updatePreferences = async (req, res) => {
       colour,
       pattern,
       temperature,
+      favouritePalettes,
       pairingAnswers,
     } = req.body;
 
@@ -1148,6 +1150,7 @@ exports.updatePreferences = async (req, res) => {
           colour,
           pattern,
           temperature,
+          favouritePalettes: cleanFavouritePalettes(favouritePalettes),
         },
         $setOnInsert: {
           userId,

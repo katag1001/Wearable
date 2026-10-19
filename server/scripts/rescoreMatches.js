@@ -29,9 +29,9 @@ require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 const { Match } = require("../models/AllModels.js");
 const { computePresetTemperatureRange } = require("../services/presetTemperatureService.js");
 const { computeOutfitScore } = require("../services/outfitScoreService.js");
+const { buildMatchingContext } = require("../services/matchService.js");
 const {
   getUserMatchingPreferences,
-  getBaselineMatrix,
   loadUserAdjustments,
 } = require("../services/matchScoreService.js");
 const { MIN_SCORE, REJECTION_SCORE_PENALTY } = require("../constants/scoring.js");
@@ -42,12 +42,12 @@ function argValue(name) {
 }
 
 async function loadUserContext(userId) {
-  const [{ gender, colour, temperature }, adjustments] = await Promise.all([
+  const [preferences, adjustments] = await Promise.all([
     getUserMatchingPreferences(userId),
     loadUserAdjustments(userId),
   ]);
 
-  return { baselineMatrix: getBaselineMatrix(gender), colour, temperature, adjustments };
+  return buildMatchingContext({ ...preferences, adjustments });
 }
 
 async function run() {
@@ -71,16 +71,16 @@ async function run() {
         contexts.set(userKey, await loadUserContext(match.userId));
       }
 
-      const { baselineMatrix, colour, temperature, adjustments } = contexts.get(userKey);
+      const context = contexts.get(userKey);
       const items = match.clothes.filter(Boolean);
 
-      const { min_temp, max_temp } = computePresetTemperatureRange(items, temperature);
+      const { min_temp, max_temp } = computePresetTemperatureRange(items, context.temperaturePreference);
 
       const score = match.userMade
         ? match.score
         : Math.max(
           MIN_SCORE,
-          computeOutfitScore(items, baselineMatrix, adjustments, colour) -
+          computeOutfitScore(items, context) -
             (match.rejectedCount || 0) * REJECTION_SCORE_PENALTY
         );
 

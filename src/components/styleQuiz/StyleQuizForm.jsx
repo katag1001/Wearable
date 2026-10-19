@@ -6,6 +6,7 @@ import {
 import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
 import WeeklyTagStep from "./WeeklyTagStep";
 import PairingQuestionStep from "./PairingQuestionStep";
+import PalettePicker from "../preferences/PalettePicker";
 import "./styleQuizForm.css";
 
 // The quiz logic lives in useStyleQuiz (core/hooks/useStyleQuiz.js),
@@ -115,6 +116,42 @@ const StyleQuizForm = ({ onComplete }) => {
               disabled={selectedImages.length === 0}
             >
               Next
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === "palettes" && (
+        <div className="style-quiz-step">
+          <div className="style-quiz-header">
+            <h2 className="page-title">Pick the colours you love</h2>
+            <p className="page-subtitle">
+              Outfits in these palettes will be suggested first. You can skip
+              this and change it later.
+            </p>
+          </div>
+
+          <PalettePicker
+            palettes={quiz.paletteOptions}
+            selected={quiz.favouritePalettes}
+            onToggle={quiz.togglePalette}
+          />
+
+          <div className="style-quiz-actions">
+            <button
+              type="button"
+              className="style-quiz-back-button"
+              onClick={goBack}
+            >
+              Back
+            </button>
+
+            <button
+              type="button"
+              className="style-quiz-finish-button"
+              onClick={goToNextStep}
+            >
+              {quiz.favouritePalettes.length ? "Next" : "Skip"}
             </button>
           </div>
         </div>

@@ -8,8 +8,8 @@
 // previously-saved matches - every candidate is assembled and validated as
 // a complete whole before anything is saved.
 //
-// Every check used for pruning here (fixed compatibility, colour, pattern,
-// season, tags) is monotonic: once violated by a partial item-set, it can never
+// Every check used for pruning here (fixed compatibility, the lowest pair
+// score, colour, pattern, season, tags) is monotonic: once violated by a partial item-set, it can never
 // be satisfied again by adding more items. That's what makes it safe to
 // check all of them as early as possible, incrementally, during the search
 // itself - not just after a full candidate is assembled:
@@ -19,19 +19,25 @@
 //      skipped before any search work starts.
 //   2. Per-candidate shape check: a pool candidate that can't fill its slot
 //      for the same reasons is skipped the moment it's considered.
-//   3. Incremental compatibility + colour + pattern + season + tag checks: every
-//      time a candidate is added, the growing partial item-set is
-//      re-checked; a dead branch is abandoned immediately.
+//   3. Incremental compatibility + lowest pair score + colour + pattern +
+//      season + tag checks: every time a candidate is added, the growing
+//      partial item-set is re-checked; a dead branch is abandoned
+//      immediately. A pair below MIN_PAIR_SCORE (constants/scoring.js) can
+//      never leave the set again, so it ends the branch like an
+//      incompatible pair does.
 // Temperature never rejects a candidate - every outfit's range is worked
 // out from its subtypes (presetTemperatureService.js) once it's chosen.
 // validateOutfit is still called on each survivor as a cheap final safety
 // net, even though by construction it should always pass.
 //
-// Choosing what to save: every item-set the search finds is scored
-// (outfitScoreService.computeOutfitScore). Those scoring below
-// MIN_AUTO_MATCH_SCORE, or whose pair blend is below MIN_AUTO_PAIR_SCORE
-// (constants/scoring.js), are dropped, and only the
-// best MAX_NEW_MATCHES_PER_ITEM that aren't already saved are kept.
+// Choosing what to save: every item-set the search finds is scored the
+// moment it's complete. One whose pair blend or colour score
+// (outfitScoreService.js) is below MIN_AUTO_SCORE (constants/scoring.js) is
+// dropped there and then - adding items can raise either score, so neither
+// can prune a partial set. The final score of every survivor is a weighted
+// average of the two, so it's at least MIN_AUTO_SCORE too. A onepiece on its
+// own has no pairs and isn't checked. Only the best
+// MAX_NEW_MATCHES_PER_ITEM that aren't already saved are kept.
 //
 // Search limits: the search stops after MAX_COMBINATIONS_EXPLORED candidate
 // considerations or SEARCH_TIME_LIMIT_MS, whichever comes first, shared
@@ -61,13 +67,18 @@ const { OUTFIT_SHAPES, ROLES } = require("../constants/outfitShapes.js");
 const { getLayeringRules } = require("../constants/requiresLayering.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
 const { isCompatible, fitsShape } = require("./matrixService.js");
-const { computePairBlend, computeOutfitScore } = require("./outfitScoreService.js");
+const {
+  getPairScore,
+  computePairBlend,
+  computeColourScore,
+  combineScores,
+} = require("./outfitScoreService.js");
 const { passesPatternCheck, passesColorCheck } = require("./styleColorService.js");
 const { describeOutfit, validateOutfit, hasSharedSeason } = require("./outfitEvaluator.js");
 const { hasSharedTag } = require("./helpers.js");
 const { clothesKey } = require("../utils/clothesKey.js");
 const { msUntilDeadline } = require("../utils/functionDeadline.js");
-const { MIN_AUTO_MATCH_SCORE, MIN_AUTO_PAIR_SCORE } = require("../constants/scoring.js");
+const { MIN_AUTO_SCORE, MIN_PAIR_SCORE, SINGLE_ITEM_SCORE } = require("../constants/scoring.js");
 const {
   getUserMatchingPreferences,
   getBaselineMatrix,
@@ -116,6 +127,7 @@ function buildMatchingContext({
   gender,
   colour = null,
   temperature = null,
+  favouritePalettes = [],
   adjustments = new Map(),
 }) {
   return {
@@ -123,8 +135,42 @@ function buildMatchingContext({
     adjustments,
     layeringRules: getLayeringRules(gender),
     colorRules: getColorRules(colour),
+    favouritePalettes,
     temperaturePreference: temperature,
   };
+}
+
+// Whether `candidate` can join `items`: compatible with every one of them,
+// and no pair scoring below MIN_PAIR_SCORE.
+function pairsWithAll(items, candidate, { baselineMatrix, adjustments }) {
+  return items.every(
+    (item) =>
+      isCompatible(baselineMatrix, item, candidate) &&
+      getPairScore(baselineMatrix, adjustments, item.subtype, candidate.subtype) >= MIN_PAIR_SCORE
+  );
+}
+
+// The saved score for a finished item-set, or null if its pair blend or
+// colour score is below MIN_AUTO_SCORE. A single item has no pairs and
+// gets SINGLE_ITEM_SCORE.
+function scoreItemSet(itemSet, context) {
+  const pairBlend = computePairBlend(itemSet, context.baselineMatrix, context.adjustments);
+
+  if (pairBlend === null) {
+    return SINGLE_ITEM_SCORE;
+  }
+
+  if (pairBlend < MIN_AUTO_SCORE) {
+    return null;
+  }
+
+  const colourScore = computeColourScore(itemSet, context.colorRules, context.favouritePalettes);
+
+  if (colourScore < MIN_AUTO_SCORE) {
+    return null;
+  }
+
+  return combineScores(pairBlend, colourScore);
 }
 
 // A partial (or complete) item-set is still "alive" only if it could still
@@ -143,11 +189,12 @@ function isStillViable(items, colorRules) {
 
 // Backtracking search across the 4 roles for one shape. Prunes the moment a
 // candidate is incompatible with anything chosen so far (including
-// newItem), can't fill its slot in the shape, or breaks colour, pattern,
+// newItem), pairs with any of it below MIN_PAIR_SCORE, can't fill its slot
+// in the shape, or breaks colour, pattern,
 // season or tags - see the file header for why this is safe. `budget` is shared
 // across every shape in one processMatches run.
 function findShapeCombinations(newItem, shape, pools, context, budget) {
-  const { baselineMatrix, layeringRules, colorRules } = context;
+  const { layeringRules, colorRules } = context;
   const needed = {};
 
   for (const role of ROLES) {
@@ -213,11 +260,7 @@ function findShapeCombinations(newItem, shape, pools, context, budget) {
           continue;
         }
 
-        const incompatibleWith = soFar.find(
-          (item) => !isCompatible(baselineMatrix, item, candidate)
-        );
-
-        if (incompatibleWith) {
+        if (!pairsWithAll(soFar, candidate, context)) {
           continue;
         }
 
@@ -240,9 +283,8 @@ function findShapeCombinations(newItem, shape, pools, context, budget) {
 const dedupeKey = clothesKey;
 
 // Searches every shape with a slot for newItem's role, scores every
-// item-set found, and returns up to `limit` saveable match descriptions
-// scoring at least `minScore` (with a pair blend of at least
-// `minPairScore`), best score first. Item-sets already saved
+// item-set found (dropping any scoreItemSet rejects), and returns up to
+// `limit` saveable match descriptions, best score first. Item-sets already saved
 // (`existingKeys`) are skipped, as is any describeOutfit rejects - the
 // next best one takes their place.
 function findCandidateMatches(
@@ -252,8 +294,6 @@ function findCandidateMatches(
   {
     existingKeys = new Set(),
     limit = MAX_NEW_MATCHES_PER_ITEM,
-    minScore = MIN_AUTO_MATCH_SCORE,
-    minPairScore = MIN_AUTO_PAIR_SCORE,
     budget = createBudget(),
   } = {}
 ) {
@@ -266,18 +306,11 @@ function findCandidateMatches(
     }
 
     findShapeCombinations(newItem, shape, pools, context, budget).forEach((itemSet) => {
-      const pairBlend = computePairBlend(itemSet, context.baselineMatrix, context.adjustments);
+      const score = scoreItemSet(itemSet, context);
 
-      if (pairBlend !== null && pairBlend < minPairScore) {
-        return;
+      if (score !== null) {
+        scoredItemSets.push({ itemSet, score });
       }
-
-      scoredItemSets.push({
-        itemSet,
-        score: computeOutfitScore(
-          itemSet, context.baselineMatrix, context.adjustments, context.colorRules.level, pairBlend
-        ),
-      });
     });
   });
 
@@ -288,8 +321,7 @@ function findCandidateMatches(
   const seenKeys = new Set(existingKeys);
 
   for (const { itemSet, score } of scoredItemSets) {
-    // Sorted best first, so nothing after this scores high enough either.
-    if (candidates.length >= limit || score < minScore) {
+    if (candidates.length >= limit) {
       break;
     }
 
@@ -334,13 +366,13 @@ async function processMatches(newItem, allItems) {
 
   const wardrobe = allItems || (await Clothes.find({ userId: newItem.userId }));
 
-  const [{ gender, colour, temperature }, adjustments, existingMatches] = await Promise.all([
+  const [{ gender, colour, temperature, favouritePalettes }, adjustments, existingMatches] = await Promise.all([
     getUserMatchingPreferences(newItem.userId),
     loadUserAdjustments(newItem.userId),
     Match.find({ userId: newItem.userId }).select("clothesKey"),
   ]);
 
-  const context = buildMatchingContext({ gender, colour, temperature, adjustments });
+  const context = buildMatchingContext({ gender, colour, temperature, favouritePalettes, adjustments });
   const existingKeys = new Set(existingMatches.map((match) => match.clothesKey));
 
   const budget = createBudget({
@@ -390,6 +422,8 @@ module.exports = {
   findCandidateMatches,
   buildMatchingContext,
   buildRolePools,
+  scoreItemSet,
+  pairsWithAll,
   createBudget,
   findShapeCombinations,
   isStillViable,

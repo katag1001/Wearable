@@ -33,6 +33,7 @@ export const formatMissingFields = (fields) => {
 const COLOR_NAME_ALIASES = {
   beige: "Cream",
   lavender: "Lilac",
+  maroon: "Burgundy",
 };
 
 export const detectFromName = (name) => {

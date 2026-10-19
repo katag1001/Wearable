@@ -58,7 +58,7 @@ test("passesColorCheck: 'max' level has no colour-count cap", () => {
   const maxRules = getColorRules("max");
 
   const items = [
-    { colors: ["Cream", "Camel", "Tan", "White", "Gold", "Olive Green", "Brown", "Green"] },
+    { colors: ["Cream", "Camel", "Tan", "White", "Gold", "Olive Green", "Brown", "Peach"] },
   ];
 
   // 8 distinct colours, all from one real palette - should pass under

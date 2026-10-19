@@ -40,16 +40,19 @@ In short:
   layering rules, colour palette, pattern limit, a shared season and a
   shared tag.
   Temperature never rejects an outfit - each match gets a preset range from
-  its subtypes. Every candidate gets a **score (0-100)** from its item pairs
-  and its number of colours, and only the **best** new ones are saved.
+  its subtypes. Every candidate gets a **pair score** and a **colour score**
+  (number of colours, how classic or bold its palette is, the user's
+  favourite palettes, bright colours). If either is below 65, or any one
+  pair is below 50, it's dropped. The rest get a **score (0-100)** from both,
+  and only the **best** new ones are saved.
 - **Compatibility is fixed.** Role rules plus the gender's matrix decide
   whether two items can ever be in the same outfit. User behaviour never
   changes it.
 - The **matrix** used depends on the user's gender. The **colour palettes**,
-  colour cap and colour-count score depend on their colour level. Both come
-  from the style quiz.
+  colour cap and colour score depend on their colour level. Both come
+  from the style quiz, as do the user's favourite palettes.
 - User-made outfits are **never rejected** and always score 90. Building
-  one (+5), favouriting (+3) or deleting any outfit (−0.25) adjusts the user's
+  one (+1), favouriting (+0.5) or deleting any outfit (−0.25) adjusts the user's
   personal score for every compatible subtype pair in it. That changes
   how future automatic outfits are **scored and ranked**, never whether
   they are allowed.
@@ -295,13 +298,18 @@ If any of `gender`, `colour`, `pattern` or `temperature` is missing, or no
 preferences exist yet (404), `StyleQuizGate` redirects every gated page to
 `/style-quiz`.
 
-The quiz has four steps, plus pairing questions for women and unisex:
+The quiz has four steps, plus favourite palettes, and pairing questions for
+women and unisex:
 
 1. **"How do you usually dress?"**: More feminine → `woman`, More unisex →
    `unisex`, More masculine → `man`. Saved as `gender`.
 2. **"Select all that apply"**: a grid of style images. Only images whose
    `gender` list includes the chosen gender are shown. At least one image
    must be picked.
+   - **"Pick the colours you love"** (`PalettePicker.jsx`): the palettes at
+     the colour level the images give (2.2), classic first, as swatches.
+     Optional - pick any number, or skip. Saved as `favouritePalettes`
+     (palette ids). See 3.10.
    - **Pairing questions** (`woman` and `unisex` only,
      `PairingQuestionStep.jsx`): one Yes / Sometimes / No question per
      screen, each with a row of images. See 2.6.
@@ -346,7 +354,8 @@ Example: a woman picks fun1, classic2 and fashion3.
 - colour: max 1, min 2 → **min**
 - pattern: max 2, mid 1 → **max**
 
-`PUT /preferences` is sent with `{ gender, colour, pattern, temperature }`.
+`PUT /preferences` is sent with `{ gender, colour, pattern, temperature,
+favouritePalettes }`.
 
 ### 2.3 Changing preferences later
 
@@ -355,6 +364,11 @@ temperature, and optionally re-pick images. Colour and pattern are only
 re-calculated and sent **if at least one image is selected**. Otherwise
 they stay as they were. Unlike the quiz, this page shows all 9 images
 regardless of gender.
+
+It also shows the **favourite palettes** ("Colours you love"), loaded from
+the saved preferences. The palettes offered are the newly picked images'
+colour level, or the saved level if no images are picked, plus any palette
+already picked from another level. The whole list is sent on every save.
 
 For `woman` and `unisex` (the gender currently picked on the page) it
 also shows the pairing questions (2.6) under their section headings,
@@ -375,7 +389,8 @@ affects items added and outfits matched afterwards.
 | Preference | Values | Used for | Where |
 |---|---|---|---|
 | `gender` | man / woman / unisex | Which subtype list the add form shows. Which matrix is used. Which layering lists are used. | `typeOptions.jsx`, `getBaselineMatrix`, `getLayeringRules` |
-| `colour` | min / mid / max | Which colour palette list is used, the colour-count cap, and the colour-count score (3.10) | `getColorRules`, `computeColourScore` |
+| `colour` | min / mid / max | Which colour palette list is used, the colour-count cap, and the colour score (3.10) | `getColorRules`, `computeColourScore` |
+| `favouritePalettes` | palette ids | Outfits fitting one get +10 on their colour score (3.10). Unknown ids are dropped on save (`cleanFavouritePalettes`) | `computeFavouriteBonus` |
 | `pattern` | min / mid / max | **Saved and required by the quiz gate, but not used by matching.** The pattern rule is the same for everyone (3.7). | - |
 | `temperature` | cold / normal / hot | Shifts every new match's temperature range ±2° | `temperature-ranges.md` |
 | `pairingAnswers` (quiz only, not stored) | question key → yes / sometimes / no | Sets the starting personal adjustment of the question's pairs (2.6) | `pairingQuizService.js` |
@@ -418,11 +433,9 @@ pair score stays within 0-100, and **No takes the pair score to 0**.
 Retaking the quiz overwrites those pairs again. Pairs the matrix doesn't
 allow (`null`) are skipped, so an answer never changes compatibility.
 
-"No" has to go all the way to 0 because one low pair is diluted by the
-outfit's other pairs: at −40, a shirt + vest outfit with a bottom and a
-coat still scored 65-74 and was saved. At 0 the pair blend can't reach
-60 (4.5) even if every other pair is 100, so the outfit is never
-suggested automatically. It can still be built by hand, and building or
+"No" goes all the way to 0, below `MIN_PAIR_SCORE` (50), so the search
+drops any outfit with that pair (4.4) and it's never suggested
+automatically. It can still be built by hand, and building or
 favouriting it lifts the pair again. The answers are applied after a gender-change wipe, so they
 survive a gender change made in the same save; a later gender change
 deletes them with every other adjustment. Men are never asked, and the
@@ -540,25 +553,40 @@ can't change:
 
 ### 3.6 Colour rules
 
-`shared/colorPalettes.json` (read by `server/utils/colorPalettes.js`) holds a separate palette list for each
-colour level:
+`shared/colorPalettes.json` (read by `server/utils/colorPalettes.js` and,
+in the browser and app, `core/utils/colourPalettes.js`) holds one list of
+palettes. Each is `{ id, tier, levels, colours }`:
 
-| Level | Palettes | Palette size | Max distinct colours in an outfit |
-|---|---|---|---|
-| min | 28 | 2–7 | 4 |
-| mid | 51 | 4–7 | 6 |
-| max | 51 | 4–8 | no cap |
+- `id`: stable name. Users' `favouritePalettes` point at it, so an id must
+  never change once it's live.
+- `tier`: `classic`, `common` or `bold` - only affects the score (3.10).
+- `levels`: which colour levels use it.
+- `colours`: names from `colorOptions`.
+
+| Level | Palettes | Max distinct colours in an outfit |
+|---|---|---|
+| min | 35 | 4 |
+| mid | 58 | 6 |
+| max | 58 | no cap |
 
 An outfit passes if **all of its colours together fit inside at least one
-palette**, and the number of distinct colours is within the cap.
+of its level's palettes**, and the number of distinct colours is within
+the cap. This is pass/fail; the tiers only rank outfits that pass.
 
 A palette can be bigger than its level's cap. The cap limits how many of
 its colours one outfit uses, not the size of the palette.
 
 The levels only grow: every `min` palette fits inside some `mid` palette,
-and every `mid` palette fits inside some `max` palette. No palette fits
-inside another one at the same level (it would be redundant), and every
-palette colour is one the user can pick (`colorOptions`).
+and every `mid` palette fits inside some `max` palette. A palette *can*
+fit inside another one - the classic combinations (Navy + Cream + White,
+Brown + Cream/Tan + Olive Green, Light Blue + Grey + White,
+Burgundy + Cream/Tan + Grey, Black + White + Tan) are their own `classic`
+palettes at every level, so an outfit made of just those colours gets the
+classic score even where a bigger palette also contains them.
+
+The server refuses to start if a palette has a duplicate id, an unknown
+tier or level, or no colours (`checkPalettes`). The tests also check every
+colour is in `colorOptions` and the levels only grow.
 
 Colours don't need to be close to each other. They just need to appear
 together in some palette. For example, Red + Orange isn't allowed at `min`,
@@ -598,18 +626,33 @@ claiming it, 5.3, or rejecting it on the Today page, 7.2):
 
 | Match | Score |
 |---|---|
-| Automatic, 2+ items | **60% × pair blend + 40% × colour score**, rounded. Pair blend = 70% × average pair score + 30% × lowest pair score |
-| Automatic, single item (a onepiece alone) | **85** (no colour score) |
+| Automatic, 2+ items | **60% × pair blend + 40% × colour score**, rounded. Only saved if the pair blend and the colour score are **both at least 65** (`MIN_AUTO_SCORE`, 4.5) |
+| Automatic, single item (a onepiece alone) | **85** (no colour score, never dropped) |
 | User-built, or a claimed automatic match (5.3) | **90** |
 
-A **pair score** is the matrix baseline plus the user's personal
-adjustment (Part 6), kept between 0 and 100. The pair blend means one
-clashing pair pulls the whole outfit down: pairs of 80, 80, 80, 80, 80 and
-5 give a pair blend of 0.7 × 67.5 + 0.3 × 5 = 48.75.
+Because the final score is a weighted average of two numbers that are both
+at least 65, every saved automatic outfit scores at least 65.
 
-The **colour score** (`computeColourScore`, numbers in
-`COLOUR_COUNT_SCORES`) rates the outfit's number of **distinct** colours
-against the user's colour level. A colour on several items counts once.
+#### Pair blend
+
+A **pair score** is the matrix baseline plus the user's personal
+adjustment (Part 6), kept between 0 and 100.
+
+**Pair blend** = 70% × average pair score + 30% × lowest pair score - unless
+**any pair is below 50** (`MIN_PAIR_SCORE`), in which case the pair blend
+*is* that pair's score, so the outfit always fails. Without that, one bad
+pair gets diluted: pairs of 90, 90 and 45 would blend to 66 and pass. The
+search drops such an outfit the moment the bad pair appears (4.4).
+
+#### Colour score
+
+`computeColourScore`. A colour on several items counts once.
+
+**colour score = (colour-count score + palette tier score) / 2
++ favourite bonus + bright-colour adjustment**, kept between 0 and 100.
+
+**Colour-count score** (`COLOUR_COUNT_SCORES`) - the outfit's number of
+distinct colours against the user's colour level:
 
 | Colours | min | mid | max |
 |---|---|---|---|
@@ -622,12 +665,46 @@ against the user's colour level. A colour on several items counts once.
 | 7+ | - | - | 45 |
 
 `-` is over that level's colour cap (3.6), so it never reaches scoring.
-With 3 colours at mid, the outfit above would score
-0.6 × 48.75 + 0.4 × 85 = 63, but it is never saved (4.5): its pair blend
-is below 60.
 
-The colour scores are spread widely on purpose (best 85, worst 25) so
-colour can push an outfit under the minimum, not just lift every outfit.
+**Palette tier score** (`PALETTE_TIER_SCORES`) - the best tier among the
+level's palettes the outfit's colours fit. Minimal-colour users are pushed
+to classic combinations, max-colour users to bold ones:
+
+| Tier | min | mid | max |
+|---|---|---|---|
+| classic | 95 | 80 | 60 |
+| common | 60 | 85 | 75 |
+| bold | 30 | 65 | 90 |
+
+**Favourite bonus** (`FAVOURITE_PALETTE_BONUS`): **+10** if the colours fit
+one of the user's `favouritePalettes` - at any level, not only theirs.
+
+**Bright-colour adjustment** (`BRIGHT_COLOUR_ADJUSTMENTS`), by how many of
+the outfit's colours are in `brightColours` (Fuchsia, Lime Green, Red,
+Orange, Yellow, Turquoise - in `shared/colorPalettes.json`). At mid, one
+bright colour is best:
+
+| Bright colours | min | mid | max |
+|---|---|---|---|
+| 0 | 0 | 0 | 0 |
+| 1 | −5 | +5 | 0 |
+| 2+ | −20 | −15 | 0 |
+
+Example at mid: Navy + Cream + Red, fitting only a common palette:
+(85 + 85) / 2 + 5 = 90. At min the same outfit is (85 + 60) / 2 − 5 = 67.5.
+
+How strict the colour check is, counting every colour combination the
+palettes allow (no favourites):
+
+| Colours | min | mid | max |
+|---|---|---|---|
+| 1 | 16 of 27 pass | all 27 | **none** |
+| 2 | 89 of 110 | 153 of 163 | 142 of 213 |
+| 3 | 118 of 133 | 278 of 286 | all 600 |
+| 4 | 57 of 75 | 188 of 195 | all 816 |
+
+A one-colour outfit at max can only pass through the favourite bonus
+((25 + 90) / 2 + 10 = 67.5).
 
 A **favourite is shown and sorted as 100**, without changing the stored
 score - unfavouriting returns the match to its original score.
@@ -656,12 +733,12 @@ for each outfit shape that has a slot for newItem's role:
   findShapeCombinations                      (backtracking search, pruned as it goes)
     each candidate added must pass:
       fits the shape (layering rules) → compatible with every item so far
-      → colour → pattern → season → tag
+      → no pair below 50 → colour → pattern → season → tag
   ▼
-score every item-set found                   (computeOutfitScore;
-                                              pair blend below 60 dropped)
+score every item-set found                   (scoreItemSet; pair blend or
+                                              colour score below 65 dropped)
   ▼
-best score first, until 100,000 are kept or the score drops below 65:
+best score first, until 100,000 are kept:
   skip if already saved
   describeOutfit   → temperature (from subtypes) + season + tag + descriptive fields
   validateOutfit   → final safety re-check (compatibility, layering, pattern, colour)
@@ -675,7 +752,7 @@ Match.insertMany in chunks of 5,000, best first   (stops near the Vercel deadlin
 1. If the item's `type` isn't one of the four roles, stop.
 2. Load in parallel:
    - preferences (`getUserMatchingPreferences`) → gender, colour,
-     temperature;
+     temperature, favourite palettes;
    - personal adjustments (`loadUserAdjustments`) → a `Map` of
      `"A B" → adjustment`;
    - the user's existing matches, as sorted-clothing-id keys.
@@ -710,16 +787,20 @@ For every shape with a slot for the new item's role
    repeats. Each time a candidate is considered:
    1. Stop if the search limits are used up (below).
    2. **Fits the shape** (`fitsShape`), as in step 2.
-   3. **Compatibility.** The candidate must be compatible (`isCompatible`)
-      with **every** item already chosen, including the new item. One
-      incompatible pair rules it out.
+   3. **Compatibility and lowest pair** (`pairsWithAll`). The candidate
+      must be compatible (`isCompatible`) with **every** item already
+      chosen, including the new item, and no pair with them may score
+      below **`MIN_PAIR_SCORE` = 50** (3.10). One such pair rules it out.
    4. **Colour + pattern + season + tag.** The items chosen so far plus the
       candidate must still pass all four (`isStillViable`).
    5. If it passes, choose it and carry on.
 
 These checks are **monotonic**: once a partial outfit fails one, adding more
 items can never make it pass. So a failing branch is dropped immediately
-instead of being built out in full.
+instead of being built out in full. The pair blend and colour score aren't
+monotonic (another item can raise either - e.g. 1 colour → 3 colours at
+min goes from 65 to 85), so they're only checked once an outfit is
+complete (4.5).
 
 **Search limits**, shared across all shapes in one run:
 `MAX_COMBINATIONS_EXPLORED` = 2,000,000 candidate considerations, or
@@ -738,16 +819,15 @@ deadline.
 
 ### 4.5 Choosing and finishing outfits
 
-1. **Score** every item-set found (3.10). An outfit whose **pair blend**
-   (before the colour score) is below **`MIN_AUTO_PAIR_SCORE` = 60** is
-   dropped here, however good its colours, so colour can only rank outfits
-   whose pairs are already good enough. A single item has no pair blend and
-   is never dropped by this.
+1. **Score** every item-set the moment it's complete (`scoreItemSet`,
+   3.10). It's **dropped there and then** if its **pair blend** is below
+   **`MIN_AUTO_SCORE` = 65**, or its **colour score** is below 65 - good
+   colours can't rescue poor pairs, and good pairs can't rescue poor
+   colours. A single item has no pairs or colour score and is never dropped.
+   Every outfit left scores at least 65, so there's no separate check on the
+   final score. Outfits the user builds have no minimum.
 2. Go through them **best score first** (equal scores keep the order they
-   were found in), until **`MAX_NEW_MATCHES_PER_ITEM` = 100,000** are kept,
-   or the score drops below **`MIN_AUTO_MATCH_SCORE` = 65**
-   (`server/constants/scoring.js`). Lower-scoring outfits are never saved
-   automatically; outfits the user builds have no minimum.
+   were found in), until **`MAX_NEW_MATCHES_PER_ITEM` = 100,000** are kept.
    1. Skip it if the same set of clothes is already saved, or already
       kept in this run.
    2. **`describeOutfit(items, { isUserMade: false, temperaturePreference })`**
@@ -820,7 +900,7 @@ Files: `src/components/matches/createMatch.jsx`, `createMatch` in
    - Tags are never a reason to reject it. The outfit gets the tags every
      item shares; with none shared it's saved with no tags.
 3. Saved with `userMade: true` and **`score: 90`**.
-4. **Learning:** `recordOutfitCreated` adds **+5** to every compatible pair
+4. **Learning:** `recordOutfitCreated` adds **+1** to every compatible pair
    in the outfit (Part 6).
 
 ### 5.3 Rebuilding an existing outfit
@@ -828,7 +908,7 @@ Files: `src/components/matches/createMatch.jsx`, `createMatch` in
 - **Already user-made** → 409 "Match already exists."
 - **An automatic match** → the user **claims** it: it becomes
   `userMade: true`, its score changes to **90**, and `recordOutfitClaimed`
-  adds **+5** to its pairs. The claimed match is returned. Apart from
+  adds **+1** to its pairs. The claimed match is returned. Apart from
   rejecting it on the Today page (7.2), this is the only time a match's
   score changes after creation.
 
@@ -846,10 +926,10 @@ Files: `server/services/matchScoreService.js`,
 | Event | Change to every compatible pair in the outfit |
 |---|---|
 | Style quiz pairing answer (2.6) | **set to** +10 / −10 / pair score 0 for that question's pairs |
-| User builds an outfit (Build Matches) | **+5** |
-| User claims an automatic outfit by rebuilding it | **+5** |
-| User favourites an outfit | **+3** |
-| User unfavourites an outfit | **−3** |
+| User builds an outfit (Build Matches) | **+1** |
+| User claims an automatic outfit by rebuilding it | **+1** |
+| User favourites an outfit | **+0.5** |
+| User unfavourites an outfit | **−0.5** |
 | User deletes one outfit (match card or Today → delete) | **−0.25** |
 | User deletes several ticked outfits (`deleteManyMatches`, `DELETE /match/`) | **−0.25** per outfit |
 | User deletes a clothing item (its outfits are deleted with it) | none |
@@ -864,7 +944,7 @@ matched (3.3). Incompatible pairs in a user-built outfit (e.g. two bottoms,
 or two of the same subtype) are skipped and nothing is stored for them.
 
 Favouriting is detected in `updateMatch` when `favourite` actually changes,
-so toggling on and off adds and removes the same 3 points.
+so toggling on and off adds and removes the same 0.5 points.
 
 ### 6.2 How adjustments are stored
 
@@ -873,8 +953,8 @@ so toggling on and off adds and removes the same 3 points.
 - **Pair score = baseline + adjustment, kept between 0 and 100.**
 - The adjustment itself is **limited when it's saved**, so baseline +
   adjustment can't go past 100 or below 0. A pair at 95 built ten times
-  stays at 100, and the first deletion brings it straight down to 98 - no
-  hidden reserve builds up.
+  stays at 100, and the first deletion brings it straight down to 99.75 -
+  no hidden reserve builds up.
 
 ### 6.3 What this does
 
@@ -1022,8 +1102,8 @@ starts.
 **Compatibility.** Buttondown shirt + Wide leg trousers, + Trench coat and
 Wide leg trousers + Trench coat are "always" role pairs. Buttondown shirt +
 Light cardigan is a top+top pair the woman matrix allows. Cream, Gold,
-Brown and Camel all fit inside the mid palette
-`["Cream", "Camel", "Tan", "Gold", "Brown"]`. Only one item (the shirt) is
+Brown and Camel all fit inside the mid palette `cream-camel-olive-green`
+(`classic`). Only one item (the shirt) is
 patterned. Spring, Autumn and Winter are shared by everything, and so is
 the **Everyday** tag. Outfits without the cardigan also share **Work**, so
 they're tagged `Work, Everyday`. Outfits with the cardigan are tagged
@@ -1033,32 +1113,39 @@ they're tagged `Work, Everyday`. Outfits with the cardigan are tagged
 
 | Pair | Score |
 |---|---|
-| Buttondown shirt + Wide leg trousers | 92 |
-| Buttondown shirt + Trench coat | 92 |
-| Buttondown shirt + Light cardigan | 85 |
+| Buttondown shirt + Wide leg trousers | 88 |
+| Buttondown shirt + Trench coat | 88 |
+| Buttondown shirt + Light cardigan | 45 |
 | Light cardigan + Wide leg trousers | 84 |
 | Light cardigan + Trench coat | 68 |
 | Wide leg trousers + Trench coat | 90 |
 
-| Shape | Items | Pair blend | Colours (mid) | Score | Temperature | Result |
-|---|---|---|---|---|---|---|
-| 4 (1 top, 1 bottom) | shirt + trousers | 92 | 2 → 55 | 0.6 × 92 + 0.4 × 55 ≈ **77** | 14–22 | **saved** |
-| 5 (+1 outer) | shirt + trousers + trench | 0.7 × 91.3 + 0.3 × 90 ≈ 90.9 | 3 → 85 | **89** | 9–18 | **saved** |
-| 6 (2 tops, 1 bottom) | shirt + cardigan + trousers | 0.7 × 87 + 0.3 × 84 ≈ 86.1 | 3 → 85 | **86** | 14–18 | **saved** |
-| 7 (2 tops, 1 bottom, 1 outer) | shirt + cardigan + trousers + trench | 0.7 × 85.2 + 0.3 × 68 ≈ 80.0 | 4 → 85 | **82** | 6–14 | **saved** |
+Colour scores at mid: Cream + Gold fits a `common` palette (85) with 2
+colours (55) → (55 + 85) / 2 = **70**. Cream + Gold + Camel only fits
+`classic` palettes (80), 3 colours (85) → **82.5**.
 
-The 2-item outfit ranks lowest: Cream + Gold is only 2 colours, which a
-mid user scores 55.
+| Shape | Items | Pair blend | Colour score | Score | Result |
+|---|---|---|---|---|---|
+| 4 (1 top, 1 bottom) | shirt + trousers | 88 | 70 | 0.6 × 88 + 0.4 × 70 ≈ **81** | **saved** |
+| 5 (+1 outer) | shirt + trousers + trench | 0.7 × 88.7 + 0.3 × 88 ≈ 88.5 | 82.5 | **86** | **saved** |
+| 6 (2 tops, 1 bottom) | shirt + cardigan + trousers | - | - | - | **dropped** |
+| 7 (2 tops, 1 bottom, 1 outer) | shirt + cardigan + trousers + trench | - | - | - | **dropped** |
 
-All four are within the best 100, so all are saved, each with its score.
+The shirt + cardigan pair scores 45, below `MIN_PAIR_SCORE` (50), so the
+search drops every outfit with both of them the moment the cardigan is
+picked - however good the other pairs and colours are.
+
+Both outfits left are within the best 100, so both are saved, each with its score.
 "View New Matches" polls until they appear.
 
-**Learning.** She deletes the 4-item outfit. Each of its 6 pairs gets −0.25,
-so Wide leg trousers + Trench coat drops from 90 to 89.75. **Nothing stops
-matching** - the trousers and coat are still compatible, and the 3-item
-shirt + trousers + trench outfit keeps its score of 89. Future outfits
-with that pair just score slightly lower. If she favourites the 3-item
-outfit, it shows as 100 and its 3 pairs get +3.
+**Learning.** She deletes the 2-item outfit. Its pair gets −0.25, so
+Buttondown shirt + Wide leg trousers drops from 88 to 87.75. **Nothing
+stops matching** - the shirt and trousers are still compatible, and the
+3-item outfit keeps its score of 86. Future outfits with that pair just
+score slightly lower. If she favourites the 3-item outfit, it shows as 100
+and its 3 pairs get +0.5. If she builds shirt + cardigan + trousers
+herself, it's saved (user-made outfits have no minimum) and the shirt +
+cardigan pair goes up to 46.
 
 ---
 
@@ -1093,10 +1180,11 @@ These are behaviours found in the code that may not be intended.
    `waitUntil`, but the client polling (8 × 1 s) can finish before a large
    run has saved its matches, so new matches may only show on a later
    load.
-7. **Two colour-palette tests fail** (`styleColorService.spec.js` ×1 and
-   the colour-cap test in `matchService.spec.js`). They were failing before
-   the matching overhaul - the palette data no longer contains the
-   combinations the tests expect.
+7. **Existing matches keep their old scores.** Scores are set once, so
+   matches saved before the colour-score change (palette tiers, favourites,
+   bright colours, the 65 checks) keep the score they were given, and
+   outfits that would now be dropped stay saved. Only new matches use the
+   new rules.
 
 ---
 
@@ -1157,7 +1245,8 @@ the project root with `node server/scripts/<name>.js`.
 The one-off migrations for the changes in Part 10 (subtype renames, the
 score-adjustment reset, colour merges, removing clothing temperatures,
 adding `clothesKey`) were run on the database and then deleted. They're in
-the git history if one is ever needed again.
+the git history if one is ever needed again. The Maroon → Burgundy colour
+rename (October 2026) was also run once and deleted; it was never committed.
 
 ---
 
@@ -1176,12 +1265,13 @@ the git history if one is ever needed again.
 | Role rules (never / always / decided) | `server/constants/compatibilityRules.js` |
 | Pair compatibility and baseline scores | `server/constants/matrices/<gender>.js` |
 | Tops that need layering / onepieces that need a top | `server/constants/requiresLayering.js` |
-| Outfit score blend, colour-count scores, single-item / user-made scores, learning steps | `server/constants/scoring.js` |
+| Outfit score blend, lowest pair score, colour-count / palette tier / bright-colour scores, favourite bonus, single-item / user-made scores, learning steps | `server/constants/scoring.js` |
 | Allowed outfit shapes | `server/constants/outfitShapes.js` |
-| Colour palettes and colour caps | `shared/colorPalettes.json` (loaded by `server/utils/colorPalettes.js`) |
+| Colour palettes, their tiers and levels, colour caps, bright colours | `shared/colorPalettes.json` (loaded by `server/utils/colorPalettes.js` and `core/utils/colourPalettes.js`) |
+| Favourite palette picker | `PalettePicker.jsx` (web: `src/components/preferences/`, app: `mobile/src/components/styleQuiz/`) |
 | Patterned-item limit | `passesPatternCheck` in `server/services/styleColorService.js` |
 | Search limits and best-N | `MAX_POOL_SIZE_PER_ROLE`, `MAX_COMBINATIONS_EXPLORED`, `SEARCH_TIME_LIMIT_MS`, `MAX_NEW_MATCHES_PER_ITEM` in `matchService.js` |
-| Lowest score / pair blend an automatic outfit is saved at | `MIN_AUTO_MATCH_SCORE` / `MIN_AUTO_PAIR_SCORE` in `server/constants/scoring.js` |
+| Lowest pair blend / colour score an automatic outfit is saved at, lowest single pair | `MIN_AUTO_SCORE` / `MIN_PAIR_SCORE` in `server/constants/scoring.js` |
 | Time kept for saving / save chunk size | `SAVE_RESERVE_MS`, `INSERT_CHUNK_SIZE`, `INSERT_STOP_MARGIN_MS` in `matchService.js` |
 | Default gender when missing | `DEFAULT_GENDER` in `matchScoreService.js` |
 | Style quiz pairing questions / their pairs / answer values | `src/constants/pairingQuestions.js` / `server/constants/pairingQuestions.js` / `PAIRING_ANSWER_ADJUSTMENTS` in `server/constants/scoring.js` (see 2.6) |

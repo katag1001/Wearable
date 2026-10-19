@@ -5,6 +5,7 @@ import {
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
 import PairingPreferences from "./PairingPreferences";
+import PalettePicker from "./PalettePicker";
 import "./stylePreferences.css";
 import "../../styles/pages.css";
 
@@ -18,6 +19,9 @@ const StylePreferences = () => {
     chooseTemperature: handleTemperatureSelect,
     selectedImages,
     toggleImage,
+    paletteOptions,
+    favouritePalettes,
+    togglePalette,
     pairingAnswers,
     answerPairing: handlePairingAnswer,
     showPairingQuestions,
@@ -146,6 +150,25 @@ const StylePreferences = () => {
             );
           })}
         </div>
+      </div>
+
+      {/* FAVOURITE PALETTES */}
+
+      <div className="style-preferences-section">
+        <h3 className="style-preferences-section-title">
+          Colours you love
+        </h3>
+
+        <p className="style-preferences-section-description">
+          Outfits in these palettes are suggested first. Others are still
+          suggested, just lower down.
+        </p>
+
+        <PalettePicker
+          palettes={paletteOptions}
+          selected={favouritePalettes}
+          onToggle={togglePalette}
+        />
       </div>
 
       {/* PAIRING QUESTIONS (woman / unisex only) */}
