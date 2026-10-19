@@ -212,13 +212,17 @@ preference, with the values above:
    (sunny / rain), and posted to `/today/create` with the season and the
    user's weekday.
 2. `createToday` (once per day) keeps matches marked for today's season
-   whose range covers enough of today's range -
-   `todayCoverageFraction` in `server/services/temperatureService.js`,
-   measured against the **day's** range:
-   - **tier 1**: covers all of it (`min_temp <= min` and
+   that fit a weather tier (`todayTierOf` in
+   `server/services/todaySelectionService.js`). Each outfit goes in the
+   first tier it fits; a tier only joins while the ones above have fewer
+   than 200, ranked below them:
+   - **tier 1**: `min_temp` and `max_temp` each within **1.5°** of the
+     day's min and max;
+   - **tier 2**: covers all of the day (`min_temp <= min` and
      `max_temp >= max`);
-   - **tier 2**, only while tier 1 has fewer than 200: covers at least
-     **70%** of it, ranked below every tier 1 outfit.
+   - **tier 3**: covers at least **70%** of it (`todayCoverageFraction` in
+     `server/services/temperatureService.js`, measured against the
+     **day's** range).
 3. `server/services/todayRankingService.js` orders each tier (today's
    tag, freshness, score - temperature isn't part of it) and the list is
    capped at **200**. Details: `context/clothing-and-matching-flow.md`
@@ -247,7 +251,7 @@ preference, with the values above:
 | Highest maximum with layered tops / which tops count as jumpers | `LAYERED_MAX_TEMPS` / `LAYER_KINDS` |
 | Preference shift | `TEMPERATURE_PREFERENCE_SHIFT` |
 | Highest maximum with a long bottom | `LONG_BOTTOM_MAX_TEMP` |
-| Today's weather tiers and cap | `FULL_COVERAGE` / `PARTIAL_COVERAGE` / `TODAY_OUTFIT_LIMIT` in `server/constants/todayOutfits.js` |
+| Today's weather tiers and cap | `CLOSE_MATCH_TOLERANCE` / `FULL_COVERAGE` / `PARTIAL_COVERAGE` / `TODAY_OUTFIT_LIMIT` in `server/constants/todayOutfits.js` |
 | Daytime hours for today's weather | `core/constants/daytimeHours.js` |
 
 After changing them, restart the server and run the reset script (Part 3)

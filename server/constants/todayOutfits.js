@@ -8,11 +8,15 @@
 // The most outfits kept for a day.
 const TODAY_OUTFIT_LIMIT = 200;
 
-// Weather tiers, by how much of today's daytime temperature range the
-// outfit's range covers (temperatureService.todayCoverageFraction):
-//  - tier 1: the whole day;
-//  - tier 2 (only while tier 1 has fewer than TODAY_OUTFIT_LIMIT): at
-//    least this much of it - always ranked below every tier 1 outfit.
+// Weather tiers. Each outfit goes in the first tier it fits, and a tier
+// only joins while the ones above it have fewer than TODAY_OUTFIT_LIMIT -
+// always ranked below them:
+//  - tier 1: the outfit's min_temp and max_temp are each within
+//    CLOSE_MATCH_TOLERANCE degrees of today's daytime min and max;
+//  - tier 2: the outfit's range covers the whole day
+//    (temperatureService.todayCoverageFraction = FULL_COVERAGE);
+//  - tier 3: it covers at least PARTIAL_COVERAGE of the day.
+const CLOSE_MATCH_TOLERANCE = 1.5;
 const FULL_COVERAGE = 1;
 const PARTIAL_COVERAGE = 0.7;
 
@@ -35,6 +39,7 @@ const FAVOURITE_SCORE = 100;
 
 module.exports = {
   TODAY_OUTFIT_LIMIT,
+  CLOSE_MATCH_TOLERANCE,
   FULL_COVERAGE,
   PARTIAL_COVERAGE,
   RANKING_WEIGHTS,

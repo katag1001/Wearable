@@ -48,9 +48,10 @@ const {
   changedMatchingFields,
   refreshMatchesForItem,
 } = require("../services/matchRefreshService.js");
-const { todayCoverageFraction } = require("../services/temperatureService.js");
-const { selectTodayMatches } = require("../services/todaySelectionService.js");
-const { PARTIAL_COVERAGE } = require("../constants/todayOutfits.js");
+const {
+  selectTodayMatches,
+  todayTierOf,
+} = require("../services/todaySelectionService.js");
 const {
   resolveTodayStart,
   applyRejection,
@@ -992,11 +993,7 @@ exports.createToday = async (req, res) => {
 
     // Anything that could get into a weather tier...
     const candidates = seasonMatches.filter(
-      (match) =>
-        todayCoverageFraction(
-          { min: match.min_temp, max: match.max_temp },
-          todayRange
-        ) >= PARTIAL_COVERAGE
+      (match) => todayTierOf(match, todayRange) !== null
     );
 
     // ...without outfits rejected in the last few days, unless every

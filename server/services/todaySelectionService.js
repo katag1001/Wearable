@@ -2,27 +2,57 @@
 //
 // Which outfits make today's list, in what order. Pure - no DB access.
 //
-//  1. Tier 1: outfits whose range covers ALL of today's daytime
+//  1. Tier 1: outfits whose min_temp and max_temp are each within
+//     CLOSE_MATCH_TOLERANCE of today's daytime min and max.
+//  2. Tier 2: outfits whose range covers ALL of today's daytime
 //     temperatures (FULL_COVERAGE).
-//  2. Only if tier 1 has fewer than TODAY_OUTFIT_LIMIT outfits: tier 2,
-//     those covering at least PARTIAL_COVERAGE of the day - always below
-//     every tier 1 outfit.
-//  3. Each tier ordered by todayRankingService, then the list is cut to
+//  3. Tier 3: those covering at least PARTIAL_COVERAGE of the day.
+//  Each outfit goes in the first tier it fits. A tier only joins while the
+//  tiers above it have fewer than TODAY_OUTFIT_LIMIT outfits, and always
+//  sits below them.
+//  4. Each tier ordered by todayRankingService, then the list is cut to
 //     TODAY_OUTFIT_LIMIT.
 
 const {
   TODAY_OUTFIT_LIMIT,
+  CLOSE_MATCH_TOLERANCE,
   FULL_COVERAGE,
   PARTIAL_COVERAGE,
 } = require("../constants/todayOutfits.js");
 const { todayCoverageFraction } = require("./temperatureService.js");
 const { rankTodayMatches } = require("./todayRankingService.js");
 
-// Allows for floating-point rounding in the coverage fraction.
+// Allows for floating-point rounding in the comparisons.
 const EPSILON = 1e-9;
+
+const isCloseMatch = (match, todayRange) =>
+  Math.abs(match.min_temp - todayRange.min) <= CLOSE_MATCH_TOLERANCE + EPSILON &&
+  Math.abs(match.max_temp - todayRange.max) <= CLOSE_MATCH_TOLERANCE + EPSILON;
 
 const coverageOf = (match, todayRange) =>
   todayCoverageFraction({ min: match.min_temp, max: match.max_temp }, todayRange);
+
+// The weather tier an outfit belongs to today (0 is the best), or null if
+// it doesn't qualify at all.
+const todayTierOf = (match, todayRange) => {
+  if (isCloseMatch(match, todayRange)) {
+    return 0;
+  }
+
+  const coverage = coverageOf(match, todayRange);
+
+  if (coverage >= FULL_COVERAGE - EPSILON) {
+    return 1;
+  }
+
+  if (coverage >= PARTIAL_COVERAGE - EPSILON) {
+    return 2;
+  }
+
+  return null;
+};
+
+const TIER_COUNT = 3;
 
 // The matches for today's list, best first, at most `limit`.
 const selectTodayMatches = ({
@@ -32,27 +62,24 @@ const selectTodayMatches = ({
   now = new Date(),
   limit = TODAY_OUTFIT_LIMIT,
 }) => {
-  const withCoverage = matches.map((match) => ({
-    match,
-    coverage: coverageOf(match, todayRange),
-  }));
+  const tiers = Array.from({ length: TIER_COUNT }, () => []);
 
-  const fullTier = withCoverage
-    .filter((entry) => entry.coverage >= FULL_COVERAGE - EPSILON)
-    .map((entry) => entry.match);
+  matches.forEach((match) => {
+    const tier = todayTierOf(match, todayRange);
 
-  const ranked = rankTodayMatches(fullTier, todayTag, now);
+    if (tier !== null) {
+      tiers[tier].push(match);
+    }
+  });
 
-  if (ranked.length < limit) {
-    const partialTier = withCoverage
-      .filter(
-        (entry) =>
-          entry.coverage < FULL_COVERAGE - EPSILON &&
-          entry.coverage >= PARTIAL_COVERAGE - EPSILON
-      )
-      .map((entry) => entry.match);
+  const ranked = [];
 
-    ranked.push(...rankTodayMatches(partialTier, todayTag, now));
+  for (const tier of tiers) {
+    if (ranked.length >= limit) {
+      break;
+    }
+
+    ranked.push(...rankTodayMatches(tier, todayTag, now));
   }
 
   return ranked.slice(0, limit);
@@ -60,4 +87,5 @@ const selectTodayMatches = ({
 
 module.exports = {
   selectTodayMatches,
+  todayTierOf,
 };
