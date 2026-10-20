@@ -1341,6 +1341,9 @@ score-adjustment reset, colour merges, removing clothing temperatures,
 adding `clothesKey`) were run on the database and then deleted. They're in
 the git history if one is ever needed again. The Maroon → Burgundy colour
 rename (October 2026) was also run once and deleted; it was never committed.
+So was the clean-up after women's Waistcoat × Vest / Light jumper were set
+to null (October 2026): it deleted every match containing a pair the
+user's matrix no longer allows (`isCompatible`), plus their Today entries.
 
 ---
 
