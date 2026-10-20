@@ -345,7 +345,11 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
       }
 
       setOutfits((prev) => prev.filter((outfit) => outfit.matchId?._id !== matchId));
-      setCurrentIndex(0);
+
+      // The next outfit moves into the deleted one's place, so the index
+      // stays - wrapping to the first if the last one was deleted.
+      const remaining = filteredOutfits.length - 1;
+      setCurrentIndex(remaining > 0 ? currentIndex % remaining : 0);
       setNotice({ title: "Success", message: "Outfit deleted." });
     } catch (err) {
       setNotice({
