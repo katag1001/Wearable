@@ -25,6 +25,9 @@ import { getImageUrl } from "@core/utils/getImageUrl.js";
 import { Button, Loading } from "../ui";
 import { SwipeDeck } from "./SwipeDeck";
 
+const shoePhoto = (shoe) =>
+  shoe?.imageUrl ? getImageUrl(shoe.imageUrl, 800) : null;
+
 export const ShoeChooser = ({
   footwear,
   outfit,
@@ -34,11 +37,26 @@ export const ShoeChooser = ({
   onClose,
 }) => {
   const insets = useSafeAreaInsets();
-  const { shoes, current, goNext, goPrev } = useShoeChooser({
+  const { shoes, current, index, goNext, goPrev } = useShoeChooser({
     footwear,
     outfit,
     startShoe,
   });
+
+  // The shoes either side, loaded ahead so a swipe lands on a ready photo.
+  useEffect(() => {
+    const count = shoes.length;
+
+    if (count <= 1) return;
+
+    const neighbours = [shoes[(index + 1) % count], shoes[(index - 1 + count) % count]]
+      .map(shoePhoto)
+      .filter(Boolean);
+
+    Image.prefetch(neighbours).catch(() => {});
+    // Once per shoe shown.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, shoes.length]);
 
   const [saving, setSaving] = useState(false);
 
@@ -90,30 +108,27 @@ export const ShoeChooser = ({
       </View>
 
       {current ? (
-        <>
-          <SwipeDeck
-            enabled={shoes.length > 1}
-            onNext={goNext}
-            onPrev={goPrev}
-            noun="shoes"
-            fill
-          >
-            {/* Not touchable, so drags land on the card and swipe it. */}
-            <View style={styles.photo}>
-              <Image
-                source={current.imageUrl ? getImageUrl(current.imageUrl, 800) : null}
-                style={styles.image}
-                contentFit="contain"
-                transition={150}
-                accessibilityLabel={current.name}
-              />
-            </View>
-          </SwipeDeck>
-
-          <Text style={styles.name} numberOfLines={1}>
-            {current.name}
-          </Text>
-        </>
+        <SwipeDeck
+          enabled={shoes.length > 1}
+          onNext={goNext}
+          onPrev={goPrev}
+          noun="shoes"
+          fill
+        >
+          {/* Not touchable, so drags land on the card and swipe it. */}
+          <View style={styles.photo}>
+            {/* recyclingKey blanks it on a new shoe, so the old one
+                never shows on the incoming card. */}
+            <Image
+              source={shoePhoto(current)}
+              recyclingKey={current._id}
+              style={styles.image}
+              contentFit="contain"
+              transition={150}
+              accessibilityLabel={current.name}
+            />
+          </View>
+        </SwipeDeck>
       ) : (
         <Loading text="Loading footwear..." />
       )}
@@ -153,10 +168,5 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     borderRadius: radius.lg,
-  },
-  name: {
-    fontSize: fontSizes.body,
-    color: colors.main,
-    textAlign: "center",
   },
 });
