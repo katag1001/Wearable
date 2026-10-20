@@ -4,10 +4,11 @@ const allControllers = require("../controllers/allControllers");
 const footwearControllers = require("../controllers/footwearControllers");
 const cloudinaryControllers = require("../controllers/cloudinaryControllers");
 const { authMiddleware } = require("../middleware/authMiddleware");
+const { loginLimiter, registerLimiter } = require("../middleware/rateLimits");
 
 /* USER ROUTES */
-router.post("/users/register", allControllers.createItemregister);
-router.post("/users/login", allControllers.login);
+router.post("/users/register", registerLimiter, allControllers.createItemregister);
+router.post("/users/login", loginLimiter, allControllers.login);
 router.post("/users/verify_token", allControllers.verify_token);
 router.delete(
   "/users/delete",

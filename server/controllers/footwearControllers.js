@@ -5,7 +5,11 @@ const { findPage } = require("../services/queryHelpers.js");
 const {
   destroyImage,
   deleteReplacedImage,
+  canUseImage,
+  IMAGE_IN_USE_ERROR,
 } = require("../services/imageService.js");
+const { pickFields } = require("../services/requestFields.js");
+const { FOOTWEAR_FIELDS } = require("../constants/editableFields.js");
 const {
   rejectFootwearPairing,
   wearFootwearPairing,
@@ -28,15 +32,8 @@ const {
  * against the worn outfit and learns from it (footwearScoreService.js).
  */
 
-// The client's form also carries clothing-only fields (e.g. `type`) - the
-// schema drops anything it doesn't define, but don't let these be set.
-const PROTECTED_FIELDS = ["_id", "userId", "__v"];
-
-const editableFields = (body = {}) => {
-  const fields = { ...body };
-  PROTECTED_FIELDS.forEach((field) => delete fields[field]);
-  return fields;
-};
+// Only FOOTWEAR_FIELDS come from the form (constants/editableFields.js).
+const editableFields = (body) => pickFields(body, FOOTWEAR_FIELDS);
 
 exports.createFootwear = async (req, res) => {
   const userId = req.user?.userId;
@@ -51,7 +48,11 @@ exports.createFootwear = async (req, res) => {
   }
 
   try {
-    const existingItem = await Footwear.findOne({ name, subtype, userId });
+    const existingItem = await Footwear.findOne({
+      name: String(name ?? ""),
+      subtype: String(subtype),
+      userId,
+    });
 
     if (existingItem) {
       // 409 so the client treats it as a failed save (shows the error and
@@ -62,8 +63,14 @@ exports.createFootwear = async (req, res) => {
       });
     }
 
+    const fields = editableFields(req.body);
+
+    if (!(await canUseImage(fields.cloudinaryId))) {
+      return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
+    }
+
     const item = new Footwear({
-      ...editableFields(req.body),
+      ...fields,
       userId,
     });
 
@@ -160,9 +167,19 @@ exports.updateFootwear = async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
+    const fields = editableFields(req.body);
+
+    if (
+      fields.cloudinaryId !== undefined &&
+      fields.cloudinaryId !== existingItem.cloudinaryId &&
+      !(await canUseImage(fields.cloudinaryId, { exceptId: existingItem._id }))
+    ) {
+      return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
+    }
+
     const updatedItem = await Footwear.findOneAndUpdate(
       { _id: id, userId },
-      editableFields(req.body),
+      { $set: fields },
       { new: true, runValidators: true }
     );
 

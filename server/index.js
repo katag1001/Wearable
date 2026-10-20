@@ -8,6 +8,10 @@ const allRoutes = require("./routes/allRoutes");
 
 const app = express();
 
+// Behind Vercel's proxy: use the visitor's IP (X-Forwarded-For) for the
+// login / register rate limits, not the proxy's.
+app.set("trust proxy", 1);
+
 /* -------------------- MIDDLEWARE -------------------- */
 
 app.use(

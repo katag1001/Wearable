@@ -8,7 +8,17 @@ const { User, Match, Today, Clothes, Preferences } = require("../models/AllModel
 const { processMatches } = require("../services/matchService");
 const { waitUntil } = require("@vercel/functions");
 const { deleteAllFootwearForUser } = require("./footwearControllers.js");
-const { deleteReplacedImage } = require("../services/imageService.js");
+const {
+  deleteReplacedImage,
+  canUseImage,
+  IMAGE_IN_USE_ERROR,
+} = require("../services/imageService.js");
+const { pickFields } = require("../services/requestFields.js");
+const {
+  CLOTHING_FIELDS,
+  MATCH_FIELDS,
+  WORN_SNAPSHOT_FIELDS,
+} = require("../constants/editableFields.js");
 const { wipeFootwearScores } = require("../services/footwearScoreService.js");
 const { describeOutfit } = require("../services/outfitEvaluator.js");
 const {
@@ -27,6 +37,7 @@ const { cleanFavouritePalettes } = require("../utils/colorPalettes.js");
 const {
   findPage,
   parseIdList,
+  isValidId,
   HIGHEST_SCORE_FIRST,
 } = require("../services/queryHelpers.js");
 const {
@@ -287,9 +298,11 @@ return res.status(400).json({ error: "Missing type" });
 }
 
 try {
+const fields = pickFields(req.body, CLOTHING_FIELDS);
+
 const existingItem = await Clothes.findOne({
-name,
-type,
+name: String(name ?? ""),
+type: String(type),
 userId,
 });
 
@@ -303,8 +316,12 @@ if (existingItem) {
   });
 }
 
+if (!(await canUseImage(fields.cloudinaryId))) {
+  return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
+}
+
 const item = new Clothes({
-  ...req.body,
+  ...fields,
   userId,
 });
 
@@ -418,9 +435,19 @@ if (!existingItem) {
 return res.json({ message: "Item not found" });
 }
 
+const fields = pickFields(req.body, CLOTHING_FIELDS);
+
+if (
+  fields.cloudinaryId !== undefined &&
+  fields.cloudinaryId !== existingItem.cloudinaryId &&
+  !(await canUseImage(fields.cloudinaryId, { exceptId: existingItem._id }))
+) {
+  return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
+}
+
 const updatedItem = await Clothes.findOneAndUpdate(
 { _id: id, userId },
-req.body,
+{ $set: fields },
 { new: true, runValidators: true }
 );
 
@@ -519,9 +546,11 @@ exports.createMatch = async (req, res) => {
   }
 
   try {
-    const clothesIds = (req.body.clothes || [])
-      .map((id) => id.toString())
-      .sort();
+    const clothesIds = parseIdList(req.body?.clothes).sort();
+
+    if (!clothesIds.length) {
+      return res.status(400).json({ error: "Choose at least one item." });
+    }
 
     // Check if this exact match already exists
     const existingMatches = await Match.find({
@@ -582,8 +611,8 @@ exports.createMatch = async (req, res) => {
       temperaturePreference: temperature,
     });
 
+    // Only the checked clothes come from the request (in `described`).
     const match = new Match({
-      ...req.body,
       ...described,
       userId,
       userMade: true,
@@ -702,18 +731,20 @@ exports.updateMatch = async (req, res) => {
       });
     }
 
-    // A match's score and rejection fields are only ever changed by the
-    // server (a favourite is shown as 100 without changing its score).
+    // Only the fields in MATCH_FIELDS (plus the wear values when undoing
+    // "worn today") come from the request. Score, rejection fields, clothes
+    // and owner are only ever changed by the server (a favourite is shown
+    // as 100 without changing its score).
     const {
       restoreSnapshot,
       clothesSnapshots,
       undoRejection: shouldUndoRejection,
-      score,
-      favouriteItemBonus,
-      rejectedCount,
-      lastRejectedDate,
-      ...matchFields
-    } = req.body;
+    } = req.body || {};
+
+    const matchFields = pickFields(
+      req.body,
+      restoreSnapshot ? [...MATCH_FIELDS, ...WORN_SNAPSHOT_FIELDS] : MATCH_FIELDS
+    );
 
     const wasFavourite = !!match.favourite;
 
@@ -733,12 +764,14 @@ exports.updateMatch = async (req, res) => {
       if (Array.isArray(clothesSnapshots) && clothesSnapshots.length) {
 
         await Promise.all(
-          clothesSnapshots.map(({ clothesId, ...snapshot }) =>
-            Clothes.updateOne(
-              { _id: clothesId, userId },
-              { $set: snapshot }
+          clothesSnapshots
+            .filter((snapshot) => isValidId(snapshot?.clothesId))
+            .map((snapshot) =>
+              Clothes.updateOne(
+                { _id: snapshot.clothesId, userId },
+                { $set: pickFields(snapshot, WORN_SNAPSHOT_FIELDS) }
+              )
             )
-          )
         );
       }
 
@@ -777,7 +810,9 @@ exports.updateMatch = async (req, res) => {
           [
             {
               $set: {
-                lastWornDate: req.body.lastWornDate,
+                // The match's copy, already turned into a Date by save() -
+                // never the raw request value inside an update pipeline.
+                lastWornDate: match.lastWornDate,
 
                 timesWorn: {
                   $add: [{ $ifNull: ["$timesWorn", 0] }, 1],

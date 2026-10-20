@@ -28,18 +28,33 @@ const deleteReplacedImage = async (oldItem, updatedItem) => {
   }
 };
 
-// Whether any clothing or footwear item (of any user) still uses the image.
-const isImageInUse = async (publicId) => {
+// Whether any clothing or footwear item (of any user) still uses the image,
+// apart from the item `exceptId` (the one being saved).
+const isImageInUse = async (publicId, { exceptId = null } = {}) => {
+  const filter = exceptId
+    ? { cloudinaryId: publicId, _id: { $ne: exceptId } }
+    : { cloudinaryId: publicId };
+
   const [clothing, footwear] = await Promise.all([
-    Clothes.exists({ cloudinaryId: publicId }),
-    Footwear.exists({ cloudinaryId: publicId }),
+    Clothes.exists(filter),
+    Footwear.exists(filter),
   ]);
 
   return Boolean(clothing || footwear);
 };
 
+// Every upload gets its own image, so an item being saved with an image
+// another item already uses is a hand-made request - deleting this item
+// later would delete the other one's photo. True when the save may go on.
+const canUseImage = async (cloudinaryId, { exceptId = null } = {}) =>
+  !cloudinaryId || !(await isImageInUse(cloudinaryId, { exceptId }));
+
+const IMAGE_IN_USE_ERROR = "That image belongs to another item";
+
 module.exports = {
   destroyImage,
   deleteReplacedImage,
   isImageInUse,
+  canUseImage,
+  IMAGE_IN_USE_ERROR,
 };
