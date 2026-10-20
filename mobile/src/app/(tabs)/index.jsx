@@ -98,8 +98,9 @@ export default function TodayScreen() {
   return (
     <Screen
       title={formatTodayTitle(today.todayTag)}
-      // Fixed to the screen (no scrolling) so the worn views fit it.
-      scroll={!showingWorn}
+      // Fixed to the screen (no scrolling) - the outfit photos shrink to
+      // fit it.
+      scroll={false}
     >
       {weather.weather ? (
         <Text style={styles.weather}>

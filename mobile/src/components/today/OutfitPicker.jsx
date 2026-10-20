@@ -48,8 +48,10 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes }) => {
           onNext={today.goNext}
           onPrev={today.goPrev}
           noun="outfit"
+          fill
         >
-          <OutfitImages match={selectedOutfit.matchId} footwear={selectedShoe} />
+          {/* Shrinks to fit, so the page never scrolls. */}
+          <OutfitImages match={selectedOutfit.matchId} footwear={selectedShoe} fit />
         </SwipeDeck>
       </View>
 

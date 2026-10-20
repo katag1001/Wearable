@@ -1,11 +1,12 @@
 // core/today/outfitRows.js
 //
 // An outfit's clothes split into rows by where they're worn, so it shows
-// the way it's worn: tops then outerwear on the upper row, one-pieces then
-// bottoms on the lower one. Clothes with an unknown type go last on the
+// the way it's worn: outerwear then tops on the upper row (so outerwear
+// stays on the top line when the row wraps), one-pieces then bottoms on
+// the lower one. Clothes with an unknown type go last on the
 // lower row. Empty rows are dropped.
 
-const UPPER = ["top", "outer"];
+const UPPER = ["outer", "top"];
 const LOWER = ["onepiece", "bottom"];
 
 // Position within its row; unknown types sort after the known ones.
