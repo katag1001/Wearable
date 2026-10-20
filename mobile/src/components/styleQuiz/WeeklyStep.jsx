@@ -7,7 +7,7 @@ import { tagOptions } from "@core/constants/optionsBank.js";
 import { useWeekTagPicker } from "@core/hooks/useWeekTagPicker.js";
 import { colors, fontSizes, fontWeights } from "@core/theme/tokens.js";
 
-import { Grid, TagTile } from "../ui";
+import { Chip, ChipRow } from "../ui";
 import { WeekDayRow } from "../week/WeekDayRow";
 import { QuizActions } from "./QuizActions";
 
@@ -25,16 +25,16 @@ export const WeeklyStep = ({ quiz }) => {
 
       <Text style={styles.activeDay}>{activeDayLabel}</Text>
 
-      <Grid columns={3}>
+      <ChipRow>
         {tagOptions.map((tag) => (
-          <TagTile
+          <Chip
             key={tag.name}
-            tag={tag}
+            label={tag.name}
             selected={quiz.weeklyTags[activeDay] === tag.name}
             onPress={() => selectTag(tag.name)}
           />
         ))}
-      </Grid>
+      </ChipRow>
 
       <QuizActions onBack={quiz.goBack} onNext={quiz.goToNextStep} />
     </>

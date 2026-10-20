@@ -117,53 +117,6 @@ const ViewToday = ({ todayReady }) => {
   }
 
 
-  /* ------------------------- TAGS POPUP ------------------------- */
-
-  const renderMainOutfitTags = (
-    outfit
-  ) => {
-
-    const tags =
-      outfit?.matchId?.tags;
-
-
-    if (!tags?.length) {
-      return null;
-    }
-
-
-    return (
-      <div className="today-hover-tags-row">
-
-        {tags.map((tagName) => {
-
-          const tag =
-            tagOptions.find(
-              (option) =>
-                option.name ===
-                tagName
-            );
-
-
-          return (
-            tag && (
-              <img
-                key={tagName}
-                src={tag.image}
-                alt={tagName}
-                title={tagName}
-                className="today-hover-tag-image"
-              />
-            )
-          );
-
-        })}
-
-      </div>
-    );
-  };
-
-
   /* ------------------------- MAIN RENDER ------------------------- */
 
   return (
@@ -185,10 +138,6 @@ const ViewToday = ({ todayReady }) => {
               />
 
               {renderOutfitImages(
-                wornOutfit
-              )}
-
-              {renderMainOutfitTags(
                 wornOutfit
               )}
 
@@ -240,10 +189,6 @@ const ViewToday = ({ todayReady }) => {
                 />
 
                 {renderOutfitImages(
-                  selectedOutfit
-                )}
-
-                {renderMainOutfitTags(
                   selectedOutfit
                 )}
 
@@ -358,17 +303,6 @@ const ViewToday = ({ todayReady }) => {
                     isSelected
                   }
                 >
-
-                  <div className="today-tag-image-wrapper">
-
-                    <img
-                      src={tag.image}
-                      alt={tag.name}
-                      className="today-tag-icon"
-                    />
-
-                  </div>
-
 
                   <div className="today-tag-content">
 

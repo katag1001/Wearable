@@ -3,7 +3,7 @@ import Header from '../components/header';
 import CreateMatch from '../components/matches/createMatch';
 import '../styles/pages.css'; 
 
-const BuildMatches = ({ loggedIn, logout }) => {
+const BuildMatches = ({ loggedIn }) => {
   return (
     <>
       <div className="full-page-container">

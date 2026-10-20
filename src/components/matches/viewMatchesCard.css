@@ -269,38 +269,6 @@
 }
 
 
-/* HOVER TAGS-----------------------------------------------------------------------------*/
-
-.hover-tags-row {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  padding: 10px;
-  box-sizing: border-box;
-  background: var(--overlay-light-surface);
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
-  z-index: 2;
-}
-
-.match-card:hover .hover-tags-row {
-  transform: translateY(0);
-}
-
-.hover-tag-image {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  border-radius: 50%;
-}
-
-
 /* MATCH INFORMATION--------------------------------------------------------------------- */
 
 .match-info {
@@ -564,7 +532,7 @@
   display: grid;
   grid-template-columns: repeat(
     auto-fit,
-    minmax(50px, 1fr)
+    minmax(80px, 1fr)
   );
   gap: 0.4rem;
 }
@@ -624,28 +592,15 @@
   border-color: var(--main-color);
 }
 
-.matches-selection-img {
-  display: block;
-  width: 100%;
-  height: 50px;
-  object-fit: cover;
-  background: var(--image-background);
-  transition: transform 0.25s ease;
-}
-
-.matches-selection-button:hover
-.matches-selection-img {
-  transform: scale(1.02);
-}
-
 .matches-selection-title {
-  padding: 0.3rem 0.25rem;
+  width: 100%;
+  padding: 0.5rem 0.4rem;
 
   font-size: 10px;
   font-weight: 500;
 
   letter-spacing: 0.02em;
-  text-align: left;
+  text-align: center;
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -712,7 +667,7 @@
   .matches-selection-grid {
     grid-template-columns: repeat(
       auto-fit,
-      minmax(55px, 1fr)
+      minmax(80px, 1fr)
     );
   }
 }
@@ -738,19 +693,6 @@
   .match-image-grid {
     padding: 10px;
     gap: 6px;
-  }
-
-  .hover-tags-row {
-    position: static;
-    transform: none;
-    padding: 5px;
-    gap: 4px;
-    background: var(--overlay-light-surface-solid);
-  }
-
-  .hover-tag-image {
-    width: 22px;
-    height: 22px;
   }
 
   .match-card:hover {
@@ -805,7 +747,7 @@
   .matches-selection-grid {
     grid-template-columns: repeat(
       auto-fit,
-      minmax(42px, 1fr)
+      minmax(66px, 1fr)
     );
 
     gap: 3px;
@@ -819,16 +761,10 @@
     border-radius: 5px;
   }
 
-  .matches-selection-img {
-    width: 100%;
-    height: 36px;
-    object-fit: cover;
-  }
-
   .matches-selection-title {
-    padding: 2px 3px;
+    padding: 0.4rem 0.3rem;
 
-    font-size: 8px;
+    font-size: 9px;
     line-height: 1.1;
 
     letter-spacing: 0;
@@ -923,25 +859,20 @@
   /* EVEN SMALLER TAGS */
 
   .matches-selection-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 2px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
   }
 
   .matches-selection-button {
     border-radius: 4px;
   }
 
-  .matches-selection-img {
-    height: 25px;
-    width: 25px;
-  }
-
   .matches-selection-title {
-    padding: 2px;
+    padding: 0.35rem 0.25rem;
 
-    font-size: 7px;
-    line-height: 1;
+    font-size: 8px;
+    line-height: 1.1;
 
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
 }

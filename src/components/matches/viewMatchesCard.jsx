@@ -189,36 +189,6 @@ const ViewMatchesCard = ({
     );
   };
 
-  /*
-   * Render tags on collapsed card hover
-   */
-  const renderMatchTags = () => {
-    if (!match.tags?.length) return null;
-
-    return (
-      <div className="hover-tags-row">
-        {match.tags.map((tagName) => {
-          const tag = tagOptions.find(
-            (option) =>
-              option.name === tagName
-          );
-
-          return (
-            tag && (
-              <img
-                key={tagName}
-                src={tag.image}
-                alt={tagName}
-                title={tagName}
-                className="hover-tag-image"
-              />
-            )
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
     <div
       ref={cardRef}
@@ -251,7 +221,6 @@ const ViewMatchesCard = ({
           ))}
         </div>
 
-        {!isExpanded && renderMatchTags()}
       </div>
 
       {/* COLLAPSED CARD INFO */}
@@ -390,12 +359,6 @@ const ViewMatchesCard = ({
                         toggleTag(tag.name)
                       }
                     >
-                      <img
-                        src={tag.image}
-                        alt={tag.name}
-                        className="matches-selection-img"
-                      />
-
                       <span className="matches-selection-title">
                         {tag.name}
                       </span>

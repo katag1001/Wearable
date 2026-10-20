@@ -160,36 +160,15 @@
 
 
 /* ----------------------------------------------------------------
-   Day Image
------------------------------------------------------------------ */
-
-.day-card-image {
-  width: 100%;
-  height: 70px;
-  width: auto;
-  display: block;
-
-  margin-bottom: 0.45rem;
-
-  object-fit: cover;
-
-  border-radius: 6px;
-
-  transition: opacity 0.2s ease;
-  
-}
-
-
-.day-card:hover .day-card-image {
-  opacity: 0.94;
-}
-
-
-/* ----------------------------------------------------------------
    Tag Name
 ----------------------------------------------------------------- */
 
 .day-card-tag {
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+
   color: var(--tag-color);
 
   font-size: var(--tag-font-size);
@@ -468,40 +447,13 @@
   box-shadow: none;
 }
 
-/* ----------------------------------------------------------------
-   Tag Image
------------------------------------------------------------------ */
-
-.tag-card-image-wrapper {
-  width: 100%;
-  height: 72px;
-
-  overflow: hidden;
-
-}
-
-.tag-card-image {
-  display: block;
-
-  width: 100%;
-  
-
-  object-fit: cover;
-
-  transition: opacity 0.2s ease;
-}
-
-.tag-card:hover .tag-card-image {
-  opacity: 0.94;
-}
-
 
 /* ----------------------------------------------------------------
    Tag Content
 ----------------------------------------------------------------- */
 
 .tag-card-content {
-  min-height: 28px;
+  min-height: 36px;
 
   display: flex;
   align-items: center;
@@ -724,12 +676,6 @@
   }
 
 
-  .day-card-image {
-    height: 72px;
-    margin-bottom: 0.4rem;
-  }
-
-
   .day-card-plus {
     width: 32px;
     height: 32px;
@@ -748,11 +694,6 @@
   .tag-card {
     width: 72px;
     max-width: 72px;
-  }
-
-
-  .tag-card-image-wrapper {
-    height: 72px;
   }
 
 }
@@ -814,15 +755,6 @@
   }
 
 
-  .day-card-image {
-    height: 62px;
-
-    margin-bottom: 0.35rem;
-
-    border-radius: 5px;
-  }
-
-
   .day-card-plus {
     width: 31px;
     height: 31px;
@@ -877,11 +809,6 @@
   .tag-card {
     width: 72px;
     max-width: 72px;
-  }
-
-
-  .tag-card-image-wrapper {
-    height: 72px;
   }
 
 
@@ -949,15 +876,6 @@
   }
 
 
-  .day-card-image {
-    height: 57px;
-
-    margin-bottom: 0.3rem;
-
-    border-radius: 5px;
-  }
-
-
   .day-card-plus {
     width: 29px;
     height: 29px;
@@ -998,15 +916,8 @@
   }
 
 
-  .tag-card-image-wrapper {
-    height: auto;
-
-    aspect-ratio: 1 / 1;
-  }
-
-
   .tag-card-content {
-    min-height: 26px;
+    min-height: 32px;
 
     padding: 0.3rem 0.35rem;
   }

@@ -126,47 +126,6 @@
 }
 
 
-/* Hidden initially */
-.hover-tags-row {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-
-  width: 100%;
-
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: center;
-  gap: 8px;
-
-  padding: 8px;
-
-  background: var(--overlay-light-surface);
-
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
-  box-sizing: border-box;
-}
-
-
-
-/* Slide upward */
-.clothing-card-viewclothes:hover .hover-tags-row {
-  transform: translateY(0);
-}
-
-
-.hover-tag-image {
-  width: 32px;
-  height: 32px;
-
-  object-fit: contain;
-
-  border-radius: 50%;
-}
-
-
 /* ================================================================
    RESPONSIVE / SMALL SCREENS
 ================================================================ */
@@ -201,18 +160,6 @@
   .clothing-image-viewclothes {
     width: 140px;
     height: 168px;
-  }
-
-
-  .hover-tags-row {
-    gap: 6px;
-    padding: 6px;
-  }
-
-
-  .hover-tag-image {
-    width: 28px;
-    height: 28px;
   }
 
 }
@@ -304,25 +251,6 @@
     font-size: var(--tag-font-size);
   }
 
-
-  /* ================================================================
-     HOVER TAGS
-  ================================================================ */
-
-  .hover-tags-row {
-    gap: 4px;
-
-    padding: 5px;
-
-    background: var(--overlay-light-surface-soft);
-  }
-
-
-  .hover-tag-image {
-    width: 24px;
-    height: 24px;
-  }
-
 }
 
 
@@ -361,18 +289,6 @@
   .clothing-item-name,
   .clothing-text-button {
     font-size: .55rem;
-  }
-
-
-  .hover-tags-row {
-    gap: 3px;
-    padding: 4px;
-  }
-
-
-  .hover-tag-image {
-    width: 21px;
-    height: 21px;
   }
 
 }

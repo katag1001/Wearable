@@ -6,12 +6,12 @@ import { useWeeklyPreferences } from "@core/hooks/useWeeklyPreferences.js";
 
 import {
   Button,
-  Grid,
+  Chip,
+  ChipRow,
   Loading,
   Message,
   Screen,
   SectionTitle,
-  TagTile,
 } from "../../components/ui";
 import { WeekDayRow } from "../../components/week/WeekDayRow";
 
@@ -45,16 +45,16 @@ export default function WeeklyPreferencesScreen() {
         }
       />
 
-      <Grid columns={3}>
+      <ChipRow>
         {tagOptions.map((tag) => (
-          <TagTile
+          <Chip
             key={tag.name}
-            tag={tag}
+            label={tag.name}
             selected={selectedTagName === tag.name}
             onPress={() => weekly.selectTag(tag.name)}
           />
         ))}
-      </Grid>
+      </ChipRow>
 
       <Message text={weekly.error} />
       <Message text={weekly.success} type="success" />

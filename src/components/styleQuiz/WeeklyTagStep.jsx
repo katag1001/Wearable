@@ -40,16 +40,6 @@ const WeeklyTagStep = ({ weeklyTags, onTagChange, onBack, onNext }) => {
                 {day.label.slice(0, 3)}
               </span>
 
-              {tag ? (
-                <img
-                  src={tag.image}
-                  alt={tag.name}
-                  className="style-quiz-day-image"
-                />
-              ) : (
-                <span className="style-quiz-day-empty">+</span>
-              )}
-
               <span className="style-quiz-day-tag">
                 {tag ? tag.name : "None"}
               </span>
@@ -74,12 +64,6 @@ const WeeklyTagStep = ({ weeklyTags, onTagChange, onBack, onNext }) => {
               onClick={() => selectTag(tag.name)}
               aria-pressed={isSelected}
             >
-              <img
-                src={tag.image}
-                alt={tag.name}
-                className="style-quiz-tag-card-image"
-              />
-
               <span className="style-quiz-tag-card-name">{tag.name}</span>
 
               {isSelected && (

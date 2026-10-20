@@ -1,7 +1,7 @@
-// The seven days in a row, each showing its tag's icon (or "+"). Tapping
+// The seven days in a row, each showing its tag's name (or "+"). Tapping
 // a day makes it the active one. Used wherever weekly tags are picked.
 
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { weekDays } from "@core/constants/weekDays.js";
 import {
@@ -33,7 +33,14 @@ export const WeekDayRow = ({ weeklyTags, activeDay, onDayPress }) => (
           </Text>
 
           {tag ? (
-            <Image source={tag.image} style={styles.icon} resizeMode="contain" />
+            <Text
+              style={[styles.tagName, isActive && styles.activeText]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.6}
+            >
+              {tag.name}
+            </Text>
           ) : (
             <Text style={[styles.empty, isActive && styles.activeText]}>+</Text>
           )}
@@ -69,9 +76,12 @@ const styles = StyleSheet.create({
   activeText: {
     color: colors.inverse,
   },
-  icon: {
-    width: 28,
+  tagName: {
     height: 28,
+    lineHeight: 28,
+    paddingHorizontal: 2,
+    fontSize: fontSizes.tag,
+    color: colors.main,
   },
   empty: {
     height: 28,

@@ -2,7 +2,7 @@
 
 import { tagOptions } from "../constants/optionsBank.js";
 
-// The tagOptions entry ({ name, image }) with exactly this name, or null.
+// The tagOptions entry ({ name }) with exactly this name, or null.
 export const getTagOption = (tagName) =>
   tagOptions.find((tag) => tag.name === tagName) || null;
 

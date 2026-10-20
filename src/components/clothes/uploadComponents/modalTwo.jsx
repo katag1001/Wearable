@@ -104,12 +104,6 @@ const ModalTwo = ({
               onClick={() => toggleTag(tag.name)}
             >
 
-              <img
-                src={tag.image}
-                alt={tag.name}
-                className="tags-selection-img"
-              />
-
               <span className="tags-selection-title">
                 {tag.name}
               </span>

@@ -12,11 +12,9 @@ import {
   Button,
   Chip,
   ChipRow,
-  Grid,
   RangeSlider,
   SectionTitle,
   Sheet,
-  TagTile,
 } from "../ui";
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
@@ -93,16 +91,16 @@ export const OutfitEditorSheet = ({
           />
 
           <SectionTitle title="Tags" />
-          <Grid columns={4}>
+          <ChipRow>
             {tagOptions.map((tag) => (
-              <TagTile
+              <Chip
                 key={tag.name}
-                tag={tag}
+                label={tag.name}
                 selected={draft.tags.includes(tag.name)}
                 onPress={() => card.toggleTag(tag.name)}
               />
             ))}
-          </Grid>
+          </ChipRow>
 
           <Button
             label="Delete outfit"

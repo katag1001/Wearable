@@ -17,5 +17,4 @@ export { Screen } from "./Screen";
 export { SectionTitle } from "./SectionTitle";
 export { SegmentedControl } from "./SegmentedControl";
 export { Sheet } from "./Sheet";
-export { TagTile } from "./TagTile";
 export { TextField } from "./TextField";

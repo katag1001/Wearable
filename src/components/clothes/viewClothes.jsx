@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { tagOptions } from "@core/constants/optionsBank.js";
 
 import DeletePopup from "../general/deletePopup.jsx";
 
@@ -21,12 +20,6 @@ const ViewClothes = ({
 }) => {
   const [deleteItem, setDeleteItem] = useState(null);
   const [deleting, setDeleting] = useState(false);
-
-  const getTagImages = (tags = []) => {
-    return tagOptions.filter((tag) =>
-      tags.includes(tag.name)
-    );
-  };
 
   const handleDelete = (id) => {
     setDeleteItem(id);
@@ -63,7 +56,7 @@ const ViewClothes = ({
               onClick={() => onEdit(item)}
             >
 
-              {/* Image + Hover Tags */}
+              {/* Image */}
             <div className="clothing-image-wrapper">
 
               {item.imageUrl && (
@@ -77,18 +70,6 @@ const ViewClothes = ({
                   decoding="async"
                 />
               )}
-
-              <div className="hover-tags-row">
-                {getTagImages(item.tags).map((tag) => (
-                  <img
-                    key={tag.name}
-                    src={tag.image}
-                    alt={tag.name}
-                    className="hover-tag-image"
-                  />
-                ))}
-              </div>
-
             </div>
 
             <div className="clothing-text">

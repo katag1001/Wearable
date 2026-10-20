@@ -19,7 +19,6 @@ import {
   spacing,
 } from "@core/theme/tokens.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
-import { getTagOption } from "@core/utils/tagOptions.js";
 
 import { Card } from "../ui";
 
@@ -36,7 +35,6 @@ export const OutfitCard = ({
   const card = useMatchCard({ match, onChanged, onFavouriteToggle, onError });
 
   const clothes = (match.clothes || []).filter((item) => item?.imageUrl);
-  const tags = (match.tags || []).map(getTagOption).filter(Boolean);
 
   return (
     <Pressable
@@ -69,17 +67,11 @@ export const OutfitCard = ({
             <Text style={styles.seasons}>{formatMatchSeasons(match)}</Text>
           </View>
 
-          <View style={styles.tags}>
-            {tags.map((tag) => (
-              <Image
-                key={tag.name}
-                source={tag.image}
-                style={styles.tag}
-                contentFit="contain"
-                accessibilityLabel={tag.name}
-              />
-            ))}
-          </View>
+          {match.tags?.length ? (
+            <Text style={styles.tags} numberOfLines={2}>
+              {match.tags.join(" · ")}
+            </Text>
+          ) : null}
         </View>
 
         <Pressable
@@ -145,12 +137,11 @@ const styles = StyleSheet.create({
     color: colors.secondary,
   },
   tags: {
-    flexDirection: "row",
-    gap: spacing.xs,
-  },
-  tag: {
-    width: 22,
-    height: 22,
+    flexShrink: 1,
+    marginLeft: spacing.md,
+    fontSize: fontSizes.small,
+    color: colors.secondary,
+    textAlign: "right",
   },
   heart: {
     position: "absolute",

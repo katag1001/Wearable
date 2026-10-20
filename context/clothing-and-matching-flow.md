@@ -1174,7 +1174,7 @@ cardigan pair goes up to 46.
 These are behaviours found in the code that may not be intended.
 
 1. **Item names containing a tag word fail to save.** `detectFromName`
-   returns the matching **tag objects** (`{ name, image }`), not tag names
+   returns the matching **tag objects** (`{ name }`), not tag names
    (`uploadHelpers.jsx`, `detectedTags`). They are merged into `tags`
    alongside strings. Mongoose can't cast an object to a string, so saving
    fails with a 500 "Cast to [string] failed". This affects names such as

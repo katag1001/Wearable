@@ -7,7 +7,7 @@ import {
   tagOptions,
 } from "@core/constants/optionsBank.js";
 
-import { Chip, ChipRow, Grid, SectionTitle, TagTile } from "../ui";
+import { Chip, ChipRow, SectionTitle } from "../ui";
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -42,16 +42,16 @@ export const ItemDetailsPage = ({ form }) => {
       </ChipRow>
 
       <SectionTitle title="Tags" />
-      <Grid columns={3}>
+      <ChipRow>
         {tagOptions.map((tag) => (
-          <TagTile
+          <Chip
             key={tag.name}
-            tag={tag}
+            label={tag.name}
             selected={formData.tags.includes(tag.name)}
             onPress={() => form.toggleTag(tag.name)}
           />
         ))}
-      </Grid>
+      </ChipRow>
     </>
   );
 };

@@ -4,7 +4,7 @@ import Header from '../components/header';
 import RegisterForm from '../components/login/RegisterForm';
 import '../styles/pages.css';
 
-const Register = ({ loggedIn, logout }) => {
+const Register = ({ loggedIn }) => {
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -1,65 +1,16 @@
-import work from "../assets/icons/work.png";
-import gym from "../assets/icons/gym.png";
-import loungewear from "../assets/icons/loungewear.png";
-import party from "../assets/icons/party.png";
-import date_night from "../assets/icons/date_night.png";
-import formal from "../assets/icons/formal.png";
-import beach from "../assets/icons/beach.png";
-import outdoor from "../assets/icons/outdoor.png";
-import dinner from "../assets/icons/dinner.png";
-import everyday from "../assets/icons/everyday.png";
-import comfortable from "../assets/icons/comfortable.png";
-import lunch from "../assets/icons/lunch.png";
-
 export const tagOptions = [
-  {
-    name: "Work",
-    image: work
-  },
-  {
-    name: "Gym",
-    image: gym
-  },
-  {
-    name: "Loungewear",
-    image: loungewear
-  },
-  {
-    name: "Comfortable",
-    image: comfortable
-  },
-  {
-    name: "Party",
-    image: party
-  },
-  {
-    name: "Date night",
-    image: date_night
-  },
-  {
-    name: "Formal",
-    image: formal
-  },
-  {
-    name: "Beach",
-    image: beach
-  },
-  {
-    name: "Outdoor",
-    image: outdoor
-  },
-  {
-    name: "Lunch",
-    image: lunch
-  },
-  {
-    name: "Dinner",
-    image: dinner
-  },
-  {
-    name: "Everyday",
-    image: everyday
-  }
+  { name: "Work" },
+  { name: "Gym" },
+  { name: "Loungewear" },
+  { name: "Comfortable" },
+  { name: "Party" },
+  { name: "Date night" },
+  { name: "Formal" },
+  { name: "Beach" },
+  { name: "Outdoor" },
+  { name: "Lunch" },
+  { name: "Dinner" },
+  { name: "Everyday" }
 ];
 
 

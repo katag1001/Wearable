@@ -4,7 +4,6 @@ import '../../styles/pagesTop.css'
 import '../../styles/pages.css'
 
 const ViewMatchesTop = ({
-  mode,
   searchTerm,
   setSearchTerm,
   selectedSeason,

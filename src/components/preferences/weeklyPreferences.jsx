@@ -89,17 +89,9 @@ const WeeklyPreferences = () => {
               </span>
 
               {tag ? (
-                <>
-                  <img
-                    src={tag.image}
-                    alt={tag.name}
-                    className="day-card-image"
-                  />
-
-                  <span className="day-card-tag">
-                    {tag.name}
-                  </span>
-                </>
+                <span className="day-card-tag">
+                  {tag.name}
+                </span>
               ) : (
                 <div className="day-card-empty">
                   <span className="day-card-plus">
@@ -170,14 +162,6 @@ const WeeklyPreferences = () => {
                   isSelected
                 }
               >
-                <div className="tag-card-image-wrapper">
-                  <img
-                    src={tag.image}
-                    alt={tag.name}
-                    className="tag-card-image"
-                  />
-                </div>
-
                 <div className="tag-card-content">
                   <span>
                     {tag.name}

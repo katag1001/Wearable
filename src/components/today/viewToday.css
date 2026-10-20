@@ -470,52 +470,6 @@
    FEATURED TAG OVERLAY
 ================================================================ */
 
-.today-hover-tags-row {
-  position: absolute;
-
-  bottom: 0;
-  left: 0;
-
-  width: 100%;
-
-  display: flex;
-  flex-wrap: wrap;
-
-  justify-content: center;
-  align-items: center;
-
-  gap: 6px;
-
-  padding: 7px;
-
-  box-sizing: border-box;
-
-  background: var(--overlay-light-surface);
-
-  transform: translateY(100%);
-
-  transition:
-    transform .3s ease;
-
-  z-index: 2;
-}
-
-
-.featured-outfit-content:hover
-.today-hover-tags-row {
-  transform: translateY(0);
-}
-
-
-.today-hover-tag-image {
-  width: 28px;
-  height: 28px;
-
-  object-fit: contain;
-
-  border-radius: 50%;
-}
-
 
 /* ================================================================
    BUTTON
@@ -746,7 +700,7 @@
   width: 100%;
   display: grid;
   box-sizing: border-box;
-  grid-template-columns: repeat(auto-fill, 54px);
+  grid-template-columns: repeat(auto-fill, 76px);
   justify-content: center;
   gap: .35rem;
   overflow: visible;
@@ -759,8 +713,8 @@
 ================================================================ */
 
 .today-tag-option {
-  width: 54px;
-  max-width: 54px;
+  width: 76px;
+  max-width: 76px;
 
   min-width: 0;
 
@@ -821,45 +775,11 @@
 
 
 /* ================================================================
-   TAG IMAGE
-================================================================ */
-
-.today-tag-image-wrapper {
-  width: 100%;
-
-  height: 40px;
-
-  overflow: hidden;
-
-  background: var(--image-background);
-}
-
-
-.today-tag-icon {
-  display: block;
-
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-
-  transition:
-    transform .25s ease;
-}
-
-
-.today-tag-option:hover
-.today-tag-icon {
-  transform: scale(1.02);
-}
-
-
-/* ================================================================
    TAG CONTENT
 ================================================================ */
 
 .today-tag-content {
-  min-height: 20px;
+  min-height: 28px;
 
   display: flex;
 
@@ -868,7 +788,7 @@
 
   gap: .15rem;
 
-  padding: .2rem .25rem;
+  padding: .3rem .4rem;
 
   box-sizing: border-box;
 }
@@ -883,7 +803,7 @@
 
   color: var(--tag-color);
 
-  font-size: .48rem;
+  font-size: .58rem;
   font-weight: 500;
 
   letter-spacing: .02em;
@@ -1067,25 +987,6 @@
   }
 
 
-  /* Keep hover tags usable on touch devices */
-
-  .today-hover-tags-row {
-    transform: translateY(0);
-
-    padding: 5px;
-
-    gap: 4px;
-
-    background: var(--overlay-light-surface-strong);
-  }
-
-
-  .today-hover-tag-image {
-    width: 24px;
-    height: 24px;
-  }
-
-
   .today-arrow-button {
     width: 30px;
     height: 30px;
@@ -1170,23 +1071,18 @@
 
   .today-tag-selector {
     grid-template-columns:
-      repeat(auto-fill, 50px);
+      repeat(auto-fill, 70px);
   }
 
 
   .today-tag-option {
-    width: 50px;
-    max-width: 50px;
-  }
-
-
-  .today-tag-image-wrapper {
-    height: 36px;
+    width: 70px;
+    max-width: 70px;
   }
 
 
   .today-tag-content > span:first-child {
-    font-size: .45rem;
+    font-size: .54rem;
   }
 
 
