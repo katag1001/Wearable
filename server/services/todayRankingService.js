@@ -7,7 +7,9 @@
 //
 // Order: outfits with today's tag first, then the rest; each group by a
 // weighted mix of how long since its clothes were worn, how long since the
-// outfit was worn, and its match score (RANKING_WEIGHTS).
+// outfit was worn, and its match score (RANKING_WEIGHTS), plus a small
+// random nudge (RANKING_JITTER). todaySelectionService.js then spreads out
+// outfits sharing an item (todayDiversityService.js).
 
 const {
   RANKING_WEIGHTS,
@@ -15,6 +17,7 @@ const {
   MAX_FRESHNESS,
   FAVOURITE_SCORE,
 } = require("../constants/todayOutfits.js");
+const { jitter } = require("./todayDiversityService.js");
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -71,23 +74,32 @@ const hasTag = (match, todayTag) => {
   return (match.tags || []).some((tag) => tag.trim().toLowerCase() === wanted);
 };
 
-// The matches in today's order (a new array).
-const rankTodayMatches = (matches, todayTag = null, now = new Date()) => {
+// The matches in today's order, as [tagged, untagged] groups (new arrays).
+// Each score gets a random nudge (todayDiversityService.jitter); pass
+// `random` to control it.
+const rankTodayGroups = (matches, todayTag = null, now = new Date(), random = Math.random) => {
   const scored = matches.map((match) => ({
     match,
     tagged: !todayTag || hasTag(match, todayTag),
-    score: rankingScore(match, now),
+    score: rankingScore(match, now) + jitter(random),
   }));
 
   const byScore = (a, b) => b.score - a.score;
+  const group = (tagged) =>
+    scored
+      .filter((entry) => entry.tagged === tagged)
+      .sort(byScore)
+      .map((entry) => entry.match);
 
-  return [
-    ...scored.filter((entry) => entry.tagged).sort(byScore),
-    ...scored.filter((entry) => !entry.tagged).sort(byScore),
-  ].map((entry) => entry.match);
+  return [group(true), group(false)];
 };
 
+// The matches in today's order (a new array).
+const rankTodayMatches = (matches, todayTag = null, now = new Date(), random = Math.random) =>
+  rankTodayGroups(matches, todayTag, now, random).flat();
+
 module.exports = {
+  rankTodayGroups,
   rankTodayMatches,
   rankingScore,
   freshness,

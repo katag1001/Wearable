@@ -10,7 +10,9 @@
 //  Each outfit goes in the first tier it fits. A tier only joins while the
 //  tiers above it have fewer than TODAY_OUTFIT_LIMIT outfits, and always
 //  sits below them.
-//  3. Each tier ordered by todayRankingService, then the list is cut to
+//  3. Each tier ordered by todayRankingService (tagged outfits first),
+//     then each tag group spread out so outfits sharing an item aren't
+//     next to each other (todayDiversityService). The list stops at
 //     TODAY_OUTFIT_LIMIT.
 
 const {
@@ -20,7 +22,8 @@ const {
   PARTIAL_COVERAGE_STEPS,
 } = require("../constants/todayOutfits.js");
 const { todayCoverageFraction } = require("./temperatureService.js");
-const { rankTodayMatches } = require("./todayRankingService.js");
+const { rankTodayGroups } = require("./todayRankingService.js");
+const { spreadSharedItems } = require("./todayDiversityService.js");
 
 // Allows for floating-point rounding in the comparisons.
 const EPSILON = 1e-9;
@@ -50,13 +53,15 @@ const todayTierOf = (match, todayRange) => {
 
 const TIER_COUNT = 1 + PARTIAL_COVERAGE_STEPS.length;
 
-// The matches for today's list, best first, at most `limit`.
+// The matches for today's list, best first, at most `limit`. `random`
+// drives the ranking jitter (pass one in for tests).
 const selectTodayMatches = ({
   matches,
   todayRange,
   todayTag = null,
   now = new Date(),
   limit = TODAY_OUTFIT_LIMIT,
+  random = Math.random,
 }) => {
   const tiers = Array.from({ length: TIER_COUNT }, () => []);
 
@@ -71,14 +76,16 @@ const selectTodayMatches = ({
   const ranked = [];
 
   for (const tier of tiers) {
-    if (ranked.length >= limit) {
-      break;
-    }
+    for (const group of rankTodayGroups(tier, todayTag, now, random)) {
+      if (ranked.length >= limit) {
+        return ranked;
+      }
 
-    ranked.push(...rankTodayMatches(tier, todayTag, now));
+      ranked.push(...spreadSharedItems(group, ranked, limit - ranked.length));
+    }
   }
 
-  return ranked.slice(0, limit);
+  return ranked;
 };
 
 module.exports = {

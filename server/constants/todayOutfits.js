@@ -31,6 +31,15 @@ const RANKING_WEIGHTS = {
   score: 0.5,
 };
 
+// Variety (services/todayDiversityService.js). Each ranking score gets a
+// random nudge of up to +/- RANKING_JITTER (on the 0-10 scale) so the order
+// varies day to day. Then, within each tag group of each tier, the next
+// outfit is the best one sharing no clothing item with the last
+// SPREAD_LOOKBACK outfits placed - or, if every one does, the one sharing
+// the fewest.
+const RANKING_JITTER = 0.3;
+const SPREAD_LOOKBACK = 3;
+
 // Freshness: 0 when worn today, rising to the maximum after this many days
 // (and the maximum for never worn).
 const FRESHNESS_FULL_DAYS = 30;
@@ -45,6 +54,8 @@ module.exports = {
   FULL_COVERAGE,
   PARTIAL_COVERAGE_STEPS,
   RANKING_WEIGHTS,
+  RANKING_JITTER,
+  SPREAD_LOOKBACK,
   FRESHNESS_FULL_DAYS,
   MAX_FRESHNESS,
   FAVOURITE_SCORE,

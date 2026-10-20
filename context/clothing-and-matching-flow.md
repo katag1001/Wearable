@@ -1094,6 +1094,18 @@ tiers already decided that.
 Freshness is 10 for never worn, rising from 0 (worn today) to 10 after
 `FRESHNESS_FULL_DAYS` = 30 days.
 
+**Variety** (`server/services/todayDiversityService.js`), so outfits
+sharing an item don't come up back to back:
+
+- **Jitter** - each ranking total gets a random nudge of up to
+  ±**`RANKING_JITTER` = 0.3**, so the order changes from day to day.
+- **Spreading** - within each tag group of each tier, the next outfit is
+  the highest-ranked one sharing **no clothing item** with the last
+  **`SPREAD_LOOKBACK` = 3** outfits placed (including the end of the tier
+  or group above). If every remaining outfit shares something, the one
+  sharing the fewest items goes next. Tiers and tag groups still never
+  mix.
+
 **Once a day.** `/today/create` does nothing if the user's list was already
 built today (and ranked), so a second device gets the same list. Each
 Today entry stores its `rank`; `/today/get` returns them in rank order.

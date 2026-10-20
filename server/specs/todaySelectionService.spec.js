@@ -8,6 +8,7 @@ const {
 
 const NOW = new Date("2026-10-15T12:00:00Z");
 const TODAY = { min: 10, max: 20 };
+const NO_JITTER = () => 0.5;
 
 const match = (id, min_temp, max_temp, fields = {}) => ({
   _id: id,
@@ -30,6 +31,7 @@ test("outfits covering the whole day come before 70%+ ones", () => {
     ],
     todayRange: TODAY,
     now: NOW,
+    random: NO_JITTER,
   });
 
   assert.deepEqual(ids(selected), ["full", "partial"]);
@@ -40,6 +42,7 @@ test("outfits covering less than 70% of the day are left out", () => {
     matches: [match("narrow", 14, 16), match("full", 5, 25)],
     todayRange: TODAY,
     now: NOW,
+    random: NO_JITTER,
   });
 
   assert.deepEqual(ids(selected), ["full"]);
@@ -50,6 +53,7 @@ test("partial outfits only join while the full ones don't reach the limit", () =
     matches: [match("full1", 5, 25), match("full2", 0, 30), match("partial", 12, 25)],
     todayRange: TODAY,
     now: NOW,
+    random: NO_JITTER,
     limit: 2,
   });
 
@@ -65,6 +69,7 @@ test("the list is cut to the limit, best first", () => {
     ],
     todayRange: TODAY,
     now: NOW,
+    random: NO_JITTER,
     limit: 2,
   });
 
@@ -81,6 +86,7 @@ test("today's tag orders each tier, but never lifts a partial outfit above a ful
     todayRange: TODAY,
     todayTag: "Work",
     now: NOW,
+    random: NO_JITTER,
   });
 
   assert.deepEqual(ids(selected), ["full-tagged", "full-untagged", "partial-tagged"]);
@@ -110,9 +116,27 @@ test("close and full-day outfits are ranked together, before partial ones", () =
     ],
     todayRange: TODAY,
     now: NOW,
+    random: NO_JITTER,
   });
 
   assert.deepEqual(ids(selected), ["full", "close", "partial"]);
+});
+
+test("outfits sharing an item are spread out, but never across a tier", () => {
+  const cardi = { clothes: [{ _id: "cardi" }] };
+  const selected = selectTodayMatches({
+    matches: [
+      match("full-cardi1", 5, 25, { score: 90, ...cardi }),
+      match("full-cardi2", 5, 25, { score: 80, ...cardi }),
+      match("full-tee", 5, 25, { score: 10, clothes: [{ _id: "tee" }] }),
+      match("partial-skirt", 11, 25, { score: 100, clothes: [{ _id: "skirt" }] }),
+    ],
+    todayRange: TODAY,
+    now: NOW,
+    random: NO_JITTER,
+  });
+
+  assert.deepEqual(ids(selected), ["full-cardi1", "full-tee", "full-cardi2", "partial-skirt"]);
 });
 
 test("lower tiers only join while the ones above don't reach the limit", () => {
@@ -120,6 +144,7 @@ test("lower tiers only join while the ones above don't reach the limit", () => {
     matches: [match("partial", 11, 25), match("close1", 10, 20), match("close2", 9, 21)],
     todayRange: TODAY,
     now: NOW,
+    random: NO_JITTER,
     limit: 2,
   });
 

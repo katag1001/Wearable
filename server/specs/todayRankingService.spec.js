@@ -7,6 +7,7 @@ const {
 } = require("../services/todayRankingService.js");
 
 const NOW = new Date("2026-10-15T12:00:00Z");
+const NO_JITTER = () => 0.5;
 const daysAgo = (days) => new Date(NOW.getTime() - days * 24 * 60 * 60 * 1000);
 
 const match = (id, fields = {}) => ({
@@ -34,7 +35,8 @@ test("outfits with today's tag come before the rest, whatever their score", () =
       match("tagged", { score: 0, tags: ["Work"] }),
     ],
     "work",
-    NOW
+    NOW,
+    NO_JITTER
   );
 
   assert.deepEqual(ids(ranked), ["tagged", "untagged"]);
@@ -44,7 +46,8 @@ test("with no tag for today, every outfit is ranked together", () => {
   const ranked = rankTodayMatches(
     [match("low", { score: 10 }), match("high", { score: 90 })],
     null,
-    NOW
+    NOW,
+    NO_JITTER
   );
 
   assert.deepEqual(ids(ranked), ["high", "low"]);
@@ -57,7 +60,8 @@ test("recently worn outfits and clothes rank lower", () => {
       match("fresh"),
     ],
     null,
-    NOW
+    NOW,
+    NO_JITTER
   );
 
   assert.deepEqual(ids(ranked), ["fresh", "worn"]);
@@ -67,7 +71,8 @@ test("a favourite counts as the top score", () => {
   const ranked = rankTodayMatches(
     [match("high", { score: 95 }), match("favourite", { score: 10, favourite: true })],
     null,
-    NOW
+    NOW,
+    NO_JITTER
   );
 
   assert.deepEqual(ids(ranked), ["favourite", "high"]);
