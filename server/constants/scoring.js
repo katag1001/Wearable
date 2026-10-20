@@ -79,8 +79,12 @@ const SINGLE_ITEM_SCORE = 85;
 // outfit also scores at least this. Doesn't apply to outfits the user builds.
 const MIN_AUTO_SCORE = 65;
 
+// Automatic outfits never score above this, so they always rank below
+// USER_MADE_SCORE.
+const MAX_AUTO_SCORE = 90;
+
 // Every outfit the user builds (or claims) gets this flat score.
-const USER_MADE_SCORE = 90;
+const USER_MADE_SCORE = 95;
 
 // Change to every compatible pair in an outfit when the user acts on it.
 const LEARNING_DELTAS = {
@@ -133,6 +137,7 @@ module.exports = {
   BRIGHT_COLOUR_ADJUSTMENTS,
   SINGLE_ITEM_SCORE,
   MIN_AUTO_SCORE,
+  MAX_AUTO_SCORE,
   USER_MADE_SCORE,
   LEARNING_DELTAS,
   PAIRING_ANSWER_ADJUSTMENTS,

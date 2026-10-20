@@ -26,6 +26,7 @@ const {
   FAVOURITE_PALETTE_BONUS,
   BRIGHT_COLOUR_ADJUSTMENTS,
   SINGLE_ITEM_SCORE,
+  MAX_AUTO_SCORE,
 } = require("../constants/scoring.js");
 const { allPalettes, paletteFits, BRIGHT_COLOURS } = require("../utils/colorPalettes.js");
 
@@ -144,9 +145,13 @@ function computePairBlend(items, baselineMatrix, adjustments) {
   return average * AVERAGE_PAIR_WEIGHT + lowest * LOWEST_PAIR_WEIGHT;
 }
 
-// The final score for a pair blend and colour score, rounded.
+// The final score for a pair blend and colour score, rounded and capped at
+// MAX_AUTO_SCORE.
 function combineScores(pairBlend, colourScore) {
-  return Math.round(pairBlend * PAIR_SCORE_WEIGHT + colourScore * COLOUR_SCORE_WEIGHT);
+  return Math.min(
+    MAX_AUTO_SCORE,
+    Math.round(pairBlend * PAIR_SCORE_WEIGHT + colourScore * COLOUR_SCORE_WEIGHT)
+  );
 }
 
 // Pair blend weighted with the colour score, rounded to a whole number. An

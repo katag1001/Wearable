@@ -51,7 +51,7 @@ In short:
 - The **matrix** used depends on the user's gender. The **colour palettes**,
   colour cap and colour score depend on their colour level. Both come
   from the style quiz, as do the user's favourite palettes.
-- User-made outfits are **never rejected** and always score 90. Building
+- User-made outfits are **never rejected** and always score 95. Building
   one (+1), favouriting (+0.5) or deleting any outfit (−0.25) adjusts the user's
   personal score for every compatible subtype pair in it. That changes
   how future automatic outfits are **scored and ranked**, never whether
@@ -643,9 +643,9 @@ claiming it, 5.3, or rejecting it on the Today page, 7.2):
 
 | Match | Score |
 |---|---|
-| Automatic, 2+ items | **60% × pair blend + 40% × colour score**, rounded. Only saved if the pair blend and the colour score are **both at least 65** (`MIN_AUTO_SCORE`, 4.5) |
+| Automatic, 2+ items | **60% × pair blend + 40% × colour score**, rounded, capped at **90** (`MAX_AUTO_SCORE`) so automatic outfits always rank below user-made ones. Only saved if the pair blend and the colour score are **both at least 65** (`MIN_AUTO_SCORE`, 4.5) |
 | Automatic, single item (a onepiece alone) | **85** (no colour score, never dropped) |
-| User-built, or a claimed automatic match (5.3) | **90** |
+| User-built, or a claimed automatic match (5.3) | **95** |
 
 Because the final score is a weighted average of two numbers that are both
 at least 65, every saved automatic outfit scores at least 65.
@@ -919,7 +919,7 @@ Files: `src/components/matches/createMatch.jsx`, `createMatch` in
      page.
    - Tags are never a reason to reject it. The outfit gets the tags every
      item shares; with none shared it's saved with no tags.
-3. Saved with `userMade: true` and **`score: 90`**.
+3. Saved with `userMade: true` and **`score: 95`**.
 4. **Learning:** `recordOutfitCreated` adds **+1** to every compatible pair
    in the outfit (Part 6).
 
@@ -927,7 +927,7 @@ Files: `src/components/matches/createMatch.jsx`, `createMatch` in
 
 - **Already user-made** → 409 "Match already exists."
 - **An automatic match** → the user **claims** it: it becomes
-  `userMade: true`, its score changes to **90**, and `recordOutfitClaimed`
+  `userMade: true`, its score changes to **95**, and `recordOutfitClaimed`
   adds **+1** to its pairs. The claimed match is returned. Apart from
   rejecting it on the Today page (7.2), this is the only time a match's
   score changes after creation.
@@ -1238,7 +1238,7 @@ undone by accident:
     left undecided and defaults to no.
 - **A match's score is set at creation.** Matches aren't re-scored
   when the user's adjustments change. The exceptions are claiming an
-  automatic outfit (it becomes 90) and rejecting it on the Today page
+  automatic outfit (it becomes 95) and rejecting it on the Today page
   (−3 per day it's rejected, 7.2).
 - **Only the best 100 new outfits per item are saved**, rather than
   whichever the search happened to find first.

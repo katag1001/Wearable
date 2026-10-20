@@ -13,7 +13,7 @@ const {
   combineScores,
   computeOutfitScore,
 } = require("../services/outfitScoreService.js");
-const { SINGLE_ITEM_SCORE, FAVOURITE_PALETTE_BONUS } = require("../constants/scoring.js");
+const { SINGLE_ITEM_SCORE, FAVOURITE_PALETTE_BONUS, MAX_AUTO_SCORE } = require("../constants/scoring.js");
 const { allPalettes } = require("../utils/colorPalettes.js");
 
 const baseline = {
@@ -131,6 +131,11 @@ test("computePairBlend is null for an outfit with no scoreable pairs", () => {
 test("combineScores weights the pair blend 60% and the colour score 40%, rounded", () => {
   assert.equal(combineScores(80, 70), 76);
   assert.equal(combineScores(67, 72.5), 69);
+});
+
+test("combineScores never goes above MAX_AUTO_SCORE", () => {
+  assert.equal(combineScores(100, 100), MAX_AUTO_SCORE);
+  assert.equal(combineScores(95, 85), MAX_AUTO_SCORE);
 });
 
 test("computeOutfitScore scores a whole outfit from the matching context", () => {
