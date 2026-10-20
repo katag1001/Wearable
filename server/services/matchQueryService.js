@@ -11,6 +11,7 @@ const {
   anyOfCondition,
   combineConditions,
 } = require("./queryHelpers.js");
+const { CLOSE_MATCH_TOLERANCE } = require("../constants/todayOutfits.js");
 
 /*
  * Turns the My Outfits page's search / filters / page number (sent as
@@ -105,14 +106,39 @@ const singleItemCondition = ({ item, itemIsValid }) => {
   return { clothes: item };
 };
 
-// An outfit is kept when its temperature range overlaps the chosen one.
+// The same rule as today's tier 1 (see constants/todayOutfits.js): an
+// outfit is kept when its min_temp and max_temp are each within
+// CLOSE_MATCH_TOLERANCE of the chosen min and max, OR its range contains
+// the whole chosen range. With only one end chosen, just that end is
+// checked: close to it or beyond it.
 const temperatureCondition = ({ minTemp, maxTemp }) => {
-  const condition = {};
+  if (minTemp !== null && maxTemp !== null) {
+    return {
+      $or: [
+        {
+          min_temp: {
+            $gte: minTemp - CLOSE_MATCH_TOLERANCE,
+            $lte: minTemp + CLOSE_MATCH_TOLERANCE,
+          },
+          max_temp: {
+            $gte: maxTemp - CLOSE_MATCH_TOLERANCE,
+            $lte: maxTemp + CLOSE_MATCH_TOLERANCE,
+          },
+        },
+        { min_temp: { $lte: minTemp }, max_temp: { $gte: maxTemp } },
+      ],
+    };
+  }
 
-  if (minTemp !== null) condition.max_temp = { $gte: minTemp };
-  if (maxTemp !== null) condition.min_temp = { $lte: maxTemp };
+  if (minTemp !== null) {
+    return { min_temp: { $lte: minTemp + CLOSE_MATCH_TOLERANCE } };
+  }
 
-  return Object.keys(condition).length > 0 ? condition : null;
+  if (maxTemp !== null) {
+    return { max_temp: { $gte: maxTemp - CLOSE_MATCH_TOLERANCE } };
+  }
+
+  return null;
 };
 
 const FILTER_RULES = [

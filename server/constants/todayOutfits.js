@@ -26,9 +26,9 @@ const PARTIAL_COVERAGE_STEPS = [0.9, 0.8, 0.7];
 // come first, then the rest. Each group is ordered by this weighted score
 // (all parts on a 0-10 scale).
 const RANKING_WEIGHTS = {
-  clothingFreshness: 0.25,
-  outfitFreshness: 0.25,
-  score: 0.5,
+  clothingFreshness: 0.2,
+  outfitFreshness: 0.2,
+  score: 0.6,
 };
 
 // Variety (services/todayDiversityService.js). Each ranking score gets a

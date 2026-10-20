@@ -229,8 +229,14 @@ preference, with the values above:
 
 ### 4.2 Filters
 
-- **Matches page:** the temperature filter keeps any match whose range
-  **overlaps** the chosen range at all (`src/pages/Matches.jsx`).
+- **Matches page:** the temperature filter uses today's tier-1 rule - a
+  match is kept when its min and max are each within **1.5°**
+  (`CLOSE_MATCH_TOLERANCE`) of the chosen min and max, or its range
+  **contains** the whole chosen range. A slider end left at the edge
+  (-10° / 50°) means no limit on that side; with one end chosen, only that
+  end is checked (close to it or beyond it). Rule in
+  `server/services/matchQueryService.js` (`temperatureCondition`); edges
+  dropped in `core/utils/matchQuery.js`.
 - **Clothes page:** no temperature filter - items have no range
   (`showTemperature={false}` on the shared `Filter`).
 

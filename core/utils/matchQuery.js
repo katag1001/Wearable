@@ -1,4 +1,5 @@
 import { PAGE_SIZE, addList } from "./pageQuery";
+import { FILTER_TEMPERATURE_RANGE } from "../filters/filterDefaults.js";
 
 /*
  * Builds the query string for GET /match/ from the My Outfits page's
@@ -37,10 +38,20 @@ export const buildMatchFilterQuery = ({
   );
 
   if (filters.favourite) params.set("favourite", "true");
-  if (filters.minTemp !== null && filters.minTemp !== undefined) {
+  // A slider end left at the edge of its range means "no limit" on that
+  // side - otherwise the server would need outfits reaching -10° or 50°.
+  if (
+    filters.minTemp !== null &&
+    filters.minTemp !== undefined &&
+    filters.minTemp > FILTER_TEMPERATURE_RANGE.min
+  ) {
     params.set("minTemp", String(filters.minTemp));
   }
-  if (filters.maxTemp !== null && filters.maxTemp !== undefined) {
+  if (
+    filters.maxTemp !== null &&
+    filters.maxTemp !== undefined &&
+    filters.maxTemp < FILTER_TEMPERATURE_RANGE.max
+  ) {
     params.set("maxTemp", String(filters.maxTemp));
   }
 

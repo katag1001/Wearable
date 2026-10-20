@@ -75,15 +75,34 @@ test("buildMatchFilter requires every selected item but any listed colour/style/
   ]);
 });
 
-test("buildMatchFilter keeps outfits whose temperature range overlaps the chosen one", () => {
+test("buildMatchFilter keeps outfits within 1.5 degrees of both ends, or containing the chosen range", () => {
   const filter = buildMatchFilter(
     USER,
     parseMatchQuery({ minTemp: "5", maxTemp: "15" })
   );
 
   assert.deepEqual(filter.$and, [
-    { max_temp: { $gte: 5 }, min_temp: { $lte: 15 } },
+    {
+      $or: [
+        {
+          min_temp: { $gte: 3.5, $lte: 6.5 },
+          max_temp: { $gte: 13.5, $lte: 16.5 },
+        },
+        { min_temp: { $lte: 5 }, max_temp: { $gte: 15 } },
+      ],
+    },
   ]);
+});
+
+test("buildMatchFilter checks only the chosen end when one temperature is given", () => {
+  assert.deepEqual(
+    buildMatchFilter(USER, parseMatchQuery({ minTemp: "5" })).$and,
+    [{ min_temp: { $lte: 6.5 } }]
+  );
+  assert.deepEqual(
+    buildMatchFilter(USER, parseMatchQuery({ maxTemp: "15" })).$and,
+    [{ max_temp: { $gte: 13.5 } }]
+  );
 });
 
 test("buildMatchFilter matches nothing for an invalid ?item= id", () => {
