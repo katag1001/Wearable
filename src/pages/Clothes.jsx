@@ -114,10 +114,15 @@ const Clothes = ({ loggedIn }) => {
               items={data.items}
               onEdit={handleEdit}
               onDelete={wardrobe.deleteItem}
-              {...(isFootwear && {
-                emptyText: "No footwear found.",
-                deleteTitle: "Delete Footwear",
-              })}
+              {...(isFootwear
+                ? {
+                    emptyText: "No footwear found.",
+                    deleteTitle: "Delete Footwear",
+                  }
+                : {
+                    onFavouriteToggled: wardrobe.onItemFavouriteToggled,
+                    onFavouriteError: wardrobe.setError,
+                  })}
             />
 
             <Pagination

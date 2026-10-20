@@ -79,6 +79,10 @@ const { hasSharedTag } = require("./helpers.js");
 const { clothesKey } = require("../utils/clothesKey.js");
 const { msUntilDeadline } = require("../utils/functionDeadline.js");
 const {
+  applyFavouriteItemBonus,
+  favouriteItemIds,
+} = require("./favouriteItemService.js");
+const {
   MIN_AUTO_SCORE,
   MIN_PAIR_SCORE,
   SINGLE_ITEM_SCORE,
@@ -391,7 +395,10 @@ async function processMatches(newItem, allItems) {
     timeLimitMs: Math.min(SEARCH_TIME_LIMIT_MS, msUntilDeadline() - SAVE_RESERVE_MS),
   });
 
-  const newMatches = findCandidateMatches(newItem, wardrobe, context, { existingKeys, budget });
+  const chosenMatches = findCandidateMatches(newItem, wardrobe, context, { existingKeys, budget });
+
+  // Only once the outfits are chosen, so a favourite never lets one in.
+  const newMatches = applyFavouriteItemBonus(chosenMatches, favouriteItemIds(wardrobe));
 
   await saveMatchesBestFirst(newMatches);
 }

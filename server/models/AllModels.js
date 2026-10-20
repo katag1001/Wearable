@@ -69,7 +69,8 @@ rejectedCount: { type: Number, default: 0 },
 lastRejectedDate: { type: Date, default: null },
 
 // Set when the match is created (server/services/outfitScoreService.js
-// and server/constants/scoring.js), and lowered each time it's rejected.
+// and server/constants/scoring.js), lowered each time it's rejected, and
+// raised while one of its clothes is a favourite (favouriteItemBonus).
 // A favourite is shown and sorted as 100 without changing this value.
 score: {
 type: Number,
@@ -78,6 +79,11 @@ min: 0,
 max: 100,
 validate: { validator: Number.isInteger, message: "score must be a whole number" },
 },
+
+// How much of `score` comes from a favourite clothing item: 0 to
+// FAVOURITE_ITEM_BONUS, less when MAX_AUTO_SCORE capped it. Unfavouriting
+// takes off exactly this (server/services/favouriteItemService.js).
+favouriteItemBonus: { type: Number, default: 0 },
 });
 
 // My Outfits pages through a user's matches favourites first, then highest
@@ -127,6 +133,10 @@ spring: { type: Boolean, required: true },
 summer: { type: Boolean, required: true },
 autumn: { type: Boolean, required: true },
 winter: { type: Boolean, required: true },
+
+// Automatic outfits with a favourite item score FAVOURITE_ITEM_BONUS
+// higher (server/services/favouriteItemService.js).
+favourite: { type: Boolean, default: false },
 });
 
 // My Clothes pages through a user's items newest first

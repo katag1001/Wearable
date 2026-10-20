@@ -21,6 +21,7 @@ const {
   wipeUserScores,
 } = require("../services/matchScoreService.js");
 const { USER_MADE_SCORE } = require("../constants/scoring.js");
+const { syncFavouriteItemBonus } = require("../services/favouriteItemService.js");
 const { applyPairingAnswers } = require("../services/pairingQuizService.js");
 const { cleanFavouritePalettes } = require("../utils/colorPalettes.js");
 const {
@@ -426,6 +427,11 @@ req.body,
 // A new image was uploaded - the old one is no longer used.
 await deleteReplacedImage(existingItem, updatedItem);
 
+// Favouriting / unfavouriting raises or lowers its outfits' scores.
+if (!!existingItem.favourite !== !!updatedItem.favourite) {
+  await syncFavouriteItemBonus(userId, updatedItem);
+}
+
 // Only a change to a field matching reads (not e.g. the name) re-checks the
 // item's outfits and searches for new ones.
 const changedFields = changedMatchingFields(existingItem, updatedItem);
@@ -557,7 +563,7 @@ exports.createMatch = async (req, res) => {
     if (duplicate) {
       const claimed = await Match.findByIdAndUpdate(
         duplicate._id,
-        { $set: { userMade: true, score: USER_MADE_SCORE } },
+        { $set: { userMade: true, score: USER_MADE_SCORE, favouriteItemBonus: 0 } },
         { new: true, runValidators: true }
       );
 
@@ -703,6 +709,7 @@ exports.updateMatch = async (req, res) => {
       clothesSnapshots,
       undoRejection: shouldUndoRejection,
       score,
+      favouriteItemBonus,
       rejectedCount,
       lastRejectedDate,
       ...matchFields

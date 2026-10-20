@@ -11,7 +11,9 @@
 //    get a new range.
 //  - Automatic outfits get a fresh computeOutfitScore, minus
 //    REJECTION_SCORE_PENALTY for every rejection still on record, so
-//    rejections aren't forgotten.
+//    rejections aren't forgotten, then the favourite-item bonus
+//    (services/favouriteItemService.js) if any of their clothes is a
+//    favourite.
 //  - Ranges edited by hand on a match card are overwritten, as with
 //    resetMatchTemperatures.js.
 //
@@ -35,6 +37,7 @@ const {
   loadUserAdjustments,
 } = require("../services/matchScoreService.js");
 const { MIN_SCORE, REJECTION_SCORE_PENALTY } = require("../constants/scoring.js");
+const { favouriteItemBonusFor } = require("../services/favouriteItemService.js");
 
 function argValue(name) {
   const index = process.argv.indexOf(name);
@@ -58,7 +61,7 @@ async function run() {
 
   try {
     const matches = await Match.find({ favourite: { $ne: true } })
-      .populate("clothes", "type subtype colors styles");
+      .populate("clothes", "type subtype colors styles favourite");
     const favouriteCount = await Match.countDocuments({ favourite: true });
 
     const contexts = new Map();
@@ -76,7 +79,7 @@ async function run() {
 
       const { min_temp, max_temp } = computePresetTemperatureRange(items, context.temperaturePreference);
 
-      const score = match.userMade
+      const baseScore = match.userMade
         ? match.score
         : Math.max(
           MIN_SCORE,
@@ -84,7 +87,19 @@ async function run() {
             (match.rejectedCount || 0) * REJECTION_SCORE_PENALTY
         );
 
-      if (score === match.score && min_temp === match.min_temp && max_temp === match.max_temp) {
+      const favouriteItemBonus =
+        !match.userMade && items.some((item) => item.favourite)
+          ? favouriteItemBonusFor(baseScore)
+          : 0;
+
+      const score = baseScore + favouriteItemBonus;
+
+      if (
+        score === match.score &&
+        favouriteItemBonus === (match.favouriteItemBonus || 0) &&
+        min_temp === match.min_temp &&
+        max_temp === match.max_temp
+      ) {
         continue;
       }
 
@@ -96,7 +111,7 @@ async function run() {
         `temp ${match.min_temp}-${match.max_temp} -> ${min_temp}-${max_temp}  ${outfit}${worn}${userMade}`
       );
 
-      changes.push({ match, score, min_temp, max_temp });
+      changes.push({ match, score, favouriteItemBonus, min_temp, max_temp });
     }
 
     console.log(
@@ -113,6 +128,7 @@ async function run() {
       const backup = changes.map(({ match }) => ({
         _id: String(match._id),
         score: match.score,
+        favouriteItemBonus: match.favouriteItemBonus || 0,
         min_temp: match.min_temp,
         max_temp: match.max_temp,
       }));
@@ -122,10 +138,10 @@ async function run() {
 
     if (changes.length) {
       const result = await Match.bulkWrite(
-        changes.map(({ match, score, min_temp, max_temp }) => ({
+        changes.map(({ match, score, favouriteItemBonus, min_temp, max_temp }) => ({
           updateOne: {
             filter: { _id: match._id },
-            update: { $set: { score, min_temp, max_temp } },
+            update: { $set: { score, favouriteItemBonus, min_temp, max_temp } },
           },
         }))
       );

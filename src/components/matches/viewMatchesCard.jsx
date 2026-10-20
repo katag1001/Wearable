@@ -10,6 +10,7 @@ import "./matchSelection.css";
 
 import TemperatureSlider from "../general/temperatureSlider";
 import MatchScoreBadge from "../general/matchScoreBadge";
+import FavouriteHeartButton from "../general/favouriteHeartButton";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 import { useMatchCard } from "@core/hooks/useMatchCard.js";
 import {
@@ -105,38 +106,14 @@ const ViewMatchesCard = ({
 
   const handleMarkAsWorn = () => card.markWorn();
 
-  const handleToggleFavourite = (e) => {
-    e.stopPropagation();
-    card.toggleFavourite();
-  };
-
   /*
    * Render favourite heart button
    */
   const renderFavouriteButton = () => (
-    <button
-      type="button"
-      className={
-        match.favourite
-          ? "favourite-heart-button favourited"
-          : "favourite-heart-button"
-      }
-      onClick={handleToggleFavourite}
-      aria-pressed={!!match.favourite}
-      aria-label={
-        match.favourite
-          ? "Remove from favourites"
-          : "Add to favourites"
-      }
-    >
-      <svg
-        className="favourite-heart-icon"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path d="M12 21s-6.716-4.35-9.428-8.03C.86 10.42 1.02 7.28 3.34 5.34c2.02-1.7 4.86-1.4 6.66.66L12 8.06l2-2.06c1.8-2.06 4.64-2.36 6.66-.66 2.32 1.94 2.48 5.08.77 7.63C18.716 16.65 12 21 12 21z" />
-      </svg>
-    </button>
+    <FavouriteHeartButton
+      favourite={match.favourite}
+      onToggle={card.toggleFavourite}
+    />
   );
 
   /*

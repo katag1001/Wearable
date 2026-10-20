@@ -20,7 +20,7 @@ import {
 } from "@core/theme/tokens.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import { Card } from "../ui";
+import { Card, FavouriteHeart } from "../ui";
 
 export const OutfitCard = ({
   match,
@@ -74,21 +74,11 @@ export const OutfitCard = ({
           ) : null}
         </View>
 
-        <Pressable
+        <FavouriteHeart
+          favourite={match.favourite}
           onPress={card.toggleFavourite}
-          accessibilityRole="button"
-          accessibilityLabel={
-            match.favourite ? "Remove from favourites" : "Add to favourites"
-          }
-          hitSlop={10}
           style={styles.heart}
-        >
-          <Feather
-            name="heart"
-            size={20}
-            color={match.favourite ? colors.error : colors.muted}
-          />
-        </Pressable>
+        />
 
         {selectMode && (
           <View style={[styles.tick, selected && styles.tickOn]}>
@@ -147,9 +137,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: spacing.md,
     right: spacing.md,
-    padding: spacing.xs,
-    borderRadius: radius.pill,
-    backgroundColor: colors.pageBackground,
   },
   tick: {
     position: "absolute",

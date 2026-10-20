@@ -4,10 +4,11 @@
 //
 // Pair scores (0-100) come from the matrix files plus the user's personal
 // adjustment for that pair. A match's `score` is set once, when the match
-// is created (see services/outfitScoreService.js), and is never
-// recalculated - except when a user claims an automatic match by building
-// the same outfit themselves, or rejects it on the Today page
-// (services/matchRejectionService.js).
+// is created (see services/outfitScoreService.js). After that it only
+// changes when the user claims an automatic match by building the same
+// outfit themselves, rejects it on the Today page
+// (services/matchRejectionService.js), or favourites / unfavourites one of
+// its clothing items (services/favouriteItemService.js).
 
 const MIN_SCORE = 0;
 const MAX_SCORE = 100;
@@ -99,6 +100,14 @@ const MAX_AUTO_SCORE = 90;
 // Every outfit the user builds (or claims) gets this flat score.
 const USER_MADE_SCORE = 95;
 
+// Added once to an automatic outfit's score when any of its clothing items
+// is a favourite (Clothes.favourite) - after the outfit has passed every
+// check and been chosen, so it never lets a weaker outfit in. It never
+// takes the score above MAX_AUTO_SCORE, and the amount actually added is
+// stored on the match (favouriteItemBonus), so unfavouriting takes off
+// exactly that. User-made outfits stay at USER_MADE_SCORE.
+const FAVOURITE_ITEM_BONUS = 7;
+
 // Change to every compatible pair in an outfit when the user acts on it.
 // Unfavouriting changes nothing.
 const LEARNING_DELTAS = {
@@ -154,6 +163,7 @@ module.exports = {
   MIN_AUTO_SCORE,
   MAX_AUTO_SCORE,
   USER_MADE_SCORE,
+  FAVOURITE_ITEM_BONUS,
   LEARNING_DELTAS,
   PAIRING_ANSWER_ADJUSTMENTS,
   REJECTION_SCORE_PENALTY,

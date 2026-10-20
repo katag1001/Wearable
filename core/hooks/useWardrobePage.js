@@ -187,6 +187,12 @@ export const useWardrobePage = () => {
     }
   };
 
+  // The heart on a clothing item (useItemFavourite) - keeps the cached
+  // page in step without a re-fetch.
+  const onItemFavouriteToggled = (id, favourite) => {
+    clothesList.updateItem(id, { favourite });
+  };
+
   return {
     searchTerm,
     setSearchTerm,
@@ -212,5 +218,7 @@ export const useWardrobePage = () => {
 
     refresh,
     deleteItem,
+    onItemFavouriteToggled,
+    setError: setActionError,
   };
 };

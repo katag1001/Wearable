@@ -57,6 +57,10 @@ In short:
   personal score for every compatible subtype pair in it. That changes
   how future automatic outfits are **scored and ranked**, never whether
   they are allowed.
+- **Favourite clothing items** add **+7** (once per outfit) to the score of
+  every automatic outfit they're in, never above 90 - only after the
+  outfit has been chosen, so a favourite never lets a weaker outfit in
+  (3.11).
 
 ---
 
@@ -641,7 +645,8 @@ range of their own. Temperature **never rejects** an outfit. Full details in
 `server/services/outfitScoreService.js`, numbers in
 `server/constants/scoring.js`. Every match has a whole-number `score` from
 0 to 100, **set when the match is created** (and afterwards only changed by
-claiming it, 5.3, or rejecting it on the Today page, 7.2):
+claiming it, 5.3, rejecting it on the Today page, 7.2, or favouriting /
+unfavouriting one of its items, 3.11):
 
 | Match | Score |
 |---|---|
@@ -748,6 +753,34 @@ A one-colour outfit at max can never pass, even with the favourite bonus
 
 A **favourite is shown and sorted as 100**, without changing the stored
 score - unfavouriting returns the match to its original score.
+
+### 3.11 Favourite clothing items
+
+`server/services/favouriteItemService.js`, number in
+`server/constants/scoring.js` (`FAVOURITE_ITEM_BONUS`). The heart on a
+wardrobe clothing item (web and app, not footwear) sets `Clothes.favourite`
+through `PUT /clothing/:id` (`core/hooks/useItemFavourite.js`).
+
+- An **automatic** outfit with **at least one** favourite item gets **+7**
+  on its stored `score` - once, however many of its items are favourites.
+- It **never goes above 90** (`MAX_AUTO_SCORE`): an 86 gets +4, a 90 gets
+  nothing. The amount actually added is stored in
+  `Match.favouriteItemBonus`.
+- **User-made** outfits stay at 95 (no bonus). Claiming an automatic outfit
+  (5.3) sets it to 95 and its bonus to 0.
+- **Favouriting** an item adds the bonus straight away to every automatic
+  outfit with it that doesn't have one yet (`addFavouriteItemBonus`).
+- **Unfavouriting** takes off exactly the stored bonus - unless another of
+  the outfit's items is still a favourite (`removeFavouriteItemBonus`).
+  An 88 that got +2 goes back to 88.
+- **New automatic outfits** get it in `processMatches` **after** the 65
+  checks and the best-100 cut (`applyFavouriteItemBonus`), never during
+  the search, so a favourite can't let a weaker outfit in or change which
+  100 are saved.
+- The edit form never sends `favourite` (`dropFields` in
+  `core/wardrobe/itemKinds.js`), so only the heart changes it.
+- It's part of the stored score, so the Today ranking and My Outfits order
+  use it as is - nothing is recalculated when Today is built.
 
 ---
 
@@ -948,8 +981,9 @@ Files: `src/components/matches/createMatch.jsx`, `createMatch` in
 - **Already user-made** → 409 "Match already exists."
 - **An automatic match** → the user **claims** it: it becomes
   `userMade: true`, its score changes to **95**, and `recordOutfitClaimed`
-  adds **+1** to its pairs. The claimed match is returned. Apart from
-  rejecting it on the Today page (7.2), this is the only time a match's
+  adds **+1** to its pairs. Any favourite-item bonus is dropped (3.11).
+  The claimed match is returned. Apart from rejecting it on the Today
+  page (7.2) and favourite items (3.11), this is the only time a match's
   score changes after creation.
 
 ---
@@ -1052,9 +1086,9 @@ tiers already decided that.
 
 | Factor | Weight |
 |---|---|
-| Clothing freshness (average of the outfit's clothes) | 0.35 |
-| Outfit freshness | 0.35 |
-| **Match score** (`score` ÷ 10, or 10 for a favourite) | **0.30** |
+| Clothing freshness (average of the outfit's clothes) | 0.25 |
+| Outfit freshness | 0.25 |
+| **Match score** (`score` ÷ 10, or 10 for a favourite) | **0.50** |
 
 Freshness is 10 for never worn, rising from 0 (worn today) to 10 after
 `FRESHNESS_FULL_DAYS` = 30 days.
@@ -1259,8 +1293,14 @@ undone by accident:
     left undecided and defaults to no.
 - **A match's score is set at creation.** Matches aren't re-scored
   when the user's adjustments change. The exceptions are claiming an
-  automatic outfit (it becomes 95) and rejecting it on the Today page
-  (−3 per day it's rejected, 7.2).
+  automatic outfit (it becomes 95), rejecting it on the Today page
+  (−3 per day it's rejected, 7.2) and favourite items (+7, 3.11).
+  Re-scoring existing matches isn't ruled out - it just isn't done
+  automatically when the pair adjustments change.
+- **The favourite-item bonus comes after matching**, not inside the
+  score used to choose outfits, so it can't push a poor combination in.
+  It's stored on the match (`favouriteItemBonus`) so unfavouriting is
+  exact even when the 90 cap cut it short.
 - **Only the best 100 new outfits per item are saved**, rather than
   whichever the search happened to find first.
 - **Temperature belongs to matches, not items.** Item ranges were removed;
@@ -1317,6 +1357,7 @@ rename (October 2026) was also run once and deleted; it was never committed.
 | Default gender when missing | `DEFAULT_GENDER` in `matchScoreService.js` |
 | Style quiz pairing questions / their pairs / answer values | `src/constants/pairingQuestions.js` / `server/constants/pairingQuestions.js` / `PAIRING_ANSWER_ADJUSTMENTS` in `server/constants/scoring.js` (see 2.6) |
 | Today page weights, tiers and cap | `server/constants/todayOutfits.js` |
+| Favourite clothing item bonus | `FAVOURITE_ITEM_BONUS` in `server/constants/scoring.js`, logic in `server/services/favouriteItemService.js` (3.11) |
 | Rejection penalty / days a rejected outfit is hidden | `REJECTION_SCORE_PENALTY`, `REJECTION_COOLDOWN_DAYS` in `server/constants/scoring.js` |
 | Favourite score | `FAVOURITE_SCORE` in `src/utils/matchScore.js` |
 | Temperature numbers | `server/constants/temperatureGroups.js`, see `temperature-ranges.md` |
@@ -1325,7 +1366,7 @@ rename (October 2026) was also run once and deleted; it was never committed.
 
 Tests: `server/specs/` (`matchService`, `matrixService`,
 `outfitScoreService`, `outfitEvaluator`, `styleColorService`,
-`matchScoreService`, `matchScoreBaseline`, `pairingQuizService`, `matchRejectionService`,
+`matchScoreService`, `matchScoreBaseline`, `pairingQuizService`, `matchRejectionService`, `favouriteItemService`,
 `matchRefreshService`,
 `presetTemperatureService`,
 `temperatureService`,

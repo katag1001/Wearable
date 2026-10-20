@@ -7,6 +7,7 @@ export { Chip } from "./Chip";
 export { ChipRow } from "./ChipRow";
 export { ChoiceCard } from "./ChoiceCard";
 export { EmptyState } from "./EmptyState";
+export { FavouriteHeart } from "./FavouriteHeart";
 export { Grid } from "./Grid";
 export { ImageTile } from "./ImageTile";
 export { ListRow } from "./ListRow";

@@ -37,8 +37,9 @@ export const WARDROBE_KINDS = {
     hasCategories: true,
     hasMatches: true,
     // Items saved before temperature moved to matches may still carry
-    // these - never send them back.
-    dropFields: ["min_temp", "max_temp"],
+    // these - never send them back. `favourite` is only changed by the
+    // heart (useItemFavourite), so a form opened before a tap can't undo it.
+    dropFields: ["min_temp", "max_temp", "favourite"],
     create: (fields) =>
       createClothing({
         ...fields,

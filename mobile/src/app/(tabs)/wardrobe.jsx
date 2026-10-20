@@ -152,6 +152,10 @@ export default function WardrobeScreen() {
           <ItemTile
             item={item}
             onPress={() => openItemForm(wardrobe.kindOnShow, item)}
+            {...(!wardrobe.isFootwear && {
+              onFavouriteToggled: wardrobe.onItemFavouriteToggled,
+              onFavouriteError: wardrobe.setError,
+            })}
           />
         )}
         onEndReached={list.loadMore}

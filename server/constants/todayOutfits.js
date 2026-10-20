@@ -24,9 +24,9 @@ const PARTIAL_COVERAGE = 0.7;
 // come first, then the rest. Each group is ordered by this weighted score
 // (all parts on a 0-10 scale).
 const RANKING_WEIGHTS = {
-  clothingFreshness: 0.35,
-  outfitFreshness: 0.35,
-  score: 0.3,
+  clothingFreshness: 0.25,
+  outfitFreshness: 0.25,
+  score: 0.5,
 };
 
 // Freshness: 0 when worn today, rising to the maximum after this many days
