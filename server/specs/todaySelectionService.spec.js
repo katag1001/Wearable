@@ -86,19 +86,25 @@ test("today's tag orders each tier, but never lifts a partial outfit above a ful
   assert.deepEqual(ids(selected), ["full-tagged", "full-untagged", "partial-tagged"]);
 });
 
-test("outfits within 1.5 degrees of today's min and max are tier 1", () => {
+test("outfits within 1.5 degrees of today's min and max, or covering the whole day, are tier 1", () => {
   assert.equal(todayTierOf(match("exact", 10, 20), TODAY), 0);
   assert.equal(todayTierOf(match("edges", 8.5, 21.5), TODAY), 0);
   assert.equal(todayTierOf(match("inside", 11.5, 18.5), TODAY), 0);
-  assert.equal(todayTierOf(match("min-off", 8, 20), TODAY), 1); // covers the day
-  assert.equal(todayTierOf(match("max-off", 11, 22), TODAY), 2); // 90% of the day
+  assert.equal(todayTierOf(match("covers", 0, 30), TODAY), 0);
   assert.equal(todayTierOf(match("far", 14, 16), TODAY), null);
 });
 
-test("close outfits come before full-day ones, which come before 70%+ ones", () => {
+test("partial outfits are tiered by 90%, 80% and 70% of the day", () => {
+  assert.equal(todayTierOf(match("90", 11, 25), TODAY), 1);
+  assert.equal(todayTierOf(match("80", 12, 25), TODAY), 2);
+  assert.equal(todayTierOf(match("70", 13, 25), TODAY), 3);
+  assert.equal(todayTierOf(match("60", 14, 25), TODAY), null);
+});
+
+test("close and full-day outfits are ranked together, before partial ones", () => {
   const selected = selectTodayMatches({
     matches: [
-      match("partial", 12, 25, { score: 100 }),
+      match("partial", 11, 25, { score: 100 }),
       match("full", 5, 25, { score: 100 }),
       match("close", 11, 19, { score: 0 }),
     ],
@@ -106,12 +112,12 @@ test("close outfits come before full-day ones, which come before 70%+ ones", () 
     now: NOW,
   });
 
-  assert.deepEqual(ids(selected), ["close", "full", "partial"]);
+  assert.deepEqual(ids(selected), ["full", "close", "partial"]);
 });
 
 test("lower tiers only join while the ones above don't reach the limit", () => {
   const selected = selectTodayMatches({
-    matches: [match("full", 5, 25), match("close1", 10, 20), match("close2", 9, 21)],
+    matches: [match("partial", 11, 25), match("close1", 10, 20), match("close2", 9, 21)],
     todayRange: TODAY,
     now: NOW,
     limit: 2,

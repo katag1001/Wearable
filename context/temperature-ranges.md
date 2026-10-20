@@ -50,8 +50,8 @@ values at the time of writing; the file is the source of truth.
 
 | Bottom group | Subtypes |
 |---|---|
-| short | Mini skirt and all shorts |
-| lightLong | Maxi, Smart, Midi and Low waist midi skirts, Linen pants, Cropped trousers |
+| short | Mini skirt, Maxi skirt and all shorts |
+| lightLong | Smart, Midi and Low waist midi skirts, Linen pants, Cropped trousers |
 | long | All jeans (including Cropped jeans), Tailored trousers, Wide leg trousers, Chinos, Cargo pants, Leather trousers, Leggings, Sweatpants |
 
 `BASE_RANGES` - a top group worn with a bottom group, no outer:
@@ -59,7 +59,7 @@ values at the time of writing; the file is the source of truth.
 | | short bottoms | lightLong bottoms | long bottoms |
 |---|---|---|---|
 | **short tops** | 22–38 | 19–34 | 17–28 |
-| **long tops** | 18–27 | 15–25 | 13–22 |
+| **long tops** | 18–27 | 15–22 | 13–22 |
 | **warm tops** | 12–19 | 9–18 | 5–16 |
 
 ### 1.2 Onepieces
@@ -98,7 +98,7 @@ values at the time of writing; the file is the source of truth.
 
 The style quiz asks "Do you generally feel too cold or too hot?", saved as
 `preferences.temperature`. `TEMPERATURE_PREFERENCE_SHIFT` moves both ends of
-the range: **cold +2**, normal 0, **hot −2**. The saved `min_temp`/`max_temp`
+the range: **cold +1**, normal 0, **hot −1**. The saved `min_temp`/`max_temp`
 already include it. A missing preference counts as normal.
 
 ---
@@ -158,7 +158,7 @@ a light outer, which the 18° cap brings lower.
 
 Both ends move by `TEMPERATURE_PREFERENCE_SHIFT`, and are kept within
 `TEMPERATURE_LIMITS`. This comes after the caps, so a "cold" user's Short
-t-shirt + Wide leg jeans is 19–27.
+t-shirt + Wide leg jeans is 18–26.
 
 ### Unknown subtypes
 
@@ -179,7 +179,7 @@ preference, with the values above:
 | 3. Denim jacket, −2 (maximum capped at 25 − 2 = 23) | 4–15 |
 | 4. One outer: minimum raised to the Denim jacket's 10 | 10–15 |
 | 5. Caps: warm jumper layer 18, long bottom 25 - 15 is already under both | 10–15 |
-| 6. "cold" +2 | **12–17** |
+| 6. "cold" +1 | **11–16** |
 
 ---
 
@@ -217,12 +217,11 @@ preference, with the values above:
    first tier it fits; a tier only joins while the ones above have fewer
    than 200, ranked below them:
    - **tier 1**: `min_temp` and `max_temp` each within **1.5°** of the
-     day's min and max;
-   - **tier 2**: covers all of the day (`min_temp <= min` and
-     `max_temp >= max`);
-   - **tier 3**: covers at least **70%** of it (`todayCoverageFraction` in
-     `server/services/temperatureService.js`, measured against the
-     **day's** range).
+     day's min and max, **or** covers all of the day (`min_temp <= min`
+     and `max_temp >= max`) - both ranked together;
+   - **tiers 2, 3, 4**: covers at least **90%**, **80%**, **70%** of it
+     (`todayCoverageFraction` in `server/services/temperatureService.js`,
+     measured against the **day's** range).
 3. `server/services/todayRankingService.js` orders each tier (today's
    tag, freshness, score - temperature isn't part of it) and the list is
    capped at **200**. Details: `context/clothing-and-matching-flow.md`
@@ -251,7 +250,7 @@ preference, with the values above:
 | Highest maximum with layered tops / which tops count as jumpers | `LAYERED_MAX_TEMPS` / `LAYER_KINDS` |
 | Preference shift | `TEMPERATURE_PREFERENCE_SHIFT` |
 | Highest maximum with a long bottom | `LONG_BOTTOM_MAX_TEMP` |
-| Today's weather tiers and cap | `CLOSE_MATCH_TOLERANCE` / `FULL_COVERAGE` / `PARTIAL_COVERAGE` / `TODAY_OUTFIT_LIMIT` in `server/constants/todayOutfits.js` |
+| Today's weather tiers and cap | `CLOSE_MATCH_TOLERANCE` / `FULL_COVERAGE` / `PARTIAL_COVERAGE_STEPS` / `TODAY_OUTFIT_LIMIT` in `server/constants/todayOutfits.js` |
 | Daytime hours for today's weather | `core/constants/daytimeHours.js` |
 
 After changing them, restart the server and run the reset script (Part 3)

@@ -31,10 +31,10 @@ const TOP_GROUPS = {
 const BOTTOM_GROUPS = {
   short: [
     "Mini skirt", "Shorts", "Casual shorts", "Denim shorts", "Linen shorts",
-    "Cargo shorts", "Skater shorts", "Fancy Shorts",
+    "Cargo shorts", "Skater shorts", "Fancy Shorts", "Maxi skirt",
   ],
   lightLong: [
-    "Maxi skirt", "Smart skirt", "Midi-skirt", "Low waist midi",
+    "Smart skirt", "Midi-skirt", "Low waist midi",
     "Linen pants", "Cropped trousers",
   ],
   long: [
@@ -48,7 +48,7 @@ const BOTTOM_GROUPS = {
 // [min, max] for a top group worn with a bottom group, no outer.
 const BASE_RANGES = {
   short: { short: [22, 38], lightLong: [19, 34], long: [17, 28] },
-  long: { short: [18, 27], lightLong: [15, 25], long: [13, 22] },
+  long: { short: [18, 27], lightLong: [15, 22], long: [13, 22] },
   warm: { short: [12, 19], lightLong: [9, 18], long: [5, 16] },
 };
 
@@ -135,11 +135,11 @@ const OUTER_CEILING_BASE = 25;
 // cold or too hot?"), applied to both ends of the range before it's saved
 // on the match - the saved min_temp/max_temp already include it. Feeling
 // the cold means needing warmer days.
-const TEMPERATURE_PREFERENCE_SHIFT = { cold: 2, normal: 0, hot: -2 };
+const TEMPERATURE_PREFERENCE_SHIFT = { cold: 1, normal: 0, hot: -1 };
 
 // Any outfit with a bottom from the "long" group never has a maximum above
 // this. Applied with the layer caps, before the preference shift - so a
-// "cold" user's saved maximum can be this + 2.
+// "cold" user's saved maximum can be this + 1.
 const LONG_BOTTOM_MAX_TEMP = 25;
 
 // The same bounds as the temperature sliders.

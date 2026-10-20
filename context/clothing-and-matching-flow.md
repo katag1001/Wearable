@@ -1063,15 +1063,16 @@ user's weekday.
 **Which outfits** (`selectTodayMatches`), from those marked for today's
 season and not rejected recently (7.2):
 
-1. **Tier 1** - the outfit's `min_temp` and `max_temp` are each within
-   **`CLOSE_MATCH_TOLERANCE` = 1.5°** of today's daytime min and max (a
-   10–20° day takes 8.5–11.5° minimums and 18.5–21.5° maximums).
-2. **Tier 2** - the outfit's range covers **all** of today's daytime range
-   (`todayCoverageFraction` = 1: `min_temp <= today's min` and
-   `max_temp >= today's max`).
-3. **Tier 3** - outfits covering at least **`PARTIAL_COVERAGE` = 70%** of
-   today's range.
-4. Each outfit goes in the first tier it fits. A tier only joins while the
+1. **Tier 1** - either of these, ranked together:
+   - the outfit's `min_temp` and `max_temp` are each within
+     **`CLOSE_MATCH_TOLERANCE` = 1.5°** of today's daytime min and max (a
+     10–20° day takes 8.5–11.5° minimums and 18.5–21.5° maximums);
+   - the outfit's range covers **all** of today's daytime range
+     (`todayCoverageFraction` = 1: `min_temp <= today's min` and
+     `max_temp >= today's max`).
+2. **Tiers 2–4** - one per **`PARTIAL_COVERAGE_STEPS` = 90%, 80%, 70%**:
+   outfits covering at least that much of today's range.
+3. Each outfit goes in the first tier it fits. A tier only joins while the
    tiers above it have fewer than **`TODAY_OUTFIT_LIMIT` = 200**, and
    always comes after them. The list is cut to **200**, best first.
 

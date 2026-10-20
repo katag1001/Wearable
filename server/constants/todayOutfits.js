@@ -12,13 +12,15 @@ const TODAY_OUTFIT_LIMIT = 200;
 // only joins while the ones above it have fewer than TODAY_OUTFIT_LIMIT -
 // always ranked below them:
 //  - tier 1: the outfit's min_temp and max_temp are each within
-//    CLOSE_MATCH_TOLERANCE degrees of today's daytime min and max;
-//  - tier 2: the outfit's range covers the whole day
-//    (temperatureService.todayCoverageFraction = FULL_COVERAGE);
-//  - tier 3: it covers at least PARTIAL_COVERAGE of the day.
+//    CLOSE_MATCH_TOLERANCE degrees of today's daytime min and max, OR its
+//    range covers the whole day
+//    (temperatureService.todayCoverageFraction = FULL_COVERAGE) - both
+//    ranked together;
+//  - then one tier per PARTIAL_COVERAGE_STEPS value, highest first: it
+//    covers at least that much of the day.
 const CLOSE_MATCH_TOLERANCE = 1.5;
 const FULL_COVERAGE = 1;
-const PARTIAL_COVERAGE = 0.7;
+const PARTIAL_COVERAGE_STEPS = [0.9, 0.8, 0.7];
 
 // Within a tier, outfits with today's tag (from the weekly preferences)
 // come first, then the rest. Each group is ordered by this weighted score
@@ -41,7 +43,7 @@ module.exports = {
   TODAY_OUTFIT_LIMIT,
   CLOSE_MATCH_TOLERANCE,
   FULL_COVERAGE,
-  PARTIAL_COVERAGE,
+  PARTIAL_COVERAGE_STEPS,
   RANKING_WEIGHTS,
   FRESHNESS_FULL_DAYS,
   MAX_FRESHNESS,

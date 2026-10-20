@@ -3,21 +3,21 @@
 // Which outfits make today's list, in what order. Pure - no DB access.
 //
 //  1. Tier 1: outfits whose min_temp and max_temp are each within
-//     CLOSE_MATCH_TOLERANCE of today's daytime min and max.
-//  2. Tier 2: outfits whose range covers ALL of today's daytime
-//     temperatures (FULL_COVERAGE).
-//  3. Tier 3: those covering at least PARTIAL_COVERAGE of the day.
+//     CLOSE_MATCH_TOLERANCE of today's daytime min and max, or whose range
+//     covers ALL of today's daytime temperatures (FULL_COVERAGE).
+//  2. Then one tier per PARTIAL_COVERAGE_STEPS value (90%, 80%, 70%):
+//     those covering at least that much of the day.
 //  Each outfit goes in the first tier it fits. A tier only joins while the
 //  tiers above it have fewer than TODAY_OUTFIT_LIMIT outfits, and always
 //  sits below them.
-//  4. Each tier ordered by todayRankingService, then the list is cut to
+//  3. Each tier ordered by todayRankingService, then the list is cut to
 //     TODAY_OUTFIT_LIMIT.
 
 const {
   TODAY_OUTFIT_LIMIT,
   CLOSE_MATCH_TOLERANCE,
   FULL_COVERAGE,
-  PARTIAL_COVERAGE,
+  PARTIAL_COVERAGE_STEPS,
 } = require("../constants/todayOutfits.js");
 const { todayCoverageFraction } = require("./temperatureService.js");
 const { rankTodayMatches } = require("./todayRankingService.js");
@@ -35,24 +35,20 @@ const coverageOf = (match, todayRange) =>
 // The weather tier an outfit belongs to today (0 is the best), or null if
 // it doesn't qualify at all.
 const todayTierOf = (match, todayRange) => {
-  if (isCloseMatch(match, todayRange)) {
+  const coverage = coverageOf(match, todayRange);
+
+  if (isCloseMatch(match, todayRange) || coverage >= FULL_COVERAGE - EPSILON) {
     return 0;
   }
 
-  const coverage = coverageOf(match, todayRange);
+  const step = PARTIAL_COVERAGE_STEPS.findIndex(
+    (minimum) => coverage >= minimum - EPSILON
+  );
 
-  if (coverage >= FULL_COVERAGE - EPSILON) {
-    return 1;
-  }
-
-  if (coverage >= PARTIAL_COVERAGE - EPSILON) {
-    return 2;
-  }
-
-  return null;
+  return step === -1 ? null : step + 1;
 };
 
-const TIER_COUNT = 3;
+const TIER_COUNT = 1 + PARTIAL_COVERAGE_STEPS.length;
 
 // The matches for today's list, best first, at most `limit`.
 const selectTodayMatches = ({
