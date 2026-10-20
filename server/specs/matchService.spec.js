@@ -141,11 +141,11 @@ test("findCandidateMatches attaches the outfit's score to every match", () => {
   const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
   const jeans = clothes({ subtype: "Jeans", type: "bottom" });
 
-  // Pair 70, colour 75: 0.6 * 70 + 0.4 * 75 = 72
+  // Pair 70, colour 75: 0.5 * 70 + 0.5 * 75 = 72.5 -> 73
   const results = findCandidateMatches(newTop, [newTop, jeans], scoringContext(openBaseline(["Short t-shirt", "Jeans"], 70)));
 
   assert.equal(results.length, 1);
-  assert.equal(results[0].score, 72);
+  assert.equal(results[0].score, 73);
   assert.equal(results[0].userMade, false);
 });
 
@@ -161,8 +161,8 @@ test("findCandidateMatches keeps only the best `limit` outfits, highest score fi
 
   const results = findCandidateMatches(newTop, [newTop, ...bottoms], scoringContext(baseline), { limit: 2 });
 
-  // Pairs 90 and 80, colour 75: 0.6 * pair + 0.4 * 75
-  assert.deepEqual(results.map((r) => r.score), [84, 78]);
+  // Pairs 90 and 80, colour 75: 0.5 * pair + 0.5 * 75
+  assert.deepEqual(results.map((r) => r.score), [83, 78]);
 });
 
 test("findCandidateMatches skips outfits that are already saved and takes the next best", () => {
@@ -338,7 +338,7 @@ test("findCandidateMatches drops outfits whose pair blend is below the minimum, 
   const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
   const bottoms = ["Jeans", "Chinos"].map((subtype) => clothes({ subtype, type: "bottom" }));
 
-  // Colour 75. A pair of 64 would score 0.6 * 64 + 0.4 * 75 = 68 overall,
+  // Colour 75. A pair of 64 would score 0.5 * 64 + 0.5 * 75 = 70 overall,
   // but its pair blend is below MIN_AUTO_SCORE. A pair of 65 is kept.
   const baseline = openBaseline(["Short t-shirt", "Jeans", "Chinos"]);
   [["Jeans", MIN_AUTO_SCORE], ["Chinos", MIN_AUTO_SCORE - 1]].forEach(([subtype, score]) => {
@@ -348,7 +348,7 @@ test("findCandidateMatches drops outfits whose pair blend is below the minimum, 
 
   const results = findCandidateMatches(newTop, [newTop, ...bottoms], scoringContext(baseline));
 
-  assert.deepEqual(results.map((r) => r.score), [69]);
+  assert.deepEqual(results.map((r) => r.score), [70]);
 });
 
 test("findCandidateMatches drops outfits whose colour score is below the minimum, however good their pairs", () => {
@@ -371,8 +371,8 @@ test("findCandidateMatches drops outfits whose colour score is below the minimum
     context(openBaseline(["Short t-shirt", "Jeans", "Chinos"], 90), { colorRules })
   );
 
-  // 0.6 * 90 + 0.4 * 75 = 84
-  assert.deepEqual(results.map((r) => r.score), [84]);
+  // 0.5 * 90 + 0.5 * 75 = 82.5 -> 83
+  assert.deepEqual(results.map((r) => r.score), [83]);
   assert.deepEqual(new Set(results[0].clothes), new Set(["Short t-shirt", "Jeans"]));
 });
 
@@ -409,8 +409,8 @@ test("scoreItemSet is null when the pair blend or colour score is below MIN_AUTO
   assert.equal(scoreItemSet([top, jeans], context(openBaseline(["Short t-shirt", "Jeans"], 90), { colorRules: minBold })), null);
   // 2 colours, common: colour (65 + 85) / 2 = 75; pair 64
   assert.equal(scoreItemSet([top, jeans], scoringContext(openBaseline(["Short t-shirt", "Jeans"], 64))), null);
-  // pair 65, colour 75: 0.6 * 65 + 0.4 * 75 = 69
-  assert.equal(scoreItemSet([top, jeans], scoringContext(openBaseline(["Short t-shirt", "Jeans"], 65))), 69);
+  // pair 65, colour 75: 0.5 * 65 + 0.5 * 75 = 70
+  assert.equal(scoreItemSet([top, jeans], scoringContext(openBaseline(["Short t-shirt", "Jeans"], 65))), 70);
 });
 
 test("dedupeKey is the same whatever order the clothing ids are in", () => {

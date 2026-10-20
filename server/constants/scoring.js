@@ -26,14 +26,14 @@ const LOWEST_PAIR_WEIGHT = 0.3;
 // drops an outfit the moment such a pair appears (matchService.js).
 const MIN_PAIR_SCORE = 50;
 
-// Automatic outfits with 2+ items: the pair blend above counts for 60% of the
-// final score, and the colour score (computeColourScore) for 40%.
-const PAIR_SCORE_WEIGHT = 0.6;
-const COLOUR_SCORE_WEIGHT = 0.4;
+// Automatic outfits with 2+ items: the pair blend above counts for 50% of the
+// final score, and the colour score (computeColourScore) for 50%.
+const PAIR_SCORE_WEIGHT = 0.5;
+const COLOUR_SCORE_WEIGHT = 0.5;
 
 // The colour score is the average of the colour-count score and the palette
-// tier score, plus the favourite-palette bonus and the bright-colour
-// adjustment, kept between 0 and 100.
+// tier score, plus the favourite-palette bonus, the bright-colour
+// adjustment and the pattern echo adjustment, kept between 0 and 100.
 
 // Score for the number of distinct colours in an outfit, per colour level
 // (Preferences.colour). Entry 0 is 1 colour, entry 1 is 2 colours, and so
@@ -67,6 +67,19 @@ const BRIGHT_COLOUR_ADJUSTMENTS = {
   mid: [0, 3, -15],
   max: [0, 0, 0],
 };
+
+// Pattern echo: in an outfit with a patterned item, the change for the
+// number of distinct colours the other items add that aren't already in
+// the pattern, per pattern level (Preferences.pattern). Entry 0 is no new
+// colours (the plain pieces only echo the pattern), entry 1 is one; the
+// last entry is used for anything more. Users with no pattern level get
+// DEFAULT_PATTERN_LEVEL.
+const PATTERN_ECHO_ADJUSTMENTS = {
+  min: [6, -3, -10],
+  mid: [4, -2, -6],
+  max: [2, -1, -3],
+};
+const DEFAULT_PATTERN_LEVEL = "mid";
 
 // Outfits with no pairs to score (a onepiece on its own). Not affected by
 // the colour score, and never dropped by MIN_AUTO_SCORE.
@@ -135,6 +148,8 @@ module.exports = {
   PALETTE_TIER_SCORES,
   FAVOURITE_PALETTE_BONUS,
   BRIGHT_COLOUR_ADJUSTMENTS,
+  PATTERN_ECHO_ADJUSTMENTS,
+  DEFAULT_PATTERN_LEVEL,
   SINGLE_ITEM_SCORE,
   MIN_AUTO_SCORE,
   MAX_AUTO_SCORE,

@@ -19,17 +19,18 @@ const { clampAdjustment } = require("./outfitScoreService.js");
 const DEFAULT_GENDER = "unisex";
 
 // Single source for every Preferences-derived matching setting (gender,
-// colour level, temperature, favourite palettes) - one Preferences fetch per call, reused by
+// colour level, pattern level, temperature, favourite palettes) - one Preferences fetch per call, reused by
 // every caller that needs any of these, rather than each resolving its own.
 async function getUserMatchingPreferences(userId) {
   const preferences = await Preferences.findOne({ userId });
 
   const gender = preferences?.gender || DEFAULT_GENDER;
   const colour = preferences?.colour || null;
+  const pattern = preferences?.pattern || null;
   const temperature = preferences?.temperature || null;
   const favouritePalettes = preferences?.favouritePalettes || [];
 
-  return { gender, colour, temperature, favouritePalettes };
+  return { gender, colour, pattern, temperature, favouritePalettes };
 }
 
 function getBaselineMatrix(gender) {

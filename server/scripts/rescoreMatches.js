@@ -58,7 +58,7 @@ async function run() {
 
   try {
     const matches = await Match.find({ favourite: { $ne: true } })
-      .populate("clothes", "type subtype colors");
+      .populate("clothes", "type subtype colors styles");
     const favouriteCount = await Match.countDocuments({ favourite: true });
 
     const contexts = new Map();

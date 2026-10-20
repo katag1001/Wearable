@@ -7,15 +7,17 @@
 
 const { paletteFits } = require("../utils/colorPalettes.js");
 
-// Counts items whose styles include "patterned", case-insensitively -
+// Whether an item's styles include "patterned", case-insensitively -
 // addUpdateClothes.jsx stores it as "Patterned".
-function passesPatternCheck(items) {
-  const combinedStyles = items.flatMap((item) => item.styles || []);
-  const patternedCount = combinedStyles.filter(
+function isPatterned(item) {
+  return (item.styles || []).some(
     (style) => typeof style === "string" && style.toLowerCase() === "patterned"
-  ).length;
+  );
+}
 
-  return patternedCount <= 1;
+// At most one patterned item per outfit.
+function passesPatternCheck(items) {
+  return items.filter(isPatterned).length <= 1;
 }
 
 // `colorRules` is the caller's already-resolved { palettes, maxColors } for
@@ -33,4 +35,4 @@ function passesColorCheck(items, colorRules) {
   return colorRules.palettes.some((palette) => paletteFits(palette, combinedColors));
 }
 
-module.exports = { passesPatternCheck, passesColorCheck };
+module.exports = { isPatterned, passesPatternCheck, passesColorCheck };

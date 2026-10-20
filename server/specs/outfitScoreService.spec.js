@@ -8,6 +8,7 @@ const {
   computePaletteTierScore,
   computeFavouriteBonus,
   computeBrightAdjustment,
+  computePatternEchoAdjustment,
   computeColourScore,
   computePairBlend,
   combineScores,
@@ -96,8 +97,8 @@ test("computeColourScore averages count and tier, then adds the favourite bonus 
 
   // 3 colours at mid: count 70, common 85 -> 77.5; one bright colour +3 = 80.5.
   assert.equal(computeColourScore(items, rules("mid", palettes)), 80.5);
-  // At min: count 70, common 60 -> 65; one bright colour -5 = 60.
-  assert.equal(computeColourScore(items, rules("min", palettes)), 60);
+  // At min: count 70, common 70 -> 70; one bright colour is 0 at min = 70.
+  assert.equal(computeColourScore(items, rules("min", palettes)), 70);
 });
 
 test("computeColourScore adds the favourite bonus", () => {
@@ -107,6 +108,40 @@ test("computeColourScore adds the favourite bonus", () => {
   // 3 colours at min: count 70, classic 95 -> 82.5; favourite +8 = 90.5.
   assert.equal(computeColourScore(items, real, ["peach-cream-white"]), 90.5);
   assert.equal(computeColourScore(items, real, []), 82.5);
+});
+
+const patterned = (subtype, colors) => ({ subtype, colors, styles: ["Patterned"] });
+
+test("computePatternEchoAdjustment rewards plain pieces that only use the pattern's colours", () => {
+  const skirt = patterned("B", ["Black", "White"]);
+
+  assert.equal(computePatternEchoAdjustment([item("A", ["Black"]), skirt], "min"), 6);
+  assert.equal(computePatternEchoAdjustment([item("A", ["White"]), item("C", ["Black"]), skirt], "mid"), 4);
+  assert.equal(computePatternEchoAdjustment([item("A", ["Black"]), skirt], "max"), 2);
+});
+
+test("computePatternEchoAdjustment penalises each new colour, by pattern level", () => {
+  const skirt = patterned("B", ["Black", "White"]);
+
+  // Red is new
+  assert.equal(computePatternEchoAdjustment([item("A", ["Red"]), skirt], "min"), -3);
+  assert.equal(computePatternEchoAdjustment([item("A", ["Red"]), skirt], "mid"), -2);
+  // Red and Navy are new; the last entry covers 2+
+  assert.equal(computePatternEchoAdjustment([item("A", ["Red"]), item("C", ["Navy"]), skirt], "min"), -10);
+  assert.equal(computePatternEchoAdjustment([item("A", ["Red"]), item("C", ["Navy"]), item("D", ["Grey"]), skirt], "max"), -3);
+});
+
+test("computePatternEchoAdjustment is 0 with no patterned item, and defaults to mid", () => {
+  assert.equal(computePatternEchoAdjustment([item("A", ["Red"]), item("B", ["Navy"])], "min"), 0);
+  assert.equal(computePatternEchoAdjustment([item("A", ["Red"]), patterned("B", ["Black", "White"])]), -2);
+});
+
+test("computeColourScore adds the pattern echo adjustment", () => {
+  const items = [item("A", ["Black"]), patterned("B", ["Black", "White"])];
+  const real = rules("min", [palette("classic", ["Black", "White"])]);
+
+  // 2 colours at min: count 70, classic 95 -> 82.5; echo +6 at min = 88.5.
+  assert.equal(computeColourScore(items, real, [], "min"), 88.5);
 });
 
 test("computePairBlend blends 70% average with 30% lowest pair, unrounded", () => {
@@ -128,9 +163,9 @@ test("computePairBlend is null for an outfit with no scoreable pairs", () => {
   assert.equal(computePairBlend([item("A")], baseline, null), null);
 });
 
-test("combineScores weights the pair blend 60% and the colour score 40%, rounded", () => {
-  assert.equal(combineScores(80, 70), 76);
-  assert.equal(combineScores(67, 72.5), 69);
+test("combineScores weights the pair blend and the colour score 50% each, rounded", () => {
+  assert.equal(combineScores(80, 70), 75);
+  assert.equal(combineScores(67, 72.5), 70);
 });
 
 test("combineScores never goes above MAX_AUTO_SCORE", () => {
@@ -146,8 +181,8 @@ test("computeOutfitScore scores a whole outfit from the matching context", () =>
     favouritePalettes: [],
   };
 
-  // pair 85; 2 colours at mid: count 65, common 85 -> 75; 0.6 * 85 + 0.4 * 75 = 81
-  assert.equal(computeOutfitScore([item("A", ["Cream"]), item("B", ["Navy"])], context), 81);
+  // pair 85; 2 colours at mid: count 65, common 85 -> 75; 0.5 * 85 + 0.5 * 75 = 80
+  assert.equal(computeOutfitScore([item("A", ["Cream"]), item("B", ["Navy"])], context), 80);
 });
 
 test("computeOutfitScore gives a single item the fixed single-item score, whatever its colours", () => {

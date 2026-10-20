@@ -78,7 +78,12 @@ const { describeOutfit, validateOutfit, hasSharedSeason } = require("./outfitEva
 const { hasSharedTag } = require("./helpers.js");
 const { clothesKey } = require("../utils/clothesKey.js");
 const { msUntilDeadline } = require("../utils/functionDeadline.js");
-const { MIN_AUTO_SCORE, MIN_PAIR_SCORE, SINGLE_ITEM_SCORE } = require("../constants/scoring.js");
+const {
+  MIN_AUTO_SCORE,
+  MIN_PAIR_SCORE,
+  SINGLE_ITEM_SCORE,
+  DEFAULT_PATTERN_LEVEL,
+} = require("../constants/scoring.js");
 const {
   getUserMatchingPreferences,
   getBaselineMatrix,
@@ -126,6 +131,7 @@ function buildRolePools(allItems, newItem) {
 function buildMatchingContext({
   gender,
   colour = null,
+  pattern = null,
   temperature = null,
   favouritePalettes = [],
   adjustments = new Map(),
@@ -135,6 +141,7 @@ function buildMatchingContext({
     adjustments,
     layeringRules: getLayeringRules(gender),
     colorRules: getColorRules(colour),
+    patternLevel: pattern || DEFAULT_PATTERN_LEVEL,
     favouritePalettes,
     temperaturePreference: temperature,
   };
@@ -164,7 +171,12 @@ function scoreItemSet(itemSet, context) {
     return null;
   }
 
-  const colourScore = computeColourScore(itemSet, context.colorRules, context.favouritePalettes);
+  const colourScore = computeColourScore(
+    itemSet,
+    context.colorRules,
+    context.favouritePalettes,
+    context.patternLevel
+  );
 
   if (colourScore < MIN_AUTO_SCORE) {
     return null;
@@ -366,13 +378,13 @@ async function processMatches(newItem, allItems) {
 
   const wardrobe = allItems || (await Clothes.find({ userId: newItem.userId }));
 
-  const [{ gender, colour, temperature, favouritePalettes }, adjustments, existingMatches] = await Promise.all([
+  const [{ gender, colour, pattern, temperature, favouritePalettes }, adjustments, existingMatches] = await Promise.all([
     getUserMatchingPreferences(newItem.userId),
     loadUserAdjustments(newItem.userId),
     Match.find({ userId: newItem.userId }).select("clothesKey"),
   ]);
 
-  const context = buildMatchingContext({ gender, colour, temperature, favouritePalettes, adjustments });
+  const context = buildMatchingContext({ gender, colour, pattern, temperature, favouritePalettes, adjustments });
   const existingKeys = new Set(existingMatches.map((match) => match.clothesKey));
 
   const budget = createBudget({

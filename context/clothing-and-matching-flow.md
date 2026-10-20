@@ -42,7 +42,8 @@ In short:
   Temperature never rejects an outfit - each match gets a preset range from
   its subtypes. Every candidate gets a **pair score** and a **colour score**
   (number of colours, how classic or bold its palette is, the user's
-  favourite palettes, bright colours). If either is below 65, or any one
+  favourite palettes, bright colours, whether plain pieces echo the
+  pattern's colours). If either is below 65, or any one
   pair is below 50, it's dropped. The rest get a **score (0-100)** from both,
   and only the **best** new ones are saved.
 - **Compatibility is fixed.** Role rules plus the gender's matrix decide
@@ -394,7 +395,7 @@ affects items added and outfits matched afterwards.
 | `gender` | man / woman / unisex | Which subtype list the add form shows. Which matrix is used. Which layering lists are used. | `typeOptions.jsx`, `getBaselineMatrix`, `getLayeringRules` |
 | `colour` | min / mid / max | Which colour palette list is used, the colour-count cap, and the colour score (3.10) | `getColorRules`, `computeColourScore` |
 | `favouritePalettes` | palette ids | Outfits fitting one get +8 on their colour score (3.10). Unknown ids are dropped on save (`cleanFavouritePalettes`) | `computeFavouriteBonus` |
-| `pattern` | min / mid / max | **Saved and required by the quiz gate, but not used by matching.** The pattern rule is the same for everyone (3.7). | - |
+| `pattern` | min / mid / max | How strongly the pattern echo adjustment rewards/penalises colours added to a patterned item (3.10). Missing → mid. The pattern rule itself is the same for everyone (3.7). | `computePatternEchoAdjustment` |
 | `temperature` | cold / normal / hot | Shifts every new match's temperature range ±2° | `temperature-ranges.md` |
 | `pairingAnswers` (quiz only, not stored) | question key → yes / sometimes / no | Sets the starting personal adjustment of the question's pairs (2.6) | `pairingQuizService.js` |
 | `monday` … `sunday` | a tag name | That day's tag is used to put matching outfits first on the Today page | `server/services/todayRankingService.js` |
@@ -614,7 +615,8 @@ Black + Pink isn't allowed at any level.
 
 `passesPatternCheck`: **at most one patterned item per outfit.** "Patterned"
 means the item has 2 or more colours (1.4). This is the same for every user.
-The `pattern` preference doesn't change it.
+The `pattern` preference doesn't change it - it only sets the strength of
+the pattern echo adjustment in the colour score (3.10).
 
 ### 3.8 Season and tag rules
 
@@ -643,7 +645,7 @@ claiming it, 5.3, or rejecting it on the Today page, 7.2):
 
 | Match | Score |
 |---|---|
-| Automatic, 2+ items | **60% × pair blend + 40% × colour score**, rounded, capped at **90** (`MAX_AUTO_SCORE`) so automatic outfits always rank below user-made ones. Only saved if the pair blend and the colour score are **both at least 65** (`MIN_AUTO_SCORE`, 4.5) |
+| Automatic, 2+ items | **50% × pair blend + 50% × colour score**, rounded, capped at **90** (`MAX_AUTO_SCORE`) so automatic outfits always rank below user-made ones. Only saved if the pair blend and the colour score are **both at least 65** (`MIN_AUTO_SCORE`, 4.5) |
 | Automatic, single item (a onepiece alone) | **85** (no colour score, never dropped) |
 | User-built, or a claimed automatic match (5.3) | **95** |
 
@@ -666,7 +668,8 @@ search drops such an outfit the moment the bad pair appears (4.4).
 `computeColourScore`. A colour on several items counts once.
 
 **colour score = (colour-count score + palette tier score) / 2
-+ favourite bonus + bright-colour adjustment**, kept between 0 and 100.
++ favourite bonus + bright-colour adjustment + pattern echo adjustment**,
+kept between 0 and 100.
 
 **Colour-count score** (`COLOUR_COUNT_SCORES`) - the outfit's number of
 distinct colours against the user's colour level:
@@ -712,6 +715,23 @@ bright colour is best:
 Example at mid: Navy + Cream + Orange, fitting only a common palette:
 (70 + 85) / 2 + 3 = 80.5. At min the same outfit is (70 + 60) / 2 − 5 = 60,
 so it's dropped.
+
+**Pattern echo adjustment** (`PATTERN_ECHO_ADJUSTMENTS`,
+`computePatternEchoAdjustment`). Only for an outfit with a patterned item.
+Counts the distinct colours the *other* items add that aren't already in
+the patterned item - plain pieces that only echo the pattern's colours are
+rewarded, new colours are penalised. Every colour counts the same (black
+and white included). Strength depends on the user's `pattern` level
+(missing → mid):
+
+| New colours | min | mid | max |
+|---|---|---|---|
+| 0 | +6 | +4 | +2 |
+| 1 | −3 | −2 | −1 |
+| 2+ | −10 | −6 | −3 |
+
+Example at min: Spotty skirt (Black, White) + a black top adds nothing new
+→ +6. Spotty skirt + a red top adds Red → −3.
 
 How strict the colour check is, counting every colour combination the
 palettes allow (no favourites):
@@ -1147,8 +1167,8 @@ colours (65) → (65 + 85) / 2 = **75**. Cream + Gold + Camel only fits
 
 | Shape | Items | Pair blend | Colour score | Score | Result |
 |---|---|---|---|---|---|
-| 4 (1 top, 1 bottom) | shirt + trousers | 88 | 75 | 0.6 × 88 + 0.4 × 75 ≈ **83** | **saved** |
-| 5 (+1 outer) | shirt + trousers + trench | 0.7 × 88.7 + 0.3 × 88 ≈ 88.5 | 75 | **83** | **saved** |
+| 4 (1 top, 1 bottom) | shirt + trousers | 88 | 75 | 0.5 × 88 + 0.5 × 75 ≈ **82** | **saved** |
+| 5 (+1 outer) | shirt + trousers + trench | 0.7 × 88.7 + 0.3 × 88 ≈ 88.5 | 75 | **82** | **saved** |
 | 6 (2 tops, 1 bottom) | shirt + cardigan + trousers | - | - | - | **dropped** |
 | 7 (2 tops, 1 bottom, 1 outer) | shirt + cardigan + trousers + trench | - | - | - | **dropped** |
 
@@ -1162,7 +1182,7 @@ Both outfits left are within the best 100, so both are saved, each with its scor
 **Learning.** She deletes the 2-item outfit. Its pair gets −0.1, so
 Buttondown shirt + Wide leg trousers drops from 88 to 87.9. **Nothing
 stops matching** - the shirt and trousers are still compatible, and the
-3-item outfit keeps its score of 83. Future outfits with that pair just
+3-item outfit keeps its score of 82. Future outfits with that pair just
 score slightly lower. If she favourites the 3-item outfit, it shows as 100
 and its 3 pairs get +3. If she builds shirt + cardigan + trousers
 herself, it's saved (user-made outfits have no minimum) and the shirt +
@@ -1286,7 +1306,7 @@ rename (October 2026) was also run once and deleted; it was never committed.
 | Role rules (never / always / decided) | `server/constants/compatibilityRules.js` |
 | Pair compatibility and baseline scores | `server/constants/matrices/<gender>.js` |
 | Tops that need layering / onepieces that need a top | `server/constants/requiresLayering.js` |
-| Outfit score blend, lowest pair score, colour-count / palette tier / bright-colour scores, favourite bonus, single-item / user-made scores, learning steps | `server/constants/scoring.js` |
+| Outfit score blend, lowest pair score, colour-count / palette tier / bright-colour / pattern echo scores, favourite bonus, single-item / user-made scores, learning steps | `server/constants/scoring.js` |
 | Allowed outfit shapes | `server/constants/outfitShapes.js` |
 | Colour palettes, their tiers and levels, colour caps, bright colours | `shared/colorPalettes.json` (loaded by `server/utils/colorPalettes.js` and `core/utils/colourPalettes.js`) |
 | Favourite palette picker | `PalettePicker.jsx` (web: `src/components/preferences/`, app: `mobile/src/components/styleQuiz/`) |
