@@ -140,13 +140,13 @@ and wearing don't reshuffle it.
 Stored per user per bottom + shoe-type pairing in `FootwearScore`
 (`FOOTWEAR_LEARNING_DELTAS` in `server/constants/scoring.js`):
 
-- **Scrolling right past a shoe:** −0.125, at most once per pairing per
+- **Scrolling right past a shoe:** −0.1, at most once per pairing per
   day. Never for the shoe worn today.
-- **Wear these:** +0.25, marks the shoe worn (`lastWornDate`, `timesWorn`,
+- **Wear these:** +3, marks the shoe worn (`lastWornDate`, `timesWorn`,
   `timesWornThisYear`, `wornYear`) and takes back a rejection of that
   pairing from the same day.
 - **Wearing a different shoe, or a different outfit, the same day:** the
-  previous shoe's worn values are restored exactly and its +0.25 taken back.
+  previous shoe's worn values are restored exactly and its +3 taken back.
 
 Nothing is learned for an outfit with no bottom or one-piece. Footwear
 scores are wiped when the user changes gender (like outfit scores) and when

@@ -52,7 +52,7 @@ In short:
   colour cap and colour score depend on their colour level. Both come
   from the style quiz, as do the user's favourite palettes.
 - User-made outfits are **never rejected** and always score 95. Building
-  one (+1), favouriting (+0.5) or deleting any outfit (−0.25) adjusts the user's
+  one (+3), favouriting (+3) or deleting any outfit (−0.1) adjusts the user's
   personal score for every compatible subtype pair in it. That changes
   how future automatic outfits are **scored and ranked**, never whether
   they are allowed.
@@ -946,12 +946,12 @@ Files: `server/services/matchScoreService.js`,
 | Event | Change to every compatible pair in the outfit |
 |---|---|
 | Style quiz pairing answer (2.6) | **set to** +10 / −10 / pair score 0 for that question's pairs |
-| User builds an outfit (Build Matches) | **+1** |
+| User builds an outfit (Build Matches) | **+3** |
 | User claims an automatic outfit by rebuilding it | **+1** |
-| User favourites an outfit | **+0.5** |
-| User unfavourites an outfit | **−0.5** |
-| User deletes one outfit (match card or Today → delete) | **−0.25** |
-| User deletes several ticked outfits (`deleteManyMatches`, `DELETE /match/`) | **−0.25** per outfit |
+| User favourites an outfit | **+3** |
+| User unfavourites an outfit | none |
+| User deletes one outfit (match card or Today → delete) | **−0.1** |
+| User deletes several ticked outfits (`deleteManyMatches`, `DELETE /match/`) | **−0.1** per outfit |
 | User deletes a clothing item (its outfits are deleted with it) | none |
 | Delete-by-piece (`deleteMatchesByPiece`, no route currently) | none |
 | Marking as worn, editing a match's range | none |
@@ -963,8 +963,9 @@ Files: `server/services/matchScoreService.js`,
 matched (3.3). Incompatible pairs in a user-built outfit (e.g. two bottoms,
 or two of the same subtype) are skipped and nothing is stored for them.
 
-Favouriting is detected in `updateMatch` when `favourite` actually changes,
-so toggling on and off adds and removes the same 0.5 points.
+Favouriting is detected in `updateMatch` when `favourite` actually changes
+to true. Unfavouriting doesn't take the points back, so toggling a
+favourite off and on again adds another 3.
 
 ### 6.2 How adjustments are stored
 
@@ -1158,14 +1159,14 @@ picked - however good the other pairs and colours are.
 Both outfits left are within the best 100, so both are saved, each with its score.
 "View New Matches" polls until they appear.
 
-**Learning.** She deletes the 2-item outfit. Its pair gets −0.25, so
-Buttondown shirt + Wide leg trousers drops from 88 to 87.75. **Nothing
+**Learning.** She deletes the 2-item outfit. Its pair gets −0.1, so
+Buttondown shirt + Wide leg trousers drops from 88 to 87.9. **Nothing
 stops matching** - the shirt and trousers are still compatible, and the
 3-item outfit keeps its score of 83. Future outfits with that pair just
 score slightly lower. If she favourites the 3-item outfit, it shows as 100
-and its 3 pairs get +0.5. If she builds shirt + cardigan + trousers
+and its 3 pairs get +3. If she builds shirt + cardigan + trousers
 herself, it's saved (user-made outfits have no minimum) and the shirt +
-cardigan pair goes up to 46.
+cardigan pair goes up to 48.
 
 ---
 

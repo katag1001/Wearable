@@ -126,10 +126,6 @@ async function recordOutfitFavourited(userId, items, baselineMatrix) {
   await adjustScoresForOutfit(userId, items, LEARNING_DELTAS.favourited, baselineMatrix);
 }
 
-async function recordOutfitUnfavourited(userId, items, baselineMatrix) {
-  await adjustScoresForOutfit(userId, items, LEARNING_DELTAS.unfavourited, baselineMatrix);
-}
-
 async function recordOutfitDeleted(userId, items, baselineMatrix) {
   await adjustScoresForOutfit(userId, items, LEARNING_DELTAS.deleted, baselineMatrix);
 }
@@ -147,7 +143,6 @@ module.exports = {
   recordOutfitCreated,
   recordOutfitClaimed,
   recordOutfitFavourited,
-  recordOutfitUnfavourited,
   recordOutfitDeleted,
   wipeUserScores,
 };

@@ -18,7 +18,6 @@ const {
   recordOutfitCreated,
   recordOutfitClaimed,
   recordOutfitFavourited,
-  recordOutfitUnfavourited,
   wipeUserScores,
 } = require("../services/matchScoreService.js");
 const { USER_MADE_SCORE } = require("../constants/scoring.js");
@@ -794,17 +793,13 @@ exports.updateMatch = async (req, res) => {
       }
     }
 
-    // Favouriting raises every pair in the outfit; unfavouriting takes the
-    // same amount back off, so toggling can't inflate a pair's score.
-    if (favouriteChanged) {
+    // Favouriting raises every pair in the outfit; unfavouriting leaves the
+    // pair scores alone.
+    if (favouriteChanged && match.favourite) {
       const clothes = await Clothes.find({ _id: { $in: match.clothes }, userId });
       const baselineMatrix = await getBaselineMatrixForUser(userId);
 
-      if (match.favourite) {
-        await recordOutfitFavourited(userId, clothes, baselineMatrix);
-      } else {
-        await recordOutfitUnfavourited(userId, clothes, baselineMatrix);
-      }
+      await recordOutfitFavourited(userId, clothes, baselineMatrix);
     }
 
     // Return populated match

@@ -87,12 +87,12 @@ const MAX_AUTO_SCORE = 90;
 const USER_MADE_SCORE = 95;
 
 // Change to every compatible pair in an outfit when the user acts on it.
+// Unfavouriting changes nothing.
 const LEARNING_DELTAS = {
-  created: 1,
+  created: 3,
   claimed: 1,
-  favourited: 0.5,
-  unfavourited: -0.5,
-  deleted: -0.25,
+  favourited: 3,
+  deleted: -0.1,
 };
 
 // Style quiz pairing questions (constants/pairingQuestions.js): each answer
@@ -117,8 +117,8 @@ const REJECTION_COOLDOWN_DAYS = 5;
 // Scrolling past a shoe counts at most once per pairing per day; wearing it
 // takes back a rejection from the same day.
 const FOOTWEAR_LEARNING_DELTAS = {
-  rejected: -0.125,
-  worn: 0.25,
+  rejected: -0.1,
+  worn: 3,
 };
 
 module.exports = {

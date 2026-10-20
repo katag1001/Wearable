@@ -36,9 +36,10 @@ function clampScore(value) {
 
 // Keeps a stored adjustment within the range that keeps baseline +
 // adjustment between 0 and 100, so no hidden "reserve" builds up beyond
-// either end.
+// either end. Rounded to 4 decimal places so deltas like 0.1 (not exact in
+// binary) don't build up floating-point noise in stored adjustments.
 function clampAdjustment(baseline, adjustment) {
-  return clampScore(baseline + adjustment) - baseline;
+  return Math.round((clampScore(baseline + adjustment) - baseline) * 10000) / 10000;
 }
 
 // Baseline + personal adjustment, limited to 0-100 again in case a baseline
