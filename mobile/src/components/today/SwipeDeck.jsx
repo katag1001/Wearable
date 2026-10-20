@@ -109,13 +109,18 @@ export const SwipeDeck = ({
   const swipeRef = useRef(swipe);
   swipeRef.current = swipe;
 
+  const isSideways = (_, { dx, dy }) =>
+    latest.current.enabled &&
+    !animating.current &&
+    Math.abs(dx) > DRAG_START &&
+    Math.abs(dx) > Math.abs(dy) * 1.5;
+
+  // Claimed in the capture phase too, so a card filled by a photo (which
+  // would otherwise keep the touch) still swipes.
   const pan = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: (_, { dx, dy }) =>
-        latest.current.enabled &&
-        !animating.current &&
-        Math.abs(dx) > DRAG_START &&
-        Math.abs(dx) > Math.abs(dy) * 1.5,
+      onMoveShouldSetPanResponder: isSideways,
+      onMoveShouldSetPanResponderCapture: isSideways,
       onPanResponderTerminationRequest: () => false,
       onPanResponderMove: (_, { dx }) => x.setValue(dx),
       onPanResponderRelease: (_, { dx, vx }) => {

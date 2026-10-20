@@ -1,13 +1,14 @@
 // Today tab: the weather, then today's outfit filling the rest of the
-// page - swipe to pick one (OutfitPicker), then its shoes and the finished
-// look (WornToday), with confetti when the shoes are picked.
-// Logic: useWeather, useToday, useTodayFootwear - all shared with the web
+// page - swipe to pick one with its shoes (OutfitPicker), then the finished
+// look (WornToday), with confetti when it's worn. Change shoes shows
+// ShoeChooser in place of the page (the outfits stay loaded behind it).
+// Logic: useWeather, useTodayLook - both shared with the web
 // homepage.
 
 import { useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
-import { useToday } from "@core/hooks/useToday.js";
+import { useTodayLook } from "@core/hooks/useTodayLook.js";
 import { useWeather } from "@core/hooks/useWeather.js";
 import { colors, fontSizes } from "@core/theme/tokens.js";
 import {
@@ -18,6 +19,7 @@ import {
 import { Loading, Message, Screen } from "../../components/ui";
 import { Confetti } from "../../components/today/Confetti";
 import { OutfitPicker } from "../../components/today/OutfitPicker";
+import { ShoeChooser } from "../../components/today/ShoeChooser";
 import { WornToday } from "../../components/today/WornToday";
 import { useLocation } from "../../platform/useLocation";
 
@@ -28,10 +30,11 @@ export default function TodayScreen() {
     longitude: location.longitude,
     locationUnavailable: Boolean(location.error),
   });
-  const today = useToday({ todayReady: weather.ready, tagFilter: false });
+  const today = useTodayLook({ todayReady: weather.ready, tagFilter: false });
 
   // Over the whole page while true.
   const [celebrating, setCelebrating] = useState(false);
+  const [choosingShoes, setChoosingShoes] = useState(false);
 
   // Results of marking worn / deleting.
   useEffect(() => {
@@ -65,12 +68,32 @@ export default function TodayScreen() {
 
     if (showingWorn) {
       return (
-        <WornToday today={today} onCelebrate={() => setCelebrating(true)} />
+        <WornToday today={today} onChangeShoes={() => setChoosingShoes(true)} />
       );
     }
 
-    return <OutfitPicker today={today} />;
+    return (
+      <OutfitPicker
+        today={today}
+        onCelebrate={() => setCelebrating(true)}
+        onChangeShoes={() => setChoosingShoes(true)}
+      />
+    );
   };
+
+  // The worn outfit's shoes are saved straight away.
+  if (choosingShoes) {
+    return (
+      <ShoeChooser
+        footwear={today.footwear}
+        outfit={showingWorn ? today.wornOutfit : today.selectedOutfit}
+        startShoe={showingWorn ? today.wornShoe : today.selectedShoe}
+        chooseLabel={showingWorn ? "Wear these" : "Choose these"}
+        onChoose={showingWorn ? today.changeWornShoe : today.chooseShoe}
+        onClose={() => setChoosingShoes(false)}
+      />
+    );
+  }
 
   return (
     <Screen

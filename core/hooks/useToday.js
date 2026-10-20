@@ -287,16 +287,17 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     }
   };
 
+  // Resolves true once the outfit is today's (false if it couldn't be).
   const markAsWornToday = async () => {
     const outfit = selectedOutfit;
     const matchId = outfit?.matchId?._id;
 
-    if (!matchId) return;
+    if (!matchId) return false;
 
     // Already today's outfit - just show it.
     if (wornToday?.matchId === matchId) {
       setShowSelector(false);
-      return;
+      return true;
     }
 
     try {
@@ -313,11 +314,13 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
       setWornToday(snapshot);
       setShowSelector(false);
       setNotice({ title: "Success", message: "Marked as worn today!" });
+      return true;
     } catch (err) {
       setNotice({
         title: "Error",
         message: `Error updating lastWornDate: ${getErrorMessage(err, err.message)}`,
       });
+      return false;
     }
   };
 

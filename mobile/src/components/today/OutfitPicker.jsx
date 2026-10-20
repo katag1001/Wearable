@@ -1,7 +1,10 @@
-// Choosing today's outfit: the sorted outfits one at a time, swiped like
-// cards (next rejects the one being left). The heart wears it today, the
-// bin deletes it. Logic: useToday.
+// Choosing today's outfit: the sorted outfits one at a time, each with its
+// shoes, swiped like cards (next rejects the one being left). The heart
+// wears the outfit and its shoes today (playing onCelebrate), the shoe
+// opens Change shoes (onChangeShoes), the bin deletes the outfit.
+// Logic: useTodayLook.
 
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
@@ -10,8 +13,8 @@ import { ActionButton, ActionRow } from "./ActionButton";
 import { OutfitImages } from "./OutfitImages";
 import { SwipeDeck } from "./SwipeDeck";
 
-export const OutfitPicker = ({ today }) => {
-  const { filteredOutfits, selectedOutfit } = today;
+export const OutfitPicker = ({ today, onCelebrate, onChangeShoes }) => {
+  const { filteredOutfits, selectedOutfit, selectedShoe } = today;
 
   const confirmDelete = () =>
     Alert.alert(
@@ -27,6 +30,12 @@ export const OutfitPicker = ({ today }) => {
       ]
     );
 
+  const wear = async () => {
+    if (await today.markAsWornToday()) {
+      onCelebrate();
+    }
+  };
+
   if (!selectedOutfit) {
     return <Text style={styles.empty}>No outfits saved for today.</Text>;
   }
@@ -40,7 +49,7 @@ export const OutfitPicker = ({ today }) => {
           onPrev={today.goPrev}
           noun="outfit"
         >
-          <OutfitImages match={selectedOutfit.matchId} />
+          <OutfitImages match={selectedOutfit.matchId} footwear={selectedShoe} />
         </SwipeDeck>
       </View>
 
@@ -51,10 +60,20 @@ export const OutfitPicker = ({ today }) => {
           onPress={confirmDelete}
           loading={today.deleting}
         />
+        {today.footwear.hasFootwear ? (
+          <ActionButton
+            icon="shoe-sneaker"
+            iconSet={MaterialCommunityIcons}
+            label="Change shoes"
+            onPress={onChangeShoes}
+            small
+          />
+        ) : null}
         <ActionButton
           icon="heart"
           label="Wear this outfit today"
-          onPress={today.markAsWornToday}
+          onPress={wear}
+          loading={today.wearing}
         />
       </ActionRow>
     </View>

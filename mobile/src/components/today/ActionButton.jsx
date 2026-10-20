@@ -1,12 +1,22 @@
-// The round icon buttons under a swipe deck (heart, bin). `active` fills
-// it in - e.g. the heart for what's already worn today.
+// The round icon buttons under a swipe deck (heart, bin, shoe). `active`
+// fills it in - e.g. the heart for what's already worn today. `small`: a
+// lesser action, sat between the big ones. `iconSet`: an @expo/vector-icons
+// set (Feather by default).
 
 import Feather from "@expo/vector-icons/Feather";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 
 import { colors, spacing } from "@core/theme/tokens.js";
 
-export const ActionButton = ({ icon, label, onPress, loading, active }) => {
+export const ActionButton = ({
+  icon,
+  label,
+  onPress,
+  loading,
+  active,
+  small = false,
+  iconSet: Icon = Feather,
+}) => {
   const iconColor = active ? colors.inverse : colors.main;
 
   return (
@@ -18,6 +28,7 @@ export const ActionButton = ({ icon, label, onPress, loading, active }) => {
       accessibilityState={{ selected: Boolean(active) }}
       style={({ pressed }) => [
         styles.button,
+        small && styles.small,
         active && styles.active,
         pressed && styles.pressed,
       ]}
@@ -25,7 +36,7 @@ export const ActionButton = ({ icon, label, onPress, loading, active }) => {
       {loading ? (
         <ActivityIndicator color={iconColor} />
       ) : (
-        <Feather name={icon} size={28} color={iconColor} />
+        <Icon name={icon} size={small ? 22 : 28} color={iconColor} />
       )}
     </Pressable>
   );
@@ -39,6 +50,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
     gap: spacing.xxl,
   },
   button: {
@@ -48,6 +60,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.imageBackground,
+  },
+  small: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
   },
   active: {
     backgroundColor: colors.main,

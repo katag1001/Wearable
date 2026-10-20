@@ -131,7 +131,7 @@ const REJECTION_COOLDOWN_DAYS = 5;
 // takes back a rejection from the same day.
 const FOOTWEAR_LEARNING_DELTAS = {
   rejected: -0.1,
-  worn: 3,
+  worn: 1,
 };
 
 module.exports = {

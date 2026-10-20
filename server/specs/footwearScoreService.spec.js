@@ -35,14 +35,14 @@ test("planRejection keeps the score from going below 0", () => {
   assert.equal(planRejection({ adjustment: 0 }, TODAY, 0, NOW).adjustment, 0);
 });
 
-test("planWear adds 3", () => {
-  assert.deepEqual(planWear({ adjustment: 1 }, TODAY, 60), { adjustment: 4 });
+test("planWear adds 1", () => {
+  assert.deepEqual(planWear({ adjustment: 1 }, TODAY, 60), { adjustment: 2 });
 });
 
 test("planWear takes back a rejection from the same day", () => {
   assert.deepEqual(
     planWear({ adjustment: -0.1, lastRejectedDate: NOW }, TODAY, 60),
-    { adjustment: 3, lastRejectedDate: null }
+    { adjustment: 1, lastRejectedDate: null }
   );
 });
 
@@ -50,6 +50,6 @@ test("planWear keeps the score from going above 100", () => {
   assert.equal(planWear({ adjustment: 10 }, TODAY, 90).adjustment, 10);
 });
 
-test("planUnwear takes the worn 3 back off", () => {
-  assert.deepEqual(planUnwear({ adjustment: 4 }, 60), { adjustment: 1 });
+test("planUnwear takes the worn 1 back off", () => {
+  assert.deepEqual(planUnwear({ adjustment: 2 }, 60), { adjustment: 1 });
 });

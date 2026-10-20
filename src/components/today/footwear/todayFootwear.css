@@ -1,30 +1,12 @@
 /* ================================================================
-   TODAY - SHOE BOX
-   Beside the worn outfit card (.today-worn-section). The card look,
-   image grid, arrows and button come from viewToday.css.
+   TODAY - CHANGE SHOES POPUP
+   The popup look comes from popup.css; the image area, arrows and
+   image grid from viewToday.css.
 ================================================================ */
 
-.today-worn-section {
-  gap: 1rem;
-}
-
-
-.today-worn-section .today-footwear-box {
-  max-width: 300px;
-}
-
-
-.today-footwear-title {
-  margin: 0 0 .5rem;
-
-  font-size: 1rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-
-.today-footwear-content {
-  height: 220px;
+.today-shoe-content {
+  height: 320px;
+  flex: none;
 }
 
 
@@ -50,32 +32,25 @@
 
 
 .today-footwear-message {
-  margin: auto 0;
+  margin: 1.5rem 0;
 
   font-size: .9rem;
   text-align: center;
 }
 
 
-.today-footwear-box .regular-button:disabled {
-  cursor: default;
-  opacity: .7;
-}
+/* Full screen on phones (popup.css) - the shoe takes the free height. */
 
+@media (max-width: 600px) {
 
-/* Stack the shoe box under the outfit on narrow screens. */
-
-@media (max-width: 900px) {
-
-  .today-worn-section {
-    flex-direction: column;
-    align-items: center;
+  .today-shoe-modal {
+    justify-content: flex-start;
   }
 
 
-  /* Same width as the outfit card above it. */
-  .today-worn-section .today-footwear-box {
-    max-width: 480px;
+  .today-shoe-content {
+    height: auto;
     min-height: 0;
+    flex: 1 1 auto;
   }
 }

@@ -51,17 +51,30 @@ removes the new image via `POST /cloudinary/delete`.
 
 ## Shoes on the Today page
 
-Once an outfit is marked worn today, a **Shoes** box sits beside it (under
-it on narrow screens). It shows **all** the user's footwear, one at a time,
-best first. Nothing is stored on matches - the box pairs shoes with the
-outfit's clothes, which `GET /today/get` populates with their `subtype`.
+Every Today outfit shows its **top shoe as part of the outfit**, laid out
+like another item of clothing. **Change shoes** (a small button beside
+Mark as worn / Delete; the shoe button between the bin and heart on
+mobile) opens a popup on web and a full-page panel on mobile with
+**all** the user's footwear for that outfit, one at a time, best first,
+swiped like the outfits. Choosing one shows it with the outfit for the
+rest of the day - nothing is saved until **Mark as worn** (the heart),
+which wears the outfit and its shoe together. On the outfit already worn
+today, Change shoes saves the new shoe straight away. With no footwear,
+outfits show without shoes and there's no Change shoes button.
+
+Nothing is stored on matches - shoes are paired with the outfit's
+clothes, which `GET /today/get` populates with their `subtype`.
 
 | File | Role |
 |---|---|
-| `src/components/today/footwear/todayFootwearBox.jsx` | The box: loading, order, arrows, Wear these, undo |
-| `src/components/today/footwear/footwearRanking.js` | Pure ranking rules |
-| `src/components/today/footwear/footwearApi.js` | Requests |
-| `src/components/today/footwear/footwearCache.js` | Today's order + worn shoe (localStorage, one day) |
+| `core/hooks/useTodayLook.js` | Outfits (`useToday`) + their shoes; wearing the whole look |
+| `core/hooks/useTodayFootwear.js` | Each outfit's order and shoe, choosing, wear / undo / reject |
+| `core/hooks/useShoeChooser.js` | Change shoes: one shoe at a time, next rejects |
+| `src/components/today/footwear/shoeChooserModal.jsx` | Web Change shoes popup |
+| `mobile/src/components/today/ShoeChooser.jsx` | Mobile Change shoes panel |
+| `core/footwear/footwearRanking.js` | Pure ranking rules |
+| `core/api/footwear.js` | Requests |
+| `core/footwear/footwearCache.js` | Each outfit's order, chosen shoes + worn shoe (one day) |
 | `src/constants/footwearWeather.js` | Weather points |
 | `src/constants/footwearColour.js` | Colour and pattern points |
 | `shared/colorPalettes.json` | Outfit palettes + colour caps per level (shared with matching) |
@@ -140,13 +153,14 @@ and wearing don't reshuffle it.
 Stored per user per bottom + shoe-type pairing in `FootwearScore`
 (`FOOTWEAR_LEARNING_DELTAS` in `server/constants/scoring.js`):
 
-- **Scrolling right past a shoe:** −0.1, at most once per pairing per
-  day. Never for the shoe worn today.
-- **Wear these:** +3, marks the shoe worn (`lastWornDate`, `timesWorn`,
-  `timesWornThisYear`, `wornYear`) and takes back a rejection of that
-  pairing from the same day.
+- **Scrolling right past a shoe** in Change shoes: −0.1, at most once per
+  pairing per day. Never for the shoe worn today.
+- **Wearing it** (Mark as worn, or Change shoes on the worn outfit): +1,
+  marks the shoe worn (`lastWornDate`, `timesWorn`, `timesWornThisYear`,
+  `wornYear`) and takes back a rejection of that pairing from the same
+  day.
 - **Wearing a different shoe, or a different outfit, the same day:** the
-  previous shoe's worn values are restored exactly and its +3 taken back.
+  previous shoe's worn values are restored exactly and its +1 taken back.
 
 Nothing is learned for an outfit with no bottom or one-piece. Footwear
 scores are wiped when the user changes gender (like outfit scores) and when

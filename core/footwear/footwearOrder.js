@@ -1,6 +1,6 @@
 // core/footwear/footwearOrder.js
 //
-// Inputs to and the stability of the Today shoe order
+// Inputs to and the stability of each Today outfit's shoe order
 // (core/hooks/useTodayFootwear.js).
 
 import { getSeason } from "../utils/dates.js";
@@ -20,13 +20,10 @@ export const readTodayWeather = () => {
   };
 };
 
-// Puts the cached order back for the same outfit and bottom, dropping
-// deleted shoes and adding new ones (in ranked order) at the end.
-export const applyCachedOrder = (ranked, cachedOrder, matchId, bottomSubtype) => {
-  if (
-    cachedOrder?.matchId !== matchId ||
-    (cachedOrder?.bottomSubtype ?? null) !== bottomSubtype
-  ) {
+// Puts an outfit's cached order back if it was for the same bottom,
+// dropping deleted shoes and adding new ones (in ranked order) at the end.
+export const applyCachedOrder = (ranked, cachedOrder, bottomSubtype) => {
+  if (!cachedOrder || (cachedOrder.bottomSubtype ?? null) !== bottomSubtype) {
     return ranked;
   }
 

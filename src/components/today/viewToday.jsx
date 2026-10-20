@@ -3,14 +3,15 @@ import "./viewToday.css";
 import MessagePopup from "../general/messagePopup.jsx";
 import DeletePopup from "../general/deletePopup.jsx";
 import MatchScoreBadge from "../general/matchScoreBadge.jsx";
-import { useToday } from "@core/hooks/useToday.js";
+import { useTodayLook } from "@core/hooks/useTodayLook.js";
 import { tagOptions } from "@core/constants/optionsBank.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
-import TodayFootwearBox from "./footwear/todayFootwearBox.jsx";
+import ShoeChooserModal from "./footwear/shoeChooserModal.jsx";
 
 
-// The Today outfits. The logic is useToday (shared with the mobile app);
-// this renders it and owns the delete confirmation.
+// The Today outfits, each with its shoes. The logic is useTodayLook
+// (shared with the mobile app); this renders it and owns the delete
+// confirmation and the Change shoes popup.
 const ViewToday = ({ todayReady }) => {
 
   const {
@@ -22,21 +23,30 @@ const ViewToday = ({ todayReady }) => {
     selectedOutfit,
     goNext,
     goPrev,
-    todayTag,
     selectedTag,
     selectTag,
+    todayTag,
     wornToday,
     wornOutfit,
     showSelector,
     showOutfitPicker,
     markAsWornToday,
+    wearing,
+    footwear,
+    selectedShoe,
+    wornShoe,
+    chooseShoe,
+    changeWornShoe,
     deleteCurrentOutfit,
     deleting: deletingOutfit,
     notice,
     clearNotice,
-  } = useToday({ todayReady });
+  } = useTodayLook({ todayReady });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showShoeChooser, setShowShoeChooser] = useState(false);
+
+  const showingWorn = Boolean(wornToday) && !showSelector;
 
   // Closes the confirmation straight away - the delete carries on in the
   // background.
@@ -68,18 +78,32 @@ const ViewToday = ({ todayReady }) => {
 
   /* ------------------------- RENDER OUTFIT IMAGES ------------------------- */
 
-  const renderOutfitImages = (outfit) => {
+  // The clothes, then the shoe - all laid out the same way.
+  const renderOutfitImages = (outfit, shoe) => {
 
     return (
       <div className="today-image-group">
 
-        {(outfit?.matchId?.clothes || [])
+        {[...(outfit?.matchId?.clothes || []), shoe]
           .map(renderItemImage)
           .filter(Boolean)}
 
       </div>
     );
   };
+
+
+  /* ------------------------- CHANGE SHOES BUTTON ------------------------- */
+
+  const renderChangeShoesButton = () =>
+    footwear.hasFootwear && (
+      <button
+        className="regular-button today-small-button"
+        onClick={() => setShowShoeChooser(true)}
+      >
+        Change shoes
+      </button>
+    );
 
 
   /* ------------------------- RENDER STATES ------------------------- */
@@ -122,7 +146,7 @@ const ViewToday = ({ todayReady }) => {
   return (
     <div className="view-today-container">
 
-      {wornToday && !showSelector ? (
+      {showingWorn ? (
 
         /* ------------------------- WORN CARD VIEW ------------------------- */
 
@@ -138,7 +162,8 @@ const ViewToday = ({ todayReady }) => {
               />
 
               {renderOutfitImages(
-                wornOutfit
+                wornOutfit,
+                wornShoe
               )}
 
             </div>
@@ -153,17 +178,11 @@ const ViewToday = ({ todayReady }) => {
                 Select a different outfit
               </button>
 
+              {renderChangeShoesButton()}
+
             </div>
 
           </div>
-
-
-          {/* SHOES FOR THE WORN OUTFIT */}
-
-          <TodayFootwearBox
-            outfit={wornOutfit}
-            todayTag={todayTag}
-          />
 
         </div>
 
@@ -189,7 +208,8 @@ const ViewToday = ({ todayReady }) => {
                 />
 
                 {renderOutfitImages(
-                  selectedOutfit
+                  selectedOutfit,
+                  selectedShoe
                 )}
 
                 {/* PREVIOUS / NEXT - next rejects the outfit being left */}
@@ -238,9 +258,12 @@ const ViewToday = ({ todayReady }) => {
                 onClick={
                   markAsWornToday
                 }
+                disabled={wearing}
               >
-                Mark as Worn Today
+                {wearing ? "Saving..." : "Mark as Worn Today"}
               </button>
+
+              {renderChangeShoesButton()}
 
               <button
                 className="regular-button delete-outfit-button"
@@ -349,6 +372,20 @@ const ViewToday = ({ todayReady }) => {
         message={notice?.message}
         onClose={clearNotice}
       />
+
+
+      {/* CHANGE SHOES - the worn outfit's are saved straight away */}
+
+      {showShoeChooser && (
+        <ShoeChooserModal
+          footwear={footwear}
+          outfit={showingWorn ? wornOutfit : selectedOutfit}
+          startShoe={showingWorn ? wornShoe : selectedShoe}
+          chooseLabel={showingWorn ? "Wear these" : "Choose these"}
+          onChoose={showingWorn ? changeWornShoe : chooseShoe}
+          onClose={() => setShowShoeChooser(false)}
+        />
+      )}
 
 
       {/* DELETE CONFIRMATION */}

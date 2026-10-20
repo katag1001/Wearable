@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
-  deleteFootwear,
   fetchTodayFootwear,
   rejectFootwearPairing,
   unwearFootwear,
@@ -19,39 +18,56 @@ import { wornValuesOf } from "../today/wornSnapshot.js";
 import { isDateToday } from "../utils/dates.js";
 
 /*
- * The shoes for the outfit worn today: all the user's footwear one at a
- * time, best first for this outfit and today's weather
- * (footwearRanking.js). Moving past a shoe lowers its pairing with the
- * outfit's bottom (at most once a day); "Wear these" marks it worn and
- * raises the pairing. Wearing a different shoe - or a different outfit -
- * undoes the previous shoe's worn values and its pairing boost, if this
- * device marked it worn.
+ * The shoes for each of today's outfits: all the user's footwear, best
+ * first for that outfit and today's weather (footwearRanking.js). Each
+ * outfit shows its top shoe, or the one picked for it with Change shoes.
+ *
+ * Moving past a shoe while changing shoes lowers its pairing with the
+ * outfit's bottom (at most once a day); wearing it (with the outfit) marks
+ * it worn and raises the pairing. Wearing a different shoe - or a
+ * different outfit - undoes the previous shoe's worn values and its
+ * pairing boost, if this device marked it worn.
  *
  * A shoe worn today on another device (this device has no record of its
- * own) is found from its lastWornDate and opened on - but, with no
- * snapshot, can't be undone; it stays counted.
+ * own) is found from its lastWornDate and shown with the worn outfit -
+ * but, with no snapshot, can't be undone; it stays counted.
+ *
+ * `outfits`: every outfit that may be shown (today's list and the worn
+ * one). `wornMatchId`: the outfit worn today, or null.
  */
-export const useTodayFootwear = ({ outfit, todayTag }) => {
-  const matchId = outfit?.matchId?._id ?? null;
-  const bottomSubtype = getPairingSubtype(outfit?.matchId?.clothes);
+
+const matchIdOf = (outfit) => outfit?.matchId?._id ?? null;
+const bottomOf = (outfit) => getPairingSubtype(outfit?.matchId?.clothes);
+
+export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
+  const [cached] = useState(getCachedFootwear);
 
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
-  // Shoe ids in display order - set once per outfit so rejections and
-  // wearing don't reshuffle the list while browsing.
-  const [order, setOrder] = useState(null);
-  const [index, setIndex] = useState(0);
+  // Each outfit's shoe ids in display order - ranked once per outfit so
+  // rejections and wearing don't reshuffle the list while browsing.
+  const [orders, setOrders] = useState(cached.orders);
+  const [chosen, setChosen] = useState(cached.chosen);
 
-  const [worn, setWorn] = useState(() => getCachedFootwear().worn);
+  const [worn, setWornState] = useState(cached.worn);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
-  // Whether this device had its own record of today's shoe when the box
-  // opened. Only without one is a shoe worn elsewhere picked up - with one,
-  // this device's choice (and its undo) wins.
-  const [hadLocalWorn] = useState(() => Boolean(getCachedFootwear().worn));
+  // Read by the async wear / undo steps, which outlive their render.
+  const wornRef = useRef(worn);
+  const setWorn = (value) => {
+    wornRef.current = value;
+    setWornState(value);
+  };
 
+  // Whether this device had its own record of today's shoe on opening.
+  // Only without one is a shoe worn elsewhere picked up - with one, this
+  // device's choice (and its undo) wins.
+  const [hadLocalWorn] = useState(() => Boolean(cached.worn));
+
+  // Outfits ranked since opening - a cached order is only checked against
+  // the fresh footwear (deleted / new shoes) once.
+  const ranked = useRef(new Set());
   const pendingRejections = useRef(new Set());
 
   const loaded = data !== null;
@@ -75,76 +91,89 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
     };
   }, []);
 
-  /* -------------------- Order -------------------- */
+  /* -------------------- Orders -------------------- */
+
+  // Changes whenever an outfit is added or its bottom becomes known
+  // (outfits cached earlier in the day may not carry subtypes until the
+  // Today page's background refresh brings them).
+  const outfitsKey = (outfits || [])
+    .map((outfit) => `${matchIdOf(outfit)}|${bottomOf(outfit)}`)
+    .join(",");
 
   useEffect(() => {
-    if (!data || !matchId) return;
+    if (!data) return;
 
     const { weather, season } = readTodayWeather();
+    const added = {};
 
-    const ranked = rankFootwear(data.items, {
-      gender: data.gender,
-      bottomSubtype,
-      pairings: data.pairings,
-      weather,
-      season,
-      todayTag,
-      outfitColors: outfit?.matchId?.colors || [],
-      outfitPatterned: isOutfitPatterned(outfit?.matchId),
-      colourLevel: data.colourLevel,
-    });
+    for (const outfit of outfits || []) {
+      const matchId = matchIdOf(outfit);
+      const bottomSubtype = bottomOf(outfit);
+      const existing = orders[matchId];
 
-    const ids = applyCachedOrder(
-      ranked,
-      getCachedFootwear().order,
-      matchId,
-      bottomSubtype
-    ).map((item) => item._id);
-
-    setOrder(ids);
-
-    // A shoe worn today elsewhere (the first found), when this device has
-    // no shoe of its own for today.
-    let currentWorn = worn;
-
-    if (!currentWorn && !hadLocalWorn) {
-      const shoeWornToday = data.items.find((item) => isDateToday(item.lastWornDate));
-
-      if (shoeWornToday) {
-        currentWorn = {
-          footwearId: shoeWornToday._id,
-          matchId,
-          bottomSubtype,
-          snapshot: null,
-        };
-        setWorn(currentWorn);
+      if (
+        !matchId ||
+        (ranked.current.has(matchId) &&
+          (existing?.bottomSubtype ?? null) === bottomSubtype)
+      ) {
+        continue;
       }
+
+      const rankedShoes = rankFootwear(data.items, {
+        gender: data.gender,
+        bottomSubtype,
+        pairings: data.pairings,
+        weather,
+        season,
+        todayTag,
+        outfitColors: outfit.matchId.colors || [],
+        outfitPatterned: isOutfitPatterned(outfit.matchId),
+        colourLevel: data.colourLevel,
+      });
+
+      ranked.current.add(matchId);
+      added[matchId] = {
+        bottomSubtype,
+        footwearIds: applyCachedOrder(rankedShoes, existing, bottomSubtype).map(
+          (item) => item._id
+        ),
+      };
     }
 
-    // Open on today's shoe if one is worn with this outfit.
-    const wornIndex = ids.indexOf(
-      currentWorn?.matchId === matchId ? currentWorn.footwearId : null
-    );
-    setIndex(Math.max(0, wornIndex));
-
+    if (Object.keys(added).length > 0) {
+      setOrders((prev) => ({ ...prev, ...added }));
+    }
     // Ranked once per outfit - pairings/worn changing later must not
-    // reshuffle the list. bottomSubtype is included because outfits cached
-    // earlier in the day may not carry subtypes until the Today page's
-    // background refresh brings them.
+    // reshuffle the list.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaded, matchId, bottomSubtype]);
+  }, [loaded, outfitsKey]);
 
-  // Saved straight away on every change (even before the order is known),
-  // so an undone shoe can never be undone a second time after a reload.
+  // Saved straight away on every change, so an undone shoe can never be
+  // undone a second time after a reload.
   useEffect(() => {
-    cacheFootwear({
-      order:
-        order && matchId
-          ? { matchId, bottomSubtype, footwearIds: order }
-          : getCachedFootwear().order,
-      worn,
-    });
-  }, [order, worn, matchId, bottomSubtype]);
+    cacheFootwear({ orders, chosen, worn });
+  }, [orders, chosen, worn]);
+
+  /* -------------------- Worn on another device -------------------- */
+
+  useEffect(() => {
+    if (!data || !wornMatchId || wornRef.current || hadLocalWorn) return;
+
+    const shoeWornToday = data.items.find((item) => isDateToday(item.lastWornDate));
+
+    if (shoeWornToday) {
+      const outfit = (outfits || []).find((entry) => matchIdOf(entry) === wornMatchId);
+
+      setWorn({
+        footwearId: shoeWornToday._id,
+        matchId: wornMatchId,
+        bottomSubtype: bottomOf(outfit),
+        snapshot: null,
+      });
+    }
+    // Once the footwear and the worn outfit are known.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded, wornMatchId]);
 
   /* -------------------- State helpers -------------------- */
 
@@ -179,7 +208,7 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
   // Only for a shoe this device marked worn - one worn elsewhere has no
   // snapshot, so it stays counted.
   const undoWorn = async (entry) => {
-    if (!entry.snapshot) return;
+    if (!entry?.snapshot) return;
 
     const { item, pairing } = await unwearFootwear(
       entry.footwearId,
@@ -191,51 +220,84 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
     updatePairing(pairing);
   };
 
-  // A different outfit was worn since this shoe was picked - the shoe went
-  // with the old outfit, so take it back off.
+  // A different outfit was worn since this shoe was picked (e.g. on
+  // another device) - the shoe went with the old outfit, so take it back
+  // off. Wearing here always wears the shoe first, so this doesn't fire.
   useEffect(() => {
-    if (!worn || !matchId || worn.matchId === matchId) return;
+    const previous = wornRef.current;
 
-    const previous = worn;
+    if (!previous || !wornMatchId || previous.matchId === wornMatchId) return;
+
     setWorn(null);
 
     undoWorn(previous).catch((err) =>
       console.error("Failed to undo the previous shoe:", err)
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchId]);
+  }, [wornMatchId]);
 
-  /* -------------------- Current shoe -------------------- */
+  /* -------------------- Shoes per outfit -------------------- */
 
-  const shoes = useMemo(() => {
-    if (!data || !order) return [];
+  const byId = useMemo(
+    () => new Map((data?.items || []).map((item) => [item._id, item])),
+    [data]
+  );
 
-    const byId = new Map(data.items.map((item) => [item._id, item]));
+  // The outfit's shoes in order, best first.
+  const shoesFor = (outfit) =>
+    (orders[matchIdOf(outfit)]?.footwearIds || [])
+      .map((id) => byId.get(id))
+      .filter(Boolean);
 
-    return order.map((id) => byId.get(id)).filter(Boolean);
-  }, [data, order]);
+  // The shoe worn today with this outfit, if any.
+  const wornShoeFor = (outfit) => {
+    const matchId = matchIdOf(outfit);
 
-  const current = shoes[index] ?? null;
+    return matchId && worn?.matchId === matchId
+      ? byId.get(worn.footwearId) ?? null
+      : null;
+  };
 
-  const isWornShoe = (shoe) =>
-    Boolean(shoe) && worn?.footwearId === shoe._id && worn?.matchId === matchId;
+  // The shoe shown with an outfit: the one picked for it, else the one
+  // worn with it, else its best.
+  const shoeFor = (outfit) => {
+    const matchId = matchIdOf(outfit);
 
-  // Today's shoe for this outfit. hasWornShoe is known straight away (from
-  // the cache); wornShoe once the footwear has loaded.
-  const hasWornShoe = Boolean(matchId) && worn?.matchId === matchId;
-  const wornShoe = hasWornShoe
-    ? data?.items.find((item) => item._id === worn.footwearId) ?? null
-    : null;
+    if (!matchId) return null;
+
+    return (
+      byId.get(chosen[matchId]) ||
+      wornShoeFor(outfit) ||
+      shoesFor(outfit)[0] ||
+      null
+    );
+  };
+
+  const isWornWith = (outfit, shoe) =>
+    Boolean(shoe) &&
+    worn?.footwearId === shoe._id &&
+    worn?.matchId === matchIdOf(outfit);
+
+  // Picked with Change shoes - shown with the outfit, nothing saved.
+  const choose = (outfit, shoe) => {
+    const matchId = matchIdOf(outfit);
+
+    if (!matchId || !shoe) return;
+
+    setChosen((prev) => ({ ...prev, [matchId]: shoe._id }));
+  };
 
   /* -------------------- Moving past -------------------- */
 
   // Lowers the pairing - at most once a day, never for the shoe worn
   // today, and not at all for an outfit with no bottom or one-piece.
-  const rejectCurrent = () => {
-    if (!current || !bottomSubtype || isWornShoe(current)) return;
+  const rejectShoe = (outfit, shoe) => {
+    const bottomSubtype = bottomOf(outfit);
 
-    const key = `${bottomSubtype}|${current.subtype}`;
-    const pairing = findPairing(data.pairings, bottomSubtype, current.subtype);
+    if (!data || !shoe || !bottomSubtype || isWornWith(outfit, shoe)) return;
+
+    const key = `${bottomSubtype}|${shoe.subtype}`;
+    const pairing = findPairing(data.pairings, bottomSubtype, shoe.subtype);
 
     if (isDateToday(pairing?.lastRejectedDate) || pendingRejections.current.has(key)) {
       return;
@@ -243,101 +305,78 @@ export const useTodayFootwear = ({ outfit, todayTag }) => {
 
     pendingRejections.current.add(key);
 
-    rejectFootwearPairing(bottomSubtype, current.subtype)
+    rejectFootwearPairing(bottomSubtype, shoe.subtype)
       .then(({ pairing: updated }) => updatePairing(updated))
       .catch((err) => console.error("Failed to reject shoe:", err))
       .finally(() => pendingRejections.current.delete(key));
   };
 
-  const goNext = () => {
-    if (shoes.length <= 1) return;
-
-    rejectCurrent();
-    setIndex((prev) => (prev + 1) % shoes.length);
-  };
-
-  const goPrev = () => {
-    if (shoes.length <= 1) return;
-
-    setIndex((prev) => (prev - 1 + shoes.length) % shoes.length);
-  };
-
   /* -------------------- Wear -------------------- */
 
-  // Resolves true once the shoe is saved as worn (false if it wasn't).
-  const wearCurrent = async () => {
-    if (!current || saving || isWornShoe(current)) return false;
+  // Marks the shoe worn with the outfit, undoing the previous shoe.
+  // Resolves true once saved (or already worn), false if it wasn't.
+  const wearWith = async (outfit, shoe) => {
+    const matchId = matchIdOf(outfit);
+    const bottomSubtype = bottomOf(outfit);
+    const previous = wornRef.current;
+
+    if (!matchId || !shoe) return false;
+
+    if (previous?.footwearId === shoe._id && previous?.matchId === matchId) {
+      return true;
+    }
 
     setSaving(true);
 
     try {
-      if (worn) {
-        await undoWorn(worn);
+      if (previous) {
+        await undoWorn(previous);
+        setWorn(null);
       }
 
-      const snapshot = wornValuesOf(current);
-      const { item, pairing } = await wearFootwear(current._id, bottomSubtype);
+      const snapshot = wornValuesOf(shoe);
+      const { item, pairing } = await wearFootwear(shoe._id, bottomSubtype);
 
       updateItem(item);
       updatePairing(pairing);
 
-      setWorn({ footwearId: current._id, matchId, bottomSubtype, snapshot });
+      setWorn({ footwearId: shoe._id, matchId, bottomSubtype, snapshot });
       return true;
     } catch (err) {
       console.error("Failed to mark shoe worn:", err);
-      setError("Couldn't mark these as worn - please try again.");
       return false;
     } finally {
       setSaving(false);
     }
   };
 
-  /* -------------------- Delete -------------------- */
+  // Takes the worn shoe back off (the outfit it was worn with failed to
+  // save).
+  const takeOff = async () => {
+    const previous = wornRef.current;
 
-  // Deletes the current shoe from the wardrobe for good. Nothing to undo
-  // if it was today's shoe - it's gone.
-  const deleteCurrent = async () => {
-    if (!current || deleting) return;
+    if (!previous) return;
 
-    const id = current._id;
-    setDeleting(true);
+    setWorn(null);
 
     try {
-      await deleteFootwear(id);
-
-      if (worn?.footwearId === id) {
-        setWorn(null);
-      }
-
-      setData((prev) => prev && {
-        ...prev,
-        items: prev.items.filter((item) => item._id !== id),
-      });
-      setOrder((prev) => prev && prev.filter((entry) => entry !== id));
-      // The next shoe slides into this one's place (wrapping at the end).
-      setIndex((prev) => (prev >= shoes.length - 1 ? 0 : prev));
+      await undoWorn(previous);
     } catch (err) {
-      console.error("Failed to delete shoe:", err);
-      setError("Couldn't delete these shoes - please try again.");
-    } finally {
-      setDeleting(false);
+      console.error("Failed to undo the shoe:", err);
     }
   };
 
   return {
-    loading: !data || !order,
+    loading: !data,
     error,
-    shoes,
-    current,
-    index,
-    goNext,
-    goPrev,
-    isWearingCurrent: isWornShoe(current),
-    hasWornShoe,
-    wornShoe,
-    wearCurrent,
+    hasFootwear: byId.size > 0,
+    shoesFor,
+    shoeFor,
+    wornShoeFor,
+    choose,
+    rejectShoe,
+    wearWith,
+    takeOff,
     saving,
-    deleteCurrent,
-    deleting,
   };
 };

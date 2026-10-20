@@ -539,6 +539,34 @@
 }
 
 
+/* Change shoes - narrower than the buttons either side of it. */
+
+.today-buttons > .today-small-button {
+  flex: 0 0 auto;
+  width: auto;
+
+  padding-inline: .9rem;
+
+  background: transparent;
+  color: var(--main-color);
+
+  font-size: .7rem;
+  white-space: nowrap;
+}
+
+
+.today-buttons > .today-small-button:hover {
+  background: var(--main-color);
+  color: var(--inverse-color);
+}
+
+
+.regular-button:disabled {
+  cursor: default;
+  opacity: .7;
+}
+
+
 .delete-outfit-button {
   border-color: var(--error-border-color);
 
