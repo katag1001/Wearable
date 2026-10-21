@@ -878,6 +878,22 @@ const typeOptionsByGender = {
     {
       "type": "top",
       "category": "Tops",
+      "name": "Party top",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Date night",
+        "Dinner"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Tops",
       "name": "Waistcoat",
       "season": [
         "Spring",
@@ -2097,6 +2113,22 @@ const typeOptionsByGender = {
         "Date night",
         "Everyday",
         "Lunch"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Party top",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Party",
+        "Date night",
+        "Dinner"
       ]
     },
     {

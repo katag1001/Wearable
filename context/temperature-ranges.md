@@ -44,7 +44,7 @@ values at the time of writing; the file is the source of truth.
 
 | Top group | Subtypes |
 |---|---|
-| short | Short t-shirt, Vest, Croptop, Off-the-shoulder top, Linen shirt, Bodysuit, Fancy top, Tunic |
+| short | Short t-shirt, Vest, Croptop, Off-the-shoulder top, Linen shirt, Bodysuit, Fancy top, Party top, Tunic |
 | long | Long t-shirt, Buttondown shirt, Fancy blouse, Floaty blouse, Short turtleneck, Long turtleneck, Turtleneck, Waistcoat, Light jumper, Light cardigan |
 | warm | Hoodie/sweatshirt, Warm jumper, Turtleneck jumper, Warm cardigan |
 

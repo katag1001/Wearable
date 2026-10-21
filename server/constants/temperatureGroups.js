@@ -16,7 +16,7 @@
 const TOP_GROUPS = {
   short: [
     "Short t-shirt", "Vest", "Croptop", "Off-the-shoulder top", "Linen shirt",
-    "Bodysuit", "Fancy top", "Tunic",
+    "Bodysuit", "Fancy top", "Party top", "Tunic",
   ],
   long: [
     "Long t-shirt", "Buttondown shirt", "Fancy blouse", "Short turtleneck",
