@@ -72,15 +72,18 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
 
   /* -------------------- Worn today -------------------- */
 
+  // Resolves to true when marked.
   const markWorn = async () => {
     setMarkingWorn(true);
 
     try {
       await markMatchWorn(match);
       onChanged?.();
+      return true;
     } catch (err) {
       console.error("Mark as worn error:", err);
       onError?.(getErrorMessage(err, "Failed to mark as worn"));
+      return false;
     } finally {
       setMarkingWorn(false);
     }

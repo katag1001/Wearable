@@ -1,0 +1,52 @@
+// An outfit's editable details: seasons, temperature range and tags.
+// `card` is useMatchCard, already editing (its draft).
+
+import { seasonOptions, tagOptions } from "@core/constants/optionsBank.js";
+import { TEMPERATURE_RANGE } from "@core/matches/matchFields.js";
+
+import { Chip, ChipRow, RangeSlider, SectionTitle } from "../ui";
+
+const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+
+export const OutfitDetails = ({ card }) => {
+  const { draft } = card;
+
+  if (!draft) return null;
+
+  return (
+    <>
+      <SectionTitle title="Seasons" />
+      <ChipRow>
+        {seasonOptions.map((season) => (
+          <Chip
+            key={season}
+            label={capitalise(season)}
+            selected={!!draft[season]}
+            onPress={() => card.toggleSeason(season)}
+          />
+        ))}
+      </ChipRow>
+
+      <SectionTitle title="Temperature range" />
+      <RangeSlider
+        min={TEMPERATURE_RANGE.min}
+        max={TEMPERATURE_RANGE.max}
+        valueMin={Number(draft.min_temp)}
+        valueMax={Number(draft.max_temp)}
+        onChange={card.setTemperature}
+      />
+
+      <SectionTitle title="Tags" />
+      <ChipRow>
+        {tagOptions.map((tag) => (
+          <Chip
+            key={tag.name}
+            label={tag.name}
+            selected={draft.tags.includes(tag.name)}
+            onPress={() => card.toggleTag(tag.name)}
+          />
+        ))}
+      </ChipRow>
+    </>
+  );
+};

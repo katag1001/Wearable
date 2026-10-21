@@ -33,7 +33,7 @@ import {
 import { FilterSheet } from "../filters/FilterSheet";
 import { Button, Chip, ChipRow, EmptyState, Message, TextField } from "../ui";
 import { OutfitCard } from "./OutfitCard";
-import { OutfitEditorSheet } from "./OutfitEditorSheet";
+import { handOverOutfit } from "./outfitHandoff";
 import { takeOutfitsChanged } from "./outfitsChanged";
 import { SelectionBar } from "./SelectionBar";
 
@@ -47,7 +47,6 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
 
   const [showFilters, setShowFilters] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [editingId, setEditingId] = useState(null);
 
   const list = useAccumulatedPages({
     data: outfits.data,
@@ -64,15 +63,12 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
   );
   const selectMode = selectedIds.size > 0;
 
-  // The latest copy, so the editor sees changes (e.g. worn today).
-  const editingMatch = list.items.find((match) => match._id === editingId);
-
   const refreshList = () => {
     list.restart();
     outfits.refresh();
   };
 
-  // Coming back after building an outfit.
+  // Coming back after building or changing an outfit.
   useFocusEffect(
     useCallback(() => {
       if (takeOutfitsChanged()) {
@@ -100,7 +96,6 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            setEditingId(null);
             list.restart();
 
             if (await outfits.deleteMatches(ids)) {
@@ -194,7 +189,10 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
               match={match}
               selected={selectedIds.has(match._id)}
               selectMode={selectMode}
-              onEdit={() => setEditingId(match._id)}
+              onEdit={() => {
+                handOverOutfit(match);
+                router.push("/outfit");
+              }}
               onToggleSelect={toggleSelected}
               onFavouriteToggle={outfits.onFavouriteToggle}
               onChanged={refreshList}
@@ -249,18 +247,6 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
         showFavourites
         showItemFilter
       />
-
-      {editingMatch && (
-        <OutfitEditorSheet
-          key={editingMatch._id}
-          match={editingMatch}
-          onClose={() => setEditingId(null)}
-          onChanged={refreshList}
-          onFavouriteToggle={outfits.onFavouriteToggle}
-          onError={outfits.setError}
-          onDelete={(id) => confirmDelete([id])}
-        />
-      )}
     </>
   );
 };

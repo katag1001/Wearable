@@ -1,14 +1,17 @@
 // Choosing today's outfit: the sorted outfits one at a time, each with its
-// shoes, swiped like cards (next rejects the one being left). The heart
+// shoes, swiped like cards (next rejects the one being left). Tapping the
+// outfit opens it full screen to change its details. The heart
 // wears the outfit and its shoes today (playing onCelebrate), the shoe
 // opens Change shoes (onChangeShoes), the bin deletes the outfit.
 // Logic: useTodayLook.
 
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
 
+import { handOverOutfit } from "../outfits/outfitHandoff";
 import { ActionButton, ActionRow } from "./ActionButton";
 import { OutfitImages } from "./OutfitImages";
 import { SwipeDeck } from "./SwipeDeck";
@@ -25,10 +28,15 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes }) => {
         {
           text: "Delete",
           style: "destructive",
-          onPress: today.deleteCurrentOutfit,
+          onPress: () => today.deleteCurrentOutfit({ confirm: false }),
         },
       ]
     );
+
+  const openOutfit = () => {
+    handOverOutfit(selectedOutfit.matchId, selectedShoe);
+    router.push({ pathname: "/outfit", params: { from: "today" } });
+  };
 
   const wear = async () => {
     if (await today.markAsWornToday()) {
@@ -50,8 +58,17 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes }) => {
           noun="outfit"
           fill
         >
-          {/* Shrinks to fit, so the page never scrolls. */}
-          <OutfitImages match={selectedOutfit.matchId} footwear={selectedShoe} fit />
+          {/* A tap (not a swipe) opens the outfit to change its details. */}
+          <Pressable
+            onPress={openOutfit}
+            accessibilityRole="button"
+            accessibilityLabel="Outfit"
+            accessibilityHint="Opens the outfit"
+            style={styles.card}
+          >
+            {/* Shrinks to fit, so the page never scrolls. */}
+            <OutfitImages match={selectedOutfit.matchId} footwear={selectedShoe} fit />
+          </Pressable>
         </SwipeDeck>
       </View>
 
@@ -90,6 +107,9 @@ const styles = StyleSheet.create({
   deck: {
     flex: 1,
     justifyContent: "center",
+  },
+  card: {
+    flex: 1,
   },
   empty: {
     fontSize: fontSizes.body,

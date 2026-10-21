@@ -332,7 +332,9 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
 
   /* -------------------- Delete -------------------- */
 
-  const deleteCurrentOutfit = async () => {
+  // `confirm`: false skips the success notice (mobile - the "are you
+  // sure" was enough). Errors always show.
+  const deleteCurrentOutfit = async ({ confirm = true } = {}) => {
     const matchId = selectedOutfit?.matchId?._id;
 
     if (!matchId) return;
@@ -353,7 +355,9 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
       // stays - wrapping to the first if the last one was deleted.
       const remaining = filteredOutfits.length - 1;
       setCurrentIndex(remaining > 0 ? currentIndex % remaining : 0);
-      setNotice({ title: "Success", message: "Outfit deleted." });
+      if (confirm) {
+        setNotice({ title: "Success", message: "Outfit deleted." });
+      }
     } catch (err) {
       setNotice({
         title: "Error",
@@ -375,6 +379,7 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     currentIndex,
     goNext,
     goPrev,
+    updateMatch,
 
     todayTag,
     selectedTag,

@@ -5,7 +5,8 @@
 // Logic: useWeather, useTodayLook - both shared with the web
 // homepage.
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { useTodayLook } from "@core/hooks/useTodayLook.js";
@@ -17,6 +18,7 @@ import {
 } from "@core/weather/weatherText.js";
 
 import { Loading, Message, Screen } from "../../components/ui";
+import { takeEditedOutfits } from "../../components/outfits/outfitHandoff";
 import { Confetti } from "../../components/today/Confetti";
 import { OutfitPicker } from "../../components/today/OutfitPicker";
 import { ShoeChooser } from "../../components/today/ShoeChooser";
@@ -35,6 +37,18 @@ export default function TodayScreen() {
   // Over the whole page while true.
   const [celebrating, setCelebrating] = useState(false);
   const [choosingShoes, setChoosingShoes] = useState(false);
+
+  // Coming back from the outfit screen: show its changes.
+  useFocusEffect(
+    useCallback(() => {
+      const edited = takeEditedOutfits();
+
+      Object.entries(edited).forEach(([matchId, fields]) =>
+        today.updateMatch(matchId, fields)
+      );
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+  );
 
   // Results of marking worn / deleting.
   useEffect(() => {

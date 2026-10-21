@@ -1,7 +1,7 @@
 // One outfit in the list: its items' photos, temperature range, seasons
-// and tags, with a heart to favourite it. Tap to edit; long-press to
-// select (then taps select too). Card actions: useMatchCard (shared with
-// the web).
+// and tags, with a heart to favourite it. Tap to open the outfit screen;
+// long-press to select (then taps select too). Card actions: useMatchCard
+// (shared with the web).
 
 import Feather from "@expo/vector-icons/Feather";
 import { Image } from "expo-image";
@@ -42,7 +42,7 @@ export const OutfitCard = ({
       onLongPress={() => onToggleSelect(match._id)}
       accessibilityRole="button"
       accessibilityLabel="Outfit"
-      accessibilityHint={selectMode ? "Selects the outfit" : "Opens the editor"}
+      accessibilityHint={selectMode ? "Selects the outfit" : "Opens the outfit"}
       accessibilityState={{ selected }}
     >
       <Card style={[styles.card, selected && styles.selected]}>

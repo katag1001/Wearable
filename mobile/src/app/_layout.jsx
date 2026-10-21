@@ -90,6 +90,14 @@ function RootNavigator() {
               headerBackTitle: "Outfits",
             }}
           />
+          <Stack.Screen
+            name="outfit"
+            options={{
+              headerShown: true,
+              headerTintColor: colors.main,
+              headerShadowVisible: false,
+            }}
+          />
         </Stack.Protected>
 
         <Stack.Protected guard={loggedIn && needsStyleQuiz}>
