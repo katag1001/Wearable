@@ -23,7 +23,7 @@ const { Match, Today, Preferences } = require("../models/AllModels.js");
 const { getLayeringRules } = require("../constants/requiresLayering.js");
 const { satisfiesLayeringRules } = require("../services/matrixService.js");
 const { isProtectedMatch } = require("../services/matchRefreshService.js");
-const { deleteMatchesWithoutScoring } = require("../services/matchLifecycleService.js");
+const { deleteMatches } = require("../services/matchLifecycleService.js");
 
 const DEFAULT_GENDER = "woman";
 
@@ -61,7 +61,7 @@ async function run() {
 
     const ids = toDelete.map(({ id }) => id);
     const today = await Today.deleteMany({ matchId: { $in: ids } });
-    const { deletedCount } = await deleteMatchesWithoutScoring({ _id: { $in: ids } });
+    const { deletedCount } = await deleteMatches({ _id: { $in: ids } });
     console.log(`Deleted ${deletedCount} match(es) and ${today.deletedCount} Today entr(ies).`);
   } finally {
     await mongoose.disconnect();

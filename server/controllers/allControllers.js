@@ -52,10 +52,12 @@ const {
   buildClothingFilter,
   groupSubtypesByType,
 } = require("../services/clothingQueryService.js");
+const { deleteMatches } = require("../services/matchLifecycleService.js");
+const { markMismatch, forgetMismatches } = require("../services/mismatchService.js");
 const {
-  deleteMatchesAndDecrementScores,
-  deleteMatchesWithoutScoring,
-} = require("../services/matchLifecycleService.js");
+  isTemperatureFeel,
+  applyTemperatureFeedback,
+} = require("../services/temperatureFeedbackService.js");
 const {
   changedMatchingFields,
   refreshMatchesForItem,
@@ -513,7 +515,8 @@ exports.deleteItem = async (req, res) => {
     }
 
     console.log("Deleting matches...");
-    await deleteMatchesWithoutScoring({ clothes: item._id, userId });
+    await deleteMatches({ clothes: item._id, userId });
+    await forgetMismatches(userId, item._id);
 
     console.log("Deleting clothing...");
     await Clothes.deleteOne({
@@ -896,14 +899,67 @@ exports.rejectMatch = async (req, res) => {
   }
 };
 
+// "Too hot" / "too cold" on the Today page: moves the outfit's range a
+// degree and hides it from today's list (temperatureFeedbackService.js).
+// Body: { feel: "too_hot" | "too_cold" }.
+exports.giveTemperatureFeedback = async (req, res) => {
+  const userId = req.user?.userId;
+  const feel = req.body?.feel;
+
+  if (!isTemperatureFeel(feel)) {
+    return res.status(400).json({ message: "Invalid feedback." });
+  }
+
+  if (!isValidId(req.params.id)) {
+    return res.status(404).json({ message: "Match not found" });
+  }
+
+  try {
+    const range = await applyTemperatureFeedback(userId, req.params.id, feel);
+
+    if (!range) {
+      return res.status(404).json({ message: "Match not found" });
+    }
+
+    return res.json({ _id: req.params.id, ...range });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// "Mismatch" on the Today page: two clothing items from this outfit are
+// never matched again, and the outfits with both are deleted
+// (mismatchService.js). Body: { clothesIds: [id, id] }. Returns the ids of
+// every outfit deleted.
+exports.mismatchMatch = async (req, res) => {
+  const userId = req.user?.userId;
+
+  if (!isValidId(req.params.id)) {
+    return res.status(404).json({ message: "Match not found" });
+  }
+
+  try {
+    const result = await markMismatch(userId, req.params.id, req.body?.clothesIds);
+
+    if (result.notFound) {
+      return res.status(404).json({ message: "Match not found" });
+    }
+
+    if (result.invalid) {
+      return res.status(400).json({ message: "Choose two items from this outfit." });
+    }
+
+    return res.json({ deletedMatchIds: result.deletedMatchIds });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 exports.deleteMatch = async (req, res) => {
 const userId = req.user?.userId;
 
 try {
-await deleteMatchesAndDecrementScores(
-  { _id: req.params.id, userId },
-  userId
-);
+await deleteMatches({ _id: req.params.id, userId });
 
 return res.json({ message: "Match deleted" });
 
@@ -912,8 +968,8 @@ return res.status(500).json({ error: error.message });
 }
 };
 
-// Deletes the outfits the user ticked on the matches page. Each one is a
-// deliberate delete, so it lowers the pair scores just like a single delete.
+// Deletes the outfits the user ticked on the matches page. Like a single
+// delete, it leaves the pair scores alone (matchLifecycleService.js).
 exports.deleteManyMatches = async (req, res) => {
 const userId = req.user?.userId;
 const ids = parseIdList(req.body?.ids);
@@ -923,10 +979,7 @@ return res.status(400).json({ error: "No matches selected" });
 }
 
 try {
-const { deletedCount } = await deleteMatchesAndDecrementScores(
-  { _id: { $in: ids }, userId },
-  userId
-);
+const { deletedCount } = await deleteMatches({ _id: { $in: ids }, userId });
 
 return res.json({
   message: `Deleted ${deletedCount} matches`,
@@ -943,7 +996,7 @@ const userId = req.user?.userId;
 const { pieceId } = req.body;
 
 try {
-const { deletedCount } = await deleteMatchesWithoutScoring(
+const { deletedCount } = await deleteMatches(
   { clothes: pieceId, userId }
 );
 
@@ -1106,7 +1159,8 @@ exports.getToday = async (req, res) => {
     const todayStart = resolveTodayStart(req.query.today_start);
 
     const [outfits, wornMatch] = await Promise.all([
-      Today.find({ userId })
+      // Not the ones hidden with "too hot" / "too cold".
+      Today.find({ userId, hidden: { $ne: true } })
         .sort({ rank: 1, _id: 1 })
         .populate({
           path: "matchId",

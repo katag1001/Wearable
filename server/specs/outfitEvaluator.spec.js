@@ -204,3 +204,17 @@ test("validateOutfit passes a clean, compatible, single-palette outfit", () => {
 
   assert.equal(validateOutfit(items, { baselineMatrix: baseline, colorRules }), true);
 });
+
+test("validateOutfit fails an outfit with two items marked as a mismatch", () => {
+  const baseline = {
+    "Short t-shirt": { "Short t-shirt": null, Jeans: 50 },
+    Jeans: { Jeans: null, "Short t-shirt": 50 },
+  };
+
+  const items = [
+    item({ _id: "tee", subtype: "Short t-shirt", type: "top", colors: ["Cream"], styles: ["plain"], mismatchedWith: ["jeans"] }),
+    item({ _id: "jeans", subtype: "Jeans", type: "bottom", colors: ["Tan"], styles: ["plain"], mismatchedWith: ["tee"] }),
+  ];
+
+  assert.equal(validateOutfit(items, { baselineMatrix: baseline, colorRules }), false);
+});

@@ -377,9 +377,10 @@ builds and store submission need your accounts - the step-by-step is in
 **`context/mobile-release.md`**.
 
 ### API URL for the phone
-Point `EXPO_PUBLIC_API_URL` at the Vercel API. A phone can't reach
-`localhost:4444`. For a local server use your PC's LAN IP
-(`http://192.168.x.x:4444/api`) with phone and PC on the same Wi-Fi.
+In development (Expo Go) the app always calls the server on your PC -
+`npm start` at the repo root, port 4444 - at the address Expo serves the
+app from, so phone and PC must be on the same Wi-Fi (LAN mode, not
+tunnel). Release builds use `EXPO_PUBLIC_API_URL`, or the Vercel API.
 
 ## Backend
 
@@ -433,7 +434,7 @@ moves" above.
 | `src/main.jsx` | Web calls `configureCore` (localStorage, `src/config.js` URL, `VITE_*` Cloudinary) |
 | `vite.config.js` | `@core` alias |
 | `mobile/src/platform/storage.js`, `useStorageReady.js` | Sync storage mirror: AsyncStorage + SecureStore (token), loaded behind the splash |
-| `mobile/src/platform/config.js` | `EXPO_PUBLIC_API_URL`, defaulting to the Vercel API |
+| `mobile/src/platform/config.js` | Development: the local server on port 4444. Release: `EXPO_PUBLIC_API_URL`, defaulting to the Vercel API |
 | `mobile/src/auth/SessionProvider.jsx` | `useSession()` for every screen |
 | `mobile/src/app/_layout.jsx` | Boot (splash → storage → session) and the `Stack.Protected` gates |
 | `mobile/src/app/(auth)/login.jsx`, `register.jsx` | Log in / register |

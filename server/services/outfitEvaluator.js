@@ -13,7 +13,8 @@
 //    described - it just gets an empty tag list.
 //
 //  - validateOutfit: the gate used ONLY for auto-generated candidates -
-//    fixed compatibility (including layering rules) + colour + pattern.
+//    fixed compatibility (including layering rules) + no mismatched pair
+//    (mismatchRules.js) + colour + pattern.
 //    Never called for a user-made outfit. matchService's search already
 //    prunes on all of this incrementally as it builds a candidate, so by
 //    the time a candidate reaches here it should always pass - this call
@@ -25,6 +26,7 @@
 const { computePresetTemperatureRange } = require("./presetTemperatureService.js");
 const { passesPatternCheck, passesColorCheck } = require("./styleColorService.js");
 const { isCliqueValid } = require("./matrixService.js");
+const { hasMismatchedPair } = require("./mismatchRules.js");
 const { computeMatchTags, hasSharedTag } = require("./helpers.js");
 const { canWearTights } = require("./tightsService.js");
 
@@ -108,6 +110,10 @@ function describeOutfit(items, { isUserMade, temperaturePreference = null }) {
 // matchService builds once per run.
 function validateOutfit(items, { baselineMatrix, layeringRules, colorRules }) {
   if (!isCliqueValid(items, baselineMatrix, layeringRules)) {
+    return false;
+  }
+
+  if (hasMismatchedPair(items)) {
     return false;
   }
 

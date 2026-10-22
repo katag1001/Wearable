@@ -3,9 +3,10 @@
 // Reads and writes a user's personal score adjustments, and resolves which
 // baseline matrix/colour palettes a user is on. Storage is sparse: a
 // MatchScore document only exists for a subtype pair once the user has
-// built, claimed, favourited or deleted an outfit containing it. A pair's
-// score is always baseline + adjustment (see outfitScoreService.js), so the
-// baseline matrix stays the single source of truth.
+// built, claimed or favourited an outfit containing it, or marked it as a
+// mismatch. A pair's score is always baseline + adjustment (see
+// outfitScoreService.js), so the baseline matrix stays the single source of
+// truth.
 //
 // Adjustments only ever change scores. They are never stored for a pair
 // that can't be matched, and compatibility never reads them.
@@ -127,8 +128,9 @@ async function recordOutfitFavourited(userId, items, baselineMatrix) {
   await adjustScoresForOutfit(userId, items, LEARNING_DELTAS.favourited, baselineMatrix);
 }
 
-async function recordOutfitDeleted(userId, items, baselineMatrix) {
-  await adjustScoresForOutfit(userId, items, LEARNING_DELTAS.deleted, baselineMatrix);
+// Only the two items marked as a mismatch, so only their subtype pair.
+async function recordMismatch(userId, itemA, itemB, baselineMatrix) {
+  await adjustScoresForOutfit(userId, [itemA, itemB], LEARNING_DELTAS.mismatched, baselineMatrix);
 }
 
 async function wipeUserScores(userId) {
@@ -144,6 +146,6 @@ module.exports = {
   recordOutfitCreated,
   recordOutfitClaimed,
   recordOutfitFavourited,
-  recordOutfitDeleted,
+  recordMismatch,
   wipeUserScores,
 };

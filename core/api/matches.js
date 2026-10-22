@@ -49,6 +49,25 @@ export const deleteMatches = async (ids) => {
   return response.data;
 };
 
+// "Too hot" / "too cold" on the Today page (`feel`: "too_hot" or
+// "too_cold"): moves the outfit's range a degree and hides it from today's
+// list. Returns the match's new { min_temp, max_temp }. Rules:
+// server/services/temperatureFeedbackService.js.
+export const sendTemperatureFeedback = async (matchId, feel) => {
+  const response = await api.put(`/match/${matchId}/temperature-feedback`, { feel });
+
+  return response.data;
+};
+
+// "Mismatch" on the Today page: two clothing ids from the outfit that are
+// never matched again. Returns { deletedMatchIds } - every outfit deleted
+// for having both. Rules: server/services/mismatchService.js.
+export const sendMismatch = async (matchId, clothesIds) => {
+  const response = await api.post(`/match/${matchId}/mismatch`, { clothesIds });
+
+  return response.data;
+};
+
 // Scrolling past an outfit on the Today page. Returns the match's new
 // { score, rejectedCount, lastRejectedDate }. Rules and numbers:
 // server/services/matchRejectionService.js.

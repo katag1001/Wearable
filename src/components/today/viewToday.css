@@ -567,23 +567,6 @@
 }
 
 
-.delete-outfit-button {
-  border-color: var(--error-border-color);
-
-  background: transparent;
-  color: var(--error-color);
-}
-
-
-.delete-outfit-button:hover {
-  background: var(--error-background);
-
-  border-color: var(--delete-hover-border-color);
-
-  color: var(--delete-hover-color);
-}
-
-
 /* ================================================================
    PREVIOUS / NEXT ARROWS
 

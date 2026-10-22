@@ -8,7 +8,7 @@
 // previously-saved matches - every candidate is assembled and validated as
 // a complete whole before anything is saved.
 //
-// Every check used for pruning here (fixed compatibility, the lowest pair
+// Every check used for pruning here (fixed compatibility, mismatches, the lowest pair
 // score, colour, pattern, season, tags) is monotonic: once violated by a partial item-set, it can never
 // be satisfied again by adding more items. That's what makes it safe to
 // check all of them as early as possible, incrementally, during the search
@@ -44,10 +44,11 @@
 // across every shape in one run. When a limit is hit, the best outfits
 // found so far are still kept.
 //
-// The limits are sized so matching is complete (every valid outfit found
-// and saved) for a wardrobe of ~330 items - 4x an 83-item test wardrobe,
-// whose worst single item needed ~1.7M considerations, ~5s of search and
-// ~90,000 outfits. Matching runs after the response, kept alive with
+// The search limits are sized so the search is complete (every valid
+// outfit found) for a wardrobe of ~330 items - 4x an 83-item test
+// wardrobe, whose worst single item needed ~1.7M considerations, ~5s of
+// search and ~90,000 outfits. Only the best MAX_NEW_MATCHES_PER_ITEM of
+// those are saved. Matching runs after the response, kept alive with
 // waitUntil (allControllers.js), inside Vercel Hobby's 300s function
 // limit; SEARCH_TIME_LIMIT_MS leaves most of that for scoring and saving.
 //
@@ -67,6 +68,7 @@ const { OUTFIT_SHAPES, ROLES } = require("../constants/outfitShapes.js");
 const { getLayeringRules } = require("../constants/requiresLayering.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
 const { isCompatible, fitsShape } = require("./matrixService.js");
+const { areMismatched } = require("./mismatchRules.js");
 const {
   getPairScore,
   computePairBlend,
@@ -97,7 +99,7 @@ const {
 const MAX_POOL_SIZE_PER_ROLE = 250;
 const MAX_COMBINATIONS_EXPLORED = 2000000;
 const SEARCH_TIME_LIMIT_MS = 60000;
-const MAX_NEW_MATCHES_PER_ITEM = 100000;
+const MAX_NEW_MATCHES_PER_ITEM = 1000;
 const SAVE_RESERVE_MS = 60000;
 const INSERT_CHUNK_SIZE = 5000;
 const INSERT_STOP_MARGIN_MS = 15000;
@@ -152,11 +154,13 @@ function buildMatchingContext({
 }
 
 // Whether `candidate` can join `items`: compatible with every one of them,
-// and no pair scoring below MIN_PAIR_SCORE.
+// not marked as a mismatch with any (mismatchRules.js), and no pair
+// scoring below MIN_PAIR_SCORE.
 function pairsWithAll(items, candidate, { baselineMatrix, adjustments }) {
   return items.every(
     (item) =>
       isCompatible(baselineMatrix, item, candidate) &&
+      !areMismatched(item, candidate) &&
       getPairScore(baselineMatrix, adjustments, item.subtype, candidate.subtype) >= MIN_PAIR_SCORE
   );
 }

@@ -8,7 +8,8 @@ outfits (matches) being created from it. It covers:
 3. The user's preferences, and where each one is used.
 4. How outfits are matched automatically, check by check, and scored.
 5. How outfits the user builds by hand differ.
-6. How the app learns from what the user builds, favourites and deletes.
+6. How the app learns from what the user builds, favourites and marks as a
+   mismatch.
 7. How scores are shown and used to sort the Today page.
 8. A worked example, known quirks, the reasons behind the design, and the
    one-off database scripts.
@@ -48,15 +49,17 @@ In short:
   and only the **best** new ones are saved.
 - **Compatibility is fixed.** Role rules plus the gender's matrix decide
   whether two items can ever be in the same outfit. User behaviour never
-  changes it.
+  changes it - except **Mismatch** on the Today page, which stops two
+  specific items ever being matched together (7.3).
 - The **matrix** used depends on the user's gender. The **colour palettes**,
   colour cap and colour score depend on their colour level. Both come
   from the style quiz, as do the user's favourite palettes.
 - User-made outfits are **never rejected** and always score 95. Building
-  one (+3), favouriting (+3) or deleting any outfit (−0.1) adjusts the user's
-  personal score for every compatible subtype pair in it. That changes
-  how future automatic outfits are **scored and ranked**, never whether
-  they are allowed.
+  one (+3) or favouriting (+3) adjusts the user's personal score for every
+  compatible subtype pair in it; marking a mismatch (−5) adjusts just that
+  one pair. Deleting outfits changes nothing. That changes how future
+  automatic outfits are **scored and ranked**, never whether they are
+  allowed.
 - **Favourite clothing items** add **+7** (once per outfit) to the score of
   every automatic outfit they're in, never above 90 - only after the
   outfit has been chosen, so a favourite never lets a weaker outfit in
@@ -524,8 +527,15 @@ jeans (94). They're meant to be hand-edited.
 3. the matrix has a score (not `null`) → yes
 
 It reads **only** the baseline matrix - never personal adjustments - so
-nothing the user does can make a pair match or stop matching. A subtype
-not in the user's gender matrix is never compatible.
+nothing the user does can make a pair of subtypes match or stop matching.
+A subtype not in the user's gender matrix is never compatible.
+
+**Mismatched items.** Separately, two specific clothing items the user
+marked as a mismatch on the Today page (7.3) are never put in the same
+automatic outfit: `areMismatched` (`server/services/mismatchRules.js`)
+is checked next to `isCompatible` in the search (`pairsWithAll`) and in
+`validateOutfit`. It reads each item's `mismatchedWith` list. Outfits the
+user builds never check it.
 
 ### 3.4 Outfit shapes
 
@@ -811,7 +821,7 @@ for each outfit shape that has a slot for newItem's role:
 score every item-set found                   (scoreItemSet; pair blend or
                                               colour score below 65 dropped)
   ▼
-best score first, until 100,000 are kept:
+best score first, until 1,000 are kept:
   skip if already saved
   describeOutfit   → temperature (from subtypes) + season + tag + descriptive fields
   validateOutfit   → final safety re-check (compatibility, layering, pattern, colour)
@@ -900,7 +910,7 @@ deadline.
    Every outfit left scores at least 65, so there's no separate check on the
    final score. Outfits the user builds have no minimum.
 2. Go through them **best score first** (equal scores keep the order they
-   were found in), until **`MAX_NEW_MATCHES_PER_ITEM` = 100,000** are kept.
+   were found in), until **`MAX_NEW_MATCHES_PER_ITEM` = 1,000** are kept.
    1. Skip it if the same set of clothes is already saved, or already
       kept in this run.
    2. **`describeOutfit(items, { isUserMade: false, temperaturePreference })`**
@@ -1004,12 +1014,13 @@ Files: `server/services/matchScoreService.js`,
 | User claims an automatic outfit by rebuilding it | **+1** |
 | User favourites an outfit | **+3** |
 | User unfavourites an outfit | none |
-| User deletes one outfit (match card or Today → delete) | **−0.1** |
-| User deletes several ticked outfits (`deleteManyMatches`, `DELETE /match/`) | **−0.1** per outfit |
+| User marks two items as a mismatch (Today → broken heart → Mismatch, 7.3) | **−5**, to that one pair only |
+| User deletes one or several outfits | none |
 | User deletes a clothing item (its outfits are deleted with it) | none |
 | Delete-by-piece (`deleteMatchesByPiece`, no route currently) | none |
 | Marking as worn, editing a match's range | none |
 | Rejecting an outfit on the Today page (7.2) | none - only that match's own score drops |
+| Too hot / too cold on the Today page (7.3) | none - only that match's range moves |
 | Gender changes | **all** personal adjustments deleted |
 | Automatic matching creating an outfit | none |
 
@@ -1151,7 +1162,43 @@ in `allControllers.js`. Numbers in `server/constants/scoring.js`.
 - "Today" is the user's local day: the client sends its local midnight
   (`todayStart` / `today_start`); the server falls back to its own.
 
-### 7.3 My Outfits order
+### 7.3 The broken heart (too hot, too cold, mismatch)
+
+Files: `server/services/temperatureFeedbackService.js`,
+`server/services/mismatchService.js`, `server/services/mismatchRules.js`,
+`core/hooks/useOutfitFeedback.js` (the screen's logic, web and mobile),
+`core/today/outfitFeedback.js`. Numbers in `server/constants/scoring.js`.
+
+There is no delete button on the Today page. The broken heart (web: next
+to Change shoes; mobile: where the bin was) opens a screen for the
+outfit on show with three options and Cancel. Each one, once saved,
+closes the screen and shows the next outfit.
+
+- **Outfit too hot for today** / **too cold** (`PUT /match/:id/temperature-feedback`,
+  `{ feel: "too_hot" | "too_cold" }`): the outfit's `min_temp` and
+  `max_temp` both move **`TEMPERATURE_FEEDBACK_SHIFT` = 1°** - up for
+  too hot (so it's suggested on warmer days), down for too cold. Its
+  Today entry is marked `hidden`, so `/today/get` leaves it out for the
+  rest of the day (the entry is kept so the list still counts as built).
+  It isn't rejected and its score doesn't change.
+  `resetMatchTemperatures.js` and `rescoreMatches.js` recalculate the
+  range and undo the shift.
+- **Mismatch** (`POST /match/:id/mismatch`, `{ clothesIds: [a, b] }`): the
+  user picks exactly **2** of the outfit's clothing items (shoes aren't
+  offered; a two-item outfit starts with both picked). Then:
+  1. each item's `mismatchedWith` gets the other's id - automatic
+     matching never pairs them again (3.3);
+  2. every outfit containing both is deleted, with its Today entries -
+     **except favourites and user-built outfits**, which are kept. The
+     outfit on show is always deleted. A deleted worn-today outfit
+     loses its undo snapshot, as a delete did;
+  3. that subtype pair's personal adjustment drops by
+     **`LEARNING_DELTAS.mismatched` = −5**. The outfit's other pairs
+     don't change.
+  Deleting either item takes it off the other's list (`forgetMismatches`).
+  There's no way to undo a mismatch yet.
+
+### 7.4 My Outfits order
 
 The match list (`GET /match/`) is paged **favourites first, then highest
 score, then newest** (`HIGHEST_SCORE_FIRST` in
@@ -1159,7 +1206,7 @@ score, then newest** (`HIGHEST_SCORE_FIRST` in
 `{ userId, favourite, score, _id }` index on Match). The clothing list is
 still newest first.
 
-### 7.4 Temporary score display
+### 7.5 Temporary score display
 
 `src/components/general/matchScoreBadge.jsx` shows a small grey "Score N"
 on the match cards (`viewMatchesCard.jsx`) and on the Today page's main
@@ -1225,14 +1272,14 @@ The shirt + cardigan pair scores 45, below `MIN_PAIR_SCORE` (50), so the
 search drops every outfit with both of them the moment the cardigan is
 picked - however good the other pairs and colours are.
 
-Both outfits left are within the best 100, so both are saved, each with its score.
+Both outfits left are within the best 1,000, so both are saved, each with its score.
 "View New Matches" polls until they appear.
 
-**Learning.** She deletes the 2-item outfit. Its pair gets −0.1, so
-Buttondown shirt + Wide leg trousers drops from 88 to 87.9. **Nothing
-stops matching** - the shirt and trousers are still compatible, and the
-3-item outfit keeps its score of 82. Future outfits with that pair just
-score slightly lower. If she favourites the 3-item outfit, it shows as 100
+**Learning.** On the Today page she marks the shirt and trousers in the
+2-item outfit as a mismatch. Both outfits contain them, so both are
+deleted, and this shirt is never matched with these trousers again.
+Buttondown shirt + Wide leg trousers drops from 88 to 83, so her other
+shirts and trousers of those subtypes still match, just a little lower. If she favourites the 3-item outfit, it shows as 100
 and its 3 pairs get +3. If she builds shirt + cardigan + trousers
 herself, it's saved (user-made outfits have no minimum) and the shirt +
 cardigan pair goes up to 48.
@@ -1287,10 +1334,16 @@ undone by accident:
   did both, so deleting a few outfits could stop a pair matching at all,
   and pairs started with very different "lives". Now compatibility is a
   fixed yes/no and the score only ranks.
-- **Nothing the user does can make a pair match or stop matching.**
-  Building an outfit with an incompatible pair saves that outfit (user-built
-  outfits are never checked) but doesn't teach automatic matching to
-  produce it.
+- **Nothing the user does can make a pair of subtypes match or stop
+  matching.** Building an outfit with an incompatible pair saves that
+  outfit (user-built outfits are never checked) but doesn't teach automatic
+  matching to produce it.
+- **Mismatch is the one exception, and it's per item** (October 2026): it
+  stops two specific clothing items matching, not their subtypes - the
+  subtype pair only scores lower (−5).
+- **Deleting outfits doesn't change pair scores** (October 2026). The
+  −0.1 per deleted outfit hit every pair in it, most of which the user
+  didn't mind; Mismatch is the targeted signal instead.
 - **No style archetypes.** One matrix per gender. The quiz images now only
   decide colour and pattern.
 - **One matrix file per gender, not a separate yes/no file.** Benchmarking
@@ -1316,7 +1369,7 @@ undone by accident:
   score used to choose outfits, so it can't push a poor combination in.
   It's stored on the match (`favouriteItemBonus`) so unfavouriting is
   exact even when the 90 cap cut it short.
-- **Only the best 100 new outfits per item are saved**, rather than
+- **Only the best 1,000 new outfits per item are saved**, rather than
   whichever the search happened to find first.
 - **Temperature belongs to matches, not items.** Item ranges were removed;
   a match's range comes from preset groups and points
@@ -1377,14 +1430,16 @@ user's matrix no longer allows (`isCompatible`), plus their Today entries.
 | Today page weights, tiers and cap | `server/constants/todayOutfits.js` |
 | Favourite clothing item bonus | `FAVOURITE_ITEM_BONUS` in `server/constants/scoring.js`, logic in `server/services/favouriteItemService.js` (3.11) |
 | Rejection penalty / days a rejected outfit is hidden | `REJECTION_SCORE_PENALTY`, `REJECTION_COOLDOWN_DAYS` in `server/constants/scoring.js` |
+| Too hot / too cold shift, mismatch penalty | `TEMPERATURE_FEEDBACK_SHIFT`, `LEARNING_DELTAS.mismatched` in `server/constants/scoring.js` (7.3) |
 | Favourite score | `FAVOURITE_SCORE` in `src/utils/matchScore.js` |
 | Temperature numbers | `server/constants/temperatureGroups.js`, see `temperature-ranges.md` |
-| Remove the temporary score display | see 7.4 |
+| Remove the temporary score display | see 7.5 |
 | One-off database updates | `server/scripts/`, see Part 11 |
 
 Tests: `server/specs/` (`matchService`, `matrixService`,
 `outfitScoreService`, `outfitEvaluator`, `styleColorService`,
 `matchScoreService`, `matchScoreBaseline`, `pairingQuizService`, `matchRejectionService`, `favouriteItemService`,
+`mismatchRules`, `temperatureFeedbackService`,
 `matchRefreshService`,
 `presetTemperatureService`,
 `temperatureService`,

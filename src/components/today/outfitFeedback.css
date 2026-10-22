@@ -1,0 +1,108 @@
+/* ----------------------------------------------------------------
+   Broken heart popup (outfitFeedbackModal.jsx)
+----------------------------------------------------------------- */
+
+.outfit-feedback-options {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+
+  margin: 1.5rem 0 2rem;
+}
+
+.outfit-feedback-option {
+  width: 100%;
+}
+
+
+/* ----------------------------------------------------------------
+   Mismatch: the outfit's items
+----------------------------------------------------------------- */
+
+.outfit-feedback-items {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .75rem;
+
+  margin-bottom: 1.5rem;
+}
+
+.outfit-feedback-item {
+  position: relative;
+
+  aspect-ratio: 3 / 4;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 2px solid transparent;
+  border-radius: 12px;
+
+  background: var(--image-background);
+
+  color: var(--secondary-color);
+  font-family: inherit;
+
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.outfit-feedback-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.outfit-feedback-item.selected {
+  border-color: var(--main-color);
+}
+
+.outfit-feedback-item:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+.outfit-feedback-check {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--main-color);
+  color: var(--inverse-color);
+
+  font-size: .8rem;
+}
+
+
+/* ----------------------------------------------------------------
+   Today: the broken heart button
+----------------------------------------------------------------- */
+
+.today-broken-heart-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.today-broken-heart-button svg {
+  width: 20px;
+  height: 20px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}

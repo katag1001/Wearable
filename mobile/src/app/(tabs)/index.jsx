@@ -1,7 +1,8 @@
 // Today tab: the weather, then today's outfit filling the rest of the
 // page - swipe to pick one with its shoes (OutfitPicker), then the finished
 // look (WornToday), with confetti when it's worn. Change shoes shows
-// ShoeChooser in place of the page (the outfits stay loaded behind it).
+// ShoeChooser in place of the page (the outfits stay loaded behind it), and
+// the broken heart shows OutfitFeedback the same way.
 // Logic: useWeather, useTodayLook - both shared with the web
 // homepage.
 
@@ -20,6 +21,7 @@ import {
 import { Loading, Message, Screen } from "../../components/ui";
 import { takeEditedOutfits } from "../../components/outfits/outfitHandoff";
 import { Confetti } from "../../components/today/Confetti";
+import { OutfitFeedback } from "../../components/today/OutfitFeedback";
 import { OutfitPicker } from "../../components/today/OutfitPicker";
 import { ShoeChooser } from "../../components/today/ShoeChooser";
 import { WornToday } from "../../components/today/WornToday";
@@ -37,6 +39,7 @@ export default function TodayScreen() {
   // Over the whole page while true.
   const [celebrating, setCelebrating] = useState(false);
   const [choosingShoes, setChoosingShoes] = useState(false);
+  const [givingFeedback, setGivingFeedback] = useState(false);
 
   // Coming back from the outfit screen: show its changes.
   useFocusEffect(
@@ -50,7 +53,7 @@ export default function TodayScreen() {
     }, [])
   );
 
-  // Results of marking worn / deleting.
+  // Results of marking worn, and errors from the broken heart.
   useEffect(() => {
     if (today.notice) {
       Alert.alert(today.notice.title, today.notice.message, [
@@ -91,9 +94,14 @@ export default function TodayScreen() {
         today={today}
         onCelebrate={() => setCelebrating(true)}
         onChangeShoes={() => setChoosingShoes(true)}
+        onNotThisOutfit={() => setGivingFeedback(true)}
       />
     );
   };
+
+  if (givingFeedback) {
+    return <OutfitFeedback today={today} onClose={() => setGivingFeedback(false)} />;
+  }
 
   // The worn outfit's shoes are saved straight away.
   if (choosingShoes) {

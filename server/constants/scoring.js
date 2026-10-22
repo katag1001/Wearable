@@ -109,12 +109,14 @@ const USER_MADE_SCORE = 95;
 const FAVOURITE_ITEM_BONUS = 7;
 
 // Change to every compatible pair in an outfit when the user acts on it.
-// Unfavouriting changes nothing.
+// Unfavouriting and deleting outfits change nothing. `mismatched` is the
+// exception: it only changes the one subtype pair the user marked as a
+// mismatch on the Today page (services/mismatchService.js).
 const LEARNING_DELTAS = {
   created: 3,
   claimed: 1,
   favourited: 3,
-  deleted: -0.1,
+  mismatched: -5,
 };
 
 // Style quiz pairing questions (constants/pairingQuestions.js): each answer
@@ -133,6 +135,10 @@ const PAIRING_ANSWER_ADJUSTMENTS = {
 // this many days.
 const REJECTION_SCORE_PENALTY = 3;
 const REJECTION_COOLDOWN_DAYS = 5;
+
+// "Too hot" / "too cold" on the Today page moves the outfit's min_temp and
+// max_temp this many degrees (services/temperatureFeedbackService.js).
+const TEMPERATURE_FEEDBACK_SHIFT = 1;
 
 // Footwear on the Today page (server/services/footwearScoreService.js):
 // the change to an outfit-bottom + shoe pairing's personal adjustment.
@@ -168,4 +174,5 @@ module.exports = {
   PAIRING_ANSWER_ADJUSTMENTS,
   REJECTION_SCORE_PENALTY,
   REJECTION_COOLDOWN_DAYS,
+  TEMPERATURE_FEEDBACK_SHIFT,
 };

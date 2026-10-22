@@ -423,3 +423,14 @@ test("isOnlyDuplicateKeyErrors is true only when every failed write is a duplica
   assert.equal(isOnlyDuplicateKeyErrors({ writeErrors: [{ code: 11000 }, { code: 121 }] }), false);
   assert.equal(isOnlyDuplicateKeyErrors(new Error("connection lost")), false);
 });
+
+test("pairsWithAll never pairs two items marked as a mismatch", () => {
+  const tee = clothes({ subtype: "Short t-shirt", type: "top", mismatchedWith: ["Jeans"] });
+  const jeans = clothes({ subtype: "Jeans", type: "bottom", mismatchedWith: ["Short t-shirt"] });
+  const chinos = clothes({ subtype: "Chinos", type: "bottom" });
+
+  const baseline = openBaseline(["Short t-shirt", "Jeans", "Chinos"], 90);
+
+  assert.equal(pairsWithAll([tee], jeans, context(baseline)), false);
+  assert.equal(pairsWithAll([tee], chinos, context(baseline)), true);
+});

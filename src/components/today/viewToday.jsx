@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import "./viewToday.css";
 import MessagePopup from "../general/messagePopup.jsx";
-import DeletePopup from "../general/deletePopup.jsx";
 import MatchScoreBadge from "../general/matchScoreBadge.jsx";
 import { useTodayLook } from "@core/hooks/useTodayLook.js";
 import { tagOptions } from "@core/constants/optionsBank.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 import ShoeChooserModal from "./footwear/shoeChooserModal.jsx";
+import OutfitFeedbackModal from "./outfitFeedbackModal.jsx";
 
 
 // The Today outfits, each with its shoes. The logic is useTodayLook
-// (shared with the mobile app); this renders it and owns the delete
-// confirmation and the Change shoes popup.
+// (shared with the mobile app); this renders it and owns the broken heart
+// and Change shoes popups.
 const ViewToday = ({ todayReady }) => {
+
+  const today = useTodayLook({ todayReady });
 
   const {
     loading,
@@ -37,23 +39,14 @@ const ViewToday = ({ todayReady }) => {
     wornShoe,
     chooseShoe,
     changeWornShoe,
-    deleteCurrentOutfit,
-    deleting: deletingOutfit,
     notice,
     clearNotice,
-  } = useTodayLook({ todayReady });
+  } = today;
 
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const [showShoeChooser, setShowShoeChooser] = useState(false);
 
   const showingWorn = Boolean(wornToday) && !showSelector;
-
-  // Closes the confirmation straight away - the delete carries on in the
-  // background.
-  const deleteOutfit = () => {
-    setShowDeleteConfirm(false);
-    deleteCurrentOutfit();
-  };
 
 
   /* ------------------------- IMAGE ------------------------- */
@@ -270,13 +263,17 @@ const ViewToday = ({ todayReady }) => {
 
               {renderChangeShoesButton()}
 
+              {/* Too hot, too cold or a mismatch */}
               <button
-                className="regular-button delete-outfit-button"
-                onClick={() =>
-                  setShowDeleteConfirm(true)
-                }
+                className="regular-button today-small-button today-broken-heart-button"
+                onClick={() => setShowFeedback(true)}
+                aria-label="Not this outfit"
+                title="Not this outfit"
               >
-                Delete Outfit
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 21s-6.716-4.35-9.428-8.03C.86 10.42 1.02 7.28 3.34 5.34c2.02-1.7 4.86-1.4 6.66.66L12 8.06l2-2.06c1.8-2.06 4.64-2.36 6.66-.66 2.32 1.94 2.48 5.08.77 7.63C18.716 16.65 12 21 12 21z" />
+                  <path d="M12 8.06 10.5 11.5 13.5 13.5 11.5 17" />
+                </svg>
               </button>
 
             </div>
@@ -393,20 +390,14 @@ const ViewToday = ({ todayReady }) => {
       )}
 
 
-      {/* DELETE CONFIRMATION */}
+      {/* BROKEN HEART - too hot, too cold or a mismatch */}
 
-      <DeletePopup
-        isOpen={showDeleteConfirm}
-        title="Delete Outfit"
-        message="Are you sure you want to delete this outfit permanently? This cannot be undone."
-        loading={deletingOutfit}
-        onConfirm={deleteOutfit}
-        onClose={() => {
-          if (!deletingOutfit) {
-            setShowDeleteConfirm(false);
-          }
-        }}
-      />
+      {showFeedback && (
+        <OutfitFeedbackModal
+          today={today}
+          onClose={() => setShowFeedback(false)}
+        />
+      )}
 
     </div>
   );

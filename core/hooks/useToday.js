@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
-import { deleteMatches, restoreMatchSnapshot } from "../api/matches.js";
+import {
+  restoreMatchSnapshot,
+  sendMismatch,
+  sendTemperatureFeedback,
+} from "../api/matches.js";
 import { getErrorMessage } from "../api/errors.js";
 import { fetchTodayOutfits } from "../api/today.js";
 import { markMatchWorn } from "../matches/matchActions.js";
@@ -8,6 +12,7 @@ import { rejectOutfit, wasRejectedToday } from "../today/outfitRejection.js";
 import { cacheToday, getCachedToday } from "../today/todayCache.js";
 import { fetchTodayInfo } from "../today/todayInfo.js";
 import { outfitIdsChanged } from "../today/outfitIds.js";
+import { indexAfterRemoving, withoutOutfits } from "../today/outfitFeedback.js";
 import {
   applyWornSnapshot,
   fromAnotherDevice,
@@ -66,7 +71,6 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
 
   // { title, message } to show after an action, until clearNotice.
   const [notice, setNotice] = useState(null);
-  const [deleting, setDeleting] = useState(false);
 
   // Reject requests in flight, so fast taps can't send one twice.
   const pendingRejections = useRef(new Set());
@@ -334,41 +338,51 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
       wornToday.outfit
     : null;
 
-  /* -------------------- Delete -------------------- */
+  /* -------------------- Broken heart -------------------- */
 
-  // `confirm`: false skips the success notice (mobile - the "are you
-  // sure" was enough). Errors always show.
-  const deleteCurrentOutfit = async ({ confirm = true } = {}) => {
-    const matchId = selectedOutfit?.matchId?._id;
+  // Takes outfits off today's list, keeping the place (outfitFeedback.js).
+  // `deleted`: they're gone for good, so a deleted worn outfit has nothing
+  // left to undo.
+  const removeFromToday = (matchIds, { deleted }) => {
+    if (deleted && wornToday && matchIds.map(String).includes(String(wornToday.matchId))) {
+      setWornToday(null);
+    }
 
-    if (!matchId) return;
+    setOutfits((prev) => withoutOutfits(prev, matchIds));
+    setCurrentIndex(indexAfterRemoving(filteredOutfits, currentIndex, matchIds));
+  };
 
-    setDeleting(true);
+  const feedbackError = (err) =>
+    setNotice({
+      title: "Error",
+      message: `Couldn't save that: ${getErrorMessage(err, err.message)}`,
+    });
 
+  // Too hot / too cold (TOO_HOT / TOO_COLD): the outfit's range moves a
+  // degree and it's hidden for today - not rejected. Resolves true once
+  // saved.
+  const giveTemperatureFeedback = async (matchId, feel) => {
     try {
-      await deleteMatches([matchId]);
-
-      // Nothing left to undo for a deleted worn outfit.
-      if (wornToday?.matchId === matchId) {
-        setWornToday(null);
-      }
-
-      setOutfits((prev) => prev.filter((outfit) => outfit.matchId?._id !== matchId));
-
-      // The next outfit moves into the deleted one's place, so the index
-      // stays - wrapping to the first if the last one was deleted.
-      const remaining = filteredOutfits.length - 1;
-      setCurrentIndex(remaining > 0 ? currentIndex % remaining : 0);
-      if (confirm) {
-        setNotice({ title: "Success", message: "Outfit deleted." });
-      }
+      await sendTemperatureFeedback(matchId, feel);
+      removeFromToday([matchId], { deleted: false });
+      return true;
     } catch (err) {
-      setNotice({
-        title: "Error",
-        message: `Error deleting outfit: ${getErrorMessage(err, err.message)}`,
-      });
-    } finally {
-      setDeleting(false);
+      feedbackError(err);
+      return false;
+    }
+  };
+
+  // Two of the outfit's clothing items never go together: every outfit
+  // with both is deleted (the server says which). Resolves true once
+  // saved.
+  const markMismatch = async (matchId, clothesIds) => {
+    try {
+      const { deletedMatchIds = [] } = await sendMismatch(matchId, clothesIds);
+      removeFromToday([matchId, ...deletedMatchIds], { deleted: true });
+      return true;
+    } catch (err) {
+      feedbackError(err);
+      return false;
     }
   };
 
@@ -395,8 +409,8 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     showOutfitPicker: () => setShowSelector(true),
     markAsWornToday,
 
-    deleteCurrentOutfit,
-    deleting,
+    giveTemperatureFeedback,
+    markMismatch,
 
     notice,
     clearNotice: () => setNotice(null),

@@ -30,7 +30,7 @@ const { describeOutfit, validateOutfit, hasSharedSeason } = require("./outfitEva
 const { hasSharedTag } = require("./helpers.js");
 const { buildMatchingContext } = require("./matchService.js");
 const { getUserMatchingPreferences } = require("./matchScoreService.js");
-const { deleteMatchesWithoutScoring } = require("./matchLifecycleService.js");
+const { deleteMatches } = require("./matchLifecycleService.js");
 
 const ROLE_COUNT_FIELDS = ["topCount", "bottomCount", "onepieceCount", "outerCount", "hasOuter"];
 
@@ -185,7 +185,7 @@ async function refreshMatchesForItem(item, changedItemFields) {
   let deletedCount = 0;
 
   if (deleteIds.length) {
-    ({ deletedCount } = await deleteMatchesWithoutScoring({ _id: { $in: deleteIds }, userId }));
+    ({ deletedCount } = await deleteMatches({ _id: { $in: deleteIds }, userId }));
     await Today.deleteMany({ userId, matchId: { $in: deleteIds } });
   }
 

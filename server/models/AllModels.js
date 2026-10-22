@@ -141,6 +141,11 @@ winter: { type: Boolean, required: true },
 // Automatic outfits with a favourite item score FAVOURITE_ITEM_BONUS
 // higher (server/services/favouriteItemService.js).
 favourite: { type: Boolean, default: false },
+
+// Items the user marked as a mismatch with this one on the Today page.
+// Stored on both items; automatic matching never pairs them
+// (server/services/mismatchService.js). Outfits the user builds ignore it.
+mismatchedWith: [{ type: mongoose.Schema.Types.ObjectId, ref: "Clothes" }],
 });
 
 // My Clothes pages through a user's items newest first
@@ -171,6 +176,14 @@ const todaySchema = new mongoose.Schema({
   // True when the outfit only made today's list thanks to its tights range
   // (services/tightsService.js) - the Today card says "Wear with tights".
   withTights: {
+    type: Boolean,
+    default: false,
+  },
+
+  // Hidden by "too hot" / "too cold" on the Today page
+  // (server/services/temperatureFeedbackService.js). Kept rather than
+  // deleted, so today's list still counts as built; getToday leaves it out.
+  hidden: {
     type: Boolean,
     default: false,
   },

@@ -2,12 +2,13 @@
 // shoes, swiped like cards (next rejects the one being left). Tapping the
 // outfit opens it full screen to change its details. The heart
 // wears the outfit and its shoes today (playing onCelebrate), the shoe
-// opens Change shoes (onChangeShoes), the bin deletes the outfit.
+// opens Change shoes (onChangeShoes), the broken heart opens "not this
+// outfit" (onNotThisOutfit - too hot, too cold or a mismatch).
 // Logic: useTodayLook.
 
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
 
@@ -16,22 +17,8 @@ import { ActionButton, ActionRow } from "./ActionButton";
 import { OutfitImages } from "./OutfitImages";
 import { SwipeDeck } from "./SwipeDeck";
 
-export const OutfitPicker = ({ today, onCelebrate, onChangeShoes }) => {
+export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfit }) => {
   const { filteredOutfits, selectedOutfit, selectedShoe } = today;
-
-  const confirmDelete = () =>
-    Alert.alert(
-      "Delete outfit",
-      "Are you sure you want to delete this outfit permanently? This cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => today.deleteCurrentOutfit({ confirm: false }),
-        },
-      ]
-    );
 
   const openOutfit = () => {
     handOverOutfit(selectedOutfit.matchId, selectedShoe);
@@ -79,10 +66,10 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes }) => {
 
       <ActionRow>
         <ActionButton
-          icon="trash-2"
-          label="Delete outfit"
-          onPress={confirmDelete}
-          loading={today.deleting}
+          icon="heart-broken-outline"
+          iconSet={MaterialCommunityIcons}
+          label="Not this outfit"
+          onPress={onNotThisOutfit}
         />
         {today.footwear.hasFootwear ? (
           <ActionButton
