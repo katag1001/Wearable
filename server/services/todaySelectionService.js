@@ -2,11 +2,15 @@
 //
 // Which outfits make today's list, in what order. Pure - no DB access.
 //
-//  1. Tier 1: outfits whose min_temp and max_temp are each within
-//     CLOSE_MATCH_TOLERANCE of today's daytime min and max, or whose range
+//  1. Tier 1: outfits whose min_temp and max_temp are each
+//     close to today's daytime min and max (temperatureService.
+//     closeMatchBounds: 1.5° beyond the day or 2° inside it), or whose range
 //     covers ALL of today's daytime temperatures (FULL_COVERAGE).
 //  2. Then one tier per PARTIAL_COVERAGE_STEPS value (90%, 80%, 70%):
 //     those covering at least that much of the day.
+//  An outfit that can take tights (match.tights) is also checked against
+//  its tights range (services/tightsService.js) and goes in whichever tier
+//  is better - without tights on a tie.
 //  Each outfit goes in the first tier it fits. A tier only joins while the
 //  tiers above it have fewer than TODAY_OUTFIT_LIMIT outfits, and always
 //  sits below them.
@@ -17,30 +21,29 @@
 
 const {
   TODAY_OUTFIT_LIMIT,
-  CLOSE_MATCH_TOLERANCE,
   FULL_COVERAGE,
   PARTIAL_COVERAGE_STEPS,
 } = require("../constants/todayOutfits.js");
-const { todayCoverageFraction } = require("./temperatureService.js");
+const { todayCoverageFraction, closeMatchBounds } = require("./temperatureService.js");
 const { rankTodayGroups } = require("./todayRankingService.js");
 const { spreadSharedItems } = require("./todayDiversityService.js");
+const { tightsRange } = require("./tightsService.js");
 
 // Allows for floating-point rounding in the comparisons.
 const EPSILON = 1e-9;
 
-const isCloseMatch = (match, todayRange) =>
-  Math.abs(match.min_temp - todayRange.min) <= CLOSE_MATCH_TOLERANCE + EPSILON &&
-  Math.abs(match.max_temp - todayRange.max) <= CLOSE_MATCH_TOLERANCE + EPSILON;
+const within = (value, [low, high]) => value >= low - EPSILON && value <= high + EPSILON;
 
-const coverageOf = (match, todayRange) =>
-  todayCoverageFraction({ min: match.min_temp, max: match.max_temp }, todayRange);
+const isCloseMatch = (range, todayRange) => {
+  const bounds = closeMatchBounds(todayRange);
+  return within(range.min, bounds.min) && within(range.max, bounds.max);
+};
 
-// The weather tier an outfit belongs to today (0 is the best), or null if
-// it doesn't qualify at all.
-const todayTierOf = (match, todayRange) => {
-  const coverage = coverageOf(match, todayRange);
+// The weather tier for one { min, max } range (0 is the best), or null.
+const tierOfRange = (range, todayRange) => {
+  const coverage = todayCoverageFraction(range, todayRange);
 
-  if (isCloseMatch(match, todayRange) || coverage >= FULL_COVERAGE - EPSILON) {
+  if (isCloseMatch(range, todayRange) || coverage >= FULL_COVERAGE - EPSILON) {
     return 0;
   }
 
@@ -50,6 +53,25 @@ const todayTierOf = (match, todayRange) => {
 
   return step === -1 ? null : step + 1;
 };
+
+// { tier, withTights } for an outfit today, or null if it doesn't qualify
+// at all. An outfit that can take tights is also checked against its
+// tights range; withTights is true only when that range does better.
+const todayFitOf = (match, todayRange) => {
+  const range = { min: match.min_temp, max: match.max_temp };
+  const tier = tierOfRange(range, todayRange);
+  const tightsTier = match.tights ? tierOfRange(tightsRange(range), todayRange) : null;
+
+  if (tightsTier !== null && (tier === null || tightsTier < tier)) {
+    return { tier: tightsTier, withTights: true };
+  }
+
+  return tier === null ? null : { tier, withTights: false };
+};
+
+// The weather tier an outfit belongs to today (0 is the best), or null if
+// it doesn't qualify at all.
+const todayTierOf = (match, todayRange) => todayFitOf(match, todayRange)?.tier ?? null;
 
 const TIER_COUNT = 1 + PARTIAL_COVERAGE_STEPS.length;
 
@@ -91,4 +113,5 @@ const selectTodayMatches = ({
 module.exports = {
   selectTodayMatches,
   todayTierOf,
+  todayFitOf,
 };

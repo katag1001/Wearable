@@ -212,6 +212,11 @@ const ViewToday = ({ todayReady }) => {
                   selectedShoe
                 )}
 
+                {/* Only on today's list thanks to its tights range */}
+                {selectedOutfit?.withTights && (
+                  <p className="today-tights-note">Wear with tights</p>
+                )}
+
                 {/* PREVIOUS / NEXT - next rejects the outfit being left */}
 
                 {filteredOutfits.length > 1 && (

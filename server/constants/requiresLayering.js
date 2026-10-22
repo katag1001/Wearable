@@ -12,9 +12,9 @@
 // Overalls), so they only appear in the onepiece + top shapes.
 
 const REQUIRES_LAYERING = {
-  man: ["Warm cardigan", "Waistcoat"],
-  woman: ["Warm cardigan"],
-  unisex: ["Warm cardigan"],
+  man: ["Warm cardigan", "Warm jumper", "Waistcoat"],
+  woman: ["Warm cardigan", "Warm jumper", "Turtleneck jumper"],
+  unisex: ["Warm cardigan", "Warm jumper", "Turtleneck jumper"],
 };
 
 const REQUIRES_TOP = {

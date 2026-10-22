@@ -828,3 +828,8 @@
     letter-spacing: 0;
   }
 }
+
+/* "With tights 2° - 15°" under the outfit's own range */
+.match-tights {
+  opacity: .7;
+}

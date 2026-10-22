@@ -3,6 +3,7 @@
 // Reading and writing the editable parts of an outfit.
 
 import { seasonOptions } from "../constants/optionsBank.js";
+import tights from "../../shared/tights.json";
 
 export const TEMPERATURE_RANGE = { min: -20, max: 50 };
 
@@ -18,6 +19,13 @@ export const formatMatchSeasons = (match) =>
 // "5° - 18°"
 export const formatMatchTemperature = (match) =>
   `${match.min_temp}° - ${match.max_temp}°`;
+
+// "With tights 2° - 15°" for an outfit that can take tights, else null.
+// The stored range is without tights (server/services/tightsService.js).
+export const formatTightsTemperature = (match) =>
+  match.tights
+    ? `With tights ${match.min_temp - tights.shift}° - ${match.max_temp - tights.shift}°`
+    : null;
 
 // The editor's starting values.
 export const getMatchDraft = (match) => ({

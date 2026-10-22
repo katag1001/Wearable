@@ -43,8 +43,8 @@ const ITEM_FIELD_TO_OUTFIT_FIELDS = {
   colors: ["colors"],
   styles: ["styles"],
   tags: ["tags"],
-  subtype: ["min_temp", "max_temp"],
-  type: ["min_temp", "max_temp", ...ROLE_COUNT_FIELDS],
+  subtype: ["min_temp", "max_temp", "tights"],
+  type: ["min_temp", "max_temp", "tights", ...ROLE_COUNT_FIELDS],
 };
 
 const MATCHING_ITEM_FIELDS = Object.keys(ITEM_FIELD_TO_OUTFIT_FIELDS);

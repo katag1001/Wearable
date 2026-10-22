@@ -7,6 +7,8 @@
 // created - see presetTemperatureService.js and
 // context/temperature-ranges.md. Clothing items have no range of their own.
 
+const { CLOSE_MATCH_OUTSIDE, CLOSE_MATCH_INSIDE } = require("../constants/todayOutfits.js");
+
 // How much of the outfit's own temperature span falls inside today's range.
 // Kept for reference/tests; today's list uses todayCoverageFraction.
 // A point range (min === max) counts as full overlap if that point falls
@@ -47,7 +49,19 @@ function todayCoverageFraction(outfitRange, todayRange) {
   return overlap / todaySpan;
 }
 
+// Where an outfit's min_temp and max_temp must each sit to count as close
+// to a day's (or the filter's) min and max: up to CLOSE_MATCH_OUTSIDE
+// beyond the range, or CLOSE_MATCH_INSIDE inside it. A null end has no
+// bounds. { min: [low, high] | null, max: [low, high] | null }.
+function closeMatchBounds({ min, max }) {
+  return {
+    min: min === null ? null : [min - CLOSE_MATCH_OUTSIDE, min + CLOSE_MATCH_INSIDE],
+    max: max === null ? null : [max - CLOSE_MATCH_INSIDE, max + CLOSE_MATCH_OUTSIDE],
+  };
+}
+
 module.exports = {
   temperatureOverlapFraction,
   todayCoverageFraction,
+  closeMatchBounds,
 };

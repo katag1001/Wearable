@@ -11,6 +11,7 @@ import { useMatchCard } from "@core/hooks/useMatchCard.js";
 import {
   formatMatchSeasons,
   formatMatchTemperature,
+  formatTightsTemperature,
 } from "@core/matches/matchFields.js";
 import {
   colors,
@@ -64,6 +65,9 @@ export const OutfitCard = ({
             <Text style={styles.temperature}>
               {formatMatchTemperature(match)}
             </Text>
+            {match.tights ? (
+              <Text style={styles.seasons}>{formatTightsTemperature(match)}</Text>
+            ) : null}
             <Text style={styles.seasons}>{formatMatchSeasons(match)}</Text>
           </View>
 

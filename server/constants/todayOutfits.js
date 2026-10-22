@@ -11,14 +11,17 @@ const TODAY_OUTFIT_LIMIT = 200;
 // Weather tiers. Each outfit goes in the first tier it fits, and a tier
 // only joins while the ones above it have fewer than TODAY_OUTFIT_LIMIT -
 // always ranked below them:
-//  - tier 1: the outfit's min_temp and max_temp are each within
-//    CLOSE_MATCH_TOLERANCE degrees of today's daytime min and max, OR its
-//    range covers the whole day
-//    (temperatureService.todayCoverageFraction = FULL_COVERAGE) - both
-//    ranked together;
+//  - tier 1: the outfit's min_temp and max_temp are each close to today's
+//    daytime min and max - up to CLOSE_MATCH_OUTSIDE degrees beyond the
+//    day's range, or CLOSE_MATCH_INSIDE degrees inside it (a 10-20 day
+//    takes minimums of 8.5-12 and maximums of 18-22) - OR its range covers
+//    the whole day (temperatureService.todayCoverageFraction =
+//    FULL_COVERAGE) - both ranked together;
 //  - then one tier per PARTIAL_COVERAGE_STEPS value, highest first: it
 //    covers at least that much of the day.
-const CLOSE_MATCH_TOLERANCE = 1.5;
+// The Matches page temperature filter uses the same closeness rule.
+const CLOSE_MATCH_OUTSIDE = 1.5;
+const CLOSE_MATCH_INSIDE = 2;
 const FULL_COVERAGE = 1;
 const PARTIAL_COVERAGE_STEPS = [0.9, 0.8, 0.7];
 
@@ -26,9 +29,9 @@ const PARTIAL_COVERAGE_STEPS = [0.9, 0.8, 0.7];
 // come first, then the rest. Each group is ordered by this weighted score
 // (all parts on a 0-10 scale).
 const RANKING_WEIGHTS = {
-  clothingFreshness: 0.2,
+  clothingFreshness: 0.1,
   outfitFreshness: 0.2,
-  score: 0.6,
+  score: 0.7,
 };
 
 // Variety (services/todayDiversityService.js). Each ranking score gets a
@@ -50,7 +53,8 @@ const FAVOURITE_SCORE = 100;
 
 module.exports = {
   TODAY_OUTFIT_LIMIT,
-  CLOSE_MATCH_TOLERANCE,
+  CLOSE_MATCH_OUTSIDE,
+  CLOSE_MATCH_INSIDE,
   FULL_COVERAGE,
   PARTIAL_COVERAGE_STEPS,
   RANKING_WEIGHTS,

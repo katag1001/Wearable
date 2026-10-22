@@ -1064,9 +1064,11 @@ user's weekday.
 season and not rejected recently (7.2):
 
 1. **Tier 1** - either of these, ranked together:
-   - the outfit's `min_temp` and `max_temp` are each within
-     **`CLOSE_MATCH_TOLERANCE` = 1.5°** of today's daytime min and max (a
-     10–20° day takes 8.5–11.5° minimums and 18.5–21.5° maximums);
+   - the outfit's `min_temp` and `max_temp` are each close to today's
+     daytime min and max: up to **`CLOSE_MATCH_OUTSIDE` = 1.5°** beyond
+     the day's range or **`CLOSE_MATCH_INSIDE` = 2°** inside it (a 10–20°
+     day takes 8.5–12° minimums and 18–22° maximums;
+     `closeMatchBounds` in `server/services/temperatureService.js`);
    - the outfit's range covers **all** of today's daytime range
      (`todayCoverageFraction` = 1: `min_temp <= today's min` and
      `max_temp >= today's max`).

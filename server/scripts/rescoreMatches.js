@@ -20,6 +20,12 @@
 //   node server/scripts/rescoreMatches.js                          (shows changes, saves nothing)
 //   node server/scripts/rescoreMatches.js --confirm --backup <file.json>
 //
+//   node server/scripts/rescoreMatches.js --with "Summer dress" --with "Buttondown shirt|Blazer"
+//
+// --with limits it to outfits containing that subtype ("A|B" = either);
+// repeat it to require several - the example above only touches summer
+// dresses worn with a buttondown shirt or a blazer. Use it after changing
+// a few matrix pairs, so other outfits' scores aren't touched.
 // --backup writes every changed match's current score and range to a JSON
 // file before saving. Reads MONGO from server/.env, like the server does.
 
@@ -30,6 +36,7 @@ require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
 const { Match } = require("../models/AllModels.js");
 const { computePresetTemperatureRange } = require("../services/presetTemperatureService.js");
+const { canWearTights } = require("../services/tightsService.js");
 const { computeOutfitScore } = require("../services/outfitScoreService.js");
 const { buildMatchingContext } = require("../services/matchService.js");
 const {
@@ -43,6 +50,19 @@ function argValue(name) {
   const index = process.argv.indexOf(name);
   return index === -1 ? null : process.argv[index + 1];
 }
+
+// Every --with value, each split into the subtypes it accepts.
+function withGroups() {
+  return process.argv
+    .flatMap((arg, index) => (arg === "--with" ? [process.argv[index + 1]] : []))
+    .filter(Boolean)
+    .map((value) => value.split("|").map((subtype) => subtype.trim()));
+}
+
+const hasEveryGroup = (match, groups) => {
+  const subtypes = new Set(match.clothes.filter(Boolean).map((item) => item.subtype));
+  return groups.every((group) => group.some((subtype) => subtypes.has(subtype)));
+};
 
 async function loadUserContext(userId) {
   const [preferences, adjustments] = await Promise.all([
@@ -60,8 +80,11 @@ async function run() {
   await mongoose.connect(process.env.MONGO);
 
   try {
-    const matches = await Match.find({ favourite: { $ne: true } })
-      .populate("clothes", "type subtype colors styles favourite");
+    const groups = withGroups();
+    const matches = (
+      await Match.find({ favourite: { $ne: true } })
+        .populate("clothes", "type subtype colors styles favourite")
+    ).filter((match) => hasEveryGroup(match, groups));
     const favouriteCount = await Match.countDocuments({ favourite: true });
 
     const contexts = new Map();
@@ -78,6 +101,7 @@ async function run() {
       const items = match.clothes.filter(Boolean);
 
       const { min_temp, max_temp } = computePresetTemperatureRange(items, context.temperaturePreference);
+      const tights = canWearTights(items);
 
       const baseScore = match.userMade
         ? match.score
@@ -98,7 +122,8 @@ async function run() {
         score === match.score &&
         favouriteItemBonus === (match.favouriteItemBonus || 0) &&
         min_temp === match.min_temp &&
-        max_temp === match.max_temp
+        max_temp === match.max_temp &&
+        tights === Boolean(match.tights)
       ) {
         continue;
       }
@@ -111,7 +136,7 @@ async function run() {
         `temp ${match.min_temp}-${match.max_temp} -> ${min_temp}-${max_temp}  ${outfit}${worn}${userMade}`
       );
 
-      changes.push({ match, score, favouriteItemBonus, min_temp, max_temp });
+      changes.push({ match, score, favouriteItemBonus, min_temp, max_temp, tights });
     }
 
     console.log(
@@ -131,6 +156,7 @@ async function run() {
         favouriteItemBonus: match.favouriteItemBonus || 0,
         min_temp: match.min_temp,
         max_temp: match.max_temp,
+        tights: Boolean(match.tights),
       }));
       fs.writeFileSync(backupFile, JSON.stringify(backup, null, 2));
       console.log(`Backed up ${backup.length} match(es) to ${backupFile}`);
@@ -138,10 +164,10 @@ async function run() {
 
     if (changes.length) {
       const result = await Match.bulkWrite(
-        changes.map(({ match, score, favouriteItemBonus, min_temp, max_temp }) => ({
+        changes.map(({ match, score, favouriteItemBonus, min_temp, max_temp, tights }) => ({
           updateOne: {
             filter: { _id: match._id },
-            update: { $set: { score, favouriteItemBonus, min_temp, max_temp } },
+            update: { $set: { score, favouriteItemBonus, min_temp, max_temp, tights } },
           },
         }))
       );

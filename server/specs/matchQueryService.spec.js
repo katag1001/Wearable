@@ -10,6 +10,7 @@ const {
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
 } = require("../services/queryHelpers.js");
+const { TIGHTS_SHIFT } = require("../services/tightsService.js");
 
 const USER = "user-1";
 const ID_A = "64b000000000000000000001";
@@ -75,33 +76,41 @@ test("buildMatchFilter requires every selected item but any listed colour/style/
   ]);
 });
 
-test("buildMatchFilter keeps outfits within 1.5 degrees of both ends, or containing the chosen range", () => {
+// Outfits that can take tights also pass on their tights range: the stored
+// range checked against the chosen one moved up by the shift.
+const orTights = (withoutTights, withTights) => ({
+  $or: [withoutTights, { $and: [{ tights: true }, withTights] }],
+});
+
+const closeOrContaining = (min, max) => ({
+  $or: [
+    {
+      min_temp: { $gte: min - 1.5, $lte: min + 2 },
+      max_temp: { $gte: max - 2, $lte: max + 1.5 },
+    },
+    { min_temp: { $lte: min }, max_temp: { $gte: max } },
+  ],
+});
+
+test("buildMatchFilter keeps outfits close to both ends (1.5 beyond, 2 inside), or containing the chosen range", () => {
   const filter = buildMatchFilter(
     USER,
     parseMatchQuery({ minTemp: "5", maxTemp: "15" })
   );
 
   assert.deepEqual(filter.$and, [
-    {
-      $or: [
-        {
-          min_temp: { $gte: 3.5, $lte: 6.5 },
-          max_temp: { $gte: 13.5, $lte: 16.5 },
-        },
-        { min_temp: { $lte: 5 }, max_temp: { $gte: 15 } },
-      ],
-    },
+    orTights(closeOrContaining(5, 15), closeOrContaining(5 + TIGHTS_SHIFT, 15 + TIGHTS_SHIFT)),
   ]);
 });
 
 test("buildMatchFilter checks only the chosen end when one temperature is given", () => {
   assert.deepEqual(
     buildMatchFilter(USER, parseMatchQuery({ minTemp: "5" })).$and,
-    [{ min_temp: { $lte: 6.5 } }]
+    [orTights({ min_temp: { $lte: 7 } }, { min_temp: { $lte: 7 + TIGHTS_SHIFT } })]
   );
   assert.deepEqual(
     buildMatchFilter(USER, parseMatchQuery({ maxTemp: "15" })).$and,
-    [{ max_temp: { $gte: 13.5 } }]
+    [orTights({ max_temp: { $gte: 13 } }, { max_temp: { $gte: 13 + TIGHTS_SHIFT } })]
   );
 });
 

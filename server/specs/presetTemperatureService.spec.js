@@ -13,6 +13,8 @@ const {
   TOP_LAYER_POINTS,
   LAYERED_MAX_TEMPS,
   OUTER_CEILING_BASE,
+  OUTER_MIN_SPAN,
+  MIN_SPAN,
   TEMPERATURE_PREFERENCE_SHIFT,
   LONG_BOTTOM_MAX_TEMP,
 } = require("../constants/temperatureGroups.js");
@@ -35,6 +37,13 @@ const range = (items, preference) => {
 // The maximum caps (layers, long bottom), applied before the preference.
 const cap = ([min, max], limit) => (max > limit ? [Math.min(min, limit), limit] : [min, max]);
 const capLong = (pair) => cap(pair, LONG_BOTTOM_MAX_TEMP);
+
+// An outer moves the range down, caps the maximum at the ceiling and keeps
+// the range at least OUTER_MIN_SPAN wide.
+const withOuters = ([min, max], points) => {
+  const cappedMax = Math.min(max - points, OUTER_CEILING_BASE - points);
+  return [Math.min(min - points, cappedMax - OUTER_MIN_SPAN), cappedMax];
+};
 
 const withFloor = ([min, max], floor) => (min < floor ? [floor, Math.max(max, floor)] : [min, max]);
 
@@ -95,18 +104,25 @@ test("a single top has no layer cap", () => {
 test("an outer moves the range down by its points, capped at the ceiling and floored at its minimum", () => {
   const [min, max] = BASE_RANGES.short.long;
   const points = OUTER_WARMTH_POINTS["Puffer coat"];
-  const expected = capLong(withFloor(
-    [min - points, Math.min(max - points, OUTER_CEILING_BASE - points)],
-    OUTER_MIN_TEMPS["Puffer coat"]
-  ));
+  const expected = capLong(withFloor(withOuters([min, max], points), OUTER_MIN_TEMPS["Puffer coat"]));
 
   assert.deepEqual(range([top("Short t-shirt"), bottom("Jeans"), outer("Puffer coat")]), expected);
+});
+
+test("a light outfit under an outer is widened to the minimum span", () => {
+  const [min, max] = BASE_RANGES.short.short;
+  const points = OUTER_WARMTH_POINTS["Leather jacket"];
+  const cappedMax = Math.min(max - points, OUTER_CEILING_BASE - points);
+  assert.ok(min - points > cappedMax - OUTER_MIN_SPAN, "fixture should need widening");
+
+  const expected = withFloor([cappedMax - OUTER_MIN_SPAN, cappedMax], OUTER_MIN_TEMPS["Leather jacket"]);
+  assert.deepEqual(range([top("Vest"), bottom("Mini skirt"), outer("Leather jacket")]), expected);
 });
 
 test("two outers add their points together and have no floor", () => {
   const [min, max] = BASE_RANGES.short.long;
   const points = OUTER_WARMTH_POINTS["Jacket"] + OUTER_WARMTH_POINTS["Puffer coat"];
-  const expected = capLong([min - points, Math.min(max - points, OUTER_CEILING_BASE - points)]);
+  const expected = capLong(withOuters([min, max], points));
 
   assert.deepEqual(range([top("Short t-shirt"), bottom("Jeans"), outer("Jacket"), outer("Puffer coat")]), expected);
 });
@@ -148,6 +164,13 @@ test("the temperature preference shifts both ends of the saved range", () => {
 test("the minimum is never above the maximum", () => {
   const [min, max] = range([top("Warm jumper"), top("Turtleneck jumper"), bottom("Jeans")]);
   assert.ok(min <= max);
+});
+
+test("a range narrower than the minimum span is widened upwards from its floor", () => {
+  // Two warm tops with no outer drop far below the no-outer floor, so the
+  // floor collapses the range to a single temperature before widening.
+  const [min, max] = range([top("Warm jumper"), top("Turtleneck jumper"), bottom("Jeans")]);
+  assert.deepEqual([min, max], [NO_OUTER_MIN_TEMP, NO_OUTER_MIN_TEMP + MIN_SPAN]);
 });
 
 test("subtypes with no preset fall back and are reported", () => {

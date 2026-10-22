@@ -1,31 +1,35 @@
 // core/today/createTodayOnce.js
 //
-// Asks the server to build today's outfit list, at most once a day from
-// this device. The server also builds it only once a day, so a second
-// device gets the same list (core/api/today.js).
+// Asks the server to build today's outfit list. Sent on every load: the
+// server builds it only once a day (and answers "already built" straight
+// away after that), so every device gets the same list - and if the list
+// is cleared on the server (server/scripts/resetToday.js), the next load
+// builds a new one from this device's weather (core/api/today.js).
 
-import { getStorage } from "../config.js";
-import { STORAGE_KEYS } from "../storageKeys.js";
 import { createToday } from "../api/today.js";
 import {
   getTodayDayOfWeek,
   getTodayStartISO,
-  isDateToday,
 } from "../utils/dates.js";
 import { getWeatherTempOffset } from "../weather/weatherCodes.js";
 
 // Outfits are matched against the forecast shifted by the weather offset;
 // the real forecast is what gets cached and displayed. Failures are
 // logged, not thrown, and are retried on the next call.
-export const createTodayOnce = async (weather, season) => {
-  const storage = getStorage();
-  const alreadyCreated = storage.getItem(STORAGE_KEYS.todayCreated);
+// A request already on its way - start-up can ask more than once.
+let pending = null;
 
-  if (alreadyCreated && isDateToday(alreadyCreated)) {
-    console.log("Today already created.");
-    return;
+export const createTodayOnce = (weather, season) => {
+  if (!pending) {
+    pending = sendCreateToday(weather, season).finally(() => {
+      pending = null;
+    });
   }
 
+  return pending;
+};
+
+const sendCreateToday = async (weather, season) => {
   const offset = getWeatherTempOffset(weather.code);
 
   try {
@@ -38,8 +42,6 @@ export const createTodayOnce = async (weather, season) => {
     });
 
     console.log("Created today:", data);
-
-    storage.setItem(STORAGE_KEYS.todayCreated, new Date().toISOString());
 
     return data;
 

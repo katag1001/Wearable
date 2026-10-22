@@ -21,7 +21,9 @@ export const useShoeChooser = ({ footwear, outfit, startShoe }) => {
   const goNext = () => {
     if (shoes.length <= 1) return;
 
-    footwear.rejectShoe(outfit, current);
+    // Rejection paused while temperatures are being reviewed - uncomment to
+    // restore the swipe penalty.
+    // footwear.rejectShoe(outfit, current);
     setIndex((prev) => (prev + 1) % shoes.length);
   };
 

@@ -10,8 +10,6 @@ export const STORAGE_KEYS = {
 
   // Today's forecast + location (core/weather/weatherCache.js).
   weather: "weather_cache",
-  // When /today/create last ran - once a day (core/today/createTodayOnce.js).
-  todayCreated: "today_created",
   // Today's sorted outfits (core/today/todayCache.js).
   todayOutfits: "today_outfits_cache",
   // Today's shoe order and worn shoe (core/footwear/footwearCache.js).

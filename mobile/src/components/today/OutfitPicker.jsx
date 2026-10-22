@@ -72,6 +72,11 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes }) => {
         </SwipeDeck>
       </View>
 
+      {/* Only on today's list thanks to its tights range */}
+      {selectedOutfit.withTights ? (
+        <Text style={styles.tights}>Wear with tights</Text>
+      ) : null}
+
       <ActionRow>
         <ActionButton
           icon="trash-2"
@@ -110,6 +115,11 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
+  },
+  tights: {
+    fontSize: fontSizes.body,
+    color: colors.secondary,
+    textAlign: "center",
   },
   empty: {
     fontSize: fontSizes.body,

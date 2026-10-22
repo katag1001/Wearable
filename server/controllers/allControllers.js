@@ -63,7 +63,9 @@ const {
 const {
   selectTodayMatches,
   todayTierOf,
+  todayFitOf,
 } = require("../services/todaySelectionService.js");
+const { withUserLock } = require("../services/userLock.js");
 const {
   resolveTodayStart,
   applyRejection,
@@ -1008,6 +1010,25 @@ exports.createToday = async (req, res) => {
 
     const todayStart = resolveTodayStart(today_start);
 
+    // One build per user at a time - requests arriving together would
+    // otherwise each see "no list yet" and each save a full list.
+    const result = await withUserLock(userId, () =>
+      buildToday({ userId, todayStart, season_today, day_of_week, min_temp_today, max_temp_today })
+    );
+
+    return res.json(result);
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: "Internal server error.",
+      success: false,
+    });
+  }
+};
+
+// The build itself, run under withUserLock. Returns the response body.
+const buildToday = async ({ userId, todayStart, season_today, day_of_week, min_temp_today, max_temp_today }) => {
     const alreadyBuilt = await Today.exists({
       userId,
       dateCreated: { $gte: todayStart },
@@ -1015,11 +1036,11 @@ exports.createToday = async (req, res) => {
     });
 
     if (alreadyBuilt) {
-      return res.json({
+      return {
         message: "Today's outfits are already built.",
         success: true,
         alreadyBuilt: true,
-      });
+      };
     }
 
     const seasonMatches = await Match.find({
@@ -1036,7 +1057,10 @@ exports.createToday = async (req, res) => {
 
     // ...without outfits rejected in the last few days, unless every
     // candidate was.
-    const matches = excludeRecentlyRejected(candidates, todayStart);
+    // Paused while temperatures are being reviewed - restore the line below
+    // to hide recently rejected outfits again.
+    // const matches = excludeRecentlyRejected(candidates, todayStart);
+    const matches = candidates;
 
     const selected = selectTodayMatches({
       matches,
@@ -1047,30 +1071,27 @@ exports.createToday = async (req, res) => {
     await Today.deleteMany({ userId });
 
     if (!selected.length) {
-      return res.json({
+      return {
         message: "No matching outfits found for today.",
         success: true,
         matchesFound: false,
-      });
+      };
     }
 
     const inserted = await Today.insertMany(
-      selected.map((match, rank) => ({ userId, matchId: match._id, rank }))
+      selected.map((match, rank) => ({
+        userId,
+        matchId: match._id,
+        rank,
+        withTights: todayFitOf(match, todayRange).withTights,
+      }))
     );
 
-    return res.json({
+    return {
       message: `${inserted.length} outfits saved.`,
       success: true,
       matchesFound: true,
-    });
-  } catch (err) {
-    console.error(err);
-
-    return res.status(500).json({
-      message: "Internal server error.",
-      success: false,
-    });
-  }
+    };
 };
 
 // Today's outfits in rank order, plus the outfit worn today (if any - the

@@ -1121,3 +1121,13 @@
   }
 
 }
+
+/* "Wear with tights" under an outfit picked for its tights range */
+.today-tights-note {
+  margin: .4rem 0 0;
+  font-family: var(--main-font);
+  font-size: var(--description-font-size);
+  letter-spacing: .03em;
+  text-align: center;
+  opacity: .75;
+}

@@ -59,8 +59,8 @@ values at the time of writing; the file is the source of truth.
 | | short bottoms | lightLong bottoms | long bottoms |
 |---|---|---|---|
 | **short tops** | 22–38 | 19–34 | 17–28 |
-| **long tops** | 18–27 | 15–22 | 13–22 |
-| **warm tops** | 12–19 | 9–18 | 5–16 |
+| **long tops** | 17–23 | 15–22 | 13–22 |
+| **warm tops** | 15–22 | 9–18 | 5–16 |
 
 ### 1.2 Onepieces
 
@@ -84,6 +84,15 @@ values at the time of writing; the file is the source of truth.
 - `OUTER_CEILING_BASE` (25) - an outfit with outers is never suitable above
   this minus the outers' total points (23° with a blazer, 14° with a puffer
   coat).
+- `OUTER_MIN_SPAN` (7) - an outfit with outers always covers at least this
+  many degrees: the minimum is lowered to the capped maximum minus 7 if
+  needed. Stops a light outfit under a jacket (vest + skirt + leather
+  jacket) being squeezed into a 3° window by the ceiling above.
+- `MIN_SPAN` (3) - every outfit covers at least this many degrees. Applied
+  after the caps (end of step 5): a narrower range is widened **upwards**
+  from its minimum. Narrow ranges come from the floors (a warm outfit lifted
+  to 14° with no outer, or to its outer's minimum), so widening upwards
+  keeps the floor exact - 14–14 becomes 14–17.
 - `LAYERED_MAX_TEMPS` - the highest maximum for an outfit with a top worn
   as an extra layer, by the warmest layer's kind (`LAYER_KINDS`):
   **warmJumper** 18 (Hoodie/sweatshirt, Warm jumper, Turtleneck jumper,
@@ -129,7 +138,8 @@ Every extra layer also brings a maximum cap (step 5).
 
 The outers' `OUTER_WARMTH_POINTS` are added together. The whole range moves
 down by that total, and the maximum is never above `OUTER_CEILING_BASE`
-minus the total.
+minus the total. The minimum is then lowered, if needed, so the range is
+at least `OUTER_MIN_SPAN` wide (step 4's floor still applies after).
 
 ### Step 4 - Minimums
 
@@ -216,8 +226,9 @@ preference, with the values above:
    `server/services/todaySelectionService.js`). Each outfit goes in the
    first tier it fits; a tier only joins while the ones above have fewer
    than 200, ranked below them:
-   - **tier 1**: `min_temp` and `max_temp` each within **1.5°** of the
-     day's min and max, **or** covers all of the day (`min_temp <= min`
+   - **tier 1**: `min_temp` and `max_temp` each close to the day's min
+     and max - up to **1.5°** beyond the day or **2°** inside it (10–20°
+     takes minimums 8.5–12 and maximums 18–22) - **or** covers all of the day (`min_temp <= min`
      and `max_temp >= max`) - both ranked together;
    - **tiers 2, 3, 4**: covers at least **90%**, **80%**, **70%** of it
      (`todayCoverageFraction` in `server/services/temperatureService.js`,
@@ -230,8 +241,9 @@ preference, with the values above:
 ### 4.2 Filters
 
 - **Matches page:** the temperature filter uses today's tier-1 rule - a
-  match is kept when its min and max are each within **1.5°**
-  (`CLOSE_MATCH_TOLERANCE`) of the chosen min and max, or its range
+  match is kept when its min and max are each close to the chosen min
+  and max (1.5° beyond or 2° inside - `CLOSE_MATCH_OUTSIDE` /
+  `CLOSE_MATCH_INSIDE`), or its range
   **contains** the whole chosen range. A slider end left at the edge
   (-10° / 50°) means no limit on that side; with one end chosen, only that
   end is checked (close to it or beyond it). Rule in
@@ -239,6 +251,38 @@ preference, with the values above:
   dropped in `core/utils/matchQuery.js`.
 - **Clothes page:** no temperature filter - items have no range
   (`showTemperature={false}` on the shared `Filter`).
+
+---
+
+## Part 5 - Tights
+
+A match's `min_temp`/`max_temp` is always the range **without** tights.
+Some outfits can also be worn with tights, which suits a range
+`shift` (3°) colder at both ends. That range is worked out when it's
+needed and never stored, so changing the shift needs no reset.
+
+**Which outfits** (`canWearTights` in `server/services/tightsService.js`,
+lists in `shared/tights.json`):
+
+- a skirt (Mini, Maxi, Smart, Midi, Low waist midi) or a dress (Casual,
+  Cocktail, Work, Winter) - never shorts, playsuits, rompers, jumpsuits,
+  overalls, or Summer / Evening / Wedding guest dresses; **and**
+- a warm top (the "warm" top group) or **any** outer.
+
+Saved on the match as `tights: true` by `describeOutfit`, and by the reset
+and rescore scripts.
+
+**Where it's used:**
+
+- **Today** (`todayFitOf` in `server/services/todaySelectionService.js`):
+  an outfit with `tights` is checked against both ranges and goes in the
+  better tier (without tights on a tie). When the tights range won, the
+  Today entry has `withTights: true` and the card says "Wear with tights".
+- **Matches filter** (`temperatureCondition` in
+  `server/services/matchQueryService.js`): an outfit with `tights` also
+  passes when its tights range does.
+- **Match card:** a second line, "With tights 2° - 15°"
+  (`formatTightsTemperature` in `core/matches/matchFields.js`).
 
 ---
 
@@ -253,11 +297,14 @@ preference, with the values above:
 | Outer warmth | `OUTER_WARMTH_POINTS` |
 | Minimum with no outer / one outer | `NO_OUTER_MIN_TEMP` / `OUTER_MIN_TEMPS` |
 | Warmest day for an outfit with outers | `OUTER_CEILING_BASE` |
+| Narrowest range for an outfit with outers | `OUTER_MIN_SPAN` |
+| Narrowest range for any outfit | `MIN_SPAN` |
 | Highest maximum with layered tops / which tops count as jumpers | `LAYERED_MAX_TEMPS` / `LAYER_KINDS` |
 | Preference shift | `TEMPERATURE_PREFERENCE_SHIFT` |
 | Highest maximum with a long bottom | `LONG_BOTTOM_MAX_TEMP` |
-| Today's weather tiers and cap | `CLOSE_MATCH_TOLERANCE` / `FULL_COVERAGE` / `PARTIAL_COVERAGE_STEPS` / `TODAY_OUTFIT_LIMIT` in `server/constants/todayOutfits.js` |
+| Today's weather tiers and cap | `CLOSE_MATCH_OUTSIDE` / `CLOSE_MATCH_INSIDE` / `FULL_COVERAGE` / `PARTIAL_COVERAGE_STEPS` / `TODAY_OUTFIT_LIMIT` in `server/constants/todayOutfits.js` |
 | Daytime hours for today's weather | `core/constants/daytimeHours.js` |
+| Tights shift / which skirts and dresses | `shared/tights.json` (then run the reset script so `tights` flags follow the lists) |
 
 After changing them, restart the server and run the reset script (Part 3)
 so existing matches follow.

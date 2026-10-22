@@ -91,7 +91,7 @@ test("changedMatchingFields lists each matching field that changed", () => {
 
 test("outfitFieldsFor maps item fields to the outfit fields they feed", () => {
   assert.deepEqual(outfitFieldsFor(["winter"]), ["winter"]);
-  assert.deepEqual(outfitFieldsFor(["subtype"]).sort(), ["max_temp", "min_temp"]);
+  assert.deepEqual(outfitFieldsFor(["subtype"]).sort(), ["max_temp", "min_temp", "tights"]);
   assert.ok(outfitFieldsFor(["type"]).includes("hasOuter"));
 });
 

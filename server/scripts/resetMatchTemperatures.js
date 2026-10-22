@@ -4,7 +4,8 @@
 // rules (services/presetTemperatureService.js, numbers in
 // constants/temperatureGroups.js). New matches get their range this way
 // automatically - run this after changing the numbers so existing matches
-// follow them too. Note it also overwrites any range edited by hand on a
+// follow them too. Also sets each match's `tights` flag
+// (services/tightsService.js). Note it also overwrites any range edited by hand on a
 // match card.
 //
 //   node server/scripts/resetMatchTemperatures.js --dry-run
@@ -21,6 +22,7 @@ require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
 const { Match, Preferences } = require("../models/AllModels.js");
 const { computePresetTemperatureRange } = require("../services/presetTemperatureService.js");
+const { canWearTights } = require("../services/tightsService.js");
 
 function argValue(name) {
   const index = process.argv.indexOf(name);
@@ -45,6 +47,7 @@ async function run() {
         _id: String(match._id),
         min_temp: match.min_temp,
         max_temp: match.max_temp,
+        tights: Boolean(match.tights),
       }));
       fs.writeFileSync(backupFile, JSON.stringify(backup, null, 2));
       console.log(`Backed up ${backup.length} match range(s) to ${backupFile}`);
@@ -56,18 +59,19 @@ async function run() {
       const items = match.clothes.filter(Boolean);
       const preference = temperatureByUser.get(String(match.userId)) || null;
       const { min_temp, max_temp, unknownSubtypes } = computePresetTemperatureRange(items, preference);
+      const tights = canWearTights(items);
 
       const outfit = items.map((item) => item.subtype).join(" + ");
       const unknown = unknownSubtypes.length ? `  (no preset for: ${unknownSubtypes.join(", ")})` : "";
       console.log(
         `${String(match.min_temp).padStart(5)} to ${String(match.max_temp).padEnd(5)} -> ` +
-        `${String(min_temp).padStart(3)} to ${String(max_temp).padEnd(3)}  ${outfit}${unknown}`
+        `${String(min_temp).padStart(3)} to ${String(max_temp).padEnd(3)}  ${tights ? "(tights) " : ""}${outfit}${unknown}`
       );
 
       operations.push({
         updateOne: {
           filter: { _id: match._id },
-          update: { $set: { min_temp, max_temp } },
+          update: { $set: { min_temp, max_temp, tights } },
         },
       });
     });
@@ -75,7 +79,7 @@ async function run() {
     if (dryRun) {
       console.log(`Dry run - ${operations.length} match(es) would be updated. Nothing saved.`);
     } else if (operations.length) {
-      // updateOne with $set only touches these two fields, so matches
+      // updateOne with $set only touches these fields, so matches
       // created before `score` existed aren't rejected by schema validation.
       const result = await Match.bulkWrite(operations);
       console.log(`Updated ${result.modifiedCount} of ${operations.length} match(es).`);

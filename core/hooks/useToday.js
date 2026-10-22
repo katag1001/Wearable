@@ -231,6 +231,8 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   /* -------------------- Next / previous -------------------- */
 
   // Moving on from an outfit rejects it - at most once per outfit per day.
+  // (Call paused in goNext below.)
+  // eslint-disable-next-line no-unused-vars
   const rejectCurrentOutfit = () => {
     const match = selectedOutfit?.matchId;
     const matchId = match?._id;
@@ -252,7 +254,9 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   const goNext = () => {
     if (filteredOutfits.length <= 1) return;
 
-    rejectCurrentOutfit();
+    // Rejection paused while temperatures are being reviewed - uncomment to
+    // restore the swipe penalty.
+    // rejectCurrentOutfit();
     setCurrentIndex((prev) => (prev + 1) % filteredOutfits.length);
   };
 

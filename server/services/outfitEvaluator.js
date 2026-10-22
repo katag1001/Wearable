@@ -26,6 +26,7 @@ const { computePresetTemperatureRange } = require("./presetTemperatureService.js
 const { passesPatternCheck, passesColorCheck } = require("./styleColorService.js");
 const { isCliqueValid } = require("./matrixService.js");
 const { computeMatchTags, hasSharedTag } = require("./helpers.js");
+const { canWearTights } = require("./tightsService.js");
 
 const ROLE_TYPE_TO_COUNT_FIELD = {
   top: "topCount",
@@ -96,6 +97,7 @@ function describeOutfit(items, { isUserMade, temperaturePreference = null }) {
     tags,
     min_temp,
     max_temp,
+    tights: canWearTights(items),
     ...seasons,
     ...roleCounts,
     hasOuter: roleCounts.outerCount > 0,

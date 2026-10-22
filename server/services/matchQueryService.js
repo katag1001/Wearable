@@ -11,7 +11,8 @@ const {
   anyOfCondition,
   combineConditions,
 } = require("./queryHelpers.js");
-const { CLOSE_MATCH_TOLERANCE } = require("../constants/todayOutfits.js");
+const { closeMatchBounds } = require("./temperatureService.js");
+const { TIGHTS_SHIFT } = require("./tightsService.js");
 
 /*
  * Turns the My Outfits page's search / filters / page number (sent as
@@ -107,23 +108,20 @@ const singleItemCondition = ({ item, itemIsValid }) => {
 };
 
 // The same rule as today's tier 1 (see constants/todayOutfits.js): an
-// outfit is kept when its min_temp and max_temp are each within
-// CLOSE_MATCH_TOLERANCE of the chosen min and max, OR its range contains
-// the whole chosen range. With only one end chosen, just that end is
-// checked: close to it or beyond it.
-const temperatureCondition = ({ minTemp, maxTemp }) => {
+// outfit is kept when its min_temp and max_temp are each close to the
+// chosen min and max (temperatureService.closeMatchBounds - 1.5° beyond
+// the range or 2° inside it), OR its range contains the whole chosen
+// range. With only one end chosen, just that end is checked: close to it
+// or beyond it.
+const rangeCondition = ({ minTemp, maxTemp }) => {
+  const bounds = closeMatchBounds({ min: minTemp, max: maxTemp });
+
   if (minTemp !== null && maxTemp !== null) {
     return {
       $or: [
         {
-          min_temp: {
-            $gte: minTemp - CLOSE_MATCH_TOLERANCE,
-            $lte: minTemp + CLOSE_MATCH_TOLERANCE,
-          },
-          max_temp: {
-            $gte: maxTemp - CLOSE_MATCH_TOLERANCE,
-            $lte: maxTemp + CLOSE_MATCH_TOLERANCE,
-          },
+          min_temp: { $gte: bounds.min[0], $lte: bounds.min[1] },
+          max_temp: { $gte: bounds.max[0], $lte: bounds.max[1] },
         },
         { min_temp: { $lte: minTemp }, max_temp: { $gte: maxTemp } },
       ],
@@ -131,14 +129,28 @@ const temperatureCondition = ({ minTemp, maxTemp }) => {
   }
 
   if (minTemp !== null) {
-    return { min_temp: { $lte: minTemp + CLOSE_MATCH_TOLERANCE } };
+    return { min_temp: { $lte: bounds.min[1] } };
   }
 
   if (maxTemp !== null) {
-    return { max_temp: { $gte: maxTemp - CLOSE_MATCH_TOLERANCE } };
+    return { max_temp: { $gte: bounds.max[0] } };
   }
 
   return null;
+};
+
+// An outfit that can take tights (match.tights) is also kept when its
+// tights range - the stored one, TIGHTS_SHIFT colder - passes. Checked on
+// the stored fields by moving the chosen range up by the shift instead.
+const temperatureCondition = ({ minTemp, maxTemp }) => {
+  const withoutTights = rangeCondition({ minTemp, maxTemp });
+
+  if (!withoutTights) return null;
+
+  const shift = (value) => (value === null ? null : value + TIGHTS_SHIFT);
+  const withTights = rangeCondition({ minTemp: shift(minTemp), maxTemp: shift(maxTemp) });
+
+  return { $or: [withoutTights, { $and: [{ tights: true }, withTights] }] };
 };
 
 const FILTER_RULES = [

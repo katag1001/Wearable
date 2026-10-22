@@ -92,10 +92,12 @@ test("today's tag orders each tier, but never lifts a partial outfit above a ful
   assert.deepEqual(ids(selected), ["full-tagged", "full-untagged", "partial-tagged"]);
 });
 
-test("outfits within 1.5 degrees of today's min and max, or covering the whole day, are tier 1", () => {
+test("outfits up to 1.5 degrees beyond or 2 inside today's min and max, or covering the whole day, are tier 1", () => {
   assert.equal(todayTierOf(match("exact", 10, 20), TODAY), 0);
   assert.equal(todayTierOf(match("edges", 8.5, 21.5), TODAY), 0);
-  assert.equal(todayTierOf(match("inside", 11.5, 18.5), TODAY), 0);
+  assert.equal(todayTierOf(match("inside", 12, 18), TODAY), 0);
+  assert.notEqual(todayTierOf(match("too far inside", 12.5, 18), TODAY), 0);
+  assert.notEqual(todayTierOf(match("too far outside", 7, 19), TODAY), 0);
   assert.equal(todayTierOf(match("covers", 0, 30), TODAY), 0);
   assert.equal(todayTierOf(match("far", 14, 16), TODAY), null);
 });

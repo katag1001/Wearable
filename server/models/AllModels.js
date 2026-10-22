@@ -38,6 +38,10 @@ index: true,
 colors: { type: [String], required: true },
 min_temp: { type: Number, required: true },
 max_temp: { type: Number, required: true },
+// min_temp/max_temp are without tights. True when the outfit can also be
+// worn with tights, which suits a range colder by shared/tights.json's
+// shift (services/tightsService.js). Set with the range.
+tights: { type: Boolean, default: false },
 type: { type: String, required: true },
 hasOuter: { type: Boolean, default: false },
 
@@ -162,6 +166,13 @@ const todaySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Match",
     required: true,
+  },
+
+  // True when the outfit only made today's list thanks to its tights range
+  // (services/tightsService.js) - the Today card says "Wear with tights".
+  withTights: {
+    type: Boolean,
+    default: false,
   },
 
   // 0 = best. Lists built before ranking moved to the server have none.

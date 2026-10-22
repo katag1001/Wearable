@@ -15,7 +15,8 @@
 //    group's layer points.
 // 3. Outers: their warmth points are added together and move the whole
 //    range down, with the maximum never above OUTER_CEILING_BASE minus the
-//    points.
+//    points. The minimum is then lowered if needed so the range is at
+//    least OUTER_MIN_SPAN wide.
 // 4. Floors: the minimum is never below NO_OUTER_MIN_TEMP with no outer,
 //    or the outer's OUTER_MIN_TEMPS value with exactly one outer. (Two
 //    outers have no floor.) If that lifts the minimum above the maximum,
@@ -25,6 +26,8 @@
 //    LAYER_KINDS), and one with a long bottom never above
 //    LONG_BOTTOM_MAX_TEMP. The minimum is lowered to match if it was above
 //    the cap.
+//    Then a range narrower than MIN_SPAN is widened upwards from its
+//    minimum.
 // 6. The user's temperature preference shifts the whole range.
 //
 // Subtypes missing from the presets fall back to a middle value (a "long"
@@ -43,6 +46,8 @@ const {
   LAYER_KINDS,
   LAYERED_MAX_TEMPS,
   OUTER_CEILING_BASE,
+  OUTER_MIN_SPAN,
+  MIN_SPAN,
   TEMPERATURE_PREFERENCE_SHIFT,
   LONG_BOTTOM_MAX_TEMP,
   TEMPERATURE_LIMITS,
@@ -95,7 +100,8 @@ function addOuters([min, max], points) {
     return [min, max];
   }
 
-  return [min - points, Math.min(max - points, OUTER_CEILING_BASE - points)];
+  const cappedMax = Math.min(max - points, OUTER_CEILING_BASE - points);
+  return [Math.min(min - points, cappedMax - OUTER_MIN_SPAN), cappedMax];
 }
 
 // Lowest cap for the tops worn as extra layers, or undefined with none.
@@ -197,6 +203,10 @@ function computePresetTemperatureRange(items, temperaturePreference = null) {
 
   range = capMax(range, layeredMaxTemp(layerTops.map((top) => top.subtype)));
   range = capMax(range, hasLongBottom ? LONG_BOTTOM_MAX_TEMP : undefined);
+
+  if (range[1] - range[0] < MIN_SPAN) {
+    range = [range[0], range[0] + MIN_SPAN];
+  }
 
   const shift = TEMPERATURE_PREFERENCE_SHIFT[temperaturePreference] || 0;
   const min_temp = clampTemperature(range[0] + shift);

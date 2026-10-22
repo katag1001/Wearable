@@ -48,8 +48,8 @@ const BOTTOM_GROUPS = {
 // [min, max] for a top group worn with a bottom group, no outer.
 const BASE_RANGES = {
   short: { short: [22, 38], lightLong: [19, 34], long: [17, 28] },
-  long: { short: [18, 27], lightLong: [15, 22], long: [13, 22] },
-  warm: { short: [12, 19], lightLong: [9, 18], long: [5, 16] },
+  long: { short: [17, 23], lightLong: [15, 22], long: [13, 22] },
+  warm: { short: [15, 22], lightLong: [9, 18], long: [5, 16] },
 };
 
 // [min, max] for a onepiece on its own, no top or outer.
@@ -131,6 +131,21 @@ const LAYERED_MAX_TEMPS = { warmJumper: 18, lightJumper: 24, other: 28 };
 // whatever is underneath.
 const OUTER_CEILING_BASE = 25;
 
+// An outfit with outers always covers at least this many degrees: after the
+// ceiling above, the minimum is lowered until the range is this wide (the
+// outer's OUTER_MIN_TEMPS floor still applies). Without it a light outfit
+// under a jacket - a vest and skirt, say - is squeezed into a few degrees,
+// because the ceiling pulls its maximum right down while its minimum only
+// moves by the outer's points.
+const OUTER_MIN_SPAN = 7;
+
+// Every outfit covers at least this many degrees. Applied last, before the
+// preference shift: a narrower range is widened upwards from its minimum.
+// Narrow ranges come from the floors above (a warm outfit lifted to
+// NO_OUTER_MIN_TEMP or an outer's minimum), so widening upwards keeps the
+// floor exact - a warm jumper outfit floored at 14 becomes 14-17, not 14-14.
+const MIN_SPAN = 3;
+
 // Shift for the user's temperature preference ("Do you generally feel too
 // cold or too hot?"), applied to both ends of the range before it's saved
 // on the match - the saved min_temp/max_temp already include it. Feeling
@@ -157,6 +172,8 @@ module.exports = {
   LAYER_KINDS,
   LAYERED_MAX_TEMPS,
   OUTER_CEILING_BASE,
+  OUTER_MIN_SPAN,
+  MIN_SPAN,
   TEMPERATURE_PREFERENCE_SHIFT,
   LONG_BOTTOM_MAX_TEMP,
   TEMPERATURE_LIMITS,
