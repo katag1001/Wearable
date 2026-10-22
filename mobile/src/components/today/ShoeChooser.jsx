@@ -3,7 +3,9 @@
 // pairing of the shoe being left). Shown in place of the page, not in a
 // Modal or over it: swiping didn't work inside a Modal. `onChoose(shoe)`
 // may return a promise (saving the worn outfit's shoes); it closes unless
-// that resolves false.
+// that resolves false. `wearing`: choosing wears them (the worn outfit's
+// shoes), so it's the heart, as when wearing an outfit; otherwise a
+// `chooseLabel` button.
 // Logic: useShoeChooser (shared with the web's popup).
 
 import { useEffect, useRef, useState } from "react";
@@ -23,6 +25,7 @@ import {
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
 import { Button, Loading } from "../ui";
+import { ActionButton, ActionRow } from "./ActionButton";
 import { SwipeDeck } from "./SwipeDeck";
 
 const shoePhoto = (shoe) =>
@@ -33,6 +36,7 @@ export const ShoeChooser = ({
   outfit,
   startShoe,
   chooseLabel,
+  wearing = false,
   onChoose,
   onClose,
 }) => {
@@ -133,12 +137,23 @@ export const ShoeChooser = ({
         <Loading text="Loading footwear..." />
       )}
 
-      <Button
-        label={chooseLabel}
-        onPress={choose}
-        loading={saving}
-        disabled={!current}
-      />
+      {wearing ? (
+        <ActionRow>
+          <ActionButton
+            icon="heart"
+            label={chooseLabel}
+            onPress={current ? choose : undefined}
+            loading={saving}
+          />
+        </ActionRow>
+      ) : (
+        <Button
+          label={chooseLabel}
+          onPress={choose}
+          loading={saving}
+          disabled={!current}
+        />
+      )}
     </View>
   );
 };

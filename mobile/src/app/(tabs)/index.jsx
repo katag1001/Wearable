@@ -103,6 +103,7 @@ export default function TodayScreen() {
         outfit={showingWorn ? today.wornOutfit : today.selectedOutfit}
         startShoe={showingWorn ? today.wornShoe : today.selectedShoe}
         chooseLabel={showingWorn ? "Wear these" : "Choose these"}
+        wearing={showingWorn}
         onChoose={showingWorn ? today.changeWornShoe : today.chooseShoe}
         onClose={() => setChoosingShoes(false)}
       />

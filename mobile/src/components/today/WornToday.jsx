@@ -1,39 +1,46 @@
 // The outfit worn today with its shoes, all the same size, filling the
-// page. "Change shoes" opens the shoe panel (onChangeShoes), "Change
-// outfit" goes back to choosing. Logic: useTodayLook (`today`).
+// page. Underneath: "Change outfit" (bottom left) goes back to choosing,
+// the shoe (bottom right) opens the shoe panel (onChangeShoes).
+// Logic: useTodayLook (`today`).
 
-import { StyleSheet, View } from "react-native";
+import Feather from "@expo/vector-icons/Feather";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { spacing } from "@core/theme/tokens.js";
+import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
 
-import { Button } from "../ui";
+import { ActionButton } from "./ActionButton";
 import { OutfitImages } from "./OutfitImages";
-
-const SmallButton = ({ label, onPress }) => (
-  <Button
-    label={label}
-    variant="secondary"
-    onPress={onPress}
-    style={styles.small}
-  />
-);
 
 export const WornToday = ({ today, onChangeShoes }) => {
   const outfit = today.wornOutfit;
 
   return (
     <View style={styles.fill}>
+      <OutfitImages match={outfit?.matchId} footwear={today.wornShoe} fit />
+
       <View style={styles.buttons}>
+        <Pressable
+          onPress={today.showOutfitPicker}
+          accessibilityRole="button"
+          accessibilityLabel="Change outfit"
+          hitSlop={8}
+          style={({ pressed }) => [styles.changeOutfit, pressed && styles.pressed]}
+        >
+          <Feather name="chevron-left" size={18} color={colors.secondary} />
+          <Text style={styles.changeOutfitText}>Change outfit</Text>
+        </Pressable>
+
         {today.footwear.hasFootwear ? (
-          <SmallButton
+          <ActionButton
+            icon="shoe-sneaker"
+            iconSet={MaterialCommunityIcons}
             label="Change shoes"
             onPress={onChangeShoes}
+            small
           />
         ) : null}
-        <SmallButton label="Change outfit" onPress={today.showOutfitPicker} />
       </View>
-
-      <OutfitImages match={outfit?.matchId} footwear={today.wornShoe} fit />
     </View>
   );
 };
@@ -45,12 +52,19 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: spacing.sm,
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  // Compact, so they don't eat into the photos' space.
-  small: {
-    minHeight: 36,
-    paddingHorizontal: spacing.md,
+  changeOutfit: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+  },
+  changeOutfitText: {
+    fontSize: fontSizes.body,
+    color: colors.secondary,
+  },
+  pressed: {
+    opacity: 0.5,
   },
 });
