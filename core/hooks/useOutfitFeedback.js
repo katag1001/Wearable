@@ -1,17 +1,22 @@
 import { useState } from "react";
 
+import { tightsItemOf } from "../matches/tights.js";
 import {
   MISMATCH_ITEM_COUNT,
+  NO_TIGHTS_ITEM,
+  NO_TIGHTS_OUTFIT,
   TOO_COLD,
   TOO_HOT,
 } from "../today/outfitFeedback.js";
 
 /*
  * The broken heart's screen on the Today page, for the outfit on screen
- * when it opened: "too hot", "too cold", or "mismatch" - which goes on to
+ * when it opened: "too hot", "too cold", "mismatch" - which goes on to
  * picking the two clothing items that don't go together (shoes aren't
- * part of an outfit, so they're never offered). Shared by the web popup
- * and the mobile screen.
+ * part of an outfit, so they're never offered) - and, for an outfit on
+ * today's list thanks to tights, "can't wear this with tights" - which
+ * goes on to choosing this outfit or its skirt, dress or shorts. Shared by
+ * the web popup and the mobile screen.
  *
  * Each action closes the screen (`onClose`) once saved, and today's list
  * moves on to the next outfit. A failed save stays open, with useToday's
@@ -25,10 +30,17 @@ export const useOutfitFeedback = ({ today, onClose }) => {
   const matchId = outfit?.matchId?._id;
   const clothes = outfit?.matchId?.clothes ?? [];
 
-  // "choose" (the three options) or "mismatch" (picking the two items).
+  // "Can't wear this with tights" - only offered when the card says "Wear
+  // with tights".
+  const offersTights = Boolean(outfit?.withTights);
+  const tightsItem = tightsItemOf(clothes) ?? null;
+
+  // "choose" (the options), "mismatch" (picking the two items) or
+  // "tights" (this outfit, or its skirt / dress / shorts).
   const [step, setStep] = useState("choose");
 
-  // Which action is saving (TOO_HOT, TOO_COLD or "mismatch"), or null.
+  // Which action is saving (TOO_HOT, TOO_COLD, "mismatch",
+  // NO_TIGHTS_OUTFIT or NO_TIGHTS_ITEM), or null.
   const [saving, setSaving] = useState(null);
 
   // A two-item outfit starts with both picked.
@@ -64,6 +76,14 @@ export const useOutfitFeedback = ({ today, onClose }) => {
 
     tooHot: () => run(TOO_HOT, () => today.giveTemperatureFeedback(matchId, TOO_HOT)),
     tooCold: () => run(TOO_COLD, () => today.giveTemperatureFeedback(matchId, TOO_COLD)),
+
+    offersTights,
+    tightsItem,
+    startTights: () => setStep("tights"),
+    noTightsForOutfit: () =>
+      run(NO_TIGHTS_OUTFIT, () => today.giveTightsFeedback(matchId, NO_TIGHTS_OUTFIT)),
+    noTightsForItem: () =>
+      run(NO_TIGHTS_ITEM, () => today.giveTightsFeedback(matchId, NO_TIGHTS_ITEM)),
 
     startMismatch: () => setStep("mismatch"),
     backToChoices: () => setStep("choose"),

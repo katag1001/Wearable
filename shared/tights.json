@@ -1,5 +1,23 @@
 {
   "shift": 3,
-  "skirts": ["Mini skirt", "Maxi skirt", "Smart skirt", "Midi-skirt", "Low waist midi"],
-  "dresses": ["Casual dress", "Cocktail dress", "Work dress", "Winter dress"]
+  "askBySubtype": {
+    "Mini skirt": true,
+    "Maxi skirt": true,
+    "Smart skirt": true,
+    "Midi-skirt": true,
+    "Low waist midi": true,
+    "Fancy Shorts": true,
+    "Casual shorts": false,
+    "Denim shorts": false,
+    "Linen shorts": false,
+    "Cargo shorts": false,
+    "Skater shorts": false,
+    "Casual dress": true,
+    "Cocktail dress": true,
+    "Work dress": true,
+    "Winter dress": true,
+    "Summer dress": false,
+    "Wedding guest dress": false,
+    "Evening dress": false
+  }
 }

@@ -1,12 +1,18 @@
 // core/today/outfitFeedback.js
 //
-// The broken heart on the Today page: "too hot", "too cold" or "mismatch"
-// for the outfit on screen. Each takes outfits off today's list and moves
-// on to the next. Server rules: temperatureFeedbackService.js and
-// mismatchService.js.
+// The broken heart on the Today page: "too hot", "too cold", "mismatch" or
+// (for an outfit there thanks to tights) "can't wear this with tights" for
+// the outfit on screen. Each takes outfits off today's list and moves on to
+// the next. Server rules: temperatureFeedbackService.js,
+// mismatchService.js and tightsFeedbackService.js.
 
 export const TOO_HOT = "too_hot";
 export const TOO_COLD = "too_cold";
+
+// "Can't wear this with tights": just this outfit, or never with its
+// skirt, dress or shorts.
+export const NO_TIGHTS_OUTFIT = "outfit";
+export const NO_TIGHTS_ITEM = "item";
 
 // How many items a mismatch is between.
 export const MISMATCH_ITEM_COUNT = 2;

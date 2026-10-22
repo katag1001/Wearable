@@ -1,4 +1,5 @@
-// An outfit's editable details: seasons, temperature range and tags.
+// An outfit's editable details: seasons, temperature range, tights (when
+// its items allow them) and tags.
 // `card` is useMatchCard, already editing (its draft).
 
 import { seasonOptions, tagOptions } from "@core/constants/optionsBank.js";
@@ -35,6 +36,19 @@ export const OutfitDetails = ({ card }) => {
         valueMax={Number(draft.max_temp)}
         onChange={card.setTemperature}
       />
+
+      {card.offersTights ? (
+        <>
+          <SectionTitle title="Tights" />
+          <ChipRow>
+            <Chip
+              label="Can wear with tights"
+              selected={!!draft.wearWithTights}
+              onPress={card.toggleWearWithTights}
+            />
+          </ChipRow>
+        </>
+      ) : null}
 
       <SectionTitle title="Tags" />
       <ChipRow>

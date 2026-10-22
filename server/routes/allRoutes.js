@@ -55,6 +55,7 @@ router.get("/match/:id", authMiddleware, allControllers.getMatchById);
 router.put("/match/:id", authMiddleware, allControllers.updateMatch);
 router.put("/match/:id/reject", authMiddleware, allControllers.rejectMatch);
 router.put("/match/:id/temperature-feedback", authMiddleware, allControllers.giveTemperatureFeedback);
+router.put("/match/:id/tights-feedback", authMiddleware, allControllers.giveTightsFeedback);
 router.post("/match/:id/mismatch", authMiddleware, allControllers.mismatchMatch);
 router.delete("/match/:id", authMiddleware, allControllers.deleteMatch);
 

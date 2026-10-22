@@ -211,7 +211,7 @@ const ViewMatchesCard = ({
               {match.max_temp}°
             </div>
 
-            {match.tights && (
+            {formatTightsTemperature(match) && (
               <div className="match-tights">
                 {formatTightsTemperature(match)}
               </div>
@@ -316,6 +316,30 @@ const ViewMatchesCard = ({
                 onChange={card.setTemperature}
               />
             </div>
+
+            {/* TIGHTS - only when its items allow them */}
+
+            {card.offersTights && (
+              <div className="editor-section">
+                <label className="form-label">
+                  Tights
+                </label>
+
+                <fieldset className="season-group">
+                  <label className="season-label">
+                    <input
+                      type="checkbox"
+                      checked={!!updateData.wearWithTights}
+                      onChange={card.toggleWearWithTights}
+                    />
+
+                    {" "}
+
+                    Can wear with tights
+                  </label>
+                </fieldset>
+              </div>
+            )}
 
             {/* TAGS */}
 

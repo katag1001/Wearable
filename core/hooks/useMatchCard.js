@@ -8,7 +8,8 @@ import { isDateToday } from "../utils/dates.js";
 
 /*
  * One outfit card: favourite, mark worn today, and editing its seasons,
- * temperature range and tags (a draft, saved with `save`).
+ * temperature range, tags and - when its items allow tights - whether it
+ * can be worn with tights (a draft, saved with `save`).
  *
  * - onChanged: after a save or mark-worn (refresh the list).
  * - onFavouriteToggle(id, favourite): shows the change straight away
@@ -49,6 +50,13 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
 
   const setTemperature = (minTemp, maxTemp) => {
     setDraft((prev) => ({ ...prev, min_temp: minTemp, max_temp: maxTemp }));
+  };
+
+  // Only offered when the outfit's items allow tights.
+  const offersTights = !!match.tights;
+
+  const toggleWearWithTights = () => {
+    setDraft((prev) => ({ ...prev, wearWithTights: !prev.wearWithTights }));
   };
 
   // Resolves to true when saved (the editor can close).
@@ -131,6 +139,8 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
     toggleSeason,
     toggleTag,
     setTemperature,
+    offersTights,
+    toggleWearWithTights,
     save,
     saving,
 

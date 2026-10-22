@@ -44,6 +44,7 @@ const ITEM_FIELD_TO_OUTFIT_FIELDS = {
   styles: ["styles"],
   tags: ["tags"],
   subtype: ["min_temp", "max_temp", "tights"],
+  wearWithTights: ["tights"],
   type: ["min_temp", "max_temp", "tights", ...ROLE_COUNT_FIELDS],
 };
 

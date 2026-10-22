@@ -1,12 +1,18 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const { TIGHTS_SHIFT, canWearTights, tightsRange } = require("../services/tightsService.js");
+const {
+  TIGHTS_SHIFT,
+  canWearTights,
+  takesTights,
+  tightsItemOf,
+  tightsRange,
+} = require("../services/tightsService.js");
 const { todayFitOf } = require("../services/todaySelectionService.js");
 
 const top = (subtype) => ({ type: "top", subtype });
-const bottom = (subtype) => ({ type: "bottom", subtype });
-const onepiece = (subtype) => ({ type: "onepiece", subtype });
+const bottom = (subtype, wearWithTights) => ({ type: "bottom", subtype, wearWithTights });
+const onepiece = (subtype, wearWithTights) => ({ type: "onepiece", subtype, wearWithTights });
 const outer = (subtype) => ({ type: "outer", subtype });
 
 test("a skirt with a warm top or an outer can take tights", () => {
@@ -27,9 +33,19 @@ test("dresses follow the same rule; summer, evening and wedding guest dresses ne
   assert.equal(canWearTights([onepiece("Wedding guest dress"), outer("Blazer")]), false);
 });
 
-test("shorts, playsuits and trousers never take tights", () => {
+test("fancy shorts take tights by default; other shorts don't", () => {
+  assert.equal(canWearTights([top("Warm jumper"), top("Short t-shirt"), bottom("Fancy Shorts")]), true);
   assert.equal(canWearTights([top("Warm jumper"), top("Short t-shirt"), bottom("Denim shorts")]), false);
-  assert.equal(canWearTights([onepiece("Playsuit"), outer("Denim jacket")]), false);
+});
+
+test("the item's own answer replaces its subtype's default", () => {
+  assert.equal(canWearTights([bottom("Mini skirt", false), outer("Trench coat")]), false);
+  assert.equal(canWearTights([onepiece("Summer dress", true), outer("Denim jacket")]), true);
+  assert.equal(canWearTights([bottom("Denim shorts", true), outer("Trench coat")]), true);
+});
+
+test("playsuits and trousers never take tights, whatever the item says", () => {
+  assert.equal(canWearTights([onepiece("Playsuit", true), outer("Denim jacket")]), false);
   assert.equal(canWearTights([top("Short t-shirt"), bottom("Jeans"), outer("Trench coat")]), false);
 });
 
@@ -49,4 +65,24 @@ test("Today uses the tights range only when it fits better", () => {
     todayFitOf({ min_temp: day.min, max_temp: day.max, tights: true }, day),
     { tier: 0, withTights: false }
   );
+});
+
+test("an outfit flagged noTights doesn't take tights, even when its items allow them", () => {
+  assert.equal(takesTights({ tights: true }), true);
+  assert.equal(takesTights({ tights: true, noTights: true }), false);
+  assert.equal(takesTights({ tights: false }), false);
+});
+
+test("tightsItemOf finds the outfit's skirt, dress or shorts", () => {
+  const skirt = bottom("Midi-skirt");
+
+  assert.equal(tightsItemOf([top("Warm jumper"), skirt]), skirt);
+  assert.equal(tightsItemOf([top("Warm jumper"), bottom("Jeans")]), undefined);
+});
+
+test("Today doesn't use the tights range for an outfit flagged noTights", () => {
+  const day = { min: 9, max: 16 };
+  const range = { min_temp: day.min + TIGHTS_SHIFT, max_temp: day.max + TIGHTS_SHIFT };
+
+  assert.equal(todayFitOf({ ...range, tights: true, noTights: true }, day), null);
 });

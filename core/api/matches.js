@@ -59,6 +59,16 @@ export const sendTemperatureFeedback = async (matchId, feel) => {
   return response.data;
 };
 
+// "Can't wear this with tights" on the Today page (`scope`: "outfit" for
+// just this outfit, "item" for never with its skirt, dress or shorts).
+// Returns { hiddenMatchIds } - every outfit taken off today's list. Rules:
+// server/services/tightsFeedbackService.js.
+export const sendTightsFeedback = async (matchId, scope) => {
+  const response = await api.put(`/match/${matchId}/tights-feedback`, { scope });
+
+  return response.data;
+};
+
 // "Mismatch" on the Today page: two clothing ids from the outfit that are
 // never matched again. Returns { deletedMatchIds } - every outfit deleted
 // for having both. Rules: server/services/mismatchService.js.

@@ -95,6 +95,7 @@ const AddUpdateItem = ({ kind, item, onClose, onBack, refresh }) => {
                   toggleSeason={form.toggleSeason}
                   toggleColor={form.toggleColor}
                   toggleTag={form.toggleTag}
+                  tights={form}
                 />
               )}
 

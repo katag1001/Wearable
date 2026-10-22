@@ -5,7 +5,8 @@ const ModalTwo = ({
   formData,
   toggleSeason,
   toggleColor,
-  toggleTag
+  toggleTag,
+  tights
 }) => {
 
   return (
@@ -42,6 +43,31 @@ const ModalTwo = ({
           </fieldset>
 
           </div>
+
+
+    {/* Tights - skirts, dresses and shorts only */}
+
+    {tights?.asksTights && (
+      <div>
+        <fieldset className="season-group">
+          <label className="form-label">Would you wear this with tights?</label>
+
+          {[true, false].map((answer) => (
+            <label key={String(answer)} className="season-label">
+              <input
+                type="radio"
+                name="wearWithTights"
+                checked={tights.wearWithTights === answer}
+                onChange={() => tights.setWearWithTights(answer)}
+              />
+
+              {" "}
+              {answer ? "Yes" : "No"}
+            </label>
+          ))}
+        </fieldset>
+      </div>
+    )}
 
 
     {/* Colours */}

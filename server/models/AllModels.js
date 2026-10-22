@@ -38,10 +38,14 @@ index: true,
 colors: { type: [String], required: true },
 min_temp: { type: Number, required: true },
 max_temp: { type: Number, required: true },
-// min_temp/max_temp are without tights. True when the outfit can also be
-// worn with tights, which suits a range colder by shared/tights.json's
-// shift (services/tightsService.js). Set with the range.
+// min_temp/max_temp are without tights. True when the outfit's items allow
+// tights, which suits a range colder by shared/tights.json's shift
+// (services/tightsService.js). Set with the range.
 tights: { type: Boolean, default: false },
+// "Not with tights in this outfit", set by the user (Today's broken heart
+// or the outfit's edit page). The outfit takes tights only when `tights`
+// is true and this isn't.
+noTights: { type: Boolean, default: false },
 type: { type: String, required: true },
 hasOuter: { type: Boolean, default: false },
 
@@ -146,6 +150,11 @@ favourite: { type: Boolean, default: false },
 // Stored on both items; automatic matching never pairs them
 // (server/services/mismatchService.js). Outfits the user builds ignore it.
 mismatchedWith: [{ type: mongoose.Schema.Types.ObjectId, ref: "Clothes" }],
+
+// "Would you wear this with tights?" from the item form - only asked for
+// the skirts, dresses and shorts in shared/tights.json. Unset means that
+// list's default (server/services/tightsService.js).
+wearWithTights: { type: Boolean },
 });
 
 // My Clothes pages through a user's items newest first

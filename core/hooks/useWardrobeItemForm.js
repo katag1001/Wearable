@@ -7,6 +7,7 @@ import {
   formatMissingFields,
   suggestSubtypesFromName,
 } from "../clothes/uploadHelpers.js";
+import { asksAboutTights, wearsWithTights } from "../matches/tights.js";
 import { WARDROBE_KINDS } from "../wardrobe/itemKinds.js";
 import { validateItem, validateItemPage } from "../wardrobe/itemValidation.js";
 import { saveWardrobeItem } from "../wardrobe/saveWardrobeItem.js";
@@ -18,7 +19,8 @@ const LAST_PAGE = 2;
  * The two-page add / edit form for a clothing item or a pair of footwear
  * (`kind`: "clothing" | "footwear" - see core/wardrobe/itemKinds.js).
  *
- * Page one: name, image, type. Page two: seasons, colours, tags - filled
+ * Page one: name, image, type. Page two: seasons, colours, tags (and, for
+ * a skirt, dress or shorts, "Would you wear this with tights?") - filled
  * in from the name and type when a NEW item moves on from page one
  * (useClothingDetection). Editing changes only what the user changes.
  *
@@ -77,6 +79,13 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
       ? `Please enter ${formatMissingFields(validation.missing)}.`
       : "";
 
+  // "Would you wear this with tights?" - for clothing on the tights list
+  // (core/matches/tights.js). Starts on the subtype's default; choosing
+  // another subtype goes back to that one's.
+  const asksTights = kind === "clothing" && asksAboutTights(formData.subtype, gender);
+  const wearWithTights = wearsWithTights(formData);
+  const setWearWithTights = (value) => updateField("wearWithTights", value);
+
   const subtypeSuggestions = suggestSubtypesFromName(
     formData.name,
     typeOptions,
@@ -88,6 +97,10 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
   // On one page, choosing the type fills in seasons, colours and tags
   // straight away (on two pages, that waits for Next).
   const chooseSubtype = (subtype) => {
+    if (subtype !== formData.subtype) {
+      updateField("wearWithTights", undefined);
+    }
+
     form.chooseSubtype(subtype);
 
     if (singlePage) {
@@ -149,7 +162,8 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
       const saved = await saveWardrobeItem({
         kind,
         item,
-        formData,
+        // The answer is always saved on the item, default or not.
+        formData: asksTights ? { ...formData, wearWithTights } : formData,
         image: selectedImage,
       });
 
@@ -201,6 +215,10 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
     toggleSeason: form.toggleSeason,
     chooseSubtype,
     fillDetailsFromName,
+
+    asksTights,
+    wearWithTights,
+    setWearWithTights,
 
     selectedImage,
     setSelectedImage,

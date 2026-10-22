@@ -79,7 +79,7 @@ test("buildMatchFilter requires every selected item but any listed colour/style/
 // Outfits that can take tights also pass on their tights range: the stored
 // range checked against the chosen one moved up by the shift.
 const orTights = (withoutTights, withTights) => ({
-  $or: [withoutTights, { $and: [{ tights: true }, withTights] }],
+  $or: [withoutTights, { $and: [{ tights: true }, { noTights: { $ne: true } }, withTights] }],
 });
 
 const closeOrContaining = (min, max) => ({

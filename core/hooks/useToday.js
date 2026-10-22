@@ -4,6 +4,7 @@ import {
   restoreMatchSnapshot,
   sendMismatch,
   sendTemperatureFeedback,
+  sendTightsFeedback,
 } from "../api/matches.js";
 import { getErrorMessage } from "../api/errors.js";
 import { fetchTodayOutfits } from "../api/today.js";
@@ -372,6 +373,21 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     }
   };
 
+  // Can't wear this with tights (NO_TIGHTS_OUTFIT / NO_TIGHTS_ITEM): hidden
+  // for today, with - for the item - every other outfit with it that's only
+  // here thanks to tights (the server says which). Resolves true once
+  // saved.
+  const giveTightsFeedback = async (matchId, scope) => {
+    try {
+      const { hiddenMatchIds = [] } = await sendTightsFeedback(matchId, scope);
+      removeFromToday([matchId, ...hiddenMatchIds], { deleted: false });
+      return true;
+    } catch (err) {
+      feedbackError(err);
+      return false;
+    }
+  };
+
   // Two of the outfit's clothing items never go together: every outfit
   // with both is deleted (the server says which). Resolves true once
   // saved.
@@ -410,6 +426,7 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     markAsWornToday,
 
     giveTemperatureFeedback,
+    giveTightsFeedback,
     markMismatch,
 
     notice,

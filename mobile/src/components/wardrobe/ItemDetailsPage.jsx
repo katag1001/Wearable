@@ -1,5 +1,6 @@
-// The lower half of the item form: seasons, colours and tags (pre-filled
-// for a new item from its name and type).
+// The lower half of the item form: seasons, tights (skirts, dresses and
+// shorts only), colours and tags (pre-filled for a new item from its name
+// and type).
 
 import {
   colorOptions,
@@ -7,7 +8,12 @@ import {
   tagOptions,
 } from "@core/constants/optionsBank.js";
 
-import { Chip, ChipRow, SectionTitle } from "../ui";
+import { Chip, ChipRow, SectionTitle, SegmentedControl } from "../ui";
+
+const TIGHTS_ANSWERS = [
+  { key: "yes", label: "Yes" },
+  { key: "no", label: "No" },
+];
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -27,6 +33,17 @@ export const ItemDetailsPage = ({ form }) => {
           />
         ))}
       </ChipRow>
+
+      {form.asksTights ? (
+        <>
+          <SectionTitle title="Would you wear this with tights?" />
+          <SegmentedControl
+            options={TIGHTS_ANSWERS}
+            value={form.wearWithTights ? "yes" : "no"}
+            onChange={(key) => form.setWearWithTights(key === "yes")}
+          />
+        </>
+      ) : null}
 
       <SectionTitle title="Colours" />
       <ChipRow>

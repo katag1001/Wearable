@@ -65,7 +65,7 @@ export const OutfitCard = ({
             <Text style={styles.temperature}>
               {formatMatchTemperature(match)}
             </Text>
-            {match.tights ? (
+            {formatTightsTemperature(match) ? (
               <Text style={styles.seasons}>{formatTightsTemperature(match)}</Text>
             ) : null}
             <Text style={styles.seasons}>{formatMatchSeasons(match)}</Text>

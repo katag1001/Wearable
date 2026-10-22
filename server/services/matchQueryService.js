@@ -139,7 +139,7 @@ const rangeCondition = ({ minTemp, maxTemp }) => {
   return null;
 };
 
-// An outfit that can take tights (match.tights) is also kept when its
+// An outfit that takes tights (tights, and not noTights) is also kept when its
 // tights range - the stored one, TIGHTS_SHIFT colder - passes. Checked on
 // the stored fields by moving the chosen range up by the shift instead.
 const temperatureCondition = ({ minTemp, maxTemp }) => {
@@ -150,7 +150,9 @@ const temperatureCondition = ({ minTemp, maxTemp }) => {
   const shift = (value) => (value === null ? null : value + TIGHTS_SHIFT);
   const withTights = rangeCondition({ minTemp: shift(minTemp), maxTemp: shift(maxTemp) });
 
-  return { $or: [withoutTights, { $and: [{ tights: true }, withTights] }] };
+  return {
+    $or: [withoutTights, { $and: [{ tights: true }, { noTights: { $ne: true } }, withTights] }],
+  };
 };
 
 const FILTER_RULES = [

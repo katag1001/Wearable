@@ -1162,16 +1162,18 @@ in `allControllers.js`. Numbers in `server/constants/scoring.js`.
 - "Today" is the user's local day: the client sends its local midnight
   (`todayStart` / `today_start`); the server falls back to its own.
 
-### 7.3 The broken heart (too hot, too cold, mismatch)
+### 7.3 The broken heart (too hot, too cold, mismatch, tights)
 
 Files: `server/services/temperatureFeedbackService.js`,
 `server/services/mismatchService.js`, `server/services/mismatchRules.js`,
+`server/services/tightsFeedbackService.js`,
 `core/hooks/useOutfitFeedback.js` (the screen's logic, web and mobile),
 `core/today/outfitFeedback.js`. Numbers in `server/constants/scoring.js`.
 
 There is no delete button on the Today page. The broken heart (web: next
 to Change shoes; mobile: where the bin was) opens a screen for the
-outfit on show with three options and Cancel. Each one, once saved,
+outfit on show with three options - four when the card says "Wear with
+tights" - and Cancel. Each one, once saved,
 closes the screen and shows the next outfit.
 
 - **Outfit too hot for today** / **too cold** (`PUT /match/:id/temperature-feedback`,
@@ -1197,6 +1199,19 @@ closes the screen and shows the next outfit.
      don't change.
   Deleting either item takes it off the other's list (`forgetMismatches`).
   There's no way to undo a mismatch yet.
+- **Can't wear this with tights** (`PUT /match/:id/tights-feedback`,
+  `{ scope: "outfit" | "item" }`), only for an outfit on today's list
+  thanks to its tights range. It asks:
+  - **Just this outfit**: the match gets `noTights`;
+  - **Never with this <skirt / dress / shorts>**: the item's
+    `wearWithTights` becomes false and every outfit with it gets
+    `tights: false`.
+  Nothing is deleted and no score changes. The outfit is hidden from
+  today's list - and for the item, so is every other outfit with it
+  that's only there thanks to tights. Both can be turned back on: the
+  outfit's edit page has a "Can wear with tights" switch, and the item
+  form has the tights question. Tights rules: `temperature-ranges.md`
+  Part 5.
 
 ### 7.4 My Outfits order
 

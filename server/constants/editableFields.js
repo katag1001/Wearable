@@ -21,6 +21,7 @@ const CLOTHING_FIELDS = [
   "autumn",
   "winter",
   "favourite",
+  "wearWithTights",
 ];
 
 // A pair of footwear, from its add / edit form. (Worn values are changed
@@ -51,6 +52,7 @@ const MATCH_FIELDS = [
   "tags",
   "favourite",
   "lastWornDate",
+  "noTights",
 ];
 
 // Putting an outfit or clothing item back to how it was before it was

@@ -261,28 +261,53 @@ Some outfits can also be worn with tights, which suits a range
 `shift` (3°) colder at both ends. That range is worked out when it's
 needed and never stored, so changing the shift needs no reset.
 
-**Which outfits** (`canWearTights` in `server/services/tightsService.js`,
-lists in `shared/tights.json`):
+**The item's answer.** The item form asks "Would you wear this with
+tights?" for every skirt, dress and shorts (shorts for women and unisex
+only - men are never asked). It starts on the subtype's default from
+`askBySubtype` in `shared/tights.json`, and the answer is saved on the
+item as `wearWithTights`. An item saved before the question existed uses
+the default. Anything not on the list (trousers, playsuits, rompers,
+jumpsuits, overalls) never takes tights.
 
-- a skirt (Mini, Maxi, Smart, Midi, Low waist midi) or a dress (Casual,
-  Cocktail, Work, Winter) - never shorts, playsuits, rompers, jumpsuits,
-  overalls, or Summer / Evening / Wedding guest dresses; **and**
+| Default yes | Default no |
+|---|---|
+| Mini, Maxi, Smart, Midi and Low waist midi skirts; Casual, Cocktail, Work and Winter dresses; Fancy shorts | Summer, Evening and Wedding guest dresses; Casual, Denim, Linen, Cargo and Skater shorts |
+
+**Which outfits** (`canWearTights` in `server/services/tightsService.js`):
+
+- a skirt, dress or shorts worn with tights (its answer, or the default);
+  **and**
 - a warm top (the "warm" top group) or **any** outer.
 
-Saved on the match as `tights: true` by `describeOutfit`, and by the reset
-and rescore scripts.
+Saved on the match as `tights: true` by `describeOutfit`, by an item edit
+that changes the answer (`matchRefreshService`), and by the reset and
+rescore scripts.
+
+**Not in this outfit.** A match can also be flagged `noTights` - "not
+with tights in this outfit". The outfit then takes tights only when
+`tights` is true and `noTights` isn't (`takesTights`). It's set from:
+
+- the outfit's edit page (web card editor and the app's outfit screen): a
+  "Can wear with tights" switch, shown when `tights` is true;
+- Today's broken heart → "Can't wear this with tights"
+  (`clothing-and-matching-flow.md` 7.3), which can instead set the
+  item's answer to no.
+
+The reset and rescore scripts recalculate `tights` but leave `noTights`
+alone.
 
 **Where it's used:**
 
 - **Today** (`todayFitOf` in `server/services/todaySelectionService.js`):
-  an outfit with `tights` is checked against both ranges and goes in the
+  an outfit that takes tights is checked against both ranges and goes in the
   better tier (without tights on a tie). When the tights range won, the
   Today entry has `withTights: true` and the card says "Wear with tights".
 - **Matches filter** (`temperatureCondition` in
-  `server/services/matchQueryService.js`): an outfit with `tights` also
-  passes when its tights range does.
+  `server/services/matchQueryService.js`): an outfit that takes tights
+  also passes when its tights range does.
 - **Match card:** a second line, "With tights 2° - 15°"
-  (`formatTightsTemperature` in `core/matches/matchFields.js`).
+  (`formatTightsTemperature` in `core/matches/matchFields.js`; the app's
+  copy of the rules is `core/matches/tights.js`).
 
 ---
 
@@ -304,7 +329,7 @@ and rescore scripts.
 | Highest maximum with a long bottom | `LONG_BOTTOM_MAX_TEMP` |
 | Today's weather tiers and cap | `CLOSE_MATCH_OUTSIDE` / `CLOSE_MATCH_INSIDE` / `FULL_COVERAGE` / `PARTIAL_COVERAGE_STEPS` / `TODAY_OUTFIT_LIMIT` in `server/constants/todayOutfits.js` |
 | Daytime hours for today's weather | `core/constants/daytimeHours.js` |
-| Tights shift / which skirts and dresses | `shared/tights.json` (then run the reset script so `tights` flags follow the lists) |
+| Tights shift / which skirts, dresses and shorts are asked about, and their defaults | `shared/tights.json` (`askBySubtype`; then run the reset script so `tights` flags follow) |
 
 After changing them, restart the server and run the reset script (Part 3)
 so existing matches follow.

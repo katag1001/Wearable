@@ -1,7 +1,12 @@
 import React from "react";
 
 import { useOutfitFeedback } from "@core/hooks/useOutfitFeedback.js";
-import { TOO_COLD, TOO_HOT } from "@core/today/outfitFeedback.js";
+import {
+  NO_TIGHTS_ITEM,
+  NO_TIGHTS_OUTFIT,
+  TOO_COLD,
+  TOO_HOT,
+} from "@core/today/outfitFeedback.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
 import "../general/popup.css";
@@ -10,7 +15,9 @@ import "./outfitFeedback.css";
 /*
  * The broken heart: a popup for the outfit on screen. "Too hot" / "too
  * cold" move its range a degree and hide it for today; "Mismatch" goes on
- * to picking the two items that don't go together. Each moves on to the
+ * to picking the two items that don't go together; "Can't wear this with
+ * tights" (only for an outfit there thanks to tights) goes on to choosing
+ * this outfit or its skirt, dress or shorts. Each moves on to the
  * next outfit once saved. The logic is useOutfitFeedback, shared with the
  * mobile app; this renders it.
  */
@@ -18,6 +25,13 @@ const OutfitFeedbackModal = ({ today, onClose }) => {
 
   const feedback = useOutfitFeedback({ today, onClose });
   const picking = feedback.step === "mismatch";
+  const choosingTights = feedback.step === "tights";
+
+  const TITLES = {
+    choose: "Not this outfit?",
+    mismatch: "Mismatch",
+    tights: "Not with tights",
+  };
   const saving = Boolean(feedback.saving);
 
 
@@ -46,7 +60,7 @@ const OutfitFeedbackModal = ({ today, onClose }) => {
 
         <div className="popup-header">
           <h2 className="popup-title">
-            {picking ? "Mismatch" : "Not this outfit?"}
+            {TITLES[feedback.step]}
           </h2>
         </div>
 
@@ -103,6 +117,40 @@ const OutfitFeedbackModal = ({ today, onClose }) => {
               </button>
             </div>
           </>
+        ) : choosingTights ? (
+          <>
+            <div className="outfit-feedback-options">
+              <button
+                className="popup-button popup-button-cancel outfit-feedback-option"
+                onClick={feedback.noTightsForOutfit}
+                disabled={saving}
+              >
+                {feedback.saving === NO_TIGHTS_OUTFIT ? "Saving..." : "Just this outfit"}
+              </button>
+
+              {feedback.tightsItem && (
+                <button
+                  className="popup-button popup-button-cancel outfit-feedback-option"
+                  onClick={feedback.noTightsForItem}
+                  disabled={saving}
+                >
+                  {feedback.saving === NO_TIGHTS_ITEM
+                    ? "Saving..."
+                    : `Never with this ${feedback.tightsItem.name}`}
+                </button>
+              )}
+            </div>
+
+            <div className="popup-actions">
+              <button
+                className="popup-button popup-button-cancel"
+                onClick={feedback.backToChoices}
+                disabled={saving}
+              >
+                Back
+              </button>
+            </div>
+          </>
         ) : (
           <>
             <div className="outfit-feedback-options">
@@ -129,6 +177,16 @@ const OutfitFeedbackModal = ({ today, onClose }) => {
               >
                 Mismatch
               </button>
+
+              {feedback.offersTights && (
+                <button
+                  className="popup-button popup-button-cancel outfit-feedback-option"
+                  onClick={feedback.startTights}
+                  disabled={saving}
+                >
+                  Can't wear this with tights
+                </button>
+              )}
             </div>
 
             <div className="popup-actions">

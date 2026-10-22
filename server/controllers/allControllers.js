@@ -58,6 +58,7 @@ const {
   isTemperatureFeel,
   applyTemperatureFeedback,
 } = require("../services/temperatureFeedbackService.js");
+const { isTightsScope, applyTightsFeedback } = require("../services/tightsFeedbackService.js");
 const {
   changedMatchingFields,
   refreshMatchesForItem,
@@ -922,6 +923,38 @@ exports.giveTemperatureFeedback = async (req, res) => {
     }
 
     return res.json({ _id: req.params.id, ...range });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// "Can't wear this with tights" on the Today page (tightsFeedbackService.js).
+// Body: { scope: "outfit" | "item" }. Returns the ids of every outfit
+// hidden from today's list.
+exports.giveTightsFeedback = async (req, res) => {
+  const userId = req.user?.userId;
+  const scope = req.body?.scope;
+
+  if (!isTightsScope(scope)) {
+    return res.status(400).json({ message: "Invalid feedback." });
+  }
+
+  if (!isValidId(req.params.id)) {
+    return res.status(404).json({ message: "Match not found" });
+  }
+
+  try {
+    const result = await applyTightsFeedback(userId, req.params.id, scope);
+
+    if (result.notFound) {
+      return res.status(404).json({ message: "Match not found" });
+    }
+
+    if (result.invalid) {
+      return res.status(400).json({ message: "This outfit has no skirt, dress or shorts." });
+    }
+
+    return res.json({ hiddenMatchIds: result.hiddenMatchIds });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

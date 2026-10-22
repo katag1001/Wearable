@@ -8,7 +8,7 @@
 //     covers ALL of today's daytime temperatures (FULL_COVERAGE).
 //  2. Then one tier per PARTIAL_COVERAGE_STEPS value (90%, 80%, 70%):
 //     those covering at least that much of the day.
-//  An outfit that can take tights (match.tights) is also checked against
+//  An outfit that takes tights (takesTights) is also checked against
 //  its tights range (services/tightsService.js) and goes in whichever tier
 //  is better - without tights on a tie.
 //  Each outfit goes in the first tier it fits. A tier only joins while the
@@ -27,7 +27,7 @@ const {
 const { todayCoverageFraction, closeMatchBounds } = require("./temperatureService.js");
 const { rankTodayGroups } = require("./todayRankingService.js");
 const { spreadSharedItems } = require("./todayDiversityService.js");
-const { tightsRange } = require("./tightsService.js");
+const { takesTights, tightsRange } = require("./tightsService.js");
 
 // Allows for floating-point rounding in the comparisons.
 const EPSILON = 1e-9;
@@ -55,12 +55,12 @@ const tierOfRange = (range, todayRange) => {
 };
 
 // { tier, withTights } for an outfit today, or null if it doesn't qualify
-// at all. An outfit that can take tights is also checked against its
+// at all. An outfit that takes tights (takesTights) is also checked against its
 // tights range; withTights is true only when that range does better.
 const todayFitOf = (match, todayRange) => {
   const range = { min: match.min_temp, max: match.max_temp };
   const tier = tierOfRange(range, todayRange);
-  const tightsTier = match.tights ? tierOfRange(tightsRange(range), todayRange) : null;
+  const tightsTier = takesTights(match) ? tierOfRange(tightsRange(range), todayRange) : null;
 
   if (tightsTier !== null && (tier === null || tightsTier < tier)) {
     return { tier: tightsTier, withTights: true };

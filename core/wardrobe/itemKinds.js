@@ -58,7 +58,7 @@ export const WARDROBE_KINDS = {
     hasCategories: false,
     hasMatches: false,
     // Fields from the shared form state that footwear doesn't store.
-    dropFields: ["type", "min_temp", "max_temp"],
+    dropFields: ["type", "min_temp", "max_temp", "wearWithTights"],
     create: createFootwear,
     update: updateFootwear,
     remove: deleteFootwear,

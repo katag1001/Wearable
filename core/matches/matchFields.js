@@ -3,7 +3,7 @@
 // Reading and writing the editable parts of an outfit.
 
 import { seasonOptions } from "../constants/optionsBank.js";
-import tights from "../../shared/tights.json";
+import { TIGHTS_SHIFT, takesTights } from "./tights.js";
 
 export const TEMPERATURE_RANGE = { min: -20, max: 50 };
 
@@ -20,11 +20,11 @@ export const formatMatchSeasons = (match) =>
 export const formatMatchTemperature = (match) =>
   `${match.min_temp}° - ${match.max_temp}°`;
 
-// "With tights 2° - 15°" for an outfit that can take tights, else null.
+// "With tights 2° - 15°" for an outfit that takes tights, else null.
 // The stored range is without tights (server/services/tightsService.js).
 export const formatTightsTemperature = (match) =>
-  match.tights
-    ? `With tights ${match.min_temp - tights.shift}° - ${match.max_temp - tights.shift}°`
+  takesTights(match)
+    ? `With tights ${match.min_temp - TIGHTS_SHIFT}° - ${match.max_temp - TIGHTS_SHIFT}°`
     : null;
 
 // The editor's starting values.
@@ -36,6 +36,8 @@ export const getMatchDraft = (match) => ({
   min_temp: match.min_temp ?? "",
   max_temp: match.max_temp ?? "",
   tags: match.tags || [],
+  // Only shown for an outfit whose items allow tights (match.tights).
+  wearWithTights: !match.noTights,
 });
 
 // What Save sends.
@@ -47,4 +49,5 @@ export const buildMatchUpdate = (draft) => ({
   min_temp: Number(draft.min_temp),
   max_temp: Number(draft.max_temp),
   tags: draft.tags,
+  noTights: !draft.wearWithTights,
 });
