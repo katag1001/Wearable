@@ -8,6 +8,7 @@ const {
   fitsAnOutfitShape,
   isValidAutoOutfit,
   planMatchRefresh,
+  needsRematch,
 } = require("../services/matchRefreshService.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
 
@@ -95,12 +96,21 @@ test("outfitFieldsFor maps item fields to the outfit fields they feed", () => {
   assert.ok(outfitFieldsFor(["type"]).includes("hasOuter"));
 });
 
-test("isProtectedMatch covers favourites, user-made and worn outfits", () => {
+test("isProtectedMatch covers favourites, user-made, worn and hand-edited outfits", () => {
   assert.equal(isProtectedMatch(match([top, bottom])), false);
   assert.equal(isProtectedMatch(match([top, bottom], { favourite: true })), true);
   assert.equal(isProtectedMatch(match([top, bottom], { userMade: true })), true);
   assert.equal(isProtectedMatch(match([top, bottom], { lastWornDate: new Date() })), true);
   assert.equal(isProtectedMatch(match([top, bottom], { timesWorn: 2 })), true);
+  assert.equal(isProtectedMatch(match([top, bottom], { userEdited: true })), true);
+});
+
+test("needsRematch is true for the fields that decide outfits, not the tights answer", () => {
+  ["type", "subtype", "colors", "spring", "winter", "tags", "styles"].forEach((field) => {
+    assert.equal(needsRematch([field]), true, field);
+  });
+  assert.equal(needsRematch(["wearWithTights"]), false);
+  assert.equal(needsRematch([]), false);
 });
 
 test("fitsAnOutfitShape rejects item-sets with no matching shape", () => {
@@ -152,7 +162,7 @@ test("planMatchRefresh deletes an unprotected outfit that is no longer valid", (
 test("planMatchRefresh keeps and refreshes a protected outfit that is no longer valid", () => {
   const updatedTop = { ...top, spring: false, summer: false, autumn: false, winter: false };
 
-  [{ favourite: true }, { userMade: true }, { lastWornDate: new Date() }, { timesWorn: 1 }]
+  [{ favourite: true }, { userMade: true }, { userEdited: true }, { lastWornDate: new Date() }, { timesWorn: 1 }]
     .forEach((protection) => {
       const existing = match([top, bottom], protection);
 
@@ -172,4 +182,34 @@ test("planMatchRefresh leaves an outfit alone when one of its items is missing",
 
   assert.deepEqual(updates, []);
   assert.deepEqual(deleteIds, []);
+});
+
+test("planMatchRefresh with rematch deletes every unprotected outfit, even a valid one", () => {
+  const updatedTop = { ...top, colors: ["Cream", "Grey"] };
+  const existing = match([top, bottom]);
+
+  assert.equal(isValidAutoOutfit([updatedTop, bottom], ctx), true);
+
+  const { updates, deleteIds } = planMatchRefresh(
+    [existing], byId([updatedTop, bottom]), ["colors"], ctx, { rematch: true }
+  );
+
+  assert.deepEqual(deleteIds, [existing._id]);
+  assert.deepEqual(updates, []);
+});
+
+test("planMatchRefresh with rematch keeps protected outfits and refreshes their colours", () => {
+  const updatedTop = { ...top, colors: ["Grey"] };
+
+  [{ favourite: true }, { userMade: true }, { userEdited: true }, { timesWorn: 1 }].forEach((protection) => {
+    const existing = match([top, bottom], protection);
+
+    const { updates, deleteIds } = planMatchRefresh(
+      [existing], byId([updatedTop, bottom]), ["colors"], ctx, { rematch: true }
+    );
+
+    assert.deepEqual(deleteIds, []);
+    assert.equal(updates.length, 1);
+    assert.deepEqual([...updates[0].fields.colors].sort(), ["Cream", "Grey"]);
+  });
 });

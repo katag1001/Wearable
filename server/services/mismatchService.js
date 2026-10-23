@@ -10,8 +10,9 @@
 //    that changes what can be matched - the matrix compatibility check
 //    itself still never reads it.
 //  - Every outfit with both items is deleted, with its Today entries -
-//    except favourites and outfits the user built, which stay. The outfit
-//    on screen is always deleted, whatever it is.
+//    except protected ones (favourites, user-built, worn or changed by
+//    hand - matchProtection.js), which stay. The outfit on screen is always
+//    deleted, whatever it is.
 //  - Their subtype pair's personal adjustment drops by
 //    LEARNING_DELTAS.mismatched (constants/scoring.js). Nothing else in the
 //    outfit changes.
@@ -19,6 +20,7 @@
 // Outfits the user builds never check mismatches. Deleting an item takes
 // it off every other item's list (forgetMismatches).
 
+const { UNPROTECTED_MATCH_FILTER } = require("./matchProtection.js");
 const { Clothes, Match, Today } = require("../models/AllModels.js");
 const { isValidId } = require("./queryHelpers.js");
 const { deleteMatches } = require("./matchLifecycleService.js");
@@ -43,15 +45,16 @@ function parseMismatchPair(clothesIds, outfitClothes) {
   return pair;
 }
 
-// The outfits to delete: every one with both items, apart from favourites
-// and user-built ones - but always the outfit on screen.
+// The outfits to delete: every one with both items, apart from protected
+// ones (favourites, user-built, worn, changed by hand - matchProtection.js)
+// - but always the outfit on screen.
 function mismatchedOutfitsFilter(userId, matchId, pair) {
   return {
     userId,
     clothes: { $all: pair },
     $or: [
       { _id: matchId },
-      { favourite: { $ne: true }, userMade: { $ne: true } },
+      UNPROTECTED_MATCH_FILTER,
     ],
   };
 }

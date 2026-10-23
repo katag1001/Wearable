@@ -54,6 +54,7 @@ const {
 } = require("../services/clothingQueryService.js");
 const { deleteMatches } = require("../services/matchLifecycleService.js");
 const { markMismatch, forgetMismatches } = require("../services/mismatchService.js");
+const { isManualEdit } = require("../services/matchProtection.js");
 const {
   isTemperatureFeel,
   applyTemperatureFeedback,
@@ -753,6 +754,12 @@ exports.updateMatch = async (req, res) => {
     );
 
     const wasFavourite = !!match.favourite;
+
+    // Changing anything on the edit page protects the outfit from the app's
+    // automatic rematching (matchProtection.js).
+    if (!restoreSnapshot && isManualEdit(match, matchFields)) {
+      match.userEdited = true;
+    }
 
     // Update match fields
     Object.assign(match, matchFields);

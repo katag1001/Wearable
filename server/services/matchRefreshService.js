@@ -5,24 +5,23 @@
 // for new outfits (matchService.processMatches), and only when a field
 // matching reads has changed - renaming an item does nothing here.
 //
-// Each existing outfit containing the item is re-checked on its own, with
-// the same rules the search uses (shape, compatibility, layering, colour,
-// pattern, shared season, shared tag). The search itself can't decide this:
-// it's capped (pool sizes, MAX_NEW_MATCHES_PER_ITEM, time budget), so a valid
-// outfit missing from its results isn't proof the outfit is invalid.
+// A change to a field that decides the outfits (REMATCH_ITEM_FIELDS:
+// type, subtype, colours, seasons, tags, styles) rematches the item: every
+// one of its outfits that isn't protected is deleted, and the search that
+// follows builds them again with new scores (it skips the protected ones,
+// which still exist). Any other change (the tights answer) only re-checks
+// each outfit on its own, with the same rules the search uses (shape,
+// compatibility, layering, colour, pattern, shared season, shared tag), and
+// deletes the unprotected ones that fail.
 //
-//  - Still valid: kept, with its outfit fields refreshed.
-//  - No longer valid, unprotected: deleted, without lowering any pair scores
-//    (it's a system clean-up, not the user disliking the outfit), along with
-//    any Today entries pointing at it.
-//  - No longer valid, protected: kept and refreshed anyway. An outfit is
-//    protected if it's a favourite, user-made, or has ever been worn.
-//
-// Refreshing only rewrites the outfit fields fed by the item fields that
-// changed (ITEM_FIELD_TO_OUTFIT_FIELDS), so manual edits to an outfit's other
-// fields (seasons, temperature, tags - viewMatchesCard.jsx) survive. Score,
-// rejections and wear history are never touched, so a kept outfit doesn't
-// come back looking new.
+// Protected outfits (matchProtection.js: favourites, user-made, worn, or
+// changed by hand) are never deleted, even when they no longer pass. They
+// only get the outfit fields fed by the item fields that changed
+// (ITEM_FIELD_TO_OUTFIT_FIELDS) refreshed, so the user's own edits to their
+// other fields survive. Their score, rejections and wear history are never
+// touched. Deleting lowers no pair scores - it's a system clean-up, not the
+// user disliking the outfit - and takes any Today entries pointing at the
+// outfit with it.
 
 const { Match, Clothes, Today } = require("../models/AllModels.js");
 const { OUTFIT_SHAPES, ROLES } = require("../constants/outfitShapes.js");
@@ -31,6 +30,7 @@ const { hasSharedTag } = require("./helpers.js");
 const { buildMatchingContext } = require("./matchService.js");
 const { getUserMatchingPreferences } = require("./matchScoreService.js");
 const { deleteMatches } = require("./matchLifecycleService.js");
+const { isProtectedMatch } = require("./matchProtection.js");
 
 const ROLE_COUNT_FIELDS = ["topCount", "bottomCount", "onepieceCount", "outerCount", "hasOuter"];
 
@@ -49,6 +49,12 @@ const ITEM_FIELD_TO_OUTFIT_FIELDS = {
 };
 
 const MATCHING_ITEM_FIELDS = Object.keys(ITEM_FIELD_TO_OUTFIT_FIELDS);
+
+// Item fields whose change rematches the item from scratch.
+const REMATCH_ITEM_FIELDS = ["type", "subtype", "colors", "spring", "summer", "autumn", "winter", "tags", "styles"];
+
+const needsRematch = (changedItemFields) =>
+  changedItemFields.some((field) => REMATCH_ITEM_FIELDS.includes(field));
 
 // Arrays compare as sets, so reordering an item's colours isn't a change.
 function normalise(value) {
@@ -71,14 +77,6 @@ function outfitFieldsFor(changedItemFields) {
   return [...new Set(changedItemFields.flatMap((field) => ITEM_FIELD_TO_OUTFIT_FIELDS[field] || []))];
 }
 
-function isProtectedMatch(match) {
-  return (
-    !!match.favourite ||
-    !!match.userMade ||
-    match.lastWornDate != null ||
-    (match.timesWorn || 0) > 0
-  );
-}
 
 function fitsAnOutfitShape(items) {
   const counts = { top: 0, bottom: 0, onepiece: 0, outer: 0 };
@@ -107,8 +105,8 @@ function isValidAutoOutfit(items, context) {
 
 // Pure: works out what to do with each existing outfit. `itemsById` must
 // hold every clothing item in `matches`; an outfit with a missing item is
-// left alone.
-function planMatchRefresh(matches, itemsById, outfitFields, context) {
+// left alone. `rematch` deletes every unprotected outfit, valid or not.
+function planMatchRefresh(matches, itemsById, outfitFields, context, { rematch = false } = {}) {
   const updates = [];
   const deleteIds = [];
 
@@ -119,7 +117,7 @@ function planMatchRefresh(matches, itemsById, outfitFields, context) {
       return;
     }
 
-    if (!isProtectedMatch(match) && !isValidAutoOutfit(items, context)) {
+    if (!isProtectedMatch(match) && (rematch || !isValidAutoOutfit(items, context))) {
       deleteIds.push(match._id);
       return;
     }
@@ -156,7 +154,7 @@ async function refreshMatchesForItem(item, changedItemFields) {
   const { userId } = item;
 
   const matches = await Match.find({ userId, clothes: item._id })
-    .select("clothes favourite userMade lastWornDate timesWorn " + outfitFields.join(" "));
+    .select("clothes favourite userMade userEdited lastWornDate timesWorn " + outfitFields.join(" "));
 
   if (!matches.length) {
     return { updatedCount: 0, deletedCount: 0 };
@@ -172,7 +170,9 @@ async function refreshMatchesForItem(item, changedItemFields) {
   const itemsById = new Map(clothes.map((doc) => [String(doc._id), doc]));
   const context = buildMatchingContext({ gender, colour, temperature });
 
-  const { updates, deleteIds } = planMatchRefresh(matches, itemsById, outfitFields, context);
+  const { updates, deleteIds } = planMatchRefresh(matches, itemsById, outfitFields, context, {
+    rematch: needsRematch(changedItemFields),
+  });
 
   if (updates.length) {
     await Match.bulkWrite(
@@ -195,6 +195,8 @@ async function refreshMatchesForItem(item, changedItemFields) {
 
 module.exports = {
   ITEM_FIELD_TO_OUTFIT_FIELDS,
+  REMATCH_ITEM_FIELDS,
+  needsRematch,
   changedMatchingFields,
   outfitFieldsFor,
   isProtectedMatch,

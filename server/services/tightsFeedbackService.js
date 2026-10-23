@@ -28,6 +28,7 @@ async function hideFromToday(userId, matchIds) {
 
 async function noTightsForOutfit(userId, match) {
   match.noTights = true;
+  match.userEdited = true;
   await match.save();
 
   return [match._id];

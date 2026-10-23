@@ -162,13 +162,17 @@ so:
   has 2 colours and becomes **Patterned**. The same happens for
   `Lime Green` / `Olive Green` + `Green`.
 - A colour name inside another word is detected too. For example
-  `"Tank top"` → `Tan`, `"Embroidered blouse"` → `Red`, `"Golden …"` →
+  `"Tank top"` → `Tan`, `"Embroidered blouse"` → `Bright Red`, `"Golden …"` →
   `Gold`.
 - Some other words count as a colour (`COLOR_NAME_ALIASES`): `"beige"` →
   `Cream`, `"lavender"` → `Lilac`, `"maroon"` → `Burgundy`, and
-  `"cobalt"`, `"royal blue"`, `"electric blue"` → `Bright Blue`. Beige
-  and Lavender were merged into those colours and Maroon was renamed, so
-  they can't be picked any more.
+  `"cobalt"`, `"royal blue"`, `"electric blue"` → `Bright Blue`, and
+  `"red"` → `Bright Red`. Beige and Lavender were merged into those
+  colours and Maroon and Red were renamed, so they can't be picked any
+  more. An alias inside a colour already found doesn't count, so
+  `"Deep red dress"` is only `Deep Red`.
+- There is no plain "Red" either: `Bright Red` (what Red used to be) and
+  `Deep Red`.
 - There is no plain "Blue". Only `Bright Blue`, `Dark Blue`,
   `Light Blue`, `Navy`, `Teal` and `Turquoise` exist, so `"Blue jeans"`
   detects no colour. The
@@ -273,16 +277,27 @@ appears. Then it shows the matches, filtered to that item.
   updates `type`.
 - Style is still recalculated from the colours (1.4).
 - If no field matching reads changed (`type`, `subtype`, `colors`,
-  `styles`, `tags`, the four seasons) - e.g. only the name - nothing else
-  happens.
+  `styles`, `tags`, the four seasons, `wearWithTights`) - e.g. only the
+  name - nothing else happens.
 - Otherwise `refreshMatchesForItem` (`server/services/matchRefreshService.js`)
-  runs before the response. It re-checks each existing outfit containing
-  the item against the search's rules (shape, compatibility, layering,
-  colour, pattern, shared season, shared tag):
-  - **Protected** outfits (favourite, user-made, `lastWornDate` set or
-    `timesWorn > 0`) are never deleted.
-  - Unprotected outfits that no longer pass are deleted without lowering
-    pair scores, along with their Today entries.
+  runs before the response:
+  - **Protected** outfits are never deleted or re-scored
+    (`server/services/matchProtection.js`): favourites, user-made, worn
+    (`lastWornDate` set or `timesWorn > 0`), or changed by hand
+    (`userEdited` - set by a real change on the outfit's edit page, too
+    hot / too cold, or "not with tights" for that outfit). This holds for
+    all of the app's automatic rematching; the scripts in Part 11 are
+    separate.
+  - **Rematch** - a change to `type`, `subtype`, `colors`, `styles`,
+    `tags` or a season (`REMATCH_ITEM_FIELDS`): every unprotected outfit
+    with the item is deleted, valid or not, so the search below builds
+    them all again with new scores.
+  - **Re-check** - any other change (the tights answer): each outfit is
+    re-checked against the search's rules (shape, compatibility, layering,
+    colour, pattern, shared season, shared tag), and the unprotected ones
+    that no longer pass are deleted.
+  - Deleting lowers no pair scores and takes the outfit's Today entries
+    with it.
   - Every kept outfit has only the fields fed by the changed item fields
     rewritten (`ITEM_FIELD_TO_OUTFIT_FIELDS`: a season → that season,
     colours/styles/tags → the same field, subtype → temperature range,
@@ -290,7 +305,9 @@ appears. Then it shows the matches, filtered to that item.
     outfit's other fields survive. Score, rejections and wear history are
     never changed.
 - Then `processMatches` runs again for the item in the background and adds
-  outfits that don't exist yet.
+  outfits that don't exist yet (so a protected outfit isn't duplicated).
+  It has the usual limits (4.5), so it may not find exactly the outfits
+  that were deleted.
 
 ---
 
@@ -600,15 +617,19 @@ fit inside another one at the same level, but only if its tier is
 different - otherwise it adds nothing (same pass/fail, same score) and
 should be removed. The classic combinations (Brown + Tan + Olive Green,
 Light Blue + Grey + White, Burgundy + Cream/Tan + Grey,
-Burgundy + Black + Grey, Black + Red + White) are their own `classic`
+Burgundy + Black + Grey, Black + Bright Red + White) are their own `classic`
 palettes at every level.
 Navy + Cream + White, Brown + Cream + Olive Green and Black + White + Tan
 don't need their own: bigger `classic` palettes already contain them at
 every level.
 
+Dark Blue, Light Blue, Navy, White and Deep Red are a `classic` palette at
+every level (`navy-blues-deep-red`) - the only one with Deep Red so far.
+Black + Dark Blue + White has no palette of its own.
+
 Bright Blue has its own palettes: with White, Navy and Light Blue at every
-level; with Grey/Black, with Camel/Cream/Tan, and with Turquoise/Teal at mid
-and max; and bold contrasts (Orange, Yellow, Red, Fuchsia) at max only.
+level; with Grey and Black at every level; with Camel/Cream/Tan, and with
+Turquoise/Teal at mid and max; and bold contrasts (Orange, Yellow, Bright Red, Fuchsia) at max only.
 
 Copper (a warm metallic, not a bright colour) has its own palettes too:
 with Cream/Brown/Camel (classic), Olive Green/Cream/Tan and
@@ -621,7 +642,7 @@ tier or level, or no colours (`checkPalettes`). The tests also check every
 colour is in `colorOptions` and the levels only grow.
 
 Colours don't need to be close to each other. They just need to appear
-together in some palette. For example, Red + Orange isn't allowed at `min`,
+together in some palette. For example, Bright Red + Orange isn't allowed at `min`,
 but is allowed at `mid` and `max`. Black + Purple is only allowed at `max`.
 Black + Pink isn't allowed at any level.
 
@@ -716,7 +737,7 @@ one of the user's `favouritePalettes` - at any level, not only theirs.
 
 **Bright-colour adjustment** (`BRIGHT_COLOUR_ADJUSTMENTS`), by how many of
 the outfit's colours are in `brightColours` (Fuchsia, Lime Green, Orange,
-Yellow, Turquoise, Bright Blue - in `shared/colorPalettes.json`). Red isn't
+Yellow, Turquoise, Bright Blue - in `shared/colorPalettes.json`). Bright Red isn't
 one - it's treated like a classic colour. At mid, one
 bright colour is best:
 
@@ -746,7 +767,7 @@ and white included). Strength depends on the user's `pattern` level
 | 2+ | −10 | −6 | −3 |
 
 Example at min: Spotty skirt (Black, White) + a black top adds nothing new
-→ +6. Spotty skirt + a red top adds Red → −3.
+→ +6. Spotty skirt + a red top adds Bright Red → −3.
 
 How strict the colour check is, counting every colour combination the
 palettes allow (no favourites):
@@ -821,7 +842,7 @@ for each outfit shape that has a slot for newItem's role:
 score every item-set found                   (scoreItemSet; pair blend or
                                               colour score below 65 dropped)
   ▼
-best score first, until 1,000 are kept:
+best score first, until 2,000 are kept:
   skip if already saved
   describeOutfit   → temperature (from subtypes) + season + tag + descriptive fields
   validateOutfit   → final safety re-check (compatibility, layering, pattern, colour)
@@ -910,7 +931,7 @@ deadline.
    Every outfit left scores at least 65, so there's no separate check on the
    final score. Outfits the user builds have no minimum.
 2. Go through them **best score first** (equal scores keep the order they
-   were found in), until **`MAX_NEW_MATCHES_PER_ITEM` = 1,000** are kept.
+   were found in), until **`MAX_NEW_MATCHES_PER_ITEM` = 2,000** are kept.
    1. Skip it if the same set of clothes is already saved, or already
       kept in this run.
    2. **`describeOutfit(items, { isUserMade: false, temperaturePreference })`**
@@ -1191,7 +1212,8 @@ closes the screen and shows the next outfit.
   1. each item's `mismatchedWith` gets the other's id - automatic
      matching never pairs them again (3.3);
   2. every outfit containing both is deleted, with its Today entries -
-     **except favourites and user-built outfits**, which are kept. The
+     **except protected outfits** (favourites, user-built, worn or changed
+     by hand - 1.8), which are kept. The
      outfit on show is always deleted. A deleted worn-today outfit
      loses its undo snapshot, as a delete did;
   3. that subtype pair's personal adjustment drops by
@@ -1287,7 +1309,7 @@ The shirt + cardigan pair scores 45, below `MIN_PAIR_SCORE` (50), so the
 search drops every outfit with both of them the moment the cardigan is
 picked - however good the other pairs and colours are.
 
-Both outfits left are within the best 1,000, so both are saved, each with its score.
+Both outfits left are within the best 2,000, so both are saved, each with its score.
 "View New Matches" polls until they appear.
 
 **Learning.** On the Today page she marks the shirt and trousers in the
@@ -1384,7 +1406,7 @@ undone by accident:
   score used to choose outfits, so it can't push a poor combination in.
   It's stored on the match (`favouriteItemBonus`) so unfavouriting is
   exact even when the 90 cap cut it short.
-- **Only the best 1,000 new outfits per item are saved**, rather than
+- **Only the best 2,000 new outfits per item are saved**, rather than
   whichever the search happened to find first.
 - **Temperature belongs to matches, not items.** Item ranges were removed;
   a match's range comes from preset groups and points
@@ -1455,7 +1477,7 @@ Tests: `server/specs/` (`matchService`, `matrixService`,
 `outfitScoreService`, `outfitEvaluator`, `styleColorService`,
 `matchScoreService`, `matchScoreBaseline`, `pairingQuizService`, `matchRejectionService`, `favouriteItemService`,
 `mismatchRules`, `temperatureFeedbackService`,
-`matchRefreshService`,
+`matchRefreshService`, `matchProtection`,
 `presetTemperatureService`,
 `temperatureService`,
 `colorPalettes`). Run them with `cd server && node --test specs/*.spec.js`.

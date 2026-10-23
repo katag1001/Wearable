@@ -4,7 +4,8 @@
 // max_temp move TEMPERATURE_FEEDBACK_SHIFT degrees (constants/scoring.js):
 // up for too hot, so it's suggested on warmer days, down for too cold. The
 // outfit is then hidden from today's list (Today.hidden) - not rejected,
-// and its score doesn't change.
+// and its score doesn't change. It counts as changing the outfit by hand
+// (userEdited), so automatic rematching keeps it.
 //
 // Only that one match changes, not the presets: resetMatchTemperatures.js
 // and rescoreMatches.js recalculate the range and undo it.
@@ -35,7 +36,7 @@ async function applyTemperatureFeedback(userId, matchId, feel) {
     return null;
   }
 
-  Object.assign(match, shiftedRange(match, feel));
+  Object.assign(match, shiftedRange(match, feel), { userEdited: true });
   await match.save();
 
   await Today.updateMany({ userId, matchId: match._id }, { $set: { hidden: true } });

@@ -37,6 +37,7 @@ const COLOR_NAME_ALIASES = {
   cobalt: "Bright Blue",
   "royal blue": "Bright Blue",
   "electric blue": "Bright Blue",
+  red: "Bright Red",
 };
 
 export const detectFromName = (name) => {
@@ -51,8 +52,13 @@ export const detectFromName = (name) => {
     )
     .map(color => color.name);
 
+  // An alias inside a colour already found doesn't count: "deep red" is
+  // Deep Red, not Deep Red and Bright Red.
   const aliasedColors = Object.entries(COLOR_NAME_ALIASES)
     .filter(([alias]) => lower.includes(alias))
+    .filter(([alias]) =>
+      !namedColors.some(colorName => colorName.toLowerCase().includes(alias))
+    )
     .map(([, colorName]) => colorName);
 
   const detectedColors = [

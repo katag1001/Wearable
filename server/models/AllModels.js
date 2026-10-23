@@ -70,6 +70,11 @@ wornYear: { type: Number, default: null },
 
 userMade: { type: Boolean, default: false },
 favourite: { type: Boolean, default: false },
+// True once the user has changed anything on the outfit by hand (edit page,
+// too hot / too cold, not with tights). Like favourites, user-made and worn
+// outfits, it's never deleted or re-scored by the app's automatic
+// rematching (services/matchProtection.js).
+userEdited: { type: Boolean, default: false },
 
 // Scrolling past an outfit on the Today page rejects it, at most once a day
 // (server/services/matchRejectionService.js).
