@@ -1,6 +1,7 @@
 import React, {
   useEffect,
   useRef,
+  useState,
 } from "react";
 
 import { tagOptions } from "@core/constants/optionsBank.js";
@@ -11,6 +12,8 @@ import "./matchSelection.css";
 import TemperatureSlider from "../general/temperatureSlider";
 import MatchScoreBadge from "../general/matchScoreBadge";
 import FavouriteHeartButton from "../general/favouriteHeartButton";
+import BrokenHeartIcon from "../general/brokenHeartIcon.jsx";
+import OutfitMismatchModal from "./outfitMismatchModal.jsx";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 import { useMatchCard } from "@core/hooks/useMatchCard.js";
 import {
@@ -53,6 +56,9 @@ const ViewMatchesCard = ({
     word.charAt(0).toUpperCase() + word.slice(1);
 
   const cardRef = useRef(null);
+
+  // The broken heart's mismatch popup.
+  const [mismatching, setMismatching] = useState(false);
 
   /*
    * Scroll the expanded card into the center
@@ -116,6 +122,37 @@ const ViewMatchesCard = ({
       onToggle={card.toggleFavourite}
     />
   );
+
+  /*
+   * Expanded card's top corner: the broken heart (mismatch) and the
+   * favourite heart, side by side
+   */
+  const renderCornerIcons = () => (
+    <div className="match-card-corner-icons">
+      <button
+        type="button"
+        className="match-mismatch-button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setMismatching(true);
+        }}
+        aria-label="Mismatch"
+        title="Mismatch"
+      >
+        <BrokenHeartIcon />
+      </button>
+
+      {renderFavouriteButton()}
+    </div>
+  );
+
+  // Saved: the outfits with the pair are gone (this one too, unless it's
+  // a favourite or user-built), so close the card and reload the list.
+  const handleMismatched = () => {
+    setMismatching(false);
+    closeEditor();
+    refresh?.();
+  };
 
   /*
    * Render multi-select tick box (top left)
@@ -189,7 +226,7 @@ const ViewMatchesCard = ({
       {/* IMAGE SECTION */}
 
       <div className="match-image-wrapper">
-        {isExpanded && renderFavouriteButton()}
+        {isExpanded && renderCornerIcons()}
 
         <div className="match-image-grid">
           {(match.clothes || []).map((item) => (
@@ -414,6 +451,13 @@ const ViewMatchesCard = ({
             </div>
           </form>
         </div>
+      )}
+      {mismatching && (
+        <OutfitMismatchModal
+          match={match}
+          onClose={() => setMismatching(false)}
+          onMismatched={handleMismatched}
+        />
       )}
     </div>
   );

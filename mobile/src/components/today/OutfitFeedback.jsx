@@ -10,7 +10,7 @@
 
 import { useEffect, useRef } from "react";
 import Feather from "@expo/vector-icons/Feather";
-import { BackHandler, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { BackHandler, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useOutfitFeedback } from "@core/hooks/useOutfitFeedback.js";
@@ -21,9 +21,9 @@ import {
   TOO_HOT,
 } from "@core/today/outfitFeedback.js";
 import { colors, fontSizes, fontWeights, spacing } from "@core/theme/tokens.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import { Button, Grid, ImageTile } from "../ui";
+import { MismatchPicker } from "../outfits/MismatchPicker";
+import { Button } from "../ui";
 
 export const OutfitFeedback = ({ today, onClose }) => {
   const insets = useSafeAreaInsets();
@@ -80,36 +80,15 @@ export const OutfitFeedback = ({ today, onClose }) => {
       </View>
 
       {picking ? (
-        <>
-          <Text style={styles.hint}>Choose the 2 items that don't go together.</Text>
-
-          <ScrollView contentContainerStyle={styles.items}>
-            <Grid columns={2}>
-              {feedback.clothes.map((item) => (
-                <ImageTile
-                  key={item._id}
-                  source={item.imageUrl ? { uri: getImageUrl(item.imageUrl, 400) } : null}
-                  placeholder={item.name}
-                  label={item.name}
-                  selected={feedback.isSelected(item._id)}
-                  onPress={() => feedback.toggleItem(item._id)}
-                  aspectRatio={3 / 4}
-                  resizeMode="contain"
-                />
-              ))}
-            </Grid>
-          </ScrollView>
-
-          <View style={styles.actions}>
-            <Button
-              label="Confirm mismatch"
-              onPress={feedback.confirmMismatch}
-              disabled={!feedback.canConfirmMismatch}
-              loading={feedback.saving === "mismatch"}
-            />
-            <Button label="Back" variant="text" onPress={back} />
-          </View>
-        </>
+        <MismatchPicker
+          clothes={feedback.clothes}
+          isSelected={feedback.isSelected}
+          onToggle={feedback.toggleItem}
+          canConfirm={feedback.canConfirmMismatch}
+          saving={feedback.saving === "mismatch"}
+          onConfirm={feedback.confirmMismatch}
+          onBack={back}
+        />
       ) : choosingTights ? (
         <View style={styles.options}>
           <Button
@@ -174,19 +153,9 @@ const styles = StyleSheet.create({
     fontWeight: fontWeights.semibold,
     color: colors.main,
   },
-  hint: {
-    fontSize: fontSizes.body,
-    color: colors.secondary,
-  },
-  items: {
-    paddingTop: spacing.sm,
-  },
   options: {
     flex: 1,
     justifyContent: "center",
     gap: spacing.md,
-  },
-  actions: {
-    gap: spacing.sm,
   },
 });

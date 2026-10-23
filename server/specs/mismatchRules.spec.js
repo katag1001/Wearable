@@ -3,7 +3,6 @@ const assert = require("node:assert/strict");
 
 const { areMismatched, hasMismatchedPair } = require("../services/mismatchRules.js");
 const { parseMismatchPair, mismatchedOutfitsFilter } = require("../services/mismatchService.js");
-const { UNPROTECTED_MATCH_FILTER } = require("../services/matchProtection.js");
 
 const ID_A = "64b000000000000000000001";
 const ID_B = "64b000000000000000000002";
@@ -42,15 +41,13 @@ test("parseMismatchPair rejects anything but two different items from the outfit
   assert.equal(parseMismatchPair("not a list", outfit), null);
 });
 
-test("mismatchedOutfitsFilter keeps protected outfits, apart from the one on screen", () => {
-  const filter = mismatchedOutfitsFilter("user1", "match1", [ID_A, ID_B]);
+test("mismatchedOutfitsFilter keeps only favourites and user-built outfits", () => {
+  const filter = mismatchedOutfitsFilter("user1", [ID_A, ID_B]);
 
   assert.deepEqual(filter, {
     userId: "user1",
     clothes: { $all: [ID_A, ID_B] },
-    $or: [
-      { _id: "match1" },
-      UNPROTECTED_MATCH_FILTER,
-    ],
+    favourite: { $ne: true },
+    userMade: { $ne: true },
   });
 });

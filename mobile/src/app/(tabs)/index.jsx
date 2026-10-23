@@ -19,7 +19,7 @@ import {
 } from "@core/weather/weatherText.js";
 
 import { Loading, Message, Screen } from "../../components/ui";
-import { takeEditedOutfits } from "../../components/outfits/outfitHandoff";
+import { takeEditedOutfits, takeRemovedOutfits } from "../../components/outfits/outfitHandoff";
 import { Confetti } from "../../components/today/Confetti";
 import { OutfitFeedback } from "../../components/today/OutfitFeedback";
 import { OutfitPicker } from "../../components/today/OutfitPicker";
@@ -49,6 +49,10 @@ export default function TodayScreen() {
       Object.entries(edited).forEach(([matchId, fields]) =>
         today.updateMatch(matchId, fields)
       );
+
+      const removed = takeRemovedOutfits();
+
+      if (removed.length) today.dropOutfits(removed);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
   );

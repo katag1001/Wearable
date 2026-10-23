@@ -2,10 +2,11 @@
 //
 // Outfits the user has interacted with: favourited, built themselves, worn,
 // or changed by hand (userEdited). The app's automatic clean-ups and
-// rematching (matchRefreshService, mismatchService) never delete or
-// re-score these - they may only refresh the labels copied from the items
-// (colours, seasons, ...). The one-off scripts in server/scripts are
-// separate and say for themselves what they keep.
+// rematching (matchRefreshService) never delete or re-score these - they
+// may only refresh the labels copied from the items (colours, seasons,
+// ...). A mismatch is the user's own call and keeps only favourites and
+// user-built outfits (mismatchService.js). The one-off scripts in
+// server/scripts are separate and say for themselves what they keep.
 
 const { MATCH_FIELDS } = require("../constants/editableFields.js");
 
@@ -23,15 +24,6 @@ function isProtectedMatch(match) {
   );
 }
 
-// The Mongo version of !isProtectedMatch.
-const UNPROTECTED_MATCH_FILTER = {
-  favourite: { $ne: true },
-  userMade: { $ne: true },
-  userEdited: { $ne: true },
-  lastWornDate: null,
-  timesWorn: { $not: { $gt: 0 } },
-};
-
 // Arrays compare as sets, so re-saving the same tags in another order
 // isn't an edit.
 const comparable = (value) =>
@@ -45,4 +37,4 @@ function isManualEdit(match, fields) {
   );
 }
 
-module.exports = { USER_EDIT_FIELDS, isProtectedMatch, UNPROTECTED_MATCH_FILTER, isManualEdit };
+module.exports = { USER_EDIT_FIELDS, isProtectedMatch, isManualEdit };

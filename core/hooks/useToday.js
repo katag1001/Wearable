@@ -344,8 +344,9 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   // Takes outfits off today's list, keeping the place (outfitFeedback.js).
   // `deleted`: they're gone for good, so a deleted worn outfit has nothing
   // left to undo.
-  const removeFromToday = (matchIds, { deleted }) => {
-    if (deleted && wornToday && matchIds.map(String).includes(String(wornToday.matchId))) {
+  // `deletedIds`: those of `matchIds` that were deleted, not just hidden.
+  const removeFromToday = (matchIds, deletedIds = []) => {
+    if (wornToday && deletedIds.map(String).includes(String(wornToday.matchId))) {
       setWornToday(null);
     }
 
@@ -365,7 +366,7 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   const giveTemperatureFeedback = async (matchId, feel) => {
     try {
       await sendTemperatureFeedback(matchId, feel);
-      removeFromToday([matchId], { deleted: false });
+      removeFromToday([matchId]);
       return true;
     } catch (err) {
       feedbackError(err);
@@ -380,7 +381,7 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   const giveTightsFeedback = async (matchId, scope) => {
     try {
       const { hiddenMatchIds = [] } = await sendTightsFeedback(matchId, scope);
-      removeFromToday([matchId, ...hiddenMatchIds], { deleted: false });
+      removeFromToday([matchId, ...hiddenMatchIds]);
       return true;
     } catch (err) {
       feedbackError(err);
@@ -389,12 +390,13 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   };
 
   // Two of the outfit's clothing items never go together: every outfit
-  // with both is deleted (the server says which). Resolves true once
-  // saved.
+  // with both is deleted apart from favourites and user-built ones (the
+  // server says which). The outfit on screen leaves the list either way -
+  // a kept one is hidden for today. Resolves true once saved.
   const markMismatch = async (matchId, clothesIds) => {
     try {
       const { deletedMatchIds = [] } = await sendMismatch(matchId, clothesIds);
-      removeFromToday([matchId, ...deletedMatchIds], { deleted: true });
+      removeFromToday([matchId, ...deletedMatchIds], deletedMatchIds);
       return true;
     } catch (err) {
       feedbackError(err);
@@ -428,6 +430,8 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     giveTemperatureFeedback,
     giveTightsFeedback,
     markMismatch,
+    // Outfits deleted elsewhere (the mobile outfit screen's mismatch).
+    dropOutfits: (matchIds) => removeFromToday(matchIds, matchIds),
 
     notice,
     clearNotice: () => setNotice(null),

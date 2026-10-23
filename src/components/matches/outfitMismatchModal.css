@@ -1,0 +1,12 @@
+/* The outfit card's mismatch popup (outfitMismatchModal.jsx) */
+
+/* Above the expanded card, which is fixed full-screen on phones. */
+.outfit-mismatch-overlay {
+  z-index: 1300;
+}
+
+.outfit-mismatch-error {
+  margin: 0 0 1rem;
+  color: var(--error-color);
+  font-size: .9rem;
+}

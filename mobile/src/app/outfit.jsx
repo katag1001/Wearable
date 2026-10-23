@@ -1,5 +1,6 @@
-// One outfit, full screen: its photos (with a heart to favourite it), then
-// its seasons, temperature range and tags to edit. Opened from the Outfits
+// One outfit, full screen: its photos (with a heart to favourite it and a
+// broken heart to mark two of its items as a mismatch), then its seasons,
+// temperature range and tags to edit. Opened from the Outfits
 // list, or by tapping the outfit on Today (?from=today).
 //
 // The outfit is handed over by the opener (outfitHandoff); every change is
@@ -9,17 +10,23 @@
 // shows here. Logic: useMatchCard (shared with the web's expanded card).
 
 import { useEffect, useState } from "react";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Alert, StyleSheet, View } from "react-native";
+import { Alert, Pressable, StyleSheet, View } from "react-native";
 
 import { deleteMatches } from "@core/api/matches.js";
 import { getErrorMessage } from "@core/api/errors.js";
 import { useMatchCard } from "@core/hooks/useMatchCard.js";
 import { buildMatchUpdate } from "@core/matches/matchFields.js";
-import { spacing } from "@core/theme/tokens.js";
+import { colors, radius, spacing } from "@core/theme/tokens.js";
 
 import { OutfitDetails } from "../components/outfits/OutfitDetails";
-import { markOutfitEdited, takeOutfit } from "../components/outfits/outfitHandoff";
+import { OutfitMismatch } from "../components/outfits/OutfitMismatch";
+import {
+  markOutfitEdited,
+  markOutfitsRemoved,
+  takeOutfit,
+} from "../components/outfits/outfitHandoff";
 import { markOutfitsChanged } from "../components/outfits/outfitsChanged";
 import { OutfitImages } from "../components/today/OutfitImages";
 import { Button, FavouriteHeart, Message, Screen } from "../components/ui";
@@ -32,6 +39,8 @@ export default function OutfitScreen() {
   const [match, setMatch] = useState(handedOver?.match ?? null);
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  // The broken heart's item picker, in place of the screen while open.
+  const [mismatching, setMismatching] = useState(false);
 
   // This screen's copy; the changes are handed back to Today too.
   const changeMatch = (fields) => {
@@ -91,11 +100,32 @@ export default function OutfitScreen() {
     }
   };
 
+  // Saved: the outfits with the pair are gone (this one too, unless it's a
+  // favourite or user-built) - Today and the Outfits list are told.
+  const handleMismatched = (deletedMatchIds) => {
+    markOutfitsRemoved(deletedMatchIds);
+    markOutfitsChanged();
+    router.back();
+  };
+
   const confirmDelete = () =>
     Alert.alert("Delete outfit", "Are you sure you want to delete this outfit?", [
       { text: "Cancel", style: "cancel" },
       { text: "Delete", style: "destructive", onPress: deleteOutfit },
     ]);
+
+  if (mismatching) {
+    return (
+      <>
+        <Stack.Screen options={{ title: "Mismatch" }} />
+        <OutfitMismatch
+          match={match}
+          onClose={() => setMismatching(false)}
+          onMismatched={handleMismatched}
+        />
+      </>
+    );
+  }
 
   return (
     <>
@@ -108,12 +138,26 @@ export default function OutfitScreen() {
       <Screen edges={["bottom"]}>
         <View>
           <OutfitImages match={match} footwear={handedOver.footwear} />
-          <FavouriteHeart
-            favourite={match.favourite}
-            onPress={card.toggleFavourite}
-            size={24}
-            style={styles.heart}
-          />
+          <View style={styles.cornerIcons}>
+            <Pressable
+              onPress={() => setMismatching(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Mismatch"
+              hitSlop={10}
+              style={styles.brokenHeart}
+            >
+              <MaterialCommunityIcons
+                name="heart-broken-outline"
+                size={24}
+                color={colors.muted}
+              />
+            </Pressable>
+            <FavouriteHeart
+              favourite={match.favourite}
+              onPress={card.toggleFavourite}
+              size={24}
+            />
+          </View>
         </View>
 
         <OutfitDetails card={card} />
@@ -154,10 +198,18 @@ export default function OutfitScreen() {
 }
 
 const styles = StyleSheet.create({
-  heart: {
+  cornerIcons: {
     position: "absolute",
     top: 0,
     right: 0,
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  // Matches FavouriteHeart's background.
+  brokenHeart: {
+    padding: spacing.xs,
+    borderRadius: radius.pill,
+    backgroundColor: colors.pageBackground,
   },
   actions: {
     flexDirection: "row",

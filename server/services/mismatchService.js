@@ -1,7 +1,8 @@
 // server/services/mismatchService.js
 //
-// "Mismatch" on the Today page: the user picks two clothing items from the
-// outfit on screen that should never be worn together.
+// "Mismatch" - the broken heart on the Today page or on an outfit's
+// expanded card: the user picks two clothing items from the outfit that
+// should never be worn together.
 //
 //  - Each item's `mismatchedWith` gets the other's id, and automatic
 //    matching never pairs them again (areMismatched, used by
@@ -10,9 +11,11 @@
 //    that changes what can be matched - the matrix compatibility check
 //    itself still never reads it.
 //  - Every outfit with both items is deleted, with its Today entries -
-//    except protected ones (favourites, user-built, worn or changed by
-//    hand - matchProtection.js), which stay. The outfit on screen is always
-//    deleted, whatever it is.
+//    except favourites and outfits the user built, which stay (the outfit
+//    on screen too). Worn and hand-edited outfits are deleted: unlike the
+//    automatic rematching (matchProtection.js), this is the user saying
+//    the items don't go together. If the outfit on screen is kept, it's
+//    hidden from today's list instead.
 //  - Their subtype pair's personal adjustment drops by
 //    LEARNING_DELTAS.mismatched (constants/scoring.js). Nothing else in the
 //    outfit changes.
@@ -20,7 +23,6 @@
 // Outfits the user builds never check mismatches. Deleting an item takes
 // it off every other item's list (forgetMismatches).
 
-const { UNPROTECTED_MATCH_FILTER } = require("./matchProtection.js");
 const { Clothes, Match, Today } = require("../models/AllModels.js");
 const { isValidId } = require("./queryHelpers.js");
 const { deleteMatches } = require("./matchLifecycleService.js");
@@ -45,21 +47,19 @@ function parseMismatchPair(clothesIds, outfitClothes) {
   return pair;
 }
 
-// The outfits to delete: every one with both items, apart from protected
-// ones (favourites, user-built, worn, changed by hand - matchProtection.js)
-// - but always the outfit on screen.
-function mismatchedOutfitsFilter(userId, matchId, pair) {
+// The outfits to delete: every one with both items, apart from favourites
+// and user-built ones.
+function mismatchedOutfitsFilter(userId, pair) {
   return {
     userId,
     clothes: { $all: pair },
-    $or: [
-      { _id: matchId },
-      UNPROTECTED_MATCH_FILTER,
-    ],
+    favourite: { $ne: true },
+    userMade: { $ne: true },
   };
 }
 
-// Returns { deletedMatchIds }, or { notFound: true } / { invalid: true }.
+// Returns { deletedMatchIds } (the outfit on screen among them unless it's
+// a favourite or user-built), or { notFound: true } / { invalid: true }.
 async function markMismatch(userId, matchId, clothesIds) {
   const match = await Match.findOne({ _id: matchId, userId }).select("clothes");
 
@@ -96,12 +96,16 @@ async function markMismatch(userId, matchId, clothesIds) {
     },
   ]);
 
-  const outfits = await Match.find(mismatchedOutfitsFilter(userId, match._id, pair)).select("_id");
+  const outfits = await Match.find(mismatchedOutfitsFilter(userId, pair)).select("_id");
   const deletedMatchIds = outfits.map((outfit) => outfit._id);
 
   if (deletedMatchIds.length) {
     await deleteMatches({ _id: { $in: deletedMatchIds }, userId });
     await Today.deleteMany({ userId, matchId: { $in: deletedMatchIds } });
+  }
+
+  if (!deletedMatchIds.some((id) => id.equals(match._id))) {
+    await Today.updateMany({ userId, matchId: match._id }, { $set: { hidden: true } });
   }
 
   await recordMismatch(userId, itemA, itemB, await getBaselineMatrixForUser(userId));

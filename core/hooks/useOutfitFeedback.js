@@ -2,12 +2,12 @@ import { useState } from "react";
 
 import { tightsItemOf } from "../matches/tights.js";
 import {
-  MISMATCH_ITEM_COUNT,
   NO_TIGHTS_ITEM,
   NO_TIGHTS_OUTFIT,
   TOO_COLD,
   TOO_HOT,
 } from "../today/outfitFeedback.js";
+import { useMismatchPicker } from "./useMismatchPicker.js";
 
 /*
  * The broken heart's screen on the Today page, for the outfit on screen
@@ -43,10 +43,7 @@ export const useOutfitFeedback = ({ today, onClose }) => {
   // NO_TIGHTS_OUTFIT or NO_TIGHTS_ITEM), or null.
   const [saving, setSaving] = useState(null);
 
-  // A two-item outfit starts with both picked.
-  const [selectedIds, setSelectedIds] = useState(() =>
-    clothes.length === MISMATCH_ITEM_COUNT ? clothes.map((item) => item._id) : []
-  );
+  const picker = useMismatchPicker(clothes);
 
   const run = async (action, save) => {
     if (saving || !matchId) return;
@@ -57,16 +54,6 @@ export const useOutfitFeedback = ({ today, onClose }) => {
 
     if (saved) onClose();
   };
-
-  // A third pick replaces the oldest.
-  const toggleItem = (itemId) =>
-    setSelectedIds((prev) => {
-      if (prev.includes(itemId)) {
-        return prev.filter((id) => id !== itemId);
-      }
-
-      return [...prev, itemId].slice(-MISMATCH_ITEM_COUNT);
-    });
 
   return {
     outfit,
@@ -88,14 +75,14 @@ export const useOutfitFeedback = ({ today, onClose }) => {
     startMismatch: () => setStep("mismatch"),
     backToChoices: () => setStep("choose"),
 
-    selectedIds,
-    isSelected: (itemId) => selectedIds.includes(itemId),
-    toggleItem,
-    canConfirmMismatch: selectedIds.length === MISMATCH_ITEM_COUNT,
+    selectedIds: picker.selectedIds,
+    isSelected: picker.isSelected,
+    toggleItem: picker.toggleItem,
+    canConfirmMismatch: picker.isComplete,
     confirmMismatch: () => {
-      if (selectedIds.length !== MISMATCH_ITEM_COUNT) return;
+      if (!picker.isComplete) return;
 
-      run("mismatch", () => today.markMismatch(matchId, selectedIds));
+      run("mismatch", () => today.markMismatch(matchId, picker.selectedIds));
     },
   };
 };

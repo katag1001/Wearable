@@ -7,7 +7,7 @@ import {
   TOO_COLD,
   TOO_HOT,
 } from "@core/today/outfitFeedback.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
+import MismatchPicker from "../general/mismatchPicker.jsx";
 
 import "../general/popup.css";
 import "./outfitFeedback.css";
@@ -65,58 +65,15 @@ const OutfitFeedbackModal = ({ today, onClose }) => {
         </div>
 
         {picking ? (
-          <>
-            <div className="popup-body">
-              <p>Choose the 2 items that don't go together.</p>
-            </div>
-
-            <div className="outfit-feedback-items">
-              {feedback.clothes.map((item) => {
-                const selected = feedback.isSelected(item._id);
-
-                return (
-                  <button
-                    key={item._id}
-                    type="button"
-                    className={`outfit-feedback-item ${selected ? "selected" : ""}`}
-                    onClick={() => feedback.toggleItem(item._id)}
-                    aria-pressed={selected}
-                    aria-label={item.name}
-                  >
-                    {item.imageUrl ? (
-                      <img src={getImageUrl(item.imageUrl, 400)} alt="" />
-                    ) : (
-                      <span>{item.name}</span>
-                    )}
-
-                    {selected && (
-                      <span className="outfit-feedback-check" aria-hidden="true">
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="popup-actions">
-              <button
-                className="popup-button popup-button-cancel"
-                onClick={feedback.backToChoices}
-                disabled={saving}
-              >
-                Back
-              </button>
-
-              <button
-                className="popup-button popup-button-delete"
-                onClick={feedback.confirmMismatch}
-                disabled={!feedback.canConfirmMismatch || saving}
-              >
-                {saving ? "Saving..." : "Confirm"}
-              </button>
-            </div>
-          </>
+          <MismatchPicker
+            clothes={feedback.clothes}
+            isSelected={feedback.isSelected}
+            onToggle={feedback.toggleItem}
+            canConfirm={feedback.canConfirmMismatch}
+            saving={saving}
+            onBack={feedback.backToChoices}
+            onConfirm={feedback.confirmMismatch}
+          />
         ) : choosingTights ? (
           <>
             <div className="outfit-feedback-options">

@@ -1189,6 +1189,8 @@ Files: `server/services/temperatureFeedbackService.js`,
 `server/services/mismatchService.js`, `server/services/mismatchRules.js`,
 `server/services/tightsFeedbackService.js`,
 `core/hooks/useOutfitFeedback.js` (the screen's logic, web and mobile),
+`core/hooks/useMismatchPicker.js` (picking the two items),
+`core/hooks/useOutfitMismatch.js` (the outfit card's broken heart),
 `core/today/outfitFeedback.js`. Numbers in `server/constants/scoring.js`.
 
 There is no delete button on the Today page. The broken heart (web: next
@@ -1212,15 +1214,27 @@ closes the screen and shows the next outfit.
   1. each item's `mismatchedWith` gets the other's id - automatic
      matching never pairs them again (3.3);
   2. every outfit containing both is deleted, with its Today entries -
-     **except protected outfits** (favourites, user-built, worn or changed
-     by hand - 1.8), which are kept. The
-     outfit on show is always deleted. A deleted worn-today outfit
-     loses its undo snapshot, as a delete did;
+     **except favourites and user-built outfits**, which are kept - the
+     outfit on show too, which is then just hidden from today's list.
+     Worn and hand-edited outfits are deleted: unlike automatic
+     rematching (1.8), a mismatch is the user's own call. A deleted
+     worn-today outfit loses its undo snapshot, as a delete did;
   3. that subtype pair's personal adjustment drops by
      **`LEARNING_DELTAS.mismatched` = −5**. The outfit's other pairs
      don't change.
   Deleting either item takes it off the other's list (`forgetMismatches`).
   There's no way to undo a mismatch yet.
+
+  **From an outfit card.** The same mismatch is on every outfit's
+  expanded card (web: `viewMatchesCard.jsx` → `outfitMismatchModal.jsx`;
+  mobile: the outfit screen, `mobile/src/app/outfit.jsx` →
+  `OutfitMismatch.jsx`, whether opened from Outfits or Today). A broken
+  heart sits next to the favourite heart in the top corner and goes
+  straight to picking the two items; Back closes it. Once saved the card
+  closes (mobile: the screen goes back) and the outfit list reloads; on
+  mobile, Today drops the deleted outfits too (`markOutfitsRemoved` in
+  `outfitHandoff.js`). The pickers are shared: `mismatchPicker.jsx`
+  (web) and `MismatchPicker.jsx` (mobile).
 - **Can't wear this with tights** (`PUT /match/:id/tights-feedback`,
   `{ scope: "outfit" | "item" }`), only for an outfit on today's list
   thanks to its tights range. It asks:
