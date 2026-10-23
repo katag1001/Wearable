@@ -70,7 +70,8 @@ values at the time of writing; the file is the source of truth.
 ### 1.3 Points
 
 - `TOP_LAYER_POINTS` - how far a top moves the range down when it's an
-  extra layer: short 1, long 4, warm 11.
+  extra layer: short 1, long 4, warm 4. (Warm was 11 until 2026-10-23,
+  which put a t-shirt + jumper + mini skirt + two outers at −1–6°.)
 - `OUTER_WARMTH_POINTS` - how far each outer moves the range down (e.g.
   Blazer 2, Trench coat 4, Winter Coat 9, Puffer coat 11).
 
@@ -80,7 +81,11 @@ values at the time of writing; the file is the source of truth.
   this: colder than that needs a coat.
 - `OUTER_MIN_TEMPS` - with **exactly one** outer, the minimum is never
   below that outer's value (e.g. Denim jacket 10, Puffer coat −10). Outfits
-  with two outers have no minimum.
+  with two outers have no outer minimum.
+- `SKIRT_DRESS_MIN_TEMP` (7) - an outfit with a skirt or dress
+  (`SKIRT_DRESS_SUBTYPES`: every skirt and dress subtype) is never below
+  this, with any number of outers. It's the bare-legs range, so with
+  tights (Part 5) it goes down to 4.
 - `OUTER_CEILING_BASE` (25) - an outfit with outers is never suitable above
   this minus the outers' total points (23° with a blazer, 14° with a puffer
   coat).
@@ -145,7 +150,10 @@ at least `OUTER_MIN_SPAN` wide (step 4's floor still applies after).
 
 - No outer: the minimum is raised to `NO_OUTER_MIN_TEMP` if it's below it.
 - Exactly one outer: raised to that outer's `OUTER_MIN_TEMPS` value.
-- Two outers: no minimum.
+- Two outers: no outer minimum.
+- A skirt or dress: also raised to `SKIRT_DRESS_MIN_TEMP` (7). With one
+  outer, the higher of the two floors wins - a blazer's 12 over the
+  skirt's 7, the skirt's 7 over a duffle coat's 0.
 
 If that lifts the minimum above the maximum, the maximum is raised to
 match - the outfit becomes a single temperature rather than being rejected.
@@ -185,11 +193,11 @@ preference, with the values above:
 | Step | Range |
 |---|---|
 | 1. Base: short top (the t-shirt) + long bottom | 17–28 |
-| 2. Warm jumper over it, −11 | 6–17 |
-| 3. Denim jacket, −2 (maximum capped at 25 − 2 = 23) | 4–15 |
-| 4. One outer: minimum raised to the Denim jacket's 10 | 10–15 |
-| 5. Caps: warm jumper layer 18, long bottom 25 - 15 is already under both | 10–15 |
-| 6. "cold" +1 | **11–16** |
+| 2. Warm jumper over it, −4 | 13–24 |
+| 3. Denim jacket, −2 (maximum capped at 25 − 2 = 23), minimum kept 7° below the maximum | 11–22 |
+| 4. One outer: the Denim jacket's floor is 10 - 11 is already above it | 11–22 |
+| 5. Caps: warm jumper layer 18 | 11–18 |
+| 6. "cold" +1 | **12–19** |
 
 ---
 
@@ -321,6 +329,7 @@ alone.
 | Extra top layers | `TOP_LAYER_POINTS` |
 | Outer warmth | `OUTER_WARMTH_POINTS` |
 | Minimum with no outer / one outer | `NO_OUTER_MIN_TEMP` / `OUTER_MIN_TEMPS` |
+| Minimum for a skirt or dress | `SKIRT_DRESS_MIN_TEMP`, `SKIRT_DRESS_SUBTYPES` |
 | Warmest day for an outfit with outers | `OUTER_CEILING_BASE` |
 | Narrowest range for an outfit with outers | `OUTER_MIN_SPAN` |
 | Narrowest range for any outfit | `MIN_SPAN` |

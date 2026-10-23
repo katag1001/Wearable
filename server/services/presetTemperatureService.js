@@ -19,7 +19,9 @@
 //    least OUTER_MIN_SPAN wide.
 // 4. Floors: the minimum is never below NO_OUTER_MIN_TEMP with no outer,
 //    or the outer's OUTER_MIN_TEMPS value with exactly one outer. (Two
-//    outers have no floor.) If that lifts the minimum above the maximum,
+//    outers have no outer floor.) An outfit with a skirt or dress
+//    (SKIRT_DRESS_SUBTYPES) is also never below SKIRT_DRESS_MIN_TEMP, with
+//    any number of outers. If a floor lifts the minimum above the maximum,
 //    the maximum is raised to match.
 // 5. Caps: an outfit with extra top layers never has a maximum above
 //    LAYERED_MAX_TEMPS for its warmest layer (jumper/cardigan or not, see
@@ -42,6 +44,8 @@ const {
   OUTER_WARMTH_POINTS,
   NO_OUTER_MIN_TEMP,
   OUTER_MIN_TEMPS,
+  SKIRT_DRESS_MIN_TEMP,
+  SKIRT_DRESS_SUBTYPES,
   TOP_LAYER_POINTS,
   LAYER_KINDS,
   LAYERED_MAX_TEMPS,
@@ -186,11 +190,16 @@ function computePresetTemperatureRange(items, temperaturePreference = null) {
 
   range = addOuters(range, outerPoints);
 
-  const floor = outers.length === 0
+  const outerFloor = outers.length === 0
     ? NO_OUTER_MIN_TEMP
     : outers.length === 1
       ? OUTER_MIN_TEMPS[outers[0].subtype]
       : undefined;
+
+  const hasSkirtOrDress = items.some((item) => SKIRT_DRESS_SUBTYPES.includes(item.subtype));
+  const floors = [outerFloor, hasSkirtOrDress ? SKIRT_DRESS_MIN_TEMP : undefined]
+    .filter((value) => value !== undefined);
+  const floor = floors.length ? Math.max(...floors) : undefined;
 
   if (floor !== undefined && range[0] < floor) {
     range = [floor, Math.max(range[1], floor)];

@@ -10,6 +10,8 @@ const {
   OUTER_WARMTH_POINTS,
   NO_OUTER_MIN_TEMP,
   OUTER_MIN_TEMPS,
+  SKIRT_DRESS_MIN_TEMP,
+  SKIRT_DRESS_SUBTYPES,
   TOP_LAYER_POINTS,
   LAYERED_MAX_TEMPS,
   OUTER_CEILING_BASE,
@@ -125,6 +127,34 @@ test("two outers add their points together and have no floor", () => {
   const expected = capLong(withOuters([min, max], points));
 
   assert.deepEqual(range([top("Short t-shirt"), bottom("Jeans"), outer("Jacket"), outer("Puffer coat")]), expected);
+});
+
+test("a skirt or dress outfit is never below the skirt/dress floor, even with two outers", () => {
+  const skirt = range([top("Long t-shirt"), top("Warm jumper"), bottom("Mini skirt"), outer("Blazer"), outer("Trench coat")]);
+  const dress = range([onepiece("Winter dress"), top("Warm jumper"), outer("Jacket"), outer("Puffer coat")]);
+  const jeans = range([top("Long t-shirt"), top("Warm jumper"), bottom("Jeans"), outer("Jacket"), outer("Puffer coat")]);
+
+  assert.equal(skirt[0], SKIRT_DRESS_MIN_TEMP);
+  assert.equal(dress[0], SKIRT_DRESS_MIN_TEMP);
+  assert.ok(jeans[0] < SKIRT_DRESS_MIN_TEMP);
+});
+
+test("the higher of the outer floor and the skirt/dress floor wins", () => {
+  const blazerFloor = OUTER_MIN_TEMPS["Blazer"];
+  const duffleFloor = OUTER_MIN_TEMPS["Duffle coat"];
+
+  assert.ok(blazerFloor > SKIRT_DRESS_MIN_TEMP && duffleFloor < SKIRT_DRESS_MIN_TEMP);
+  assert.ok(range([top("Long t-shirt"), bottom("Mini skirt"), outer("Blazer")])[0] >= blazerFloor);
+  assert.equal(range([top("Warm jumper"), bottom("Midi-skirt"), outer("Duffle coat")])[0], SKIRT_DRESS_MIN_TEMP);
+});
+
+test("every skirt/dress subtype is a real bottom or onepiece", () => {
+  const bottoms = Object.values(BOTTOM_GROUPS).flat();
+  const onepieces = Object.keys(ONEPIECE_RANGES);
+
+  SKIRT_DRESS_SUBTYPES.forEach((subtype) => {
+    assert.ok(bottoms.includes(subtype) || onepieces.includes(subtype), subtype);
+  });
 });
 
 test("the long-bottom cap is applied before the preference shift", () => {

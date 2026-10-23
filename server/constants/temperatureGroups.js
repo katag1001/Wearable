@@ -108,10 +108,21 @@ const OUTER_MIN_TEMPS = {
   "Puffer coat": -10,
 };
 
+// Any outfit with a skirt or dress is never below this either, however many
+// outers it has - it's the bare-legs range; tights take it
+// shared/tights.json's shift colder (7 -> 4).
+const SKIRT_DRESS_MIN_TEMP = 7;
+
+const SKIRT_DRESS_SUBTYPES = [
+  "Mini skirt", "Maxi skirt", "Smart skirt", "Midi-skirt", "Low waist midi",
+  "Summer dress", "Casual dress", "Wedding guest dress", "Cocktail dress",
+  "Evening dress", "Work dress", "Winter dress",
+];
+
 // Degrees a top moves the range down when it's an extra layer: a top worn
 // over the innermost top (which sets the base), or any top worn with a
 // onepiece.
-const TOP_LAYER_POINTS = { short: 1, long: 4, warm: 11, };
+const TOP_LAYER_POINTS = { short: 1, long: 4, warm: 4 };
 
 // Layered tops: an outfit with a top worn as an extra layer (over the
 // innermost top, or any top worn with a onepiece) never has a maximum above
@@ -168,6 +179,8 @@ module.exports = {
   OUTER_WARMTH_POINTS,
   NO_OUTER_MIN_TEMP,
   OUTER_MIN_TEMPS,
+  SKIRT_DRESS_MIN_TEMP,
+  SKIRT_DRESS_SUBTYPES,
   TOP_LAYER_POINTS,
   LAYER_KINDS,
   LAYERED_MAX_TEMPS,
