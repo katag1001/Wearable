@@ -76,6 +76,11 @@ const {
   undoRejection,
   excludeRecentlyRejected,
 } = require("../services/matchRejectionService.js");
+const {
+  isValidRating,
+  applyRating,
+  applyFavouriteScore,
+} = require("../services/matchRatingService.js");
 
 // Matching runs after the response is sent. waitUntil keeps the Vercel
 // function alive until it finishes (up to the function's max duration);
@@ -739,9 +744,9 @@ exports.updateMatch = async (req, res) => {
     }
 
     // Only the fields in MATCH_FIELDS (plus the wear values when undoing
-    // "worn today") come from the request. Score, rejection fields, clothes
-    // and owner are only ever changed by the server (a favourite is shown
-    // as 100 without changing its score).
+    // "worn today") come from the request. Score, rating, rejection fields,
+    // clothes and owner are only ever changed by the server (favouriting
+    // sets the score - matchRatingService.js).
     const {
       restoreSnapshot,
       clothesSnapshots,
@@ -767,6 +772,10 @@ exports.updateMatch = async (req, res) => {
     const favouriteChanged =
       typeof matchFields.favourite === "boolean" &&
       matchFields.favourite !== wasFavourite;
+
+    if (favouriteChanged) {
+      applyFavouriteScore(match);
+    }
 
     if (restoreSnapshot) {
 
@@ -904,6 +913,51 @@ exports.rejectMatch = async (req, res) => {
     return res.status(500).json({
       error: error.message,
     });
+  }
+};
+
+// Rating an outfit 1-5 stars, from the Today page or the outfit edit page
+// (matchRatingService.js). Body: { rating, wearing } - `wearing` when it's
+// rated as it's worn on Today. Returns { deleted: true } if the rating
+// deleted it (with its Today entries), else { deleted: false, rating,
+// score, favouriteItemBonus }.
+exports.rateMatch = async (req, res) => {
+  const userId = req.user?.userId;
+
+  if (!isValidId(req.params.id)) {
+    return res.status(404).json({ message: "Match not found" });
+  }
+
+  const rating = req.body?.rating;
+
+  if (!isValidRating(rating)) {
+    return res.status(400).json({ message: "Rating must be 1 to 5 stars." });
+  }
+
+  try {
+    const match = await Match.findOne({ _id: req.params.id, userId });
+
+    if (!match) {
+      return res.status(404).json({ message: "Match not found" });
+    }
+
+    if (!applyRating(match, rating, { wearing: req.body?.wearing === true })) {
+      await deleteMatches({ _id: match._id, userId });
+      await Today.deleteMany({ userId, matchId: match._id });
+
+      return res.json({ deleted: true });
+    }
+
+    await match.save();
+
+    return res.json({
+      deleted: false,
+      rating: match.rating,
+      score: match.score,
+      favouriteItemBonus: match.favouriteItemBonus,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 };
 

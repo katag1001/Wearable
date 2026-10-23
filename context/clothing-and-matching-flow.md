@@ -782,8 +782,10 @@ palettes allow (no favourites):
 A one-colour outfit at max can never pass, even with the favourite bonus
 ((20 + 90) / 2 + 8 = 63).
 
-A **favourite is shown and sorted as 100**, without changing the stored
-score - unfavouriting returns the match to its original score.
+**Favouriting an outfit sets its stored score to 100; unfavouriting sets
+it to 85.** There's no favourite boost anywhere else - favourites are
+ranked and sorted by their stored score like every other outfit. See
+3.12 for star ratings, which also set the score.
 
 ### 3.11 Favourite clothing items
 
@@ -814,6 +816,40 @@ through `PUT /clothing/:id` (`core/hooks/useItemFavourite.js`).
   use it as is - nothing is recalculated when Today is built.
 
 ---
+
+### 3.12 Star ratings
+
+`server/services/matchRatingService.js`, numbers in
+`server/constants/scoring.js` (`RATING_SCORES`, `LOW_RATING_MAX`,
+`LOW_RATED_FAVOURITE_SCORE`, `LOW_RATED_KEPT_SCORE`,
+`FAVOURITE_OUTFIT_SCORE`, `UNFAVOURITED_OUTFIT_SCORE`). Route:
+`PUT /match/:id/rating` with `{ rating, wearing }`. Stored in
+`Match.rating` (1-5, or null).
+
+| Stars | Outcome |
+|---|---|
+| 5 / 4 / 3 | score 100 / 85 / 70 |
+| 1-2, ordinary outfit (worn or hand-edited too) | deleted, with its Today entries |
+| 1-2, favourite (user-made or not) | kept at 70 |
+| 1-2, user-made only | kept at 60 |
+| 1-2, rated as it's worn on Today | kept at 60 |
+
+- Whichever of rating and favouriting the user did last decides the
+  score (favourite -> 100, rate 4 -> 85, rate 5 -> 100). Favouriting never
+  changes the stars.
+- Rating or favouriting sets `favouriteItemBonus` to 0, and the
+  favourite-item bonus is never added to a rated or favourite outfit.
+- Rated and favourite outfits are **never rejected** on Today (no swipe
+  penalty), and a rated outfit is **protected** from automatic rematching
+  (`matchProtection.js`). `rescoreMatches.js` skips them.
+- **Today**: the stars sit under the outfit, above the buttons. Stars
+  picked are saved once the user leaves the outfit (next, previous,
+  another tag on web, or wearing it) - `useToday`. Opening the outfit
+  screen on mobile hands the picked stars over; Save there saves them.
+- **Edit page** (web card editor, mobile outfit screen): the stars are
+  part of the draft and saved on Save, after the other fields.
+- Existing favourites were moved to 100 once with
+  `server/scripts/setFavouriteScores.js`.
 
 ## Part 4 - Automatic matching (`processMatches`)
 
@@ -1251,10 +1287,10 @@ closes the screen and shows the next outfit.
 
 ### 7.4 My Outfits order
 
-The match list (`GET /match/`) is paged **favourites first, then highest
-score, then newest** (`HIGHEST_SCORE_FIRST` in
-`server/services/queryHelpers.js`, backed by the
-`{ userId, favourite, score, _id }` index on Match). The clothing list is
+The match list (`GET /match/`) is paged **highest score, then newest**
+(`HIGHEST_SCORE_FIRST` in `server/services/queryHelpers.js`, backed by
+the `{ userId, score, _id }` index on Match). Favourites aren't put
+first - favouriting sets their score to 100 (3.10). The clothing list is
 still newest first.
 
 ### 7.5 Temporary score display
@@ -1330,7 +1366,7 @@ Both outfits left are within the best 2,000, so both are saved, each with its sc
 2-item outfit as a mismatch. Both outfits contain them, so both are
 deleted, and this shirt is never matched with these trousers again.
 Buttondown shirt + Wide leg trousers drops from 88 to 83, so her other
-shirts and trousers of those subtypes still match, just a little lower. If she favourites the 3-item outfit, it shows as 100
+shirts and trousers of those subtypes still match, just a little lower. If she favourites the 3-item outfit, its score becomes 100
 and its 3 pairs get +3. If she builds shirt + cardigan + trousers
 herself, it's saved (user-made outfits have no minimum) and the shirt +
 cardigan pair goes up to 48.
@@ -1441,6 +1477,7 @@ the project root with `node server/scripts/<name>.js`.
 |---|---|---|
 | `resetMatchTemperatures.js` | Recalculates every match's temperature range from the current presets (`--dry-run`, `--backup <file>`). Also overwrites ranges edited by hand | Yes - run it after changing `temperatureGroups.js` |
 | `rematchAll.js` | **Deletes every match and Today entry for every user** (user-made and favourites too), then runs `processMatches` for every clothing item under the current rules. Personal score adjustments are kept. Only shows counts unless run with `--confirm` | Yes, but each run throws away user-made outfits and favourites |
+| `setFavouriteScores.js` | One-off for star ratings (3.12): sets every favourite's stored score to 100 (no favourite-item bonus) and drops the old `{ userId, favourite, score, _id }` index. Only shows counts unless run with `--confirm` | Yes - already-moved favourites are left alone |
 
 The one-off migrations for the changes in Part 10 (subtype renames, the
 score-adjustment reset, colour merges, removing clothing temperatures,

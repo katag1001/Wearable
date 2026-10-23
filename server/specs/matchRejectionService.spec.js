@@ -99,3 +99,21 @@ test("excludeRecentlyRejected falls back to every outfit when all were rejected 
 
   assert.deepEqual(excludeRecentlyRejected(matches, TODAY_START), matches);
 });
+
+test("applyRejection leaves rated and favourite outfits alone", () => {
+  for (const extra of [{ rating: 4 }, { favourite: true }]) {
+    const match = { score: 85, rejectedCount: 0, lastRejectedDate: null, ...extra };
+
+    assert.equal(applyRejection(match, TODAY_START, NOW), false);
+    assert.equal(match.score, 85);
+    assert.equal(match.rejectedCount, 0);
+    assert.equal(match.lastRejectedDate, null);
+  }
+});
+
+test("undoRejection keeps a score the user set after the rejection", () => {
+  const match = { score: 70, rating: 3, rejectedCount: 1, lastRejectedDate: NOW };
+
+  assert.equal(undoRejection(match), true);
+  assert.deepEqual(match, { score: 70, rating: 3, rejectedCount: 0, lastRejectedDate: null });
+});

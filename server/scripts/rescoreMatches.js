@@ -5,7 +5,8 @@
 // constants/temperatureGroups.js), without rematching - no outfit is
 // added or deleted, even one that would no longer be suggested today.
 //
-//  - Favourites are skipped entirely (score and range).
+//  - Favourites and rated outfits are skipped entirely (score and range) -
+//    their score is the user's own (services/matchRatingService.js).
 //  - Worn outfits are recalculated like any other.
 //  - User-made outfits keep their score (it's a flat USER_MADE_SCORE) but
 //    get a new range.
@@ -82,10 +83,12 @@ async function run() {
   try {
     const groups = withGroups();
     const matches = (
-      await Match.find({ favourite: { $ne: true } })
+      await Match.find({ favourite: { $ne: true }, rating: null })
         .populate("clothes", "type subtype colors styles favourite")
     ).filter((match) => hasEveryGroup(match, groups));
-    const favouriteCount = await Match.countDocuments({ favourite: true });
+    const skippedCount = await Match.countDocuments({
+      $or: [{ favourite: true }, { rating: { $ne: null } }],
+    });
 
     const contexts = new Map();
     const changes = [];
@@ -141,7 +144,7 @@ async function run() {
 
     console.log(
       `${changes.length} of ${matches.length} match(es) would change. ` +
-      `${favouriteCount} favourite(s) skipped.`
+      `${skippedCount} favourite or rated match(es) skipped.`
     );
 
     if (!confirm) {

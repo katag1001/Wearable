@@ -14,8 +14,8 @@
 // compatibility, layering, colour, pattern, shared season, shared tag), and
 // deletes the unprotected ones that fail.
 //
-// Protected outfits (matchProtection.js: favourites, user-made, worn, or
-// changed by hand) are never deleted, even when they no longer pass. They
+// Protected outfits (matchProtection.js: favourites, rated, user-made,
+// worn, or changed by hand) are never deleted, even when they no longer pass. They
 // only get the outfit fields fed by the item fields that changed
 // (ITEM_FIELD_TO_OUTFIT_FIELDS) refreshed, so the user's own edits to their
 // other fields survive. Their score, rejections and wear history are never
@@ -154,7 +154,7 @@ async function refreshMatchesForItem(item, changedItemFields) {
   const { userId } = item;
 
   const matches = await Match.find({ userId, clothes: item._id })
-    .select("clothes favourite userMade userEdited lastWornDate timesWorn " + outfitFields.join(" "));
+    .select("clothes favourite rating userMade userEdited lastWornDate timesWorn " + outfitFields.join(" "));
 
   if (!matches.length) {
     return { updatedCount: 0, deletedCount: 0 };

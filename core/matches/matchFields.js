@@ -30,6 +30,9 @@ export const getMatchDraft = (match) => ({
   tags: match.tags || [],
   // Only shown for an outfit whose items allow tights (match.tights).
   wearWithTights: !match.noTights,
+  // 1-5 stars, or null if not rated. Saved separately (rateMatch), only
+  // when changed.
+  rating: match.rating ?? null,
 });
 
 // What Save sends.

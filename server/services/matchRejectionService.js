@@ -6,7 +6,8 @@
 // REJECTION_SCORE_PENALTY off the match's stored score. An outfit rejected
 // in the last REJECTION_COOLDOWN_DAYS days is left out of the Today list,
 // unless that would leave nothing to show. Marking a rejected outfit as worn
-// undoes the rejection.
+// undoes the rejection. Rated and favourite outfits are never rejected -
+// their score is the user's own (matchRatingService.js).
 //
 // "Today" is the user's local day: the client sends the ISO time of its
 // local midnight (`todayStart`). Without one, the server's own midnight is
@@ -18,6 +19,7 @@ const {
   REJECTION_SCORE_PENALTY,
   REJECTION_COOLDOWN_DAYS,
 } = require("../constants/scoring.js");
+const { hasUserScore } = require("./matchRatingService.js");
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -51,9 +53,10 @@ const wasRejectedSince = (match, since) => {
 const rejectionCutoff = (todayStart) =>
   new Date(todayStart.getTime() - REJECTION_COOLDOWN_DAYS * DAY_MS);
 
-// Returns true if the match changed (false if already rejected today).
+// Returns true if the match changed (false if already rejected today, or
+// rated or a favourite).
 const applyRejection = (match, todayStart, now = new Date()) => {
-  if (wasRejectedSince(match, todayStart)) return false;
+  if (hasUserScore(match) || wasRejectedSince(match, todayStart)) return false;
 
   match.rejectedCount = (match.rejectedCount || 0) + 1;
   match.lastRejectedDate = now;
@@ -64,13 +67,17 @@ const applyRejection = (match, todayStart, now = new Date()) => {
 
 // Reverses applyRejection. The previous rejection date isn't kept, so it
 // goes back to null - anything rejected in the cooldown before today
-// wouldn't have been in today's list to wear anyway.
+// wouldn't have been in today's list to wear anyway. The score is left
+// alone once the user has set it (rated or favourited since the rejection).
 const undoRejection = (match) => {
   if (!match.lastRejectedDate) return false;
 
   match.rejectedCount = Math.max(0, (match.rejectedCount || 0) - 1);
   match.lastRejectedDate = null;
-  match.score = Math.min(MAX_SCORE, (match.score || 0) + REJECTION_SCORE_PENALTY);
+
+  if (!hasUserScore(match)) {
+    match.score = Math.min(MAX_SCORE, (match.score || 0) + REJECTION_SCORE_PENALTY);
+  }
 
   return true;
 };

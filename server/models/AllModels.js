@@ -81,10 +81,15 @@ userEdited: { type: Boolean, default: false },
 rejectedCount: { type: Number, default: 0 },
 lastRejectedDate: { type: Date, default: null },
 
+// The user's 1-5 star rating, or null if not rated
+// (server/services/matchRatingService.js).
+rating: { type: Number, min: 1, max: 5, default: null },
+
 // Set when the match is created (server/services/outfitScoreService.js
 // and server/constants/scoring.js), lowered each time it's rejected, and
 // raised while one of its clothes is a favourite (favouriteItemBonus).
-// A favourite is shown and sorted as 100 without changing this value.
+// Rating or favouriting the outfit sets it outright
+// (server/services/matchRatingService.js).
 score: {
 type: Number,
 required: true,
@@ -99,9 +104,9 @@ validate: { validator: Number.isInteger, message: "score must be a whole number"
 favouriteItemBonus: { type: Number, default: 0 },
 });
 
-// My Outfits pages through a user's matches favourites first, then highest
-// score first (HIGHEST_SCORE_FIRST in server/services/queryHelpers.js).
-matchSchema.index({ userId: 1, favourite: -1, score: -1, _id: -1 });
+// My Outfits pages through a user's matches highest score first
+// (HIGHEST_SCORE_FIRST in server/services/queryHelpers.js).
+matchSchema.index({ userId: 1, score: -1, _id: -1 });
 
 matchSchema.index({ userId: 1, clothesKey: 1 }, { unique: true });
 

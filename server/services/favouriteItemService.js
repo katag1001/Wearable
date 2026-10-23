@@ -5,7 +5,9 @@
 // score - once, however many of its items are favourites - and never above
 // MAX_AUTO_SCORE (constants/scoring.js). The amount actually added is kept
 // in Match.favouriteItemBonus, so unfavouriting takes off exactly that.
-// User-made outfits never get it: they stay at USER_MADE_SCORE.
+// User-made outfits never get it: they stay at USER_MADE_SCORE. Nor do
+// rated or favourite outfits - their score is the user's own
+// (matchRatingService.js sets their bonus to 0).
 //
 // The bonus is only ever added to outfits that have already been chosen -
 // new automatic outfits get it after every check and the best-100 cut
@@ -50,14 +52,16 @@ const applyFavouriteItemBonus = (matches, favouriteIds) =>
     return { ...match, score: match.score + bonus, favouriteItemBonus: bonus };
   });
 
-// The item was just favourited: every automatic outfit with it that doesn't
-// already have the bonus gets it.
+// The item was just favourited: every automatic, unrated, non-favourite
+// outfit with it that doesn't already have the bonus gets it.
 const addFavouriteItemBonus = (userId, itemId) =>
   Match.updateMany(
     {
       userId,
       clothes: itemId,
       userMade: { $ne: true },
+      favourite: { $ne: true },
+      rating: null,
       favouriteItemBonus: { $in: [0, null] },
     },
     [

@@ -18,4 +18,5 @@ export { Screen } from "./Screen";
 export { SectionTitle } from "./SectionTitle";
 export { SegmentedControl } from "./SegmentedControl";
 export { Sheet } from "./Sheet";
+export { StarRating } from "./StarRating";
 export { TextField } from "./TextField";

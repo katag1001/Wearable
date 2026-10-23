@@ -1,20 +1,22 @@
 import { useRef, useState } from "react";
 
 import { getErrorMessage } from "../api/errors.js";
-import { updateMatch } from "../api/matches.js";
+import { rateMatch, updateMatch } from "../api/matches.js";
 import { markMatchWorn, setMatchFavourite } from "../matches/matchActions.js";
 import { buildMatchUpdate, getMatchDraft } from "../matches/matchFields.js";
 import { isDateToday } from "../utils/dates.js";
 
 /*
- * One outfit card: favourite, mark worn today, and editing its seasons,
- * temperature range, tags and - when its items allow tights - whether it
- * can be worn with tights (a draft, saved with `save`).
+ * One outfit card: favourite, mark worn today, and editing its star
+ * rating, seasons, temperature range, tags and - when its items allow
+ * tights - whether it can be worn with tights (a draft, saved with
+ * `save`). A rating of 1-2 stars can delete the outfit
+ * (server/services/matchRatingService.js).
  *
  * - onChanged: after a save or mark-worn (refresh the list).
- * - onFavouriteToggle(id, favourite): shows the change straight away
- *   (and again to roll back if the request fails). Without it, the list
- *   is refreshed instead.
+ * - onFavouriteToggle(id, fields): shows { favourite } straight away (and
+ *   again to roll back if the request fails), then the new { score } once
+ *   saved. Without it, the list is refreshed instead.
  * - onError(message)
  */
 export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) => {
@@ -32,7 +34,10 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
 
   /* -------------------- Editing -------------------- */
 
-  const startEditing = () => setDraft(getMatchDraft(match));
+  // `overrides`: draft values to start from instead of the outfit's own
+  // (e.g. stars picked on Today but not saved yet).
+  const startEditing = (overrides) =>
+    setDraft({ ...getMatchDraft(match), ...overrides });
   const stopEditing = () => setDraft(null);
 
   const toggleSeason = (season) => {
@@ -59,16 +64,29 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
     setDraft((prev) => ({ ...prev, wearWithTights: !prev.wearWithTights }));
   };
 
-  // Resolves to true when saved (the editor can close).
+  const setRating = (rating) => {
+    setDraft((prev) => ({ ...prev, rating }));
+  };
+
+  // Resolves to false if it failed, else (the editor can close)
+  // { deleted } - plus the new { rating, score } if the rating changed.
+  // The rating goes last, as it can delete the outfit.
   const save = async () => {
     setSaving(true);
 
     try {
       await updateMatch(match._id, buildMatchUpdate(draft));
 
+      const ratingChanged =
+        draft.rating != null && draft.rating !== (match.rating ?? null);
+
+      const result = ratingChanged
+        ? await rateMatch(match._id, draft.rating)
+        : { deleted: false };
+
       setDraft(null);
       onChanged?.();
-      return true;
+      return result;
     } catch (err) {
       console.error("Update error:", err);
       onError?.(getErrorMessage(err, "Failed to update match"));
@@ -105,14 +123,17 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
     const newValue = !match.favourite;
 
     // Shown straight away rather than waiting on a refetch.
-    onFavouriteToggle?.(match._id, newValue);
+    onFavouriteToggle?.(match._id, { favourite: newValue });
 
     togglingFavouriteRef.current = true;
 
     try {
-      await setMatchFavourite(match._id, newValue);
+      // Favouriting sets the score (server/services/matchRatingService.js).
+      const { score } = await setMatchFavourite(match._id, newValue);
 
-      if (!onFavouriteToggle) {
+      if (onFavouriteToggle) {
+        onFavouriteToggle(match._id, { score });
+      } else {
         onChanged?.();
       }
     } catch (err) {
@@ -120,7 +141,7 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
 
       // Roll back.
       if (onFavouriteToggle) {
-        onFavouriteToggle(match._id, !newValue);
+        onFavouriteToggle(match._id, { favourite: !newValue });
       } else {
         onChanged?.();
       }
@@ -141,6 +162,7 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
     setTemperature,
     offersTights,
     toggleWearWithTights,
+    setRating,
     save,
     saving,
 

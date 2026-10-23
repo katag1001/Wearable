@@ -16,9 +16,9 @@ const SEASONS = ["spring", "summer", "autumn", "winter"];
 // never overlap).
 const NEWEST_FIRST = { _id: -1 };
 
-// Matches: favourites first (they show as 100), then highest score, then
-// newest - _id last so equal scores never tie and pages never overlap.
-const HIGHEST_SCORE_FIRST = { favourite: -1, score: -1, _id: -1 };
+// Matches: highest score, then newest - _id last so equal scores never tie
+// and pages never overlap.
+const HIGHEST_SCORE_FIRST = { score: -1, _id: -1 };
 
 /* -------------------- Parsing -------------------- */
 

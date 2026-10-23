@@ -168,11 +168,12 @@ export const useMatchesPage = ({ itemFilter = null, waitForNewMatches = false } 
     setSelectedSeason((prev) => (prev === season ? null : season));
   };
 
-  const onFavouriteToggle = (matchId, favourite) => {
-    updateItem(matchId, { favourite });
+  // `fields`: { favourite } straight away, then { score } once saved.
+  const onFavouriteToggle = (matchId, fields) => {
+    updateItem(matchId, fields);
 
     // An unfavourited outfit no longer belongs in a favourites-only list.
-    if (filters.favourite) {
+    if (filters.favourite && "favourite" in fields) {
       reload();
     }
   };

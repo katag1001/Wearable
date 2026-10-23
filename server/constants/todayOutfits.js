@@ -48,9 +48,6 @@ const SPREAD_LOOKBACK = 3;
 const FRESHNESS_FULL_DAYS = 30;
 const MAX_FRESHNESS = 10;
 
-// A favourite counts as this score (out of 100), like everywhere else.
-const FAVOURITE_SCORE = 100;
-
 module.exports = {
   TODAY_OUTFIT_LIMIT,
   CLOSE_MATCH_OUTSIDE,
@@ -62,5 +59,4 @@ module.exports = {
   SPREAD_LOOKBACK,
   FRESHNESS_FULL_DAYS,
   MAX_FRESHNESS,
-  FAVOURITE_SCORE,
 };

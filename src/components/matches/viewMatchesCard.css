@@ -880,3 +880,9 @@
     letter-spacing: 0;
   }
 }
+
+
+/* The editor's stars sit left, like the other fields (starRating.jsx) */
+.match-editor-stars {
+  justify-content: flex-start;
+}

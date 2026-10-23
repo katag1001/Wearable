@@ -12,11 +12,12 @@ let editedOutfits = {};
 let removedOutfitIds = [];
 
 // `footwear`: a shoe to show with the outfit (Today's pick), or none.
-export const handOverOutfit = (match, footwear = null) => {
-  outfitToShow = { match, footwear };
+// `rating`: stars picked on Today but not saved yet, to start from.
+export const handOverOutfit = (match, footwear = null, rating = null) => {
+  outfitToShow = { match, footwear, rating };
 };
 
-// { match, footwear } handed over (once), or null.
+// { match, footwear, rating } handed over (once), or null.
 export const takeOutfit = () => {
   const outfit = outfitToShow;
 

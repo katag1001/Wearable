@@ -1,6 +1,7 @@
 // Choosing today's outfit: the sorted outfits one at a time, each with its
 // shoes, swiped like cards (next rejects the one being left). Tapping the
-// outfit opens it full screen to change its details. The heart
+// outfit opens it full screen to change its details. The stars rate it
+// (saved once it's left, or worn - useToday). The heart
 // wears the outfit and its shoes today (playing onCelebrate), the shoe
 // opens Change shoes (onChangeShoes), the broken heart opens "not this
 // outfit" (onNotThisOutfit - too hot, too cold or a mismatch).
@@ -13,6 +14,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
 
 import { handOverOutfit } from "../outfits/outfitHandoff";
+import { StarRating } from "../ui";
 import { ActionButton, ActionRow } from "./ActionButton";
 import { OutfitImages } from "./OutfitImages";
 import { SwipeDeck } from "./SwipeDeck";
@@ -21,7 +23,8 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfi
   const { filteredOutfits, selectedOutfit, selectedShoe } = today;
 
   const openOutfit = () => {
-    handOverOutfit(selectedOutfit.matchId, selectedShoe);
+    // With the stars picked here, which the outfit screen saves.
+    handOverOutfit(selectedOutfit.matchId, selectedShoe, today.selectedRating);
     router.push({ pathname: "/outfit", params: { from: "today" } });
   };
 
@@ -63,6 +66,8 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfi
       {selectedOutfit.withTights ? (
         <Text style={styles.tights}>Wear with tights</Text>
       ) : null}
+
+      <StarRating rating={today.selectedRating} onChange={today.rateSelected} />
 
       <ActionRow>
         <ActionButton

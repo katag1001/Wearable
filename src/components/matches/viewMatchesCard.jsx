@@ -13,6 +13,7 @@ import TemperatureSlider from "../general/temperatureSlider";
 import MatchScoreBadge from "../general/matchScoreBadge";
 import FavouriteHeartButton from "../general/favouriteHeartButton";
 import BrokenHeartIcon from "../general/brokenHeartIcon.jsx";
+import StarRating from "../general/starRating.jsx";
 import OutfitMismatchModal from "./outfitMismatchModal.jsx";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 import { useMatchCard } from "@core/hooks/useMatchCard.js";
@@ -292,6 +293,20 @@ const ViewMatchesCard = ({
             >
               ×
             </button>
+
+            {/* RATING - 1-2 stars can delete the outfit on save */}
+
+            <div className="editor-section">
+              <div className="form-label">
+                Rating
+              </div>
+
+              <StarRating
+                rating={updateData.rating}
+                onChange={card.setRating}
+                className="match-editor-stars"
+              />
+            </div>
 
             {/* SEASONS */}
 

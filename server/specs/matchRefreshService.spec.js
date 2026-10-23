@@ -96,13 +96,15 @@ test("outfitFieldsFor maps item fields to the outfit fields they feed", () => {
   assert.ok(outfitFieldsFor(["type"]).includes("hasOuter"));
 });
 
-test("isProtectedMatch covers favourites, user-made, worn and hand-edited outfits", () => {
+test("isProtectedMatch covers favourites, rated, user-made, worn and hand-edited outfits", () => {
   assert.equal(isProtectedMatch(match([top, bottom])), false);
   assert.equal(isProtectedMatch(match([top, bottom], { favourite: true })), true);
   assert.equal(isProtectedMatch(match([top, bottom], { userMade: true })), true);
   assert.equal(isProtectedMatch(match([top, bottom], { lastWornDate: new Date() })), true);
   assert.equal(isProtectedMatch(match([top, bottom], { timesWorn: 2 })), true);
   assert.equal(isProtectedMatch(match([top, bottom], { userEdited: true })), true);
+  assert.equal(isProtectedMatch(match([top, bottom], { rating: 3 })), true);
+  assert.equal(isProtectedMatch(match([top, bottom], { rating: null })), false);
 });
 
 test("needsRematch is true for the fields that decide outfits, not the tights answer", () => {

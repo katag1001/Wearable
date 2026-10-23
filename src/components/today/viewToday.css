@@ -1114,3 +1114,10 @@
   text-align: center;
   opacity: .75;
 }
+
+
+/* Stars under the outfit, above the buttons (starRating.jsx) */
+.today-star-rating {
+  flex-shrink: 0;
+  margin-block: .5rem;
+}

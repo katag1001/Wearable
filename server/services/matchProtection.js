@@ -1,7 +1,7 @@
 // server/services/matchProtection.js
 //
-// Outfits the user has interacted with: favourited, built themselves, worn,
-// or changed by hand (userEdited). The app's automatic clean-ups and
+// Outfits the user has interacted with: favourited, rated, built
+// themselves, worn, or changed by hand (userEdited). The app's automatic clean-ups and
 // rematching (matchRefreshService) never delete or re-score these - they
 // may only refresh the labels copied from the items (colours, seasons,
 // ...). A mismatch is the user's own call and keeps only favourites and
@@ -19,6 +19,7 @@ function isProtectedMatch(match) {
     !!match.favourite ||
     !!match.userMade ||
     !!match.userEdited ||
+    match.rating != null ||
     match.lastWornDate != null ||
     (match.timesWorn || 0) > 0
   );

@@ -3,7 +3,6 @@
 // matchScoreBadge.css, then remove the <MatchScoreBadge /> usages in
 // viewMatchesCard.jsx and viewToday.jsx.
 
-import { getEffectiveMatchScore } from "@core/utils/matchScore.js";
 import "./matchScoreBadge.css";
 
 const MatchScoreBadge = ({ match, overlay = false }) => {
@@ -18,7 +17,7 @@ const MatchScoreBadge = ({ match, overlay = false }) => {
       }
       title="Match score (testing only)"
     >
-      Score {getEffectiveMatchScore(match)}
+      Score {match.score ?? 0}
     </span>
   );
 };

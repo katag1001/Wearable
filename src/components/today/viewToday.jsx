@@ -8,6 +8,7 @@ import { getImageUrl } from "@core/utils/getImageUrl.js";
 import ShoeChooserModal from "./footwear/shoeChooserModal.jsx";
 import OutfitFeedbackModal from "./outfitFeedbackModal.jsx";
 import BrokenHeartIcon from "../general/brokenHeartIcon.jsx";
+import StarRating from "../general/starRating.jsx";
 
 
 // The Today outfits, each with its shoes. The logic is useTodayLook
@@ -26,6 +27,8 @@ const ViewToday = ({ todayReady }) => {
     selectedOutfit,
     goNext,
     goPrev,
+    selectedRating,
+    rateSelected,
     selectedTag,
     selectTag,
     todayTag,
@@ -208,7 +211,7 @@ const ViewToday = ({ todayReady }) => {
 
                 {/* Only on today's list thanks to its tights range */}
                 {selectedOutfit?.withTights && (
-                  <p className="today-tights-note">Wear with tights</p>
+                  <p className="today-tights-note">Remember a pair tights today!</p>
                 )}
 
                 {/* PREVIOUS / NEXT - next rejects the outfit being left */}
@@ -244,6 +247,17 @@ const ViewToday = ({ todayReady }) => {
             )}
 
           </div>
+
+
+          {/* STARS - saved once the outfit is left or worn */}
+
+          {filteredOutfits.length > 0 && (
+            <StarRating
+              rating={selectedRating}
+              onChange={rateSelected}
+              className="today-star-rating"
+            />
+          )}
 
 
           {/* ONLY SHOW BUTTON WHEN AN OUTFIT EXISTS */}

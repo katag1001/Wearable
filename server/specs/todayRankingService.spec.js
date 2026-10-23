@@ -67,13 +67,13 @@ test("recently worn outfits and clothes rank lower", () => {
   assert.deepEqual(ids(ranked), ["fresh", "worn"]);
 });
 
-test("a favourite counts as the top score", () => {
+test("a favourite is ranked by its stored score, like any other outfit", () => {
   const ranked = rankTodayMatches(
-    [match("high", { score: 95 }), match("favourite", { score: 10, favourite: true })],
+    [match("favourite", { score: 10, favourite: true }), match("high", { score: 95 })],
     null,
     NOW,
     NO_JITTER
   );
 
-  assert.deepEqual(ids(ranked), ["favourite", "high"]);
+  assert.deepEqual(ids(ranked), ["high", "favourite"]);
 });

@@ -1,0 +1,46 @@
+/* An outfit's star rating (starRating.jsx) - styled like the favourite heart. */
+
+.star-rating {
+  display: flex;
+  justify-content: center;
+  gap: .35rem;
+}
+
+.star-rating-star {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  transition: transform 0.15s ease;
+}
+
+.star-rating-star:hover {
+  transform: scale(1.1);
+}
+
+.star-rating-icon {
+  width: 24px;
+  height: 24px;
+
+  fill: none;
+  stroke: var(--secondary-color);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+
+.star-rating-star.filled .star-rating-icon {
+  fill: var(--main-color);
+  stroke: var(--main-color);
+}

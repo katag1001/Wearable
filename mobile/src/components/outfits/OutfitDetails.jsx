@@ -1,11 +1,13 @@
-// An outfit's editable details: seasons, temperature range, tights (when
-// its items allow them) and tags.
+// An outfit's editable details: star rating, seasons, temperature range,
+// tights (when its items allow them) and tags.
 // `card` is useMatchCard, already editing (its draft).
+
+import { StyleSheet } from "react-native";
 
 import { seasonOptions, tagOptions } from "@core/constants/optionsBank.js";
 import { TEMPERATURE_RANGE } from "@core/matches/matchFields.js";
 
-import { Chip, ChipRow, RangeSlider, SectionTitle } from "../ui";
+import { Chip, ChipRow, RangeSlider, SectionTitle, StarRating } from "../ui";
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -16,6 +18,9 @@ export const OutfitDetails = ({ card }) => {
 
   return (
     <>
+      <SectionTitle title="Rating" />
+      <StarRating rating={draft.rating} onChange={card.setRating} style={styles.stars} />
+
       <SectionTitle title="Seasons" />
       <ChipRow>
         {seasonOptions.map((season) => (
@@ -64,3 +69,9 @@ export const OutfitDetails = ({ card }) => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  stars: {
+    justifyContent: "flex-start",
+  },
+});

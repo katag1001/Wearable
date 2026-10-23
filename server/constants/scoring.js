@@ -7,8 +7,9 @@
 // is created (see services/outfitScoreService.js). After that it only
 // changes when the user claims an automatic match by building the same
 // outfit themselves, rejects it on the Today page
-// (services/matchRejectionService.js), or favourites / unfavourites one of
-// its clothing items (services/favouriteItemService.js).
+// (services/matchRejectionService.js), favourites / unfavourites one of
+// its clothing items (services/favouriteItemService.js), or rates or
+// favourites the outfit itself (services/matchRatingService.js).
 
 const MIN_SCORE = 0;
 const MAX_SCORE = 100;
@@ -136,6 +137,23 @@ const PAIRING_ANSWER_ADJUSTMENTS = {
 const REJECTION_SCORE_PENALTY = 3;
 const REJECTION_COOLDOWN_DAYS = 5;
 
+// Rating an outfit (1-5 stars, services/matchRatingService.js) sets its
+// score outright: 3-5 stars to these scores.
+const RATING_SCORES = { 3: 70, 4: 85, 5: 100 };
+
+// This many stars or fewer deletes the outfit - unless it's a favourite
+// (kept at LOW_RATED_FAVOURITE_SCORE), user-made, or being worn on the
+// Today page (both kept at LOW_RATED_KEPT_SCORE).
+const LOW_RATING_MAX = 2;
+const LOW_RATED_FAVOURITE_SCORE = 70;
+const LOW_RATED_KEPT_SCORE = 60;
+
+// Favouriting an outfit sets its score to FAVOURITE_OUTFIT_SCORE;
+// unfavouriting it, to UNFAVOURITED_OUTFIT_SCORE. Whichever of rating and
+// favouriting the user did last decides the score.
+const FAVOURITE_OUTFIT_SCORE = 100;
+const UNFAVOURITED_OUTFIT_SCORE = 85;
+
 // "Too hot" / "too cold" on the Today page moves the outfit's min_temp and
 // max_temp this many degrees (services/temperatureFeedbackService.js).
 const TEMPERATURE_FEEDBACK_SHIFT = 1;
@@ -175,4 +193,10 @@ module.exports = {
   REJECTION_SCORE_PENALTY,
   REJECTION_COOLDOWN_DAYS,
   TEMPERATURE_FEEDBACK_SHIFT,
+  RATING_SCORES,
+  LOW_RATING_MAX,
+  LOW_RATED_FAVOURITE_SCORE,
+  LOW_RATED_KEPT_SCORE,
+  FAVOURITE_OUTFIT_SCORE,
+  UNFAVOURITED_OUTFIT_SCORE,
 };

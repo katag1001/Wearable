@@ -1,6 +1,7 @@
 // One outfit, full screen: its photos (with a heart to favourite it and a
-// broken heart to mark two of its items as a mismatch), then its seasons,
-// temperature range and tags to edit. Opened from the Outfits
+// broken heart to mark two of its items as a mismatch), then its star
+// rating, seasons, temperature range and tags to edit. Saving 1-2 stars
+// can delete it (server/services/matchRatingService.js). Opened from the Outfits
 // list, or by tapping the outfit on Today (?from=today).
 //
 // The outfit is handed over by the opener (outfitHandoff); every change is
@@ -51,8 +52,8 @@ export default function OutfitScreen() {
   const card = useMatchCard({
     match: match ?? {},
     onChanged: markOutfitsChanged,
-    onFavouriteToggle: (_, favourite) => {
-      changeMatch({ favourite });
+    onFavouriteToggle: (_, fields) => {
+      changeMatch(fields);
       markOutfitsChanged();
     },
     onError: setError,
@@ -65,7 +66,10 @@ export default function OutfitScreen() {
       return;
     }
 
-    card.startEditing();
+    // From Today, with any stars picked there.
+    card.startEditing(
+      handedOver.rating != null ? { rating: handedOver.rating } : undefined
+    );
     // Once, for the outfit this screen opened with.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -74,11 +78,19 @@ export default function OutfitScreen() {
 
   const handleSave = async () => {
     const fields = buildMatchUpdate(card.draft);
+    const saved = await card.save();
 
-    if (await card.save()) {
-      changeMatch(fields);
-      router.back();
+    if (!saved) return;
+
+    if (saved.deleted) {
+      markOutfitsRemoved([match._id]);
+    } else {
+      changeMatch(
+        saved.rating != null ? { ...fields, rating: saved.rating, score: saved.score } : fields
+      );
     }
+
+    router.back();
   };
 
   const handleMarkWorn = async () => {

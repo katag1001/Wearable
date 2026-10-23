@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import {
+  rateMatch,
   restoreMatchSnapshot,
   sendMismatch,
   sendTemperatureFeedback,
@@ -33,6 +34,11 @@ const MAX_RETRIES = 10;
  * The Today outfits: today's list - chosen, ordered and capped once a day
  * on the server, so every device shows the same - filtered by a tag, one
  * at a time. Next rejects the outfit being left (at most once a day).
+ *
+ * Stars picked for an outfit are saved once the user leaves it - next,
+ * previous, another tag, or wearing it - so they can change their mind
+ * until then. 1-2 stars can delete it (server/services/matchRatingService.js);
+ * worn at the same time, it's kept.
  *
  * "Mark as worn" picks today's outfit. Picking a different one later
  * undoes the first if this device picked it (wornSnapshot.js); one picked
@@ -72,6 +78,9 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
 
   // { title, message } to show after an action, until clearNotice.
   const [notice, setNotice] = useState(null);
+
+  // { matchId, rating }: stars picked for an outfit, not saved yet.
+  const [pendingRating, setPendingRating] = useState(null);
 
   // Reject requests in flight, so fast taps can't send one twice.
   const pendingRejections = useRef(new Set());
@@ -215,15 +224,27 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
 
   const selectedOutfit = filteredOutfits[currentIndex] ?? null;
 
+  // Read after a request, once the list may have moved on.
+  const filteredOutfitsRef = useRef(filteredOutfits);
+  filteredOutfitsRef.current = filteredOutfits;
+  const currentIndexRef = useRef(currentIndex);
+  currentIndexRef.current = currentIndex;
+
   const selectTag = (tagName) => {
+    saveRating();
     setSelectedTag(selectedTag === tagName ? null : tagName);
     setCurrentIndex(0);
   };
 
   /* -------------------- List updates -------------------- */
 
-  // Merges new values into one match, keeping the order.
+  // Merges new values into one match, keeping the order. A new rating
+  // (e.g. saved on the outfit screen) replaces stars picked here.
   const updateMatch = (matchId, fields) => {
+    if ("rating" in fields) {
+      setPendingRating((prev) => (prev?.matchId === matchId ? null : prev));
+    }
+
     setOutfits((prev) =>
       prev.map((outfit) =>
         outfit.matchId?._id === matchId
@@ -233,16 +254,75 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     );
   };
 
+  /* -------------------- Rating -------------------- */
+
+  // The selected outfit's stars: picked here, else saved, else null.
+  const selectedRating =
+    pendingRating && pendingRating.matchId === selectedOutfit?.matchId?._id
+      ? pendingRating.rating
+      : selectedOutfit?.matchId?.rating ?? null;
+
+  const rateSelected = (rating) => {
+    const matchId = selectedOutfit?.matchId?._id;
+
+    if (matchId) setPendingRating({ matchId, rating });
+  };
+
+  // Saves the stars picked, if they changed - when the outfit is left, or
+  // as it's worn (`wearing`: a low rating then keeps it). A deleted outfit
+  // leaves the list without moving the user's place.
+  const saveRating = async ({ wearing = false } = {}) => {
+    const pending = pendingRating;
+
+    if (!pending) return;
+
+    setPendingRating(null);
+
+    const { matchId, rating } = pending;
+    const match = outfitsRef.current.find(
+      (outfit) => outfit.matchId?._id === matchId
+    )?.matchId;
+
+    if (!match || rating === (match.rating ?? null)) return;
+
+    try {
+      const result = await rateMatch(matchId, rating, { wearing });
+
+      if (unmounted.current) return;
+
+      if (result.deleted) {
+        removeFromToday([matchId], [matchId]);
+      } else {
+        updateMatch(matchId, {
+          rating: result.rating,
+          score: result.score,
+          favouriteItemBonus: result.favouriteItemBonus,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to rate outfit:", err);
+      feedbackError(err);
+    }
+  };
+
   /* -------------------- Next / previous -------------------- */
 
   // Moving on from an outfit rejects it - at most once per outfit per day.
-  // (Call paused in goNext below.)
+  // Never a rated or favourite one, or one being rated now: its score is
+  // the user's own. (Call paused in goNext below.)
   // eslint-disable-next-line no-unused-vars
   const rejectCurrentOutfit = () => {
     const match = selectedOutfit?.matchId;
     const matchId = match?._id;
 
-    if (!matchId || wasRejectedToday(match) || pendingRejections.current.has(matchId)) {
+    if (
+      !matchId ||
+      match.favourite ||
+      match.rating != null ||
+      pendingRating?.matchId === matchId ||
+      wasRejectedToday(match) ||
+      pendingRejections.current.has(matchId)
+    ) {
       return;
     }
 
@@ -262,12 +342,14 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     // Rejection paused while temperatures are being reviewed - uncomment to
     // restore the swipe penalty.
     // rejectCurrentOutfit();
+    saveRating();
     setCurrentIndex((prev) => (prev + 1) % filteredOutfits.length);
   };
 
   const goPrev = () => {
     if (filteredOutfits.length <= 1) return;
 
+    saveRating();
     setCurrentIndex(
       (prev) => (prev - 1 + filteredOutfits.length) % filteredOutfits.length
     );
@@ -302,6 +384,8 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     const matchId = outfit?.matchId?._id;
 
     if (!matchId) return false;
+
+    await saveRating({ wearing: true });
 
     // Already today's outfit - just show it.
     if (wornToday?.matchId === matchId) {
@@ -341,17 +425,26 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
 
   /* -------------------- Broken heart -------------------- */
 
-  // Takes outfits off today's list, keeping the place (outfitFeedback.js).
-  // `deleted`: they're gone for good, so a deleted worn outfit has nothing
-  // left to undo.
-  // `deletedIds`: those of `matchIds` that were deleted, not just hidden.
+  // Takes outfits off today's list, keeping the place (outfitFeedback.js),
+  // and drops any stars picked for them.
+  // `deletedIds`: those of `matchIds` that were deleted, not just hidden -
+  // they're gone for good, so a deleted worn outfit has nothing left to
+  // undo.
   const removeFromToday = (matchIds, deletedIds = []) => {
-    if (wornToday && deletedIds.map(String).includes(String(wornToday.matchId))) {
+    const worn = wornTodayRef.current;
+    const removed = matchIds.map(String);
+
+    if (worn && deletedIds.map(String).includes(String(worn.matchId))) {
       setWornToday(null);
     }
 
+    setPendingRating((prev) =>
+      prev && removed.includes(String(prev.matchId)) ? null : prev
+    );
     setOutfits((prev) => withoutOutfits(prev, matchIds));
-    setCurrentIndex(indexAfterRemoving(filteredOutfits, currentIndex, matchIds));
+    setCurrentIndex(
+      indexAfterRemoving(filteredOutfitsRef.current, currentIndexRef.current, matchIds)
+    );
   };
 
   const feedbackError = (err) =>
@@ -416,6 +509,9 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     goNext,
     goPrev,
     updateMatch,
+
+    selectedRating,
+    rateSelected,
 
     todayTag,
     selectedTag,

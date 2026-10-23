@@ -15,7 +15,6 @@ const {
   RANKING_WEIGHTS,
   FRESHNESS_FULL_DAYS,
   MAX_FRESHNESS,
-  FAVOURITE_SCORE,
 } = require("../constants/todayOutfits.js");
 const { jitter } = require("./todayDiversityService.js");
 
@@ -55,10 +54,8 @@ const clothingFreshness = (match, now) => {
   return total / clothes.length;
 };
 
-// The match's 0-100 score (100 for a favourite) on the same 0-10 scale.
+// The match's 0-100 score on the same 0-10 scale.
 const matchScore = (match) => {
-  if (match.favourite) return FAVOURITE_SCORE / 10;
-
   return (typeof match.score === "number" ? match.score : 0) / 10;
 };
 
