@@ -539,25 +539,94 @@
 }
 
 
-/* Change shoes - narrower than the buttons either side of it. */
+/* ----------------------------------------------------------------
+   ROUND ICON BUTTONS - as in the app (broken heart, shoe, heart).
+   The shoe is smaller: a lesser action, sat between the big ones.
+---------------------------------------------------------------- */
 
-.today-buttons > .today-small-button {
-  flex: 0 0 auto;
-  width: auto;
-
-  padding-inline: .9rem;
-
-  background: transparent;
-  color: var(--main-color);
-
-  font-size: .7rem;
-  white-space: nowrap;
+.today-buttons {
+  align-items: center;
 }
 
 
-.today-buttons > .today-small-button:hover {
+.today-action-row {
+  gap: 2rem;
+}
+
+
+.today-action-button {
+  flex: 0 0 auto;
+
+  width: 64px;
+  height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: var(--image-background);
+  color: var(--main-color);
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    color .2s ease,
+    opacity .2s ease,
+    transform .2s ease;
+}
+
+
+.today-action-button-small {
+  width: 46px;
+  height: 46px;
+}
+
+
+.today-action-button svg {
+  width: 28px;
+  height: 28px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+
+.today-action-button-small svg {
+  width: 22px;
+  height: 22px;
+}
+
+
+.today-action-button:hover {
   background: var(--main-color);
   color: var(--inverse-color);
+}
+
+
+.today-action-button:active {
+  transform: translateY(1px);
+}
+
+
+.today-action-button:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+
+/* Saving the worn outfit */
+.today-action-button:disabled {
+  cursor: default;
+  opacity: .6;
 }
 
 

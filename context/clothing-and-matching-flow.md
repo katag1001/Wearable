@@ -1229,16 +1229,19 @@ Files: `server/services/temperatureFeedbackService.js`,
 `core/hooks/useOutfitMismatch.js` (the outfit card's broken heart),
 `core/today/outfitFeedback.js`. Numbers in `server/constants/scoring.js`.
 
-There is no delete button on the Today page. The broken heart (web: next
-to Change shoes; mobile: where the bin was) opens a screen for the
+There is no delete button on the Today page. The broken heart (left of the
+shoe and heart buttons, on web and mobile) opens a screen for the
 outfit on show with three options - four when the card says "Wear with
-tights" - and Cancel. Each one, once saved,
+tights" - and Cancel. Mismatch and tights come first, the two weather
+options underneath. Each one, once saved,
 closes the screen and shows the next outfit.
 
-- **Outfit too hot for today** / **too cold** (`PUT /match/:id/temperature-feedback`,
-  `{ feel: "too_hot" | "too_cold" }`): the outfit's `min_temp` and
+- **Today's weather too cold for this** / **too hot for this**
+  (`PUT /match/:id/temperature-feedback`, `{ feel: "too_hot" | "too_cold" }`
+  respectively - the `feel` names are the old labels): the outfit's `min_temp` and
   `max_temp` both move **`TEMPERATURE_FEEDBACK_SHIFT` = 1°** - up for
-  too hot (so it's suggested on warmer days), down for too cold. Its
+  too_hot / "weather too cold" (so it's suggested on warmer days), down
+  for too_cold / "weather too hot". Its
   Today entry is marked `hidden`, so `/today/get` leaves it out for the
   rest of the day (the entry is kept so the list still counts as built).
   It isn't rejected and its score doesn't change.

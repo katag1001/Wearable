@@ -109,18 +109,6 @@ export const OutfitFeedback = ({ today, onClose }) => {
         </View>
       ) : (
         <View style={styles.options}>
-          <Button
-            label="Outfit too hot for today"
-            variant="secondary"
-            onPress={feedback.tooHot}
-            loading={feedback.saving === TOO_HOT}
-          />
-          <Button
-            label="Outfit too cold for today"
-            variant="secondary"
-            onPress={feedback.tooCold}
-            loading={feedback.saving === TOO_COLD}
-          />
           <Button label="Mismatch" variant="secondary" onPress={feedback.startMismatch} />
           {feedback.offersTights ? (
             <Button
@@ -129,6 +117,19 @@ export const OutfitFeedback = ({ today, onClose }) => {
               onPress={feedback.startTights}
             />
           ) : null}
+          {/* tooHot moves the range up (warmer days), so today was too cold for it */}
+          <Button
+            label="Today's weather too cold for this"
+            variant="secondary"
+            onPress={feedback.tooHot}
+            loading={feedback.saving === TOO_HOT}
+          />
+          <Button
+            label="Today's weather too hot for this"
+            variant="secondary"
+            onPress={feedback.tooCold}
+            loading={feedback.saving === TOO_COLD}
+          />
           <Button label="Cancel" variant="text" onPress={close} />
         </View>
       )}

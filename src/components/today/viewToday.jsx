@@ -8,6 +8,8 @@ import { getImageUrl } from "@core/utils/getImageUrl.js";
 import ShoeChooserModal from "./footwear/shoeChooserModal.jsx";
 import OutfitFeedbackModal from "./outfitFeedbackModal.jsx";
 import BrokenHeartIcon from "../general/brokenHeartIcon.jsx";
+import HeartIcon from "../general/heartIcon.jsx";
+import ShoeIcon from "../general/shoeIcon.jsx";
 import StarRating from "../general/starRating.jsx";
 
 
@@ -95,10 +97,12 @@ const ViewToday = ({ todayReady }) => {
   const renderChangeShoesButton = () =>
     footwear.hasFootwear && (
       <button
-        className="regular-button today-small-button"
+        className="today-action-button today-action-button-small"
         onClick={() => setShowShoeChooser(true)}
+        aria-label="Change shoes"
+        title="Change shoes"
       >
-        Change shoes
+        <ShoeIcon />
       </button>
     );
 
@@ -264,28 +268,30 @@ const ViewToday = ({ todayReady }) => {
 
           {filteredOutfits.length > 0 && (
 
-            <div className="today-buttons">
-
-              <button
-                className="regular-button"
-                onClick={
-                  markAsWornToday
-                }
-                disabled={wearing}
-              >
-                {wearing ? "Saving..." : "Mark as Worn Today"}
-              </button>
-
-              {renderChangeShoesButton()}
+            <div className="today-buttons today-action-row">
 
               {/* Too hot, too cold or a mismatch */}
               <button
-                className="regular-button today-small-button today-broken-heart-button"
+                className="today-action-button"
                 onClick={() => setShowFeedback(true)}
                 aria-label="Not this outfit"
                 title="Not this outfit"
               >
                 <BrokenHeartIcon />
+              </button>
+
+              {renderChangeShoesButton()}
+
+              <button
+                className="today-action-button"
+                onClick={
+                  markAsWornToday
+                }
+                disabled={wearing}
+                aria-label="Wear this outfit today"
+                title="Wear this outfit today"
+              >
+                <HeartIcon />
               </button>
 
             </div>

@@ -113,22 +113,6 @@ const OutfitFeedbackModal = ({ today, onClose }) => {
             <div className="outfit-feedback-options">
               <button
                 className="popup-button popup-button-cancel outfit-feedback-option"
-                onClick={feedback.tooHot}
-                disabled={saving}
-              >
-                {feedback.saving === TOO_HOT ? "Saving..." : "Outfit too hot for today"}
-              </button>
-
-              <button
-                className="popup-button popup-button-cancel outfit-feedback-option"
-                onClick={feedback.tooCold}
-                disabled={saving}
-              >
-                {feedback.saving === TOO_COLD ? "Saving..." : "Outfit too cold for today"}
-              </button>
-
-              <button
-                className="popup-button popup-button-cancel outfit-feedback-option"
                 onClick={feedback.startMismatch}
                 disabled={saving}
               >
@@ -144,6 +128,23 @@ const OutfitFeedbackModal = ({ today, onClose }) => {
                   Can't wear this with tights
                 </button>
               )}
+
+              {/* tooHot moves the range up (warmer days), so today was too cold for it */}
+              <button
+                className="popup-button popup-button-cancel outfit-feedback-option"
+                onClick={feedback.tooHot}
+                disabled={saving}
+              >
+                {feedback.saving === TOO_HOT ? "Saving..." : "Today's weather too cold for this"}
+              </button>
+
+              <button
+                className="popup-button popup-button-cancel outfit-feedback-option"
+                onClick={feedback.tooCold}
+                disabled={saving}
+              >
+                {feedback.saving === TOO_COLD ? "Saving..." : "Today's weather too hot for this"}
+              </button>
             </div>
 
             <div className="popup-actions">

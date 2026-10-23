@@ -86,23 +86,3 @@
 }
 
 
-/* ----------------------------------------------------------------
-   Today: the broken heart button
------------------------------------------------------------------ */
-
-.today-broken-heart-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.today-broken-heart-button svg {
-  width: 20px;
-  height: 20px;
-
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}

@@ -52,9 +52,8 @@ removes the new image via `POST /cloudinary/delete`.
 ## Shoes on the Today page
 
 Every Today outfit shows its **top shoe as part of the outfit**, laid out
-like another item of clothing. **Change shoes** (a small button beside
-Mark as worn / Delete; the shoe button between the bin and heart on
-mobile) opens a popup on web and a full-page panel on mobile with
+like another item of clothing. **Change shoes** (the small shoe button between
+the broken heart and the heart, on web and mobile) opens a popup on web and a full-page panel on mobile with
 **all** the user's footwear for that outfit, one at a time, best first,
 swiped like the outfits. Choosing one shows it with the outfit for the
 rest of the day - nothing is saved until **Mark as worn** (the heart),
