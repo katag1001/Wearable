@@ -19,7 +19,6 @@ import { useMatchCard } from "@core/hooks/useMatchCard.js";
 import {
   TEMPERATURE_RANGE,
   formatMatchSeasons,
-  formatTightsTemperature,
 } from "@core/matches/matchFields.js";
 import { seasonOptions } from "@core/constants/optionsBank.js";
 
@@ -247,12 +246,6 @@ const ViewMatchesCard = ({
               {match.min_temp}° -{" "}
               {match.max_temp}°
             </div>
-
-            {formatTightsTemperature(match) && (
-              <div className="match-tights">
-                {formatTightsTemperature(match)}
-              </div>
-            )}
 
             <div>
               {formatMatchSeasons(match)}

@@ -8,20 +8,23 @@
 //    - with a onepiece: that onepiece's own range (if a user-built outfit
 //      has more than one, the coldest is used);
 //    - otherwise: the base range for the innermost top (the lightest top's
-//      group) + the warmest bottom's group. With no top the "short" top
-//      row is used; with no bottom the "long" bottom column is used.
-// 2. Extra top layers - every other top worn over the innermost one, or
-//    every top worn with a onepiece - move the whole range down by their
-//    group's layer points.
+//      group; an OVER_ONLY_TOPS top such as a waistcoat is never the
+//      innermost when there's another top) + the warmest bottom's group.
+//      With no top the "short" top row is used; with no bottom the "long"
+//      bottom column is used.
+// 2. Extra top layers move the whole range down: every other top worn over
+//    the innermost one by TOP_LAYER_POINTS (a warm top over a long or warm
+//    innermost top by WARM_OVER_LONG_POINTS instead), every top worn with a
+//    onepiece by ONEPIECE_LAYER_POINTS.
 // 3. Outers: their warmth points are added together and move the whole
 //    range down, with the maximum never above OUTER_CEILING_BASE minus the
 //    points. The minimum is then lowered if needed so the range is at
 //    least OUTER_MIN_SPAN wide.
 // 4. Floors: the minimum is never below NO_OUTER_MIN_TEMP with no outer,
-//    or the outer's OUTER_MIN_TEMPS value with exactly one outer. (Two
-//    outers have no outer floor.) An outfit with a skirt or dress
-//    (SKIRT_DRESS_SUBTYPES) is also never below SKIRT_DRESS_MIN_TEMP, with
-//    any number of outers. If a floor lifts the minimum above the maximum,
+//    or the outer's OUTER_MIN_TEMPS value with one outer - with two, the
+//    lower of their two values. An outfit with a skirt or dress
+//    (SKIRT_DRESS_SUBTYPES) is also never below SKIRT_DRESS_MIN_TEMP; the
+//    higher floor wins. If a floor lifts the minimum above the maximum,
 //    the maximum is raised to match.
 // 5. Caps: an outfit with extra top layers never has a maximum above
 //    LAYERED_MAX_TEMPS for its warmest layer (jumper/cardigan or not, see
@@ -47,6 +50,9 @@ const {
   SKIRT_DRESS_MIN_TEMP,
   SKIRT_DRESS_SUBTYPES,
   TOP_LAYER_POINTS,
+  WARM_OVER_LONG_POINTS,
+  ONEPIECE_LAYER_POINTS,
+  OVER_ONLY_TOPS,
   LAYER_KINDS,
   LAYERED_MAX_TEMPS,
   OUTER_CEILING_BASE,
@@ -88,10 +94,25 @@ function warmest(groups, order) {
   );
 }
 
-function lightest(groups, order) {
-  return groups.reduce((best, group) =>
-    order.indexOf(group) < order.indexOf(best) ? group : best
+// Index of the top that sets the base: the lightest, but never an
+// OVER_ONLY_TOPS top while there's another one. -1 with no tops.
+function innermostTopIndex(tops, topGroups) {
+  const rank = (index) =>
+    OVER_ONLY_TOPS.includes(tops[index].subtype) && tops.length > 1
+      ? TOP_GROUP_ORDER.length
+      : TOP_GROUP_ORDER.indexOf(topGroups[index]);
+
+  return topGroups.reduce(
+    (best, _, index) => (best === -1 || rank(index) < rank(best) ? index : best),
+    -1
   );
+}
+
+// A layer's points over the innermost top's group.
+function layerPointsOver(layerGroup, innermostGroup) {
+  return layerGroup === "warm" && innermostGroup !== "short"
+    ? WARM_OVER_LONG_POINTS
+    : TOP_LAYER_POINTS[layerGroup];
 }
 
 function clampTemperature(value) {
@@ -159,12 +180,13 @@ function computePresetTemperatureRange(items, temperaturePreference = null) {
 
     // Every top worn with a onepiece is an extra layer.
     layerTops = tops;
-    const layerPoints = topGroups.reduce((sum, group) => sum + TOP_LAYER_POINTS[group], 0);
+    const layerPoints = topGroups.reduce((sum, group) => sum + ONEPIECE_LAYER_POINTS[group], 0);
 
     range = [baseMin - layerPoints, baseMax - layerPoints];
   } else {
     // The innermost (lightest) top sets the base; the rest go over it.
-    const topGroup = topGroups.length ? lightest(topGroups, TOP_GROUP_ORDER) : "short";
+    const innermostIndex = innermostTopIndex(tops, topGroups);
+    const topGroup = innermostIndex === -1 ? "short" : topGroups[innermostIndex];
     const bottomGroups = bottoms.map((bottom) =>
       lookup(BOTTOM_GROUP_OF, bottom.subtype, FALLBACK_BOTTOM_GROUP)
     );
@@ -173,11 +195,10 @@ function computePresetTemperatureRange(items, temperaturePreference = null) {
       : FALLBACK_BOTTOM_GROUP;
 
     // Every other top is a layer over the innermost one.
-    const innermostIndex = topGroups.indexOf(topGroup);
     layerTops = tops.filter((_, index) => index !== innermostIndex);
     const layerPoints = topGroups
       .filter((_, index) => index !== innermostIndex)
-      .reduce((sum, group) => sum + TOP_LAYER_POINTS[group], 0);
+      .reduce((sum, group) => sum + layerPointsOver(group, topGroup), 0);
 
     const [min, max] = BASE_RANGES[topGroup][bottomGroup];
     range = [min - layerPoints, max - layerPoints];
@@ -192,9 +213,7 @@ function computePresetTemperatureRange(items, temperaturePreference = null) {
 
   const outerFloor = outers.length === 0
     ? NO_OUTER_MIN_TEMP
-    : outers.length === 1
-      ? OUTER_MIN_TEMPS[outers[0].subtype]
-      : undefined;
+    : Math.min(...outers.map((outer) => OUTER_MIN_TEMPS[outer.subtype] ?? TEMPERATURE_LIMITS[0]));
 
   const hasSkirtOrDress = items.some((item) => SKIRT_DRESS_SUBTYPES.includes(item.subtype));
   const floors = [outerFloor, hasSkirtOrDress ? SKIRT_DRESS_MIN_TEMP : undefined]

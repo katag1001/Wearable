@@ -44,8 +44,11 @@ values at the time of writing; the file is the source of truth.
 
 | Top group | Subtypes |
 |---|---|
-| short | Short t-shirt, Vest, Croptop, Off-the-shoulder top, Linen shirt, Bodysuit, Fancy top, Party top, Tunic |
-| long | Long t-shirt, Buttondown shirt, Fancy blouse, Floaty blouse, Short turtleneck, Long turtleneck, Turtleneck, Waistcoat, Light jumper, Light cardigan |
+| short | Short t-shirt, Vest, Croptop, Off-the-shoulder top, Linen shirt, Bodysuit, Fancy top, Party top, Tunic, Waistcoat |
+| long | Long t-shirt, Buttondown shirt, Fancy blouse, Floaty blouse, Short turtleneck, Long turtleneck, Turtleneck, Light jumper, Light cardigan |
+
+A Waistcoat (`OVER_ONLY_TOPS`) is short on its own - worn like a vest - but
+with another top it's always the layer over it, never the innermost.
 | warm | Hoodie/sweatshirt, Warm jumper, Turtleneck jumper, Warm cardigan |
 
 | Bottom group | Subtypes |
@@ -70,8 +73,13 @@ values at the time of writing; the file is the source of truth.
 ### 1.3 Points
 
 - `TOP_LAYER_POINTS` - how far a top moves the range down when it's an
-  extra layer: short 1, long 4, warm 4. (Warm was 11 until 2026-10-23,
-  which put a t-shirt + jumper + mini skirt + two outers at −1–6°.)
+  extra layer over the innermost top: short 1, long 4, warm 11 - but a
+  warm top over a **long or warm** innermost top only
+  `WARM_OVER_LONG_POINTS` (4). 11 takes a summer top's base down to the
+  jumper rows; over a long-sleeve top it took a t-shirt + jumper + mini
+  skirt + two outers to −1–6° (changed 2026-10-23).
+- `ONEPIECE_LAYER_POINTS` - the same for tops worn with a onepiece:
+  short 1, long 4, warm 5.
 - `OUTER_WARMTH_POINTS` - how far each outer moves the range down (e.g.
   Blazer 2, Trench coat 4, Winter Coat 9, Puffer coat 11).
 
@@ -81,7 +89,8 @@ values at the time of writing; the file is the source of truth.
   this: colder than that needs a coat.
 - `OUTER_MIN_TEMPS` - with **exactly one** outer, the minimum is never
   below that outer's value (e.g. Denim jacket 10, Puffer coat −10). Outfits
-  with two outers have no outer minimum.
+  with two outers use the lower of the two (the warmer coat's) - a blazer
+  under a trench coat is floored at the trench's 6.
 - `SKIRT_DRESS_MIN_TEMP` (7) - an outfit with a skirt or dress
   (`SKIRT_DRESS_SUBTYPES`: every skirt and dress subtype) is never below
   this, with any number of outers. It's the bare-legs range, so with
@@ -127,15 +136,17 @@ It reads only each item's `type` (role) and `subtype`.
 - **With a onepiece:** the onepiece's own range. (A user-built outfit with
   more than one uses the coldest.)
 - **Otherwise:** `BASE_RANGES[innermost top group][warmest bottom group]`.
-  The innermost top is the lightest one (short before long before warm).
+  The innermost top is the lightest one (short before long before warm),
+  but never a Waistcoat while there's another top.
   With no top the "short" row is used; with no bottom the "long" column.
 
 ### Step 2 - Extra tops
 
 - **Tops with a bottom:** every top other than the innermost moves the
-  whole range down by its `TOP_LAYER_POINTS`.
+  whole range down by its `TOP_LAYER_POINTS` - a warm top over a long
+  or warm innermost top by `WARM_OVER_LONG_POINTS` instead.
 - **Tops with a onepiece:** every top is an extra layer and moves the
-  whole range down by its `TOP_LAYER_POINTS`.
+  whole range down by its `ONEPIECE_LAYER_POINTS`.
 
 Every extra layer also brings a maximum cap (step 5).
 
@@ -149,8 +160,8 @@ at least `OUTER_MIN_SPAN` wide (step 4's floor still applies after).
 ### Step 4 - Minimums
 
 - No outer: the minimum is raised to `NO_OUTER_MIN_TEMP` if it's below it.
-- Exactly one outer: raised to that outer's `OUTER_MIN_TEMPS` value.
-- Two outers: no outer minimum.
+- One outer: raised to that outer's `OUTER_MIN_TEMPS` value.
+- Two outers: raised to the lower of their two `OUTER_MIN_TEMPS` values.
 - A skirt or dress: also raised to `SKIRT_DRESS_MIN_TEMP` (7). With one
   outer, the higher of the two floors wins - a blazer's 12 over the
   skirt's 7, the skirt's 7 over a duffle coat's 0.
@@ -193,11 +204,15 @@ preference, with the values above:
 | Step | Range |
 |---|---|
 | 1. Base: short top (the t-shirt) + long bottom | 17–28 |
-| 2. Warm jumper over it, −4 | 13–24 |
-| 3. Denim jacket, −2 (maximum capped at 25 − 2 = 23), minimum kept 7° below the maximum | 11–22 |
-| 4. One outer: the Denim jacket's floor is 10 - 11 is already above it | 11–22 |
-| 5. Caps: warm jumper layer 18 | 11–18 |
-| 6. "cold" +1 | **12–19** |
+| 2. Warm jumper over a short top, −11 | 6–17 |
+| 3. Denim jacket, −2 (maximum capped at 25 − 2 = 23), minimum kept 7° below the maximum | 4–15 |
+| 4. One outer: minimum raised to the Denim jacket's 10 | 10–15 |
+| 5. Caps: warm jumper layer 18, long bottom 25 - 15 is already under both | 10–15 |
+| 6. "cold" +1 | **11–16** |
+
+With a long t-shirt instead of the short one, step 1 is 13–22 and the
+jumper only takes `WARM_OVER_LONG_POINTS` (4): 9–18, then 10–16 with the
+jacket, **11–17** with "cold".
 
 ---
 
@@ -313,9 +328,9 @@ alone.
 - **Matches filter** (`temperatureCondition` in
   `server/services/matchQueryService.js`): an outfit that takes tights
   also passes when its tights range does.
-- **Match card:** a second line, "With tights 2° - 15°"
-  (`formatTightsTemperature` in `core/matches/matchFields.js`; the app's
-  copy of the rules is `core/matches/tights.js`).
+- **Match card:** shows only the range without tights (the "With tights"
+  line was removed 2026-10-23). The app's copy of the tights rules is
+  `core/matches/tights.js`.
 
 ---
 
@@ -326,7 +341,7 @@ alone.
 | Which group a top/bottom is in | `TOP_GROUPS` / `BOTTOM_GROUPS` |
 | Top + bottom ranges | `BASE_RANGES` |
 | Onepiece ranges | `ONEPIECE_RANGES` |
-| Extra top layers | `TOP_LAYER_POINTS` |
+| Extra top layers | `TOP_LAYER_POINTS`, `WARM_OVER_LONG_POINTS`, `ONEPIECE_LAYER_POINTS`, `OVER_ONLY_TOPS` |
 | Outer warmth | `OUTER_WARMTH_POINTS` |
 | Minimum with no outer / one outer | `NO_OUTER_MIN_TEMP` / `OUTER_MIN_TEMPS` |
 | Minimum for a skirt or dress | `SKIRT_DRESS_MIN_TEMP`, `SKIRT_DRESS_SUBTYPES` |

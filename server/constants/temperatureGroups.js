@@ -16,11 +16,11 @@
 const TOP_GROUPS = {
   short: [
     "Short t-shirt", "Vest", "Croptop", "Off-the-shoulder top", "Linen shirt",
-    "Bodysuit", "Fancy top", "Party top", "Tunic",
+    "Bodysuit", "Fancy top", "Party top", "Tunic", "Waistcoat",
   ],
   long: [
     "Long t-shirt", "Buttondown shirt", "Fancy blouse", "Short turtleneck",
-    "Long turtleneck", "Turtleneck", "Waistcoat", "Light jumper", "Light cardigan", 
+    "Long turtleneck", "Turtleneck", "Light jumper", "Light cardigan",
     "Floaty blouse",
   ],
   warm: [
@@ -86,12 +86,12 @@ const OUTER_WARMTH_POINTS = {
 
 // The coldest an outfit can ever go, however many tops are layered up.
 // The outfit's minimum is never set below this (before the preference
-// shift). Outfits with two outers have no floor.
+// shift). With two outers, the lower of their floors - the warmer coat's.
 //
 // With no outer at all - below this you need a coat:
 const NO_OUTER_MIN_TEMP = 14;
 
-// With exactly one outer:
+// With one outer (two: the lower of the two):
 const OUTER_MIN_TEMPS = {
   "Blazer": 12,
   "Denim jacket": 10,
@@ -108,8 +108,7 @@ const OUTER_MIN_TEMPS = {
   "Puffer coat": -10,
 };
 
-// Any outfit with a skirt or dress is never below this either, however many
-// outers it has - it's the bare-legs range; tights take it
+// Any outfit with a skirt or dress is never below this either - it's the bare-legs range; tights take it
 // shared/tights.json's shift colder (7 -> 4).
 const SKIRT_DRESS_MIN_TEMP = 7;
 
@@ -119,10 +118,19 @@ const SKIRT_DRESS_SUBTYPES = [
   "Evening dress", "Work dress", "Winter dress",
 ];
 
-// Degrees a top moves the range down when it's an extra layer: a top worn
-// over the innermost top (which sets the base), or any top worn with a
-// onepiece.
-const TOP_LAYER_POINTS = { short: 1, long: 4, warm: 4 };
+// Degrees a top moves the range down when it's an extra layer over the
+// innermost top (which sets the base). A warm top over a summer top takes
+// the outfit from the summer rows to the jumper rows, hence 11; over a
+// long or warm top it adds much less (WARM_OVER_LONG_POINTS).
+const TOP_LAYER_POINTS = { short: 1, long: 4, warm: 11 };
+const WARM_OVER_LONG_POINTS = 4;
+
+// The same, for a top worn with a onepiece (every top is a layer then).
+const ONEPIECE_LAYER_POINTS = { short: 1, long: 4, warm: 5 };
+
+// Tops only ever worn over another top: with a second top, never the
+// innermost one, whatever their group.
+const OVER_ONLY_TOPS = ["Waistcoat"];
 
 // Layered tops: an outfit with a top worn as an extra layer (over the
 // innermost top, or any top worn with a onepiece) never has a maximum above
@@ -182,6 +190,9 @@ module.exports = {
   SKIRT_DRESS_MIN_TEMP,
   SKIRT_DRESS_SUBTYPES,
   TOP_LAYER_POINTS,
+  WARM_OVER_LONG_POINTS,
+  ONEPIECE_LAYER_POINTS,
+  OVER_ONLY_TOPS,
   LAYER_KINDS,
   LAYERED_MAX_TEMPS,
   OUTER_CEILING_BASE,
