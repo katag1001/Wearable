@@ -573,8 +573,32 @@ const typeOptionsByGender = {
     },
     {
       "type": "outer",
+      "category": "Coats",
+      "name": "Spring coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Formal",
+        "Date night",
+        "Everyday",
+        "Comfortable",
+        "Lunch"
+      ]
+    },
+    {
+      "type": "outer",
       "category": "Jackets",
-      "name": "Jacket",
+      "name": "Short jacket",
       "season": [
         "Spring",
         "Autumn",
@@ -1829,8 +1853,32 @@ const typeOptionsByGender = {
     },
     {
       "type": "outer",
+      "category": "Coats",
+      "name": "Spring coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Formal",
+        "Date night",
+        "Everyday",
+        "Comfortable",
+        "Lunch"
+      ]
+    },
+    {
+      "type": "outer",
       "category": "Jackets",
-      "name": "Jacket",
+      "name": "Short jacket",
       "season": [
         "Spring",
         "Autumn",
@@ -3127,8 +3175,32 @@ const typeOptionsByGender = {
     },
     {
       "type": "outer",
+      "category": "Coats",
+      "name": "Spring coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Work",
+        "Gym",
+        "Loungewear",
+        "Party",
+        "Dinner",
+        "Beach",
+        "Outdoor",
+        "Formal",
+        "Date night",
+        "Everyday",
+        "Comfortable",
+        "Lunch"
+      ]
+    },
+    {
+      "type": "outer",
       "category": "Jackets",
-      "name": "Jacket",
+      "name": "Short jacket",
       "season": [
         "Spring",
         "Autumn",
