@@ -2,11 +2,14 @@ import footwearMatrices from "../../shared/footwearMatrices.json";
 import footwearScoring from "../../shared/footwearScoring.json";
 import colorPalettes from "../../shared/colorPalettes.json";
 import { FOOTWEAR_WEATHER_RULES } from "../constants/footwearWeather.js";
+import { NOT_WITH_TIGHTS, TIGHTS_POINTS } from "../constants/footwearTights.js";
 import { palettesForLevel, resolveColourLevel } from "../utils/colourPalettes.js";
 import {
   ADD_COLOUR_UP_TO,
   COLOUR_POINTS,
   FALLBACK_COLOUR_POINTS,
+  OUTER_COLOUR_FROM,
+  OUTER_COLOUR_POINTS,
   PATTERN_POINTS,
 } from "../constants/footwearColour.js";
 
@@ -14,9 +17,10 @@ import {
  * Orders every shoe for the outfit worn today.
  *
  * Groups come first:
- *   - weather: every shoe today's weather doesn't penalise comes before
- *     every shoe it does (constants/footwearWeather.js), so nothing else
- *     can lift an unsuitable shoe above a suitable one;
+ *   - unsuitable: every shoe today's weather doesn't penalise comes before
+ *     every shoe it does (constants/footwearWeather.js), and with tights,
+ *     open shoes go to the bottom too (constants/footwearTights.js), so
+ *     nothing else can lift an unsuitable shoe above a suitable one;
  *   - then, within each, grouped by season and tag:
  *     in today's season and has today's tag, season only, tag only,
  *     neither. With no season or no tag known, every shoe fits it.
@@ -26,13 +30,17 @@ import {
  *   adjustment, kept within 0-100 (shared/footwearMatrices.json, rules in
  *   server/constants/footwearScoreBaseline.js, neutral scores in
  *   shared/footwearScoring.json)
- *   + weather points + colour points + pattern points
+ *   + weather points + tights points + colour points + pattern points
  *   (constants/footwearColour.js, with the outfit palettes in
  *   shared/colorPalettes.json).
  *
  * Freshness (how recently a shoe was worn) deliberately plays no part -
  * people rewear the same shoes.
  */
+
+// Bump when the rules or numbers change, so shoe orders cached earlier in
+// the day (core/footwear/footwearCache.js) are ranked again.
+export const FOOTWEAR_RANKING_VERSION = 2;
 
 const DEFAULT_GENDER = "unisex";
 const MIN_SCORE = 0;
@@ -48,6 +56,15 @@ export const getPairingSubtype = (clothes = []) =>
   clothes.find((item) => item?.type === "bottom")?.subtype ||
   clothes.find((item) => item?.type === "onepiece")?.subtype ||
   null;
+
+// Every colour on the outfit's outers (several outers all count).
+export const getOuterColours = (clothes = []) => [
+  ...new Set(
+    clothes
+      .filter((item) => item?.type === "outer")
+      .flatMap((item) => item.colors || [])
+  ),
+];
 
 const hasPatternedStyle = (styles = []) =>
   styles.some(
@@ -89,6 +106,14 @@ export const getWeatherPoints = (footwearSubtype, weather) => {
     .reduce((sum, rule) => sum + (rule.points[footwearSubtype] || 0), 0);
 };
 
+/* -------------------- Tights -------------------- */
+
+export const getTightsPoints = (footwearSubtype, withTights) =>
+  withTights ? TIGHTS_POINTS[footwearSubtype] || 0 : 0;
+
+const isOpenWithTights = (footwearSubtype, withTights) =>
+  Boolean(withTights) && NOT_WITH_TIGHTS.includes(footwearSubtype);
+
 /* -------------------- Colour + pattern -------------------- */
 
 export { resolveColourLevel };
@@ -96,9 +121,27 @@ export { resolveColourLevel };
 const fitsAPalette = (colors, palettes) =>
   palettes.some((palette) => colors.every((color) => palette.colours.includes(color)));
 
+// Which points table applies: the outer one for an outfit with an outer
+// and OUTER_COLOUR_FROM up to ADD_COLOUR_UP_TO colours, else add or match
+// by the outfit's colour count.
+const colourPointsFor = (outfitColors, outerColors, level) => {
+  const count = outfitColors.length;
+
+  if (count > ADD_COLOUR_UP_TO[level]) return COLOUR_POINTS.matchColours;
+
+  return outerColors.length > 0 && count >= OUTER_COLOUR_FROM
+    ? OUTER_COLOUR_POINTS
+    : COLOUR_POINTS.addColour;
+};
+
 // { fits, points } for one shoe against the outfit's colours. `fits` is
 // false when outfit + shoe break the level's palettes or colour cap.
-export const getColourResult = (item, outfitColors = [], level) => {
+export const getColourResult = (
+  item,
+  outfitColors = [],
+  level,
+  outerColors = []
+) => {
   const palettes = palettesForLevel(level);
   const maxColors = colorPalettes.maxColors[level];
 
@@ -114,12 +157,16 @@ export const getColourResult = (item, outfitColors = [], level) => {
 
   const fits = paletteOk && capOk;
 
-  const points =
-    outfitColors.length <= ADD_COLOUR_UP_TO[level]
-      ? COLOUR_POINTS.addColour
-      : COLOUR_POINTS.matchColours;
+  const points = colourPointsFor(outfitColors, outerColors, level);
 
   if (!fits) return { fits, points: points.doesNotFit };
+
+  if (
+    points === OUTER_COLOUR_POINTS &&
+    shoeColors.some((color) => outerColors.includes(color))
+  ) {
+    return { fits, points: points.outerColour };
+  }
 
   return {
     fits,
@@ -167,13 +214,15 @@ const seasonTagGroup = (item, season, todayTag) => {
 /* -------------------- Ranking -------------------- */
 
 // context: { gender, bottomSubtype, pairings, weather, season, todayTag,
-// outfitColors, outfitPatterned, colourLevel }.
+// withTights, outfitColors, outerColors, outfitPatterned, colourLevel }.
 // Returns a new array; ties keep their original order (newest first).
 export const rankFootwear = (items = [], context = {}) => {
   const level = resolveColourLevel(context.colourLevel);
 
   const scored = items.map((item, index) => {
     const weatherPoints = getWeatherPoints(item.subtype, context.weather);
+    const unsuitable =
+      weatherPoints < 0 || isOpenWithTights(item.subtype, context.withTights);
 
     const adjustment = context.bottomSubtype
       ? findPairing(context.pairings, context.bottomSubtype, item.subtype)
@@ -184,15 +233,21 @@ export const rankFootwear = (items = [], context = {}) => {
       item,
       index,
       group:
-        (weatherPoints < 0 ? 4 : 0) +
+        (unsuitable ? 4 : 0) +
         seasonTagGroup(item, context.season, context.todayTag),
-      colour: getColourResult(item, context.outfitColors, level),
+      colour: getColourResult(
+        item,
+        context.outfitColors,
+        level,
+        context.outerColors
+      ),
       score:
         clamp(
           getBaselineScore(context.gender, context.bottomSubtype, item.subtype) +
             adjustment
         ) +
         weatherPoints +
+        getTightsPoints(item.subtype, context.withTights) +
         getPatternPoints(item, context.outfitPatterned, level),
     };
   });

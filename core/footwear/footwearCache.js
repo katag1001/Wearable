@@ -6,7 +6,7 @@ import { isDateToday } from "../utils/dates.js";
 // (../today/todayCache.js):
 //  - orders: each outfit's shoe order, so it doesn't shuffle on a refresh
 //    while the user is browsing
-//    ({ [matchId]: { bottomSubtype, footwearIds } });
+//    ({ [matchId]: { bottomSubtype, rankedFor, footwearIds } });
 //  - chosen: the shoe the user picked for an outfit with Change shoes
 //    ({ [matchId]: footwearId });
 //  - worn: the shoe marked worn today, with the snapshot needed to undo it

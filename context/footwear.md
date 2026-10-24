@@ -75,6 +75,7 @@ clothes, which `GET /today/get` populates with their `subtype`.
 | `core/api/footwear.js` | Requests |
 | `core/footwear/footwearCache.js` | Each outfit's order, chosen shoes + worn shoe (one day) |
 | `src/constants/footwearWeather.js` | Weather points |
+| `core/constants/footwearTights.js` | Tights points + shoes that go to the bottom with tights |
 | `src/constants/footwearColour.js` | Colour and pattern points |
 | `shared/colorPalettes.json` | Outfit palettes + colour caps per level (shared with matching) |
 | `shared/footwearMatrices.json` | Baseline pairing scores per gender (hand-edit) |
@@ -88,14 +89,25 @@ clothes, which `GET /today/get` populates with their `subtype`.
 The shoe is paired with the outfit's **bottom**, or its **one-piece** if it
 has no bottom (an outfit with both uses the bottom).
 
-1. **Weather first:** every shoe today's weather doesn't penalise comes
-   before every shoe it does, so nothing else can lift an unsuitable shoe
-   above a suitable one.
+1. **Unsuitable last:** every shoe today's weather doesn't penalise comes
+   before every shoe it does, and with tights, Sandals, Heeled sandals and
+   Flipflops go to the bottom too - so nothing else can lift an unsuitable
+   shoe above a suitable one.
 2. **Then groups**, like Today's outfits: in today's season and has today's
    tag, then season only, then tag only, then neither.
 3. **Score** within a group: matrix baseline (0-90) + the user's learned
-   adjustment, kept within 0-100, + weather points + colour points +
-   pattern points. Freshness plays no part - people rewear the same shoes.
+   adjustment, kept within 0-100, + weather points + tights points +
+   colour points + pattern points. Freshness plays no part - people rewear
+   the same shoes.
+
+### Tights
+
+When Today picks an outfit with its tights range (the entry's
+`withTights`, see Part 5 of `temperature-ranges.md`), shoes are ranked
+with `core/constants/footwearTights.js`: Ankle, Knee-high and Heeled boots
+and Boots +25, Snow and Walking boots +10, Smart and Casual trainers −15;
+Sandals, Heeled sandals and Flipflops go to the bottom group. A cached
+shoe order made with or without tights is ranked again if that changes.
 
 ### Colour and pattern
 
@@ -125,6 +137,20 @@ palette (e.g. user-made) is judged on the cap only.
 | Match | Adds a colour and fits | 0 |
 | Match | Doesn't fit | −10 |
 
+**With an outer** (shoes only - outfit matching is unaffected): an outfit
+with at least one outer and 2 colours up to the level's add limit (2-3
+on min and mid, 2-4 on max) uses these instead of the Add row. The outer
+colours are every colour of every outer (`getOuterColours`, from the
+clothes' `colors`, which `GET /today/get` populates); a shoe matches if
+any of its colours is one of them.
+
+| Shoe | Points |
+|---|---|
+| Shares a colour with an outer (and fits) | +15 |
+| Only the outfit's colours | +5 |
+| Adds a colour and fits | 0 |
+| Doesn't fit | −20 |
+
 If **no** shoe fits, colour points are replaced by Black +15, White +10,
 Brown +5 (a shoe takes its best colour), anything else 0.
 
@@ -145,7 +171,10 @@ the user's matrix (e.g. a shoe added under another gender preference).
 | Cold (max ≤ 10°) | All boots +10; Sandals, Heeled sandals, Flipflops −15, Ballerinas −5 |
 
 The order is worked out once per outfit and kept for the day, so scrolling
-and wearing don't reshuffle it.
+and wearing don't reshuffle it. It's ranked again if the outfit's bottom,
+tights or outer colours change, or if `FOOTWEAR_RANKING_VERSION` in
+`footwearRanking.js` has been bumped - bump it when changing the rules or
+numbers so today's cached orders pick them up.
 
 ### Learning
 

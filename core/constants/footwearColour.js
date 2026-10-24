@@ -30,6 +30,19 @@ export const COLOUR_POINTS = {
   },
 };
 
+// An outfit with an outer and from this many colours up to its level's
+// ADD_COLOUR_UP_TO (before the shoes) prefers shoes in the outer's colours
+// (any colour of any outer, against any colour on the shoe) instead of
+// the addColour points. Outfit matching is unaffected - this is shoes only.
+export const OUTER_COLOUR_FROM = 2;
+
+export const OUTER_COLOUR_POINTS = {
+  outerColour: 15,
+  outfitColoursOnly: 5,
+  newColourFits: 0,
+  doesNotFit: -20,
+};
+
 // When no shoe fits the outfit's colours at all, these colours are
 // preferred instead (a shoe with several takes the best). Any other
 // colour gets no colour preference.

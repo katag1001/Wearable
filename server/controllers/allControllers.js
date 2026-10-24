@@ -1110,11 +1110,12 @@ const WEEK_DAYS = [
 ];
 
 // The clothes fields Today needs: subtype (the shoe box pairs shoes with
-// the outfit's bottom), lastWornDate (clothing freshness), and the worn
-// fields together (the snapshot the client takes before marking an outfit
-// worn, restored if another is worn instead on the same device).
+// the outfit's bottom), colors (shoes are preferred in an outer's
+// colours), lastWornDate (clothing freshness), and the worn fields
+// together (the snapshot the client takes before marking an outfit worn,
+// restored if another is worn instead on the same device).
 const TODAY_CLOTHES_FIELDS =
-  "name imageUrl type subtype lastWornDate timesWorn timesWornThisYear wornYear";
+  "name imageUrl type subtype colors lastWornDate timesWorn timesWornThisYear wornYear";
 
 // Today's tag from the weekly preferences, for the user's weekday (sent by
 // the client - "today" is the user's local day). null if none.

@@ -9,7 +9,9 @@ import {
 import { cacheFootwear, getCachedFootwear } from "../footwear/footwearCache.js";
 import { applyCachedOrder, readTodayWeather } from "../footwear/footwearOrder.js";
 import {
+  FOOTWEAR_RANKING_VERSION,
   findPairing,
+  getOuterColours,
   getPairingSubtype,
   isOutfitPatterned,
   rankFootwear,
@@ -38,6 +40,14 @@ import { isDateToday } from "../utils/dates.js";
 
 const matchIdOf = (outfit) => outfit?.matchId?._id ?? null;
 const bottomOf = (outfit) => getPairingSubtype(outfit?.matchId?.clothes);
+const tightsOf = (outfit) => Boolean(outfit?.withTights);
+const outerColoursOf = (outfit) => getOuterColours(outfit?.matchId?.clothes);
+
+// What an order was ranked for besides its bottom: the ranking rules'
+// version, tights and the outer's colours. A cached order made for
+// anything else is ranked again.
+const rankedForOf = (outfit) =>
+  [FOOTWEAR_RANKING_VERSION, tightsOf(outfit), ...outerColoursOf(outfit)].join("|");
 
 export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
   const [cached] = useState(getCachedFootwear);
@@ -93,11 +103,15 @@ export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
 
   /* -------------------- Orders -------------------- */
 
-  // Changes whenever an outfit is added or its bottom becomes known
-  // (outfits cached earlier in the day may not carry subtypes until the
-  // Today page's background refresh brings them).
+  // Changes whenever an outfit is added, or its bottom, tights or outer
+  // colours change (outfits cached earlier in the day may not carry
+  // subtypes or colours until the Today page's background refresh brings
+  // them).
   const outfitsKey = (outfits || [])
-    .map((outfit) => `${matchIdOf(outfit)}|${bottomOf(outfit)}`)
+    .map(
+      (outfit) =>
+        `${matchIdOf(outfit)}|${bottomOf(outfit)}|${rankedForOf(outfit)}`
+    )
     .join(",");
 
   useEffect(() => {
@@ -109,12 +123,17 @@ export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
     for (const outfit of outfits || []) {
       const matchId = matchIdOf(outfit);
       const bottomSubtype = bottomOf(outfit);
-      const existing = orders[matchId];
+      const rankedFor = rankedForOf(outfit);
+
+      const cachedOrder = orders[matchId];
+      const existing =
+        cachedOrder?.rankedFor === rankedFor ? cachedOrder : null;
 
       if (
         !matchId ||
         (ranked.current.has(matchId) &&
-          (existing?.bottomSubtype ?? null) === bottomSubtype)
+          existing &&
+          (existing.bottomSubtype ?? null) === bottomSubtype)
       ) {
         continue;
       }
@@ -126,7 +145,9 @@ export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
         weather,
         season,
         todayTag,
+        withTights: tightsOf(outfit),
         outfitColors: outfit.matchId.colors || [],
+        outerColors: outerColoursOf(outfit),
         outfitPatterned: isOutfitPatterned(outfit.matchId),
         colourLevel: data.colourLevel,
       });
@@ -134,6 +155,7 @@ export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
       ranked.current.add(matchId);
       added[matchId] = {
         bottomSubtype,
+        rankedFor,
         footwearIds: applyCachedOrder(rankedShoes, existing, bottomSubtype).map(
           (item) => item._id
         ),
