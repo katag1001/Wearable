@@ -93,8 +93,8 @@ with another top it's always the layer over it, never the innermost.
   under a trench coat is floored at the trench's 6.
 - `SKIRT_DRESS_MIN_TEMP` (7) - an outfit with a skirt or dress
   (`SKIRT_DRESS_SUBTYPES`: every skirt and dress subtype) is never below
-  this, with any number of outers. It's the bare-legs range, so with
-  tights (Part 5) it goes down to 4.
+  this, with any number of outers. It's the bare-legs floor, so with
+  tights (Part 5) it goes down by the tights shift, to 5.
 - `OUTER_CEILING_BASE` (25) - an outfit with outers is never suitable above
   this minus the outers' total points (23° with a blazer, 14° with a puffer
   coat).
@@ -281,8 +281,15 @@ jacket, **11–17** with "cold".
 
 A match's `min_temp`/`max_temp` is always the range **without** tights.
 Some outfits can also be worn with tights, which suits a range
-`shift` (3°) colder at both ends. That range is worked out when it's
+`shift` (2°) colder at both ends. That range is worked out when it's
 needed and never stored, so changing the shift needs no reset.
+
+On Today, the tights range's minimum never goes below the outfit's floors
+from Part 1 step 4 (14° with no outer, the outer's minimum, and for a
+skirt or dress the bare-legs 7° less the shift, so 5° - `minTempFloor` in `presetTemperatureService.js`, plus the
+user's preference shift, via `savedMinTempFloor` in `tightsService.js`).
+So a jumper and skirt with no coat saved at 15° can only reach 14° with
+tights, not 13°. The Matches filter still uses the plain shift.
 
 **The item's answer.** The item form asks "Would you wear this with
 tights?" for every skirt, dress and shorts (shorts for women and unisex

@@ -111,7 +111,7 @@ const OUTER_MIN_TEMPS = {
 };
 
 // Any outfit with a skirt or dress is never below this either - it's the bare-legs range; tights take it
-// shared/tights.json's shift colder (7 -> 4).
+// shared/tights.json's shift colder (7 -> 5).
 const SKIRT_DRESS_MIN_TEMP = 7;
 
 const SKIRT_DRESS_SUBTYPES = [

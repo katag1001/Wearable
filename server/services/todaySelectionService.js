@@ -27,7 +27,7 @@ const {
 const { todayCoverageFraction, closeMatchBounds } = require("./temperatureService.js");
 const { rankTodayGroups } = require("./todayRankingService.js");
 const { spreadSharedItems } = require("./todayDiversityService.js");
-const { takesTights, tightsRange } = require("./tightsService.js");
+const { takesTights, tightsRange, savedMinTempFloor } = require("./tightsService.js");
 
 // Allows for floating-point rounding in the comparisons.
 const EPSILON = 1e-9;
@@ -56,11 +56,19 @@ const tierOfRange = (range, todayRange) => {
 
 // { tier, withTights } for an outfit today, or null if it doesn't qualify
 // at all. An outfit that takes tights (takesTights) is also checked against its
-// tights range; withTights is true only when that range does better.
-const todayFitOf = (match, todayRange) => {
+// tights range - kept above the outfit's floors, so the match's clothes need
+// `type` and `subtype`, and the user's temperature preference is needed
+// to line the floors up with the saved range; withTights is true only when
+// that range does better.
+const todayFitOf = (match, todayRange, temperaturePreference = null) => {
   const range = { min: match.min_temp, max: match.max_temp };
   const tier = tierOfRange(range, todayRange);
-  const tightsTier = takesTights(match) ? tierOfRange(tightsRange(range), todayRange) : null;
+  const tightsTier = takesTights(match)
+    ? tierOfRange(
+        tightsRange(range, savedMinTempFloor(match.clothes, temperaturePreference)),
+        todayRange
+      )
+    : null;
 
   if (tightsTier !== null && (tier === null || tightsTier < tier)) {
     return { tier: tightsTier, withTights: true };
@@ -71,7 +79,8 @@ const todayFitOf = (match, todayRange) => {
 
 // The weather tier an outfit belongs to today (0 is the best), or null if
 // it doesn't qualify at all.
-const todayTierOf = (match, todayRange) => todayFitOf(match, todayRange)?.tier ?? null;
+const todayTierOf = (match, todayRange, temperaturePreference = null) =>
+  todayFitOf(match, todayRange, temperaturePreference)?.tier ?? null;
 
 const TIER_COUNT = 1 + PARTIAL_COVERAGE_STEPS.length;
 
@@ -81,6 +90,7 @@ const selectTodayMatches = ({
   matches,
   todayRange,
   todayTag = null,
+  temperaturePreference = null,
   now = new Date(),
   limit = TODAY_OUTFIT_LIMIT,
   random = Math.random,
@@ -88,7 +98,7 @@ const selectTodayMatches = ({
   const tiers = Array.from({ length: TIER_COUNT }, () => []);
 
   matches.forEach((match) => {
-    const tier = todayTierOf(match, todayRange);
+    const tier = todayTierOf(match, todayRange, temperaturePreference);
 
     if (tier !== null) {
       tiers[tier].push(match);

@@ -1191,16 +1191,21 @@ const buildToday = async ({ userId, todayStart, season_today, day_of_week, min_t
       };
     }
 
-    const seasonMatches = await Match.find({
-      userId,
-      [season_today]: true,
-    }).populate("clothes", "lastWornDate");
+    // type + subtype: the floors that keep a tights range from going too
+    // cold (todaySelectionService.todayFitOf).
+    const [seasonMatches, { temperature }] = await Promise.all([
+      Match.find({
+        userId,
+        [season_today]: true,
+      }).populate("clothes", "lastWornDate type subtype"),
+      getUserMatchingPreferences(userId),
+    ]);
 
     const todayRange = { min: min_temp_today, max: max_temp_today };
 
     // Anything that could get into a weather tier...
     const candidates = seasonMatches.filter(
-      (match) => todayTierOf(match, todayRange) !== null
+      (match) => todayTierOf(match, todayRange, temperature) !== null
     );
 
     // ...without outfits rejected in the last few days, unless every
@@ -1214,6 +1219,7 @@ const buildToday = async ({ userId, todayStart, season_today, day_of_week, min_t
       matches,
       todayRange,
       todayTag: await getTodayTag(userId, day_of_week),
+      temperaturePreference: temperature,
     });
 
     await Today.deleteMany({ userId });
@@ -1231,7 +1237,7 @@ const buildToday = async ({ userId, todayStart, season_today, day_of_week, min_t
         userId,
         matchId: match._id,
         rank,
-        withTights: todayFitOf(match, todayRange).withTights,
+        withTights: todayFitOf(match, todayRange, temperature).withTights,
       }))
     );
 

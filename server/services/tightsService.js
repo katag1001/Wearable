@@ -2,7 +2,9 @@
 //
 // Tights. A match's stored min_temp/max_temp is always the range WITHOUT
 // tights. An outfit that can take tights also suits a range TIGHTS_SHIFT
-// degrees colder at both ends - worked out when it's needed (Today's
+// degrees colder at both ends - except that on Today the minimum never
+// goes below the outfit's floors (no outer, outer, skirt or dress; see
+// tightsRange) - worked out when it's needed (Today's
 // weather tiers, the Matches temperature filter, the match card), never
 // stored, so changing the shift needs no reset. Pure - no DB access.
 //
@@ -27,7 +29,8 @@
 // unambiguous.
 
 const { shift: TIGHTS_SHIFT, askBySubtype } = require("../../shared/tights.json");
-const { TOP_GROUPS } = require("../constants/temperatureGroups.js");
+const { TOP_GROUPS, SKIRT_DRESS_MIN_TEMP } = require("../constants/temperatureGroups.js");
+const { minTempFloor, preferenceShiftOf } = require("./presetTemperatureService.js");
 
 const WARM_TOPS = new Set(TOP_GROUPS.warm);
 
@@ -61,8 +64,21 @@ function canWearTights(items) {
 // Whether a saved match takes tights.
 const takesTights = (match) => !!match.tights && !match.noTights;
 
-// The range with tights, from a stored { min, max }.
-const tightsRange = ({ min, max }) => ({ min: min - TIGHTS_SHIFT, max: max - TIGHTS_SHIFT });
+// The range with tights, from a stored { min, max }. `floor` is the
+// coldest the outfit may go (savedMinTempFloor) - tights never take the
+// minimum below it, nor lift a minimum that's already below it.
+const tightsRange = ({ min, max }, floor = -Infinity) => ({
+  min: Math.min(min, Math.max(min - TIGHTS_SHIFT, floor)),
+  max: max - TIGHTS_SHIFT,
+});
+
+// The floor for a saved match's tights range: presetTemperatureService's
+// floors for its clothes (they need `type` and `subtype`), plus the user's
+// temperature preference shift, as its saved range has. The skirt/dress
+// floor is the bare-legs one, so tights take it TIGHTS_SHIFT colder.
+const savedMinTempFloor = (clothes, temperaturePreference) =>
+  minTempFloor(clothes || [], SKIRT_DRESS_MIN_TEMP - TIGHTS_SHIFT) +
+  preferenceShiftOf(temperaturePreference);
 
 module.exports = {
   TIGHTS_SHIFT,
@@ -72,4 +88,5 @@ module.exports = {
   canWearTights,
   takesTights,
   tightsRange,
+  savedMinTempFloor,
 };

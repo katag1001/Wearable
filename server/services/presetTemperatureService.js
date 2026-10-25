@@ -148,6 +148,27 @@ function capMax([min, max], cap) {
   return [Math.min(min, cap), cap];
 }
 
+// The coldest the outfit's minimum may go (step 4), before the preference
+// shift: NO_OUTER_MIN_TEMP with no outer, else the lowest of its outers'
+// OUTER_MIN_TEMPS; with a skirt or dress, never below SKIRT_DRESS_MIN_TEMP
+// (or `skirtDressFloor` - the tights range passes a lower one, since that
+// floor is for bare legs). Also keeps the tights range (tightsService.js)
+// above the same floors.
+function minTempFloor(items, skirtDressFloor = SKIRT_DRESS_MIN_TEMP) {
+  const outers = items.filter((item) => item.type === "outer");
+
+  const outerFloor = outers.length === 0
+    ? NO_OUTER_MIN_TEMP
+    : Math.min(...outers.map((outer) => OUTER_MIN_TEMPS[outer.subtype] ?? TEMPERATURE_LIMITS[0]));
+
+  const hasSkirtOrDress = items.some((item) => SKIRT_DRESS_SUBTYPES.includes(item.subtype));
+
+  return hasSkirtOrDress ? Math.max(outerFloor, skirtDressFloor) : outerFloor;
+}
+
+const preferenceShiftOf = (temperaturePreference) =>
+  TEMPERATURE_PREFERENCE_SHIFT[temperaturePreference] || 0;
+
 function computePresetTemperatureRange(items, temperaturePreference = null) {
   const unknownSubtypes = [];
 
@@ -211,16 +232,9 @@ function computePresetTemperatureRange(items, temperaturePreference = null) {
 
   range = addOuters(range, outerPoints);
 
-  const outerFloor = outers.length === 0
-    ? NO_OUTER_MIN_TEMP
-    : Math.min(...outers.map((outer) => OUTER_MIN_TEMPS[outer.subtype] ?? TEMPERATURE_LIMITS[0]));
+  const floor = minTempFloor(items);
 
-  const hasSkirtOrDress = items.some((item) => SKIRT_DRESS_SUBTYPES.includes(item.subtype));
-  const floors = [outerFloor, hasSkirtOrDress ? SKIRT_DRESS_MIN_TEMP : undefined]
-    .filter((value) => value !== undefined);
-  const floor = floors.length ? Math.max(...floors) : undefined;
-
-  if (floor !== undefined && range[0] < floor) {
+  if (range[0] < floor) {
     range = [floor, Math.max(range[1], floor)];
   }
 
@@ -236,11 +250,11 @@ function computePresetTemperatureRange(items, temperaturePreference = null) {
     range = [range[0], range[0] + MIN_SPAN];
   }
 
-  const shift = TEMPERATURE_PREFERENCE_SHIFT[temperaturePreference] || 0;
+  const shift = preferenceShiftOf(temperaturePreference);
   const min_temp = clampTemperature(range[0] + shift);
   const max_temp = Math.max(min_temp, clampTemperature(range[1] + shift));
 
   return { min_temp, max_temp, unknownSubtypes };
 }
 
-module.exports = { computePresetTemperatureRange };
+module.exports = { computePresetTemperatureRange, minTempFloor, preferenceShiftOf };
