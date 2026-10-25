@@ -6,8 +6,7 @@
 // adjustment for that pair. A match's `score` is set once, when the match
 // is created (see services/outfitScoreService.js). After that it only
 // changes when the user claims an automatic match by building the same
-// outfit themselves, rejects it on the Today page
-// (services/matchRejectionService.js), favourites / unfavourites one of
+// outfit themselves, favourites / unfavourites one of
 // its clothing items (services/favouriteItemService.js), or rates or
 // favourites the outfit itself (services/matchRatingService.js).
 
@@ -132,10 +131,9 @@ const PAIRING_ANSWER_ADJUSTMENTS = {
 };
 
 // Rejecting an outfit on the Today page (at most once per outfit per day)
-// takes this off its stored score, and keeps it out of the Today list for
-// this many days.
-const REJECTION_SCORE_PENALTY = 3;
-const REJECTION_COOLDOWN_DAYS = 5;
+// keeps it out of the Today list for this many days. It never changes a
+// score (services/matchRejectionService.js).
+const REJECTION_COOLDOWN_DAYS = 3;
 
 // Rating an outfit (1-5 stars, services/matchRatingService.js) sets its
 // score outright: 3-5 stars to these scores.
@@ -190,7 +188,6 @@ module.exports = {
   FAVOURITE_ITEM_BONUS,
   LEARNING_DELTAS,
   PAIRING_ANSWER_ADJUSTMENTS,
-  REJECTION_SCORE_PENALTY,
   REJECTION_COOLDOWN_DAYS,
   TEMPERATURE_FEEDBACK_SHIFT,
   RATING_SCORES,

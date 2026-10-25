@@ -904,7 +904,6 @@ exports.rejectMatch = async (req, res) => {
 
     return res.json({
       _id: match._id,
-      score: match.score,
       rejectedCount: match.rejectedCount,
       lastRejectedDate: match.lastRejectedDate,
     });
@@ -1210,10 +1209,7 @@ const buildToday = async ({ userId, todayStart, season_today, day_of_week, min_t
 
     // ...without outfits rejected in the last few days, unless every
     // candidate was.
-    // Paused while temperatures are being reviewed - restore the line below
-    // to hide recently rejected outfits again.
-    // const matches = excludeRecentlyRejected(candidates, todayStart);
-    const matches = candidates;
+    const matches = excludeRecentlyRejected(candidates, todayStart);
 
     const selected = selectTodayMatches({
       matches,

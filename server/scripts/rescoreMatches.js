@@ -10,9 +10,8 @@
 //  - Worn outfits are recalculated like any other.
 //  - User-made outfits keep their score (it's a flat USER_MADE_SCORE) but
 //    get a new range.
-//  - Automatic outfits get a fresh computeOutfitScore, minus
-//    REJECTION_SCORE_PENALTY for every rejection still on record, so
-//    rejections aren't forgotten, then the favourite-item bonus
+//  - Automatic outfits get a fresh computeOutfitScore (rejections don't
+//    affect scores), then the favourite-item bonus
 //    (services/favouriteItemService.js) if any of their clothes is a
 //    favourite.
 //  - Ranges edited by hand on a match card are overwritten, as with
@@ -44,7 +43,7 @@ const {
   getUserMatchingPreferences,
   loadUserAdjustments,
 } = require("../services/matchScoreService.js");
-const { MIN_SCORE, REJECTION_SCORE_PENALTY } = require("../constants/scoring.js");
+const { MIN_SCORE } = require("../constants/scoring.js");
 const { favouriteItemBonusFor } = require("../services/favouriteItemService.js");
 
 function argValue(name) {
@@ -108,11 +107,7 @@ async function run() {
 
       const baseScore = match.userMade
         ? match.score
-        : Math.max(
-          MIN_SCORE,
-          computeOutfitScore(items, context) -
-            (match.rejectedCount || 0) * REJECTION_SCORE_PENALTY
-        );
+        : Math.max(MIN_SCORE, computeOutfitScore(items, context));
 
       const favouriteItemBonus =
         !match.userMade && items.some((item) => item.favourite)

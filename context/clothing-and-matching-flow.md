@@ -1199,22 +1199,22 @@ Files: `server/services/matchRejectionService.js`,
 in `allControllers.js`. Numbers in `server/constants/scoring.js`.
 
 - Pressing **›** rejects the outfit being left (`PUT /match/:id/reject`),
-  including favourites, the last outfit when it wraps round, and while a tag
+  including favourites and rated outfits, the last outfit when it wraps round, and while a tag
   filter is on. ‹ never rejects.
 - A rejection counts **at most once per outfit per day**: `rejectedCount`
-  +1, `lastRejectedDate` = now, and the stored `score` drops by
-  **`REJECTION_SCORE_PENALTY` = 3** (never below 0). The client sends no
+  +1 and `lastRejectedDate` = now. It **never changes a score** (the
+  outfit's or any pair's) - hiding it from Today is its only effect. The client sends no
   request once the outfit's `lastRejectedDate` is today; the server ignores
   a repeat anyway.
 - **`createToday`** leaves out outfits rejected in the last
-  **`REJECTION_COOLDOWN_DAYS` = 5** days - one rejected on the 2nd is
-  hidden up to and including the 7th. If every outfit that could get into
+  **`REJECTION_COOLDOWN_DAYS` = 3** days - one rejected on the 2nd is
+  hidden up to and including the 5th. If every outfit that could get into
   today's tiers was rejected recently, none are left out. Today's list is built once a
   day, so an outfit rejected today stays reachable with ‹ until tomorrow.
 - **Marking as worn** an outfit rejected today undoes the rejection
-  (count −1, score +3, `lastRejectedDate` back to null). The previous
+  (count −1, `lastRejectedDate` back to null). The previous
   rejection date isn't kept, which doesn't matter: anything rejected in the
-  5 days before wasn't in today's list to wear. Switching the worn outfit
+  3 days before wasn't in today's list to wear. Switching the worn outfit
   to another one later doesn't re-apply the rejection.
 - "Today" is the user's local day: the client sends its local midnight
   (`todayStart` / `today_start`); the server falls back to its own.
@@ -1520,7 +1520,7 @@ user's matrix no longer allows (`isCompatible`), plus their Today entries.
 | Style quiz pairing questions / their pairs / answer values | `src/constants/pairingQuestions.js` / `server/constants/pairingQuestions.js` / `PAIRING_ANSWER_ADJUSTMENTS` in `server/constants/scoring.js` (see 2.6) |
 | Today page weights, tiers and cap | `server/constants/todayOutfits.js` |
 | Favourite clothing item bonus | `FAVOURITE_ITEM_BONUS` in `server/constants/scoring.js`, logic in `server/services/favouriteItemService.js` (3.11) |
-| Rejection penalty / days a rejected outfit is hidden | `REJECTION_SCORE_PENALTY`, `REJECTION_COOLDOWN_DAYS` in `server/constants/scoring.js` |
+| Days a rejected outfit is hidden | `REJECTION_COOLDOWN_DAYS` in `server/constants/scoring.js` |
 | Too hot / too cold shift, mismatch penalty | `TEMPERATURE_FEEDBACK_SHIFT`, `LEARNING_DELTAS.mismatched` in `server/constants/scoring.js` (7.3) |
 | Favourite score | `FAVOURITE_SCORE` in `src/utils/matchScore.js` |
 | Temperature numbers | `server/constants/temperatureGroups.js`, see `temperature-ranges.md` |

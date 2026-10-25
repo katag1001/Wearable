@@ -79,7 +79,7 @@ export const sendMismatch = async (matchId, clothesIds) => {
 };
 
 // Scrolling past an outfit on the Today page. Returns the match's new
-// { score, rejectedCount, lastRejectedDate }. Rules and numbers:
+// { rejectedCount, lastRejectedDate }. Rules and numbers:
 // server/services/matchRejectionService.js.
 export const rejectMatch = async (matchId) => {
   const response = await api.put(`/match/${matchId}/reject`, {

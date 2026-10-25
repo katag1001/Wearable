@@ -307,19 +307,15 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
 
   /* -------------------- Next / previous -------------------- */
 
-  // Moving on from an outfit rejects it - at most once per outfit per day.
-  // Never a rated or favourite one, or one being rated now: its score is
-  // the user's own. (Call paused in goNext below.)
-  // eslint-disable-next-line no-unused-vars
+  // Moving on from an outfit rejects it - at most once per outfit per day -
+  // which only hides it from Today for the next few days, never touching
+  // its score. Rated and favourite outfits included.
   const rejectCurrentOutfit = () => {
     const match = selectedOutfit?.matchId;
     const matchId = match?._id;
 
     if (
       !matchId ||
-      match.favourite ||
-      match.rating != null ||
-      pendingRating?.matchId === matchId ||
       wasRejectedToday(match) ||
       pendingRejections.current.has(matchId)
     ) {
@@ -329,8 +325,8 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     pendingRejections.current.add(matchId);
 
     rejectOutfit(matchId)
-      .then(({ score, rejectedCount, lastRejectedDate }) =>
-        updateMatch(matchId, { score, rejectedCount, lastRejectedDate })
+      .then(({ rejectedCount, lastRejectedDate }) =>
+        updateMatch(matchId, { rejectedCount, lastRejectedDate })
       )
       .catch((err) => console.error("Failed to reject outfit:", err))
       .finally(() => pendingRejections.current.delete(matchId));
@@ -339,9 +335,7 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   const goNext = () => {
     if (filteredOutfits.length <= 1) return;
 
-    // Rejection paused while temperatures are being reviewed - uncomment to
-    // restore the swipe penalty.
-    // rejectCurrentOutfit();
+    rejectCurrentOutfit();
     saveRating();
     setCurrentIndex((prev) => (prev + 1) % filteredOutfits.length);
   };
