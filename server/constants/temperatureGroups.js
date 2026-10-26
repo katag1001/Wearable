@@ -34,7 +34,7 @@ const BOTTOM_GROUPS = {
     "Cargo shorts", "Skater shorts", "Fancy Shorts", "Maxi skirt",
   ],
   lightLong: [
-    "Smart skirt", "Midi-skirt", "Low waist midi",
+    "Smart skirt", "Midi-skirt",
     "Linen pants", "Cropped trousers",
   ],
   long: [
@@ -115,7 +115,7 @@ const OUTER_MIN_TEMPS = {
 const SKIRT_DRESS_MIN_TEMP = 7;
 
 const SKIRT_DRESS_SUBTYPES = [
-  "Mini skirt", "Maxi skirt", "Smart skirt", "Midi-skirt", "Low waist midi",
+  "Mini skirt", "Maxi skirt", "Smart skirt", "Midi-skirt",
   "Summer dress", "Casual dress", "Wedding guest dress", "Cocktail dress",
   "Evening dress", "Work dress", "Winter dress",
 ];

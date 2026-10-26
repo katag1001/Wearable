@@ -448,7 +448,7 @@ Files: `src/constants/pairingQuestions.js` (text, headings, images),
 | `turtlenecksUnderShirts` | Do you like turtlenecks under shirts or blouses? | Short/Long turtleneck × Buttondown shirt, Linen shirt, Floaty blouse, Fancy blouse |
 | `topsUnderDresses` | Do you like t-shirts or turtlenecks under dresses? | Short/Long t-shirt, Short/Long turtleneck × every dress |
 | `smartAndCasual` | Do you like to mix smart and casual? | Hoodie × Blazer, Trench coat, the skirts; Blazer, Trench coat × Sweatpants, Leggings; Cargo pants × Fancy top, Fancy blouse, Blazer |
-| `croptopsLowRise` | Do you like croptops with low-rise bottoms? | Croptop × Low waist jeans, Low waist midi |
+| `croptopsLowRise` | Do you like croptops with low-rise bottoms? | Croptop × Low waist jeans |
 
 The first three are under "A few layering questions...", the last two
 under "And a couple about mixing styles...".

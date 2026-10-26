@@ -136,7 +136,6 @@ const SUBTYPE_SYNONYMS = {
   "chinos": ["chino"],
   "leggings": ["tights"],
   "midi-skirt": ["midi skirt"],
-  "low waist midi": ["low waisted midi skirt"],
   "low waist jeans": ["low waisted jeans"],
   "high waisted jeans": ["high waist jeans"],
   "boyfriend jeans": ["baggy jeans"],

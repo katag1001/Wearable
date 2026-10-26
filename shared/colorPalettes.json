@@ -7,7 +7,7 @@
     {"id": "black-red-white", "tier": "classic", "levels": ["min", "mid", "max"], "colours": ["Black", "Bright Red", "White"]},
     {"id": "brown-tan-olive-green", "tier": "classic", "levels": ["min", "mid", "max"], "colours": ["Brown", "Tan", "Olive Green"]},
     {"id": "light-blue-grey-white", "tier": "classic", "levels": ["min", "mid", "max"], "colours": ["Light Blue", "Grey", "White"]},
-    {"id": "light-blue-black-white", "tier": "classic", "levels": ["min", "mid"], "colours": ["Light Blue", "Black", "White"]},
+    {"id": "light-blue-black-white", "tier": "classic", "levels": ["min", "mid", "max"], "colours": ["Light Blue", "Black", "White"]},
     {"id": "burgundy-cream-grey", "tier": "classic", "levels": ["min", "mid", "max"], "colours": ["Burgundy", "Cream", "Grey"]},
     {"id": "burgundy-tan-grey", "tier": "classic", "levels": ["min", "mid", "max"], "colours": ["Burgundy", "Tan", "Grey"]},
     {"id": "cream-camel-tan", "tier": "classic", "levels": ["min", "mid", "max"], "colours": ["Cream", "Camel", "Tan", "White", "Brown", "Black"]},

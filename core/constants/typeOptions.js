@@ -1188,26 +1188,6 @@ const typeOptionsByGender = {
     },
     {
       "type": "bottom",
-      "category": "Skirts",
-      "name": "Low waist midi",
-      "season": [
-        "Spring",
-        "Summer",
-        "Autumn",
-        "Winter"
-      ],
-      "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
-        "Date night",
-        "Everyday",
-        "Lunch"
-      ]
-    },
-    {
-      "type": "bottom",
       "category": "Jeans",
       "name": "Cropped jeans",
       "season": [
@@ -2436,26 +2416,6 @@ const typeOptionsByGender = {
       "type": "bottom",
       "category": "Skirts",
       "name": "Midi-skirt",
-      "season": [
-        "Spring",
-        "Summer",
-        "Autumn",
-        "Winter"
-      ],
-      "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
-        "Date night",
-        "Everyday",
-        "Lunch"
-      ]
-    },
-    {
-      "type": "bottom",
-      "category": "Skirts",
-      "name": "Low waist midi",
       "season": [
         "Spring",
         "Summer",

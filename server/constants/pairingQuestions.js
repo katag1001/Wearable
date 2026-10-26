@@ -57,14 +57,14 @@ const pairingQuestions = {
       [["Blazer", "Trench coat"], ["Sweatpants", "Leggings"]],
       [
         ["Hoodie/sweatshirt"],
-        ["Mini skirt", "Midi-skirt", "Maxi skirt", "Smart skirt", "Low waist midi"],
+        ["Mini skirt", "Midi-skirt", "Maxi skirt", "Smart skirt"],
       ],
       [["Cargo pants"], ["Fancy top", "Fancy blouse", "Blazer"]],
     ],
   },
 
   croptopsLowRise: {
-    pairGroups: [[["Croptop"], ["Low waist jeans", "Low waist midi"]]],
+    pairGroups: [[["Croptop"], ["Low waist jeans"]]],
   },
 };
 

@@ -54,7 +54,7 @@ with another top it's always the layer over it, never the innermost.
 | Bottom group | Subtypes |
 |---|---|
 | short | Mini skirt, Maxi skirt and all shorts |
-| lightLong | Smart, Midi and Low waist midi skirts, Linen pants, Cropped trousers |
+| lightLong | Smart and Midi skirts, Linen pants, Cropped trousers |
 | long | All jeans (including Cropped jeans), Tailored trousers, Wide leg trousers, Chinos, Cargo pants, Leather trousers, Leggings, Sweatpants |
 
 `BASE_RANGES` - a top group worn with a bottom group, no outer:
@@ -301,7 +301,7 @@ jumpsuits, overalls) never takes tights.
 
 | Default yes | Default no |
 |---|---|
-| Mini, Maxi, Smart, Midi and Low waist midi skirts; Casual, Cocktail, Work and Winter dresses; Fancy shorts | Summer, Evening and Wedding guest dresses; Casual, Denim, Linen, Cargo and Skater shorts |
+| Mini, Maxi, Smart and Midi skirts; Casual, Cocktail, Work and Winter dresses; Fancy shorts | Summer, Evening and Wedding guest dresses; Casual, Denim, Linen, Cargo and Skater shorts |
 
 **Which outfits** (`canWearTights` in `server/services/tightsService.js`):
 

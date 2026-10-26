@@ -38,7 +38,7 @@ test("every subtype in the pairing questions exists for every pairing gender", (
 test("an answer sets every allowed pair in the question to the answer's value", () => {
   const adjustments = pairingAdjustments({ croptopsLowRise: "sometimes" }, "woman", woman);
 
-  assert.equal(adjustments.length, 2);
+  assert.equal(adjustments.length, 1);
   assert.equal(
     findAdjustment(adjustments, "Croptop", "Low waist jeans").adjustment,
     PAIRING_ANSWER_ADJUSTMENTS.sometimes
