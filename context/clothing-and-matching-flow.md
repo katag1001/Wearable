@@ -190,7 +190,7 @@ The user can correct all of this on page two.
 of it:
 
 - **Seasons.** Checkboxes (`toggleSeason`).
-- **Colours.** A grid of the 28 `colorOptions` (`toggleColor`).
+- **Colours.** A grid of the 33 `colorOptions`, grouped by colour rather than alphabetical (`toggleColor`).
 - **Tags.** The 10 `tagOptions`: Work, Gym, Loungewear, Party, Date night,
   Formal, Beach, Outdoor, Dinner, Everyday.
 
@@ -851,15 +851,15 @@ through `PUT /clothing/:id` (`core/hooks/useItemFavourite.js`).
   favourite-item bonus is never added to a rated or favourite outfit.
 - Rated and favourite outfits are **never rejected** on Today (no swipe
   penalty), and a rated outfit is **protected** from automatic rematching
-  (`matchProtection.js`). `rescoreMatches.js` skips them.
+  (`matchProtection.js`).
 - **Today**: the stars sit under the outfit, above the buttons. Stars
   picked are saved once the user leaves the outfit (next, previous,
   another tag on web, or wearing it) - `useToday`. Opening the outfit
   screen on mobile hands the picked stars over; Save there saves them.
 - **Edit page** (web card editor, mobile outfit screen): the stars are
   part of the draft and saved on Save, after the other fields.
-- Existing favourites were moved to 100 once with
-  `server/scripts/setFavouriteScores.js`.
+- Existing favourites were moved to 100 once with a one-off script
+  (since deleted).
 
 ## Part 4 - Automatic matching (`processMatches`)
 
@@ -1255,8 +1255,7 @@ closes the screen and shows the next outfit.
   Today entry is marked `hidden`, so `/today/get` leaves it out for the
   rest of the day (the entry is kept so the list still counts as built).
   It isn't rejected and its score doesn't change.
-  `resetMatchTemperatures.js` and `rescoreMatches.js` recalculate the
-  range and undo the shift.
+  The shift counts as an edit by hand, so `rematchAll.js` keeps it.
 - **Mismatch** (`POST /match/:id/mismatch`, `{ clothesIds: [a, b] }`): the
   user picks exactly **2** of the outfit's clothing items (shoes aren't
   offered; a two-item outfit starts with both picked). Then:
@@ -1488,21 +1487,29 @@ the project root with `node server/scripts/<name>.js`.
 
 | Script | What it does | Safe to run again? |
 |---|---|---|
-| `resetMatchTemperatures.js` | Recalculates every match's temperature range from the current presets (`--dry-run`, `--backup <file>`). Also overwrites ranges edited by hand | Yes - run it after changing `temperatureGroups.js` |
-| `rematchAll.js` | **Deletes every match and Today entry for every user** (user-made and favourites too), then runs `processMatches` for every clothing item under the current rules. `--keep-protected` keeps favourites and user-made outfits; `--keep-interacted` keeps every outfit the app protects (favourites, user-made, rated, worn, edited by hand). Personal score adjustments are kept. Only shows counts unless run with `--confirm` | Yes, but without a keep option each run throws away user-made outfits and favourites |
-| `renameColours.js` | One-off for the October 2026 colour split: renames stored colours on clothes, footwear and matches (Yellow → Bright Yellow, Pink → Baby Pink, Deep Red → Dark Red) and removes deleted palette ids from favourite palettes. Only shows counts unless run with `--confirm`. Run on the database on 26 October 2026, before `rematchAll.js --keep-interacted` | Yes - renamed colours aren't found again |
-| `setFavouriteScores.js` | One-off for star ratings (3.12): sets every favourite's stored score to 100 (no favourite-item bonus) and drops the old `{ userId, favourite, score, _id }` index. Only shows counts unless run with `--confirm` | Yes - already-moved favourites are left alone |
+These are the only two kept scripts. A script written for one change is
+run once and then deleted.
+
+| Script | What it does | Safe to run again? |
+|---|---|---|
+| `rematchAll.js` | Deletes every match the user hasn't interacted with (and the Today entries pointing at them), then runs `processMatches` for every clothing item under the current rules. Every outfit the app protects is kept (`matchProtection.js`: favourites, user-made, rated, worn, edited by hand), and so are personal score adjustments. `--subtype "<name>"` limits it to outfits with that subtype. Only shows counts unless run with `--confirm`. Rebuilt outfits get new scores and temperature ranges, so run it after changing palettes, scoring, matching rules or `temperatureGroups.js` | Yes |
+| `resetToday.js` | Clears every user's Today list so the app builds it again on the next load. Matches, wear history and scores are untouched. Only shows counts unless run with `--confirm` | Yes |
 
 The one-off migrations for the changes in Part 10 (subtype renames, the
 score-adjustment reset, colour merges, removing clothing temperatures,
 adding `clothesKey`) were run on the database and then deleted. They're in
 the git history if one is ever needed again. The Maroon → Burgundy colour
 rename (October 2026) was also run once and deleted; it was never committed.
-Maroon came back as its own colour in the colour split later that month;
-items renamed to Burgundy then stay Burgundy unless changed by hand.
 So was the clean-up after women's Waistcoat × Vest / Light jumper were set
 to null (October 2026): it deleted every match containing a pair the
 user's matrix no longer allows (`isCompatible`), plus their Today entries.
+The colour split (26 October 2026) renamed stored colours (Yellow → Bright
+Yellow, Pink → Baby Pink, Deep Red → Dark Red) and removed deleted palette
+ids from favourites with a one-off script, also deleted. Maroon came back
+as its own colour then; items renamed to Burgundy earlier stay Burgundy
+unless changed by hand. Also deleted the same day: the scripts that reset
+temperature ranges, rescored matches, removed layering violations and moved
+favourites to a score of 100.
 
 ---
 

@@ -7,8 +7,7 @@
 // and its score doesn't change. It counts as changing the outfit by hand
 // (userEdited), so automatic rematching keeps it.
 //
-// Only that one match changes, not the presets: resetMatchTemperatures.js
-// and rescoreMatches.js recalculate the range and undo it.
+// Only that one match changes, not the presets.
 
 const { Match, Today } = require("../models/AllModels.js");
 const { TEMPERATURE_FEEDBACK_SHIFT } = require("../constants/scoring.js");

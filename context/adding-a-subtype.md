@@ -127,8 +127,8 @@ subtypes (see `temperature-ranges.md`). Add the new subtype to:
 
 `server/specs/presetTemperatureService.spec.js` fails if any subtype in
 `subtypesByGender.json` is missing here. Then run
-`node server/scripts/resetMatchTemperatures.js` if existing matches should
-pick it up.
+`node server/scripts/rematchAll.js --confirm` if existing matches should
+pick it up (outfits you've interacted with keep their ranges).
 
 ---
 

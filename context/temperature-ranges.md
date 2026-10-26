@@ -30,8 +30,7 @@ Files:
 | `server/services/presetTemperatureService.js` | The rules that combine them (`computePresetTemperatureRange`) |
 | `server/services/outfitEvaluator.js` | `describeOutfit` calls it for every new match |
 | `server/services/temperatureService.js` | Matching a saved range against today's weather |
-| `server/scripts/resetMatchTemperatures.js` | Recalculates every existing match after the numbers change |
-| `server/scripts/rescoreMatches.js` | Recalculates every non-favourite match's score **and** range, without rematching |
+| `server/scripts/rematchAll.js` | Rebuilds every outfit you haven't interacted with, giving them ranges from the current numbers |
 
 ---
 
@@ -224,13 +223,13 @@ jacket, **11–17** with "cold".
 - **Temperature never rejects an outfit.** Every combination has a range.
 - **Editing a match by hand:** the match card
   (`src/components/matches/viewMatchesCard.jsx`) can still change a match's
-  range directly. It's saved as it is and never recalculated - except by
-  the reset script below.
+  range directly. It's saved as it is and never recalculated - a hand
+  edit makes the match protected, so rematching keeps it.
 - **Changing the numbers or the preference later:** existing matches keep
-  their ranges. Run
-  `node server/scripts/resetMatchTemperatures.js --dry-run` to preview, then
-  without `--dry-run` (optionally `--backup <file>`) to recalculate every
-  match. This also overwrites hand-edited ranges.
+  their ranges. Run `node server/scripts/rematchAll.js` to preview, then
+  with `--confirm` to rebuild every outfit you haven't interacted with,
+  which gives them ranges from the new numbers. Favourite, user-made,
+  rated, worn and hand-edited outfits keep their ranges.
 
 ---
 

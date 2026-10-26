@@ -1,8 +1,7 @@
 // server/scripts/resetToday.js
 //
 // Clears every user's Today list so it's built again from scratch - e.g.
-// after resetMatchTemperatures.js or rescoreMatches.js, to see what Today
-// picks under the new numbers. The server doesn't know anyone's location,
+// after rematchAll.js, to see what Today picks under the new rules. The server doesn't know anyone's location,
 // so it can't rebuild the list itself: the next time the app loads, it
 // sends its weather to /today/create (core/today/createTodayOnce.js), which
 // finds no list for today and builds a new one.
