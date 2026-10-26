@@ -70,7 +70,7 @@ test("computePaletteTierScore uses the best tier among the palettes the colours 
 });
 
 test("computeFavouriteBonus applies when the colours fit a favourite palette, at any level", () => {
-  const favourite = allPalettes.find((p) => p.id === "peach-cream-white");
+  const favourite = allPalettes.find((p) => p.id === "tan-light-blue-navy");
 
   assert.equal(computeFavouriteBonus(["Navy", "White"], [favourite.id]), FAVOURITE_PALETTE_BONUS);
   assert.equal(computeFavouriteBonus(["Navy", "Red"], [favourite.id]), 0);
@@ -82,8 +82,8 @@ test("computeBrightAdjustment depends on the number of bright colours and the le
   const adjustments = (level) => [
     [],
     ["Orange"],
-    ["Orange", "Yellow"],
-    ["Orange", "Yellow", "Fuchsia"],
+    ["Orange", "Bright Yellow"],
+    ["Orange", "Bright Yellow", "Fuchsia"],
   ].map((brights) => computeBrightAdjustment(["Navy", ...brights], level));
 
   assert.deepEqual(adjustments("min"), [0, 0, -10, -30]);
@@ -106,7 +106,7 @@ test("computeColourScore adds the favourite bonus", () => {
   const real = rules("min", [palette("classic", ["Navy", "Cream", "White"])]);
 
   // 3 colours at min: count 70, classic 95 -> 82.5; favourite +8 = 90.5.
-  assert.equal(computeColourScore(items, real, ["peach-cream-white"]), 90.5);
+  assert.equal(computeColourScore(items, real, ["tan-light-blue-navy"]), 90.5);
   assert.equal(computeColourScore(items, real, []), 82.5);
 });
 

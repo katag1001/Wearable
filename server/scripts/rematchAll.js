@@ -7,11 +7,14 @@
 // is passed: then favourite and user-made matches (and Today entries
 // pointing at them) are kept untouched, and only the rest are deleted and
 // rebuilt - matching skips outfits that already exist, so kept ones aren't
-// duplicated. Personal score adjustments (MatchScore) are always kept.
+// duplicated. --keep-interacted keeps more: every outfit the app itself
+// protects (matchProtection.js) - favourites, user-made, rated, worn and
+// edited by hand. Personal score adjustments (MatchScore) are always kept.
 //
 //   node server/scripts/rematchAll.js                              (shows counts, changes nothing)
 //   node server/scripts/rematchAll.js --confirm                    (deletes and rematches)
 //   node server/scripts/rematchAll.js --keep-protected [--confirm] (keeps favourites and user-made)
+//   node server/scripts/rematchAll.js --keep-interacted [--confirm] (keeps every outfit the app protects)
 //   node server/scripts/rematchAll.js --subtype "Turtleneck jumper" --keep-protected [--confirm]
 //
 // --subtype limits it to one kind of item: only outfits containing an item
@@ -27,9 +30,19 @@ require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
 const { Match, Today, Clothes } = require("../models/AllModels.js");
 const { processMatches } = require("../services/matchService.js");
+const { UNPROTECTED_MATCH_FILTER } = require("../services/matchProtection.js");
 
-// Matches --keep-protected deletes: neither a favourite nor user-made.
-const UNPROTECTED = { favourite: { $ne: true }, userMade: { $ne: true } };
+// The matches each keep option deletes, and what it keeps.
+const KEEP_OPTIONS = {
+  "--keep-protected": {
+    deletes: { favourite: { $ne: true }, userMade: { $ne: true } },
+    kept: "Favourite and user-made matches kept.",
+  },
+  "--keep-interacted": {
+    deletes: UNPROTECTED_MATCH_FILTER,
+    kept: "Favourite, user-made, rated, worn and hand-edited matches kept.",
+  },
+};
 
 function argValue(name) {
   const index = process.argv.indexOf(name);
@@ -54,26 +67,28 @@ async function rematchUser(userId, subtype) {
 }
 
 // `scope` is {} for every match, or the --subtype filter.
-async function deleteMatches(keepProtected, scope) {
-  if (!keepProtected && !Object.keys(scope).length) {
+// `keep` is a KEEP_OPTIONS entry, or null to delete everything in scope.
+async function deleteMatches(keep, scope) {
+  if (!keep && !Object.keys(scope).length) {
     await Today.deleteMany({});
     await Match.deleteMany({});
     console.log("Deleted all matches and Today entries.");
     return;
   }
 
-  const filter = keepProtected ? { ...UNPROTECTED, ...scope } : scope;
+  const filter = keep ? { ...keep.deletes, ...scope } : scope;
   const ids = await Match.find(filter).distinct("_id");
   const today = await Today.deleteMany({ matchId: { $in: ids } });
   const matches = await Match.deleteMany({ _id: { $in: ids } });
   console.log(
     `Deleted ${matches.deletedCount} matches and ${today.deletedCount} Today entries.` +
-    (keepProtected ? " Favourite and user-made matches kept." : "")
+    (keep ? ` ${keep.kept}` : "")
   );
 }
 
 async function run() {
-  const keepProtected = process.argv.includes("--keep-protected");
+  const keepFlag = Object.keys(KEEP_OPTIONS).find((flag) => process.argv.includes(flag));
+  const keep = keepFlag ? KEEP_OPTIONS[keepFlag] : null;
   const subtype = argValue("--subtype");
 
   await mongoose.connect(process.env.MONGO);
@@ -85,15 +100,15 @@ async function run() {
 
     if (subtype) console.log(`Only outfits with a ${subtype}.`);
 
-    const [matchCount, unprotectedCount, todayCount, owners] = await Promise.all([
+    const [matchCount, deleteCount, todayCount, owners] = await Promise.all([
       Match.countDocuments(scope),
-      Match.countDocuments({ ...UNPROTECTED, ...scope }),
+      Match.countDocuments(keep ? { ...keep.deletes, ...scope } : scope),
       Today.countDocuments(),
       Clothes.distinct("userId"),
     ]);
 
     console.log(
-      `${matchCount} matches (${matchCount - unprotectedCount} favourite/user-made), ` +
+      `${matchCount} matches (${deleteCount} to delete, ${matchCount - deleteCount} to keep), ` +
       `${todayCount} Today entries, ${owners.length} user(s) with clothes.`
     );
 
@@ -102,7 +117,7 @@ async function run() {
       return;
     }
 
-    await deleteMatches(keepProtected, scope);
+    await deleteMatches(keep, scope);
 
     for (const userId of owners) {
       console.log(`Rematching user ${userId}:`);

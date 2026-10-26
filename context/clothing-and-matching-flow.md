@@ -165,14 +165,18 @@ so:
   `"Tank top"` → `Tan`, `"Embroidered blouse"` → `Bright Red`, `"Golden …"` →
   `Gold`.
 - Some other words count as a colour (`COLOR_NAME_ALIASES`): `"beige"` →
-  `Cream`, `"lavender"` → `Lilac`, `"maroon"` → `Burgundy`, and
-  `"cobalt"`, `"royal blue"`, `"electric blue"` → `Bright Blue`, and
-  `"red"` → `Bright Red`. Beige and Lavender were merged into those
-  colours and Maroon and Red were renamed, so they can't be picked any
-  more. An alias inside a colour already found doesn't count, so
-  `"Deep red dress"` is only `Deep Red`.
-- There is no plain "Red" either: `Bright Red` (what Red used to be) and
-  `Deep Red`.
+  `Cream`, `"lavender"` → `Lilac`, `"cobalt"`, `"royal blue"`,
+  `"electric blue"` → `Bright Blue`, `"red"` → `Bright Red`,
+  `"deep red"` → `Dark Red`, `"pink"`, `"light pink"`, `"pale pink"` →
+  `Baby Pink`, `"hot pink"` → `Bright Pink`, `"yellow"` → `Bright Yellow`,
+  and `"butter"`, `"pale yellow"` → `Butter Yellow`. Beige and Lavender were
+  merged into those colours, and Red, Pink, Yellow and Deep Red were
+  renamed, so they can't be picked any more. An alias inside a colour or a
+  longer alias already found doesn't count, so `"Dark red dress"` is only
+  `Dark Red` and `"Hot pink top"` is only `Bright Pink`.
+- There is no plain "Red", "Pink" or "Yellow" either: `Bright Red`,
+  `Dark Red` and `Maroon`; `Baby Pink` and `Bright Pink` (plus `Fuchsia`);
+  `Bright Yellow` and `Butter Yellow`.
 - There is no plain "Blue". Only `Bright Blue`, `Dark Blue`,
   `Light Blue`, `Navy`, `Teal` and `Turquoise` exist, so `"Blue jeans"`
   detects no colour. The
@@ -600,9 +604,9 @@ palettes. Each is `{ id, tier, levels, colours }`:
 
 | Level | Palettes | Max distinct colours in an outfit |
 |---|---|---|
-| min | 39 | 4 |
-| mid | 68 | 6 |
-| max | 79 | no cap |
+| min | 53 | 4 |
+| mid | 104 | 6 |
+| max | 122 | no cap |
 
 An outfit passes if **all of its colours together fit inside at least one
 of its level's palettes**, and the number of distinct colours is within
@@ -612,29 +616,34 @@ A palette can be bigger than its level's cap. The cap limits how many of
 its colours one outfit uses, not the size of the palette.
 
 The levels only grow: every `min` palette fits inside some `mid` palette,
-and every `mid` palette fits inside some `max` palette. A palette *can*
-fit inside another one at the same level, but only if its tier is
-different - otherwise it adds nothing (same pass/fail, same score) and
-should be removed. The classic combinations (Brown + Tan + Olive Green,
-Light Blue + Grey + White, Burgundy + Cream/Tan + Grey,
-Burgundy + Black + Grey, Black + Bright Red + White) are their own `classic`
-palettes at every level.
-Navy + Cream + White, Brown + Cream + Olive Green and Black + White + Tan
-don't need their own: bigger `classic` palettes already contain them at
-every level.
+and every `mid` palette fits inside some `max` palette. No palette has
+all its colours inside another palette that's used at all of its levels,
+whatever the tiers - one like that is deleted. The classic combinations
+(Burgundy + Cream/Tan + Grey, Burgundy + Black + Grey,
+Black + Bright Red + White + Grey, Brown + Tan + Olive Green + Cream)
+are `classic` palettes at every level, and the colour palettes were
+reviewed in October 2026 so the neutrals (Black, Grey, Navy, Cream,
+Camel, Tan, Brown, Light Blue) pair with most colours. Several palettes
+come as near-twins that differ by one or two colours, e.g. the Dark Red,
+Burgundy and Maroon versions of the autumn palettes.
 
-Dark Blue, Light Blue, Navy, White and Deep Red are a `classic` palette at
-every level (`navy-blues-deep-red`) - the only one with Deep Red so far.
-Black + Dark Blue + White has no palette of its own.
+Navy and Dark Blue look different (Navy is a blue-black). Dark Red,
+Burgundy (purple-leaning) and Maroon (brown-leaning) are three separate
+dark reds, each with its own palettes.
 
-Bright Blue has its own palettes: with White, Navy and Light Blue at every
-level; with Grey and Black at every level; with Camel/Cream/Tan, and with
-Turquoise/Teal at mid and max; and bold contrasts (Orange, Yellow, Bright Red, Fuchsia) at max only.
+Bright Blue has its own palettes: with White, Navy and Light Blue, and
+with Grey and Black, at every level; with Turquoise/Teal at mid and max;
+and bold contrasts (Orange, Bright Yellow, Bright Red, Fuchsia) at max
+only.
+
+Bright Yellow and Bright Pink are bright colours; Butter Yellow and Baby
+Pink are soft ones that pair almost like neutrals (Navy, Grey, Camel,
+Light Blue, Lilac).
 
 Copper (a warm metallic, not a bright colour) has its own palettes too:
 with Cream/Brown/Camel (classic), Olive Green/Cream/Tan and
 Black/Burgundy/Cream at every level; with Navy/Cream/White (classic),
-Peach/Pink/Cream and Teal/Cream/Brown (bold) at mid and max; and Forest Green/Burgundy/Gold and
+Peach/Baby Pink/Cream and Teal/Cream/Brown (bold) at mid and max; and Forest Green/Burgundy/Gold and
 Turquoise/White/Navy (bold) at max only.
 
 The server refuses to start if a palette has a duplicate id, an unknown
@@ -643,8 +652,8 @@ colour is in `colorOptions` and the levels only grow.
 
 Colours don't need to be close to each other. They just need to appear
 together in some palette. For example, Bright Red + Orange isn't allowed at `min`,
-but is allowed at `mid` and `max`. Black + Purple is only allowed at `max`.
-Black + Pink isn't allowed at any level.
+but is allowed at `mid` and `max`. Black + Purple is allowed from `mid`.
+Black + Navy isn't allowed at any level.
 
 ### 3.7 The pattern rule
 
@@ -737,7 +746,8 @@ one of the user's `favouritePalettes` - at any level, not only theirs.
 
 **Bright-colour adjustment** (`BRIGHT_COLOUR_ADJUSTMENTS`), by how many of
 the outfit's colours are in `brightColours` (Fuchsia, Lime Green, Orange,
-Yellow, Turquoise, Bright Blue - in `shared/colorPalettes.json`). Bright Red isn't
+Bright Yellow, Turquoise, Bright Blue, Bright Pink - in
+`shared/colorPalettes.json`). Bright Red isn't
 one - it's treated like a classic colour. At mid, one
 bright colour is best:
 
@@ -1479,7 +1489,8 @@ the project root with `node server/scripts/<name>.js`.
 | Script | What it does | Safe to run again? |
 |---|---|---|
 | `resetMatchTemperatures.js` | Recalculates every match's temperature range from the current presets (`--dry-run`, `--backup <file>`). Also overwrites ranges edited by hand | Yes - run it after changing `temperatureGroups.js` |
-| `rematchAll.js` | **Deletes every match and Today entry for every user** (user-made and favourites too), then runs `processMatches` for every clothing item under the current rules. Personal score adjustments are kept. Only shows counts unless run with `--confirm` | Yes, but each run throws away user-made outfits and favourites |
+| `rematchAll.js` | **Deletes every match and Today entry for every user** (user-made and favourites too), then runs `processMatches` for every clothing item under the current rules. `--keep-protected` keeps favourites and user-made outfits; `--keep-interacted` keeps every outfit the app protects (favourites, user-made, rated, worn, edited by hand). Personal score adjustments are kept. Only shows counts unless run with `--confirm` | Yes, but without a keep option each run throws away user-made outfits and favourites |
+| `renameColours.js` | One-off for the October 2026 colour split: renames stored colours on clothes, footwear and matches (Yellow → Bright Yellow, Pink → Baby Pink, Deep Red → Dark Red) and removes deleted palette ids from favourite palettes. Only shows counts unless run with `--confirm`. Run on the database on 26 October 2026, before `rematchAll.js --keep-interacted` | Yes - renamed colours aren't found again |
 | `setFavouriteScores.js` | One-off for star ratings (3.12): sets every favourite's stored score to 100 (no favourite-item bonus) and drops the old `{ userId, favourite, score, _id }` index. Only shows counts unless run with `--confirm` | Yes - already-moved favourites are left alone |
 
 The one-off migrations for the changes in Part 10 (subtype renames, the
@@ -1487,6 +1498,8 @@ score-adjustment reset, colour merges, removing clothing temperatures,
 adding `clothesKey`) were run on the database and then deleted. They're in
 the git history if one is ever needed again. The Maroon → Burgundy colour
 rename (October 2026) was also run once and deleted; it was never committed.
+Maroon came back as its own colour in the colour split later that month;
+items renamed to Burgundy then stay Burgundy unless changed by hand.
 So was the clean-up after women's Waistcoat × Vest / Light jumper were set
 to null (October 2026): it deleted every match containing a pair the
 user's matrix no longer allows (`isCompatible`), plus their Today entries.

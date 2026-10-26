@@ -33,11 +33,18 @@ export const formatMissingFields = (fields) => {
 const COLOR_NAME_ALIASES = {
   beige: "Cream",
   lavender: "Lilac",
-  maroon: "Burgundy",
   cobalt: "Bright Blue",
   "royal blue": "Bright Blue",
   "electric blue": "Bright Blue",
   red: "Bright Red",
+  "deep red": "Dark Red",
+  pink: "Baby Pink",
+  "light pink": "Baby Pink",
+  "pale pink": "Baby Pink",
+  "hot pink": "Bright Pink",
+  yellow: "Bright Yellow",
+  butter: "Butter Yellow",
+  "pale yellow": "Butter Yellow",
 };
 
 export const detectFromName = (name) => {
@@ -52,14 +59,18 @@ export const detectFromName = (name) => {
     )
     .map(color => color.name);
 
-  // An alias inside a colour already found doesn't count: "deep red" is
-  // Deep Red, not Deep Red and Bright Red.
-  const aliasedColors = Object.entries(COLOR_NAME_ALIASES)
-    .filter(([alias]) => lower.includes(alias))
-    .filter(([alias]) =>
-      !namedColors.some(colorName => colorName.toLowerCase().includes(alias))
+  // An alias inside a colour or a longer alias already found doesn't
+  // count: "dark red" is Dark Red, not Dark Red and Bright Red, and "hot
+  // pink" is Bright Pink, not Bright Pink and Baby Pink.
+  const foundAliases = Object.keys(COLOR_NAME_ALIASES)
+    .filter(alias => lower.includes(alias));
+
+  const aliasedColors = foundAliases
+    .filter(alias =>
+      !namedColors.some(colorName => colorName.toLowerCase().includes(alias)) &&
+      !foundAliases.some(other => other !== alias && other.includes(alias))
     )
-    .map(([, colorName]) => colorName);
+    .map(alias => COLOR_NAME_ALIASES[alias]);
 
   const detectedColors = [
     ...new Set([...namedColors, ...aliasedColors])

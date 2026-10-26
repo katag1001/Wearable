@@ -352,15 +352,15 @@ test("findCandidateMatches drops outfits whose pair blend is below the minimum, 
 });
 
 test("findCandidateMatches drops outfits whose colour score is below the minimum, however good their pairs", () => {
-  // Cream alone: colour (65 + 85) / 2 = 75, kept. Cream + Orange + Yellow:
+  // Cream alone: colour (65 + 85) / 2 = 75, kept. Cream + Orange + Bright Yellow:
   // (70 + 85) / 2 - 15 for two bright colours = 62.5, dropped even with a
   // pair of 90.
   const newTop = clothes({ subtype: "Short t-shirt", type: "top" });
   const creamJeans = clothes({ subtype: "Jeans", type: "bottom" });
-  const brightChinos = clothes({ subtype: "Chinos", type: "bottom", colors: ["Orange", "Yellow"] });
+  const brightChinos = clothes({ subtype: "Chinos", type: "bottom", colors: ["Orange", "Bright Yellow"] });
 
   const colorRules = {
-    palettes: [{ id: "common", tier: "common", levels: ["mid"], colours: ["Cream", "Orange", "Yellow"] }],
+    palettes: [{ id: "common", tier: "common", levels: ["mid"], colours: ["Cream", "Orange", "Bright Yellow"] }],
     maxColors: 6,
     level: "mid",
   };

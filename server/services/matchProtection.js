@@ -25,6 +25,16 @@ function isProtectedMatch(match) {
   );
 }
 
+// The matches isProtectedMatch says no to, as a database filter.
+const UNPROTECTED_MATCH_FILTER = {
+  favourite: { $ne: true },
+  userMade: { $ne: true },
+  userEdited: { $ne: true },
+  rating: null,
+  lastWornDate: null,
+  timesWorn: { $not: { $gt: 0 } },
+};
+
 // Arrays compare as sets, so re-saving the same tags in another order
 // isn't an edit.
 const comparable = (value) =>
@@ -38,4 +48,4 @@ function isManualEdit(match, fields) {
   );
 }
 
-module.exports = { USER_EDIT_FIELDS, isProtectedMatch, isManualEdit };
+module.exports = { USER_EDIT_FIELDS, UNPROTECTED_MATCH_FILTER, isProtectedMatch, isManualEdit };
