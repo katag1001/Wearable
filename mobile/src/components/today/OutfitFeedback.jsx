@@ -3,7 +3,8 @@
 // today; "Mismatch" goes on to picking the two items that don't go
 // together; "Can't wear this with tights" (only for an outfit there thanks
 // to tights) goes on to choosing this outfit or its skirt, dress or
-// shorts. Each moves on to the next outfit once saved. Shown in place of
+// shorts; "Not appropriate for [tag]" (only for an outfit with today's
+// tag) takes the tag off it. Each moves on to the next outfit once saved. Shown in place of
 // the page, like ShoeChooser. Android's back button goes back a step, then
 // closes.
 // Logic: useOutfitFeedback (shared with the web's popup).
@@ -17,6 +18,7 @@ import { useOutfitFeedback } from "@core/hooks/useOutfitFeedback.js";
 import {
   NO_TIGHTS_ITEM,
   NO_TIGHTS_OUTFIT,
+  NOT_FOR_TAG,
   TOO_COLD,
   TOO_HOT,
 } from "@core/today/outfitFeedback.js";
@@ -115,6 +117,14 @@ export const OutfitFeedback = ({ today, onClose }) => {
               label="Can't wear this with tights"
               variant="secondary"
               onPress={feedback.startTights}
+            />
+          ) : null}
+          {feedback.offersTag ? (
+            <Button
+              label={`Not appropriate for ${feedback.todayTag}`}
+              variant="secondary"
+              onPress={feedback.notForTag}
+              loading={feedback.saving === NOT_FOR_TAG}
             />
           ) : null}
           {/* tooHot moves the range up (warmer days), so today was too cold for it */}

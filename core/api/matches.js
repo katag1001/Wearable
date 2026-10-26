@@ -69,6 +69,15 @@ export const sendTightsFeedback = async (matchId, scope) => {
   return response.data;
 };
 
+// "Not appropriate for [tag]" on the Today page: `tag` (today's) comes off
+// the outfit, which is taken off today's list. Returns { removed } - false
+// if it didn't have the tag. Rules: server/services/tagFeedbackService.js.
+export const sendTagFeedback = async (matchId, tag) => {
+  const response = await api.put(`/match/${matchId}/tag-feedback`, { tag });
+
+  return response.data;
+};
+
 // "Mismatch" on the Today page: two clothing ids from the outfit that are
 // never matched again. Returns { deletedMatchIds } - every outfit deleted
 // for having both. Rules: server/services/mismatchService.js.

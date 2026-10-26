@@ -4,6 +4,7 @@ import { tightsItemOf } from "../matches/tights.js";
 import {
   NO_TIGHTS_ITEM,
   NO_TIGHTS_OUTFIT,
+  NOT_FOR_TAG,
   TOO_COLD,
   TOO_HOT,
 } from "../today/outfitFeedback.js";
@@ -15,8 +16,9 @@ import { useMismatchPicker } from "./useMismatchPicker.js";
  * picking the two clothing items that don't go together (shoes aren't
  * part of an outfit, so they're never offered) - and, for an outfit on
  * today's list thanks to tights, "can't wear this with tights" - which
- * goes on to choosing this outfit or its skirt, dress or shorts. Shared by
- * the web popup and the mobile screen.
+ * goes on to choosing this outfit or its skirt, dress or shorts - and, for
+ * an outfit with today's tag, "not appropriate for [tag]", which takes the
+ * tag off it. Shared by the web popup and the mobile screen.
  *
  * Each action closes the screen (`onClose`) once saved, and today's list
  * moves on to the next outfit. A failed save stays open, with useToday's
@@ -35,12 +37,17 @@ export const useOutfitFeedback = ({ today, onClose }) => {
   const offersTights = Boolean(outfit?.withTights);
   const tightsItem = tightsItemOf(clothes) ?? null;
 
+  // "Not appropriate for [tag]" - only offered when today has a tag and
+  // the outfit has it.
+  const todayTag = today.todayTag ?? null;
+  const offersTag = Boolean(todayTag && outfit?.matchId?.tags?.includes(todayTag));
+
   // "choose" (the options), "mismatch" (picking the two items) or
   // "tights" (this outfit, or its skirt / dress / shorts).
   const [step, setStep] = useState("choose");
 
   // Which action is saving (TOO_HOT, TOO_COLD, "mismatch",
-  // NO_TIGHTS_OUTFIT or NO_TIGHTS_ITEM), or null.
+  // NO_TIGHTS_OUTFIT, NO_TIGHTS_ITEM or NOT_FOR_TAG), or null.
   const [saving, setSaving] = useState(null);
 
   const picker = useMismatchPicker(clothes);
@@ -71,6 +78,10 @@ export const useOutfitFeedback = ({ today, onClose }) => {
       run(NO_TIGHTS_OUTFIT, () => today.giveTightsFeedback(matchId, NO_TIGHTS_OUTFIT)),
     noTightsForItem: () =>
       run(NO_TIGHTS_ITEM, () => today.giveTightsFeedback(matchId, NO_TIGHTS_ITEM)),
+
+    offersTag,
+    todayTag,
+    notForTag: () => run(NOT_FOR_TAG, () => today.giveTagFeedback(matchId)),
 
     startMismatch: () => setStep("mismatch"),
     backToChoices: () => setStep("choose"),

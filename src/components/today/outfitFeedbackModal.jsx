@@ -4,6 +4,7 @@ import { useOutfitFeedback } from "@core/hooks/useOutfitFeedback.js";
 import {
   NO_TIGHTS_ITEM,
   NO_TIGHTS_OUTFIT,
+  NOT_FOR_TAG,
   TOO_COLD,
   TOO_HOT,
 } from "@core/today/outfitFeedback.js";
@@ -17,7 +18,8 @@ import "./outfitFeedback.css";
  * cold" move its range a degree and hide it for today; "Mismatch" goes on
  * to picking the two items that don't go together; "Can't wear this with
  * tights" (only for an outfit there thanks to tights) goes on to choosing
- * this outfit or its skirt, dress or shorts. Each moves on to the
+ * this outfit or its skirt, dress or shorts; "Not appropriate for [tag]"
+ * (only for an outfit with today's tag) takes the tag off it. Each moves on to the
  * next outfit once saved. The logic is useOutfitFeedback, shared with the
  * mobile app; this renders it.
  */
@@ -126,6 +128,18 @@ const OutfitFeedbackModal = ({ today, onClose }) => {
                   disabled={saving}
                 >
                   Can't wear this with tights
+                </button>
+              )}
+
+              {feedback.offersTag && (
+                <button
+                  className="popup-button popup-button-cancel outfit-feedback-option"
+                  onClick={feedback.notForTag}
+                  disabled={saving}
+                >
+                  {feedback.saving === NOT_FOR_TAG
+                    ? "Saving..."
+                    : `Not appropriate for ${feedback.todayTag}`}
                 </button>
               )}
 

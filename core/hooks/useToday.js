@@ -4,6 +4,7 @@ import {
   rateMatch,
   restoreMatchSnapshot,
   sendMismatch,
+  sendTagFeedback,
   sendTemperatureFeedback,
   sendTightsFeedback,
 } from "../api/matches.js";
@@ -476,6 +477,22 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     }
   };
 
+  // Not appropriate for today's tag: the tag comes off the outfit and it's
+  // hidden for today. An outfit without the tag is left as it is.
+  // Resolves true once saved.
+  const giveTagFeedback = async (matchId) => {
+    if (!todayTag) return false;
+
+    try {
+      const { removed } = await sendTagFeedback(matchId, todayTag);
+      if (removed) removeFromToday([matchId]);
+      return true;
+    } catch (err) {
+      feedbackError(err);
+      return false;
+    }
+  };
+
   // Two of the outfit's clothing items never go together: every outfit
   // with both is deleted apart from favourites and user-built ones (the
   // server says which). The outfit on screen leaves the list either way -
@@ -519,6 +536,7 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
 
     giveTemperatureFeedback,
     giveTightsFeedback,
+    giveTagFeedback,
     markMismatch,
     // Outfits deleted elsewhere (the mobile outfit screen's mismatch).
     dropOutfits: (matchIds) => removeFromToday(matchIds, matchIds),

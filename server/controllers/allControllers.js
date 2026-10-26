@@ -60,6 +60,7 @@ const {
   applyTemperatureFeedback,
 } = require("../services/temperatureFeedbackService.js");
 const { isTightsScope, applyTightsFeedback } = require("../services/tightsFeedbackService.js");
+const { isTag, applyTagFeedback } = require("../services/tagFeedbackService.js");
 const {
   changedMatchingFields,
   refreshMatchesForItem,
@@ -1015,6 +1016,34 @@ exports.giveTightsFeedback = async (req, res) => {
     }
 
     return res.json({ hiddenMatchIds: result.hiddenMatchIds });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// "Not appropriate for [tag]" on the Today page: the tag comes off the
+// outfit, which is hidden from today's list (tagFeedbackService.js).
+// Body: { tag }. Returns { removed } - false if it didn't have the tag.
+exports.giveTagFeedback = async (req, res) => {
+  const userId = req.user?.userId;
+  const tag = req.body?.tag;
+
+  if (!isTag(tag)) {
+    return res.status(400).json({ message: "Invalid feedback." });
+  }
+
+  if (!isValidId(req.params.id)) {
+    return res.status(404).json({ message: "Match not found" });
+  }
+
+  try {
+    const result = await applyTagFeedback(userId, req.params.id, tag);
+
+    if (result.notFound) {
+      return res.status(404).json({ message: "Match not found" });
+    }
+
+    return res.json({ removed: result.removed });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
