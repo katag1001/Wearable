@@ -1122,8 +1122,8 @@ order. Files: `server/services/todaySelectionService.js` (which outfits),
 `server/constants/todayOutfits.js`.
 
 **Today's weather.** The client (`core/weather/openMeteo.js`, web and
-mobile) takes the min and max of Open-Meteo's **hourly** temperatures from
-**07:00 to 23:59** local time (`core/constants/daytimeHours.js`) - the
+mobile) takes the min and max of Open-Meteo's **15-minute** temperatures from
+**07:30 to 22:30** local time (`core/constants/daytimeHours.js`) - the
 overnight low isn't what anyone dresses for. It's shifted by the weather
 offset (sunny / rain) and sent to `/today/create` with the season and the
 user's weekday.

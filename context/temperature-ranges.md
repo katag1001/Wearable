@@ -239,9 +239,9 @@ jacket, **11–17** with "cold".
 ### 4.1 Today's outfits
 
 1. The client (`core/weather/openMeteo.js`, web and mobile) gets today's
-   **daytime** min/max from Open-Meteo's hourly temperatures, **07:00 to
-   23:59** local time (`core/constants/daytimeHours.js`) - the overnight
-   low is left out. It's cached for the day, shifted by the weather offset
+   **daytime** min/max from Open-Meteo's 15-minute temperatures, **07:30 to
+   22:30** local time (`core/constants/daytimeHours.js`) - the overnight
+   low is left out. It's cached for the day (fetched again if the window changes), shifted by the weather offset
    (sunny / rain), and posted to `/today/create` with the season and the
    user's weekday.
 2. `createToday` (once per day) keeps matches marked for today's season
