@@ -7,7 +7,7 @@ const {
   rejectionCutoff,
   applyRejection,
   undoRejection,
-  excludeRecentlyRejected,
+  keepRejectedOutOfTop,
 } = require("../services/matchRejectionService.js");
 
 const TODAY_START = new Date("2026-10-07T00:00:00.000Z");
@@ -72,31 +72,53 @@ test("undoRejection does nothing to an outfit that wasn't rejected", () => {
   assert.equal(match.score, 80);
 });
 
-test("an outfit is hidden for the 3 days after the day it's rejected", () => {
+test("an outfit is held back for the 3 days after the day it's rejected", () => {
   const cutoff = rejectionCutoff(TODAY_START);
 
-  // Rejected on the 4th: still hidden on the 7th.
+  // Rejected on the 4th: still held back on the 7th.
   assert.equal(wasRejectedSince({ lastRejectedDate: "2026-10-04T20:00:00.000Z" }, cutoff), true);
-  // Rejected on the 3rd: back on the 7th.
+  // Rejected on the 3rd: back to normal on the 7th.
   assert.equal(wasRejectedSince({ lastRejectedDate: "2026-10-03T20:00:00.000Z" }, cutoff), false);
   assert.equal(wasRejectedSince({ lastRejectedDate: null }, cutoff), false);
 });
 
-test("excludeRecentlyRejected drops recently rejected outfits", () => {
-  const fresh = { _id: "a", lastRejectedDate: null };
-  const old = { _id: "b", lastRejectedDate: "2026-09-20T10:00:00.000Z" };
-  const recent = { _id: "c", lastRejectedDate: "2026-10-05T10:00:00.000Z" };
+const RECENT = "2026-10-05T10:00:00.000Z";
+const outfit = (id, lastRejectedDate = null) => ({ _id: id, lastRejectedDate });
+const idsOf = (matches) => matches.map((match) => match._id);
 
-  assert.deepEqual(excludeRecentlyRejected([fresh, old, recent], TODAY_START), [fresh, old]);
-});
-
-test("excludeRecentlyRejected falls back to every outfit when all were rejected recently", () => {
-  const matches = [
-    { _id: "a", lastRejectedDate: "2026-10-05T10:00:00.000Z" },
-    { _id: "b", lastRejectedDate: "2026-10-06T10:00:00.000Z" },
+test("keepRejectedOutOfTop moves recently rejected outfits to just below the top places", () => {
+  const ranked = [
+    outfit("r1", RECENT),
+    outfit("a"),
+    outfit("old", "2026-09-20T10:00:00.000Z"),
+    outfit("r2", RECENT),
+    outfit("b"),
+    outfit("c"),
+    outfit("r3", RECENT),
   ];
 
-  assert.deepEqual(excludeRecentlyRejected(matches, TODAY_START), matches);
+  assert.deepEqual(idsOf(keepRejectedOutOfTop(ranked, TODAY_START, 3)), [
+    "a", "old", "b", "r1", "r2", "c", "r3",
+  ]);
+});
+
+test("keepRejectedOutOfTop keeps every outfit, with the top 10 free of rejected ones", () => {
+  const ranked = [
+    ...Array.from({ length: 5 }, (_, index) => outfit(`r${index}`, RECENT)),
+    ...Array.from({ length: 15 }, (_, index) => outfit(`f${index}`)),
+  ];
+
+  const result = keepRejectedOutOfTop(ranked, TODAY_START);
+
+  assert.equal(result.length, ranked.length);
+  assert.ok(result.slice(0, 10).every((match) => match.lastRejectedDate === null));
+  assert.deepEqual(idsOf(result.slice(10, 15)), ["r0", "r1", "r2", "r3", "r4"]);
+});
+
+test("keepRejectedOutOfTop puts rejected outfits straight after the rest when there aren't enough", () => {
+  const ranked = [outfit("r1", RECENT), outfit("a"), outfit("r2", RECENT)];
+
+  assert.deepEqual(idsOf(keepRejectedOutOfTop(ranked, TODAY_START)), ["a", "r1", "r2"]);
 });
 
 test("applyRejection rejects rated and favourite outfits too, leaving their score alone", () => {

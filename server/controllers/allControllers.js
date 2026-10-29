@@ -75,7 +75,7 @@ const {
   resolveTodayStart,
   applyRejection,
   undoRejection,
-  excludeRecentlyRejected,
+  keepRejectedOutOfTop,
 } = require("../services/matchRejectionService.js");
 const {
   isValidRating,
@@ -1231,21 +1231,21 @@ const buildToday = async ({ userId, todayStart, season_today, day_of_week, min_t
 
     const todayRange = { min: min_temp_today, max: max_temp_today };
 
-    // Anything that could get into a weather tier...
-    const candidates = seasonMatches.filter(
+    // Anything that could get into a weather tier.
+    const matches = seasonMatches.filter(
       (match) => todayTierOf(match, todayRange, temperature) !== null
     );
 
-    // ...without outfits rejected in the last few days, unless every
-    // candidate was.
-    const matches = excludeRecentlyRejected(candidates, todayStart);
-
-    const selected = selectTodayMatches({
-      matches,
-      todayRange,
-      todayTag: await getTodayTag(userId, day_of_week),
-      temperaturePreference: temperature,
-    });
+    // Outfits rejected in the last few days are kept out of the top places.
+    const selected = keepRejectedOutOfTop(
+      selectTodayMatches({
+        matches,
+        todayRange,
+        todayTag: await getTodayTag(userId, day_of_week),
+        temperaturePreference: temperature,
+      }),
+      todayStart
+    );
 
     await Today.deleteMany({ userId });
 

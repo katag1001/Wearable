@@ -131,9 +131,11 @@ const PAIRING_ANSWER_ADJUSTMENTS = {
 };
 
 // Rejecting an outfit on the Today page (at most once per outfit per day)
-// keeps it out of the Today list for this many days. It never changes a
-// score (services/matchRejectionService.js).
+// keeps it out of the top REJECTED_OUTFIT_TOP_GAP places of the Today list
+// for this many days. It never changes a score
+// (services/matchRejectionService.js).
 const REJECTION_COOLDOWN_DAYS = 3;
+const REJECTED_OUTFIT_TOP_GAP = 10;
 
 // Rating an outfit (1-5 stars, services/matchRatingService.js) sets its
 // score outright: 3-5 stars to these scores.
@@ -189,6 +191,7 @@ module.exports = {
   LEARNING_DELTAS,
   PAIRING_ANSWER_ADJUSTMENTS,
   REJECTION_COOLDOWN_DAYS,
+  REJECTED_OUTFIT_TOP_GAP,
   TEMPERATURE_FEEDBACK_SHIFT,
   RATING_SCORES,
   LOW_RATING_MAX,

@@ -4,8 +4,9 @@
 // arrow). A rejection counts at most once per outfit per day: it adds 1 to
 // `rejectedCount` and sets `lastRejectedDate`. It never changes the
 // outfit's score or any pair score - its only effect is that an outfit
-// rejected in the last REJECTION_COOLDOWN_DAYS days is left out of the
-// Today list, unless that would leave nothing to show. Marking a rejected
+// rejected in the last REJECTION_COOLDOWN_DAYS days is kept out of the top
+// REJECTED_OUTFIT_TOP_GAP places of the Today list (it can still appear
+// further down). Marking a rejected
 // outfit as worn undoes the rejection. Rated and favourite outfits are
 // rejected like any other.
 //
@@ -13,7 +14,10 @@
 // local midnight (`todayStart`). Without one, the server's own midnight is
 // used.
 
-const { REJECTION_COOLDOWN_DAYS } = require("../constants/scoring.js");
+const {
+  REJECTION_COOLDOWN_DAYS,
+  REJECTED_OUTFIT_TOP_GAP,
+} = require("../constants/scoring.js");
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -42,8 +46,8 @@ const wasRejectedSince = (match, since) => {
   return new Date(match.lastRejectedDate).getTime() >= since.getTime();
 };
 
-// Rejected on or after this are left out of today's list - so an outfit
-// rejected on the 2nd is hidden up to and including the 5th.
+// Rejected on or after this are kept out of the top of today's list - so an
+// outfit rejected on the 2nd is held back up to and including the 5th.
 const rejectionCutoff = (todayStart) =>
   new Date(todayStart.getTime() - REJECTION_COOLDOWN_DAYS * DAY_MS);
 
@@ -58,8 +62,8 @@ const applyRejection = (match, todayStart, now = new Date()) => {
 };
 
 // Reverses applyRejection. The previous rejection date isn't kept, so it
-// goes back to null - anything rejected in the cooldown before today
-// wouldn't have been in today's list to wear anyway.
+// goes back to null - having just been worn, the outfit ranks low on
+// freshness anyway.
 const undoRejection = (match) => {
   if (!match.lastRejectedDate) return false;
 
@@ -69,14 +73,28 @@ const undoRejection = (match) => {
   return true;
 };
 
-// Today's candidates without the recently rejected ones - or all of them if
-// every candidate was rejected recently.
-const excludeRecentlyRejected = (matches, todayStart) => {
+// Today's ranked list with the recently rejected outfits moved out of the
+// first `topCount` places: they drop to just below them, in the order they
+// were ranked. Everything else keeps its order. If fewer than `topCount`
+// outfits weren't rejected recently, the rejected ones follow straight
+// after those.
+const keepRejectedOutOfTop = (ranked, todayStart, topCount = REJECTED_OUTFIT_TOP_GAP) => {
   const cutoff = rejectionCutoff(todayStart);
+  const top = [];
+  const heldBack = [];
+  const rest = [];
 
-  const kept = matches.filter((match) => !wasRejectedSince(match, cutoff));
+  ranked.forEach((match) => {
+    if (top.length >= topCount) {
+      rest.push(match);
+    } else if (wasRejectedSince(match, cutoff)) {
+      heldBack.push(match);
+    } else {
+      top.push(match);
+    }
+  });
 
-  return kept.length ? kept : matches;
+  return [...top, ...heldBack, ...rest];
 };
 
 module.exports = {
@@ -85,5 +103,5 @@ module.exports = {
   rejectionCutoff,
   applyRejection,
   undoRejection,
-  excludeRecentlyRejected,
+  keepRejectedOutOfTop,
 };

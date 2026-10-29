@@ -1139,7 +1139,7 @@ offset (sunny / rain) and sent to `/today/create` with the season and the
 user's weekday.
 
 **Which outfits** (`selectTodayMatches`), from those marked for today's
-season and not rejected recently (7.2):
+season (recently rejected ones are then moved out of the top 10, 7.2):
 
 1. **Tier 1** - either of these, ranked together:
    - the outfit's `min_temp` and `max_temp` are each close to today's
@@ -1213,18 +1213,22 @@ in `allControllers.js`. Numbers in `server/constants/scoring.js`.
   filter is on. ‹ never rejects.
 - A rejection counts **at most once per outfit per day**: `rejectedCount`
   +1 and `lastRejectedDate` = now. It **never changes a score** (the
-  outfit's or any pair's) - hiding it from Today is its only effect. The client sends no
+  outfit's or any pair's) - pushing it down Today's list is its only effect. The client sends no
   request once the outfit's `lastRejectedDate` is today; the server ignores
   a repeat anyway.
-- **`createToday`** leaves out outfits rejected in the last
-  **`REJECTION_COOLDOWN_DAYS` = 3** days - one rejected on the 2nd is
-  hidden up to and including the 5th. If every outfit that could get into
-  today's tiers was rejected recently, none are left out. Today's list is built once a
-  day, so an outfit rejected today stays reachable with ‹ until tomorrow.
+- **`createToday`** ranks today's list as usual, then
+  (`keepRejectedOutOfTop`) moves outfits rejected in the last
+  **`REJECTION_COOLDOWN_DAYS` = 3** days out of the top
+  **`REJECTED_OUTFIT_TOP_GAP` = 10** places - one rejected on the 2nd is
+  held back up to and including the 5th. They aren't left out: each one
+  drops to just below the top 10 (in its ranked order), and everything else
+  keeps its order. If fewer than 10 outfits weren't rejected recently, the
+  rejected ones come straight after those. Today's list is built once a
+  day, so an outfit rejected today stays where it is until tomorrow.
 - **Marking as worn** an outfit rejected today undoes the rejection
   (count −1, `lastRejectedDate` back to null). The previous
-  rejection date isn't kept, which doesn't matter: anything rejected in the
-  3 days before wasn't in today's list to wear. Switching the worn outfit
+  rejection date isn't kept, which matters little: having just been worn,
+  the outfit ranks low on freshness anyway. Switching the worn outfit
   to another one later doesn't re-apply the rejection.
 - "Today" is the user's local day: the client sends its local midnight
   (`todayStart` / `today_start`); the server falls back to its own.
@@ -1540,7 +1544,7 @@ favourites to a score of 100.
 | Style quiz pairing questions / their pairs / answer values | `src/constants/pairingQuestions.js` / `server/constants/pairingQuestions.js` / `PAIRING_ANSWER_ADJUSTMENTS` in `server/constants/scoring.js` (see 2.6) |
 | Today page weights, tiers and cap | `server/constants/todayOutfits.js` |
 | Favourite clothing item bonus | `FAVOURITE_ITEM_BONUS` in `server/constants/scoring.js`, logic in `server/services/favouriteItemService.js` (3.11) |
-| Days a rejected outfit is hidden | `REJECTION_COOLDOWN_DAYS` in `server/constants/scoring.js` |
+| Days a rejected outfit is held back / places it's kept out of | `REJECTION_COOLDOWN_DAYS` / `REJECTED_OUTFIT_TOP_GAP` in `server/constants/scoring.js` |
 | Too hot / too cold shift, mismatch penalty | `TEMPERATURE_FEEDBACK_SHIFT`, `LEARNING_DELTAS.mismatched` in `server/constants/scoring.js` (7.3) |
 | Favourite score | `FAVOURITE_SCORE` in `src/utils/matchScore.js` |
 | Temperature numbers | `server/constants/temperatureGroups.js`, see `temperature-ranges.md` |
