@@ -21,14 +21,14 @@ test("parseClothingQuery ignores an unknown type", () => {
   assert.equal(parseClothingQuery({ type: "outer" }).type, "outer");
 });
 
-test("buildClothingFilter combines type, any-of seasons, colours and styles", () => {
+test("buildClothingFilter combines type, any-of seasons, colours and patterns", () => {
   const filter = buildClothingFilter(
     USER,
     parseClothingQuery({
       type: "top",
       seasons: "summer,spring",
       colors: "blue,red",
-      styles: "casual",
+      patterns: "Stripe,Floral",
     })
   );
 
@@ -36,22 +36,22 @@ test("buildClothingFilter combines type, any-of seasons, colours and styles", ()
     { type: "top" },
     { $or: [{ summer: true }, { spring: true }] },
     { colors: { $in: ["blue", "red"] } },
-    { styles: { $in: ["casual"] } },
+    { pattern: { $in: ["Stripe", "Floral"] } },
   ]);
 });
 
-test("buildClothingFilter searches name, colours and styles, case-insensitively", () => {
+test("buildClothingFilter searches name, colours and pattern, case-insensitively", () => {
   const filter = buildClothingFilter(
     USER,
     parseClothingQuery({ search: " LINEN " })
   );
 
   const [search] = filter.$and;
-  const [name, colors, styles] = search.$or;
+  const [name, colors, pattern] = search.$or;
 
   assert.ok(name.name.test("White linen shirt"));
   assert.ok(colors.colors.test("linen"));
-  assert.ok(styles.styles.test("Linen"));
+  assert.ok(pattern.pattern.test("Linen"));
   assert.ok(!name.name.test("Lined jacket"));
 });
 

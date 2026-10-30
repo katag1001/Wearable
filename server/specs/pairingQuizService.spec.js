@@ -38,11 +38,13 @@ test("every subtype in the pairing questions exists for every pairing gender", (
 test("an answer sets every allowed pair in the question to the answer's value", () => {
   const adjustments = pairingAdjustments({ croptopsLowRise: "sometimes" }, "woman", woman);
 
-  assert.equal(adjustments.length, 1);
-  assert.equal(
-    findAdjustment(adjustments, "Croptop", "Low waist jeans").adjustment,
-    PAIRING_ANSWER_ADJUSTMENTS.sometimes
-  );
+  assert.equal(adjustments.length, 2);
+  ["Croptop", "Halter/strappy top"].forEach((top) => {
+    assert.equal(
+      findAdjustment(adjustments, top, "Low waist jeans").adjustment,
+      PAIRING_ANSWER_ADJUSTMENTS.sometimes
+    );
+  });
 });
 
 test("a No takes the pair score down to 0", () => {
@@ -53,10 +55,10 @@ test("a No takes the pair score down to 0", () => {
 });
 
 test("pairs the matrix doesn't allow are skipped", () => {
-  // Buttondown shirt + Long t-shirt is null in the woman matrix.
+  // Buttondown shirt + Long-sleeve t-shirt is null in the woman matrix.
   const adjustments = pairingAdjustments({ shirtsOverTops: "yes" }, "woman", woman);
 
-  assert.equal(findAdjustment(adjustments, "Buttondown shirt", "Long t-shirt"), undefined);
+  assert.equal(findAdjustment(adjustments, "Buttondown shirt", "Long-sleeve t-shirt"), undefined);
   assert.ok(findAdjustment(adjustments, "Buttondown shirt", "Vest"));
 });
 

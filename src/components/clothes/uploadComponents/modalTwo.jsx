@@ -1,13 +1,19 @@
-import React from "react";
-import { seasonOptions, colorOptions, tagOptions } from "@core/constants/optionsBank.js";
+import React, { useState } from "react";
+import { seasonOptions, colorOptions, patternOptions } from "@core/constants/optionsBank.js";
+import { visibleTagGroups } from "@core/utils/tagOptions.js";
 
 const ModalTwo = ({
   formData,
   toggleSeason,
   toggleColor,
   toggleTag,
-  tights
+  tights,
+  pattern
 }) => {
+
+  // Only the item's own tags until "Show all tags" is pressed.
+  const [showAllTags, setShowAllTags] = useState(false);
+  const tagGroups = visibleTagGroups(formData.tags, showAllTags);
 
   return (
 
@@ -103,6 +109,31 @@ const ModalTwo = ({
     </div>
 
 
+    {/* Pattern - clothing only (footwear's is worked out from its colours) */}
+
+    {pattern?.asksPattern && (
+      <div>
+        <fieldset className="season-group">
+          <label className="form-label">Pattern</label>
+
+          {patternOptions.map((option) => (
+            <label key={option} className="season-label">
+              <input
+                type="radio"
+                name="pattern"
+                checked={(formData.pattern || "Plain") === option}
+                onChange={() => pattern.setPattern(option)}
+              />
+
+              {" "}
+              {option}
+            </label>
+          ))}
+        </fieldset>
+      </div>
+    )}
+
+
     {/* Tags */}
 
     <div className="tags-section">
@@ -111,36 +142,37 @@ const ModalTwo = ({
         Tags
       </div>
 
-      <div className="tags-selection-grid">
+      {tagGroups.map(({ group, tags }) => (
+        <div key={group}>
+          {showAllTags && <div className="tag-group-label">{group}</div>}
 
-        {tagOptions.map(tag => (
-
-          <div
-            className="tags-selection-item"
-            key={tag.name}
-          >
-
-            <button
-              type="button"
-              className={
-                formData.tags.includes(tag.name)
-                  ? "tags-selection-button selected"
-                  : "tags-selection-button"
-              }
-              onClick={() => toggleTag(tag.name)}
-            >
-
-              <span className="tags-selection-title">
-                {tag.name}
-              </span>
-
-            </button>
-
+          <div className="tags-selection-grid">
+            {tags.map(tag => (
+              <div className="tags-selection-item" key={tag}>
+                <button
+                  type="button"
+                  className={
+                    formData.tags.includes(tag)
+                      ? "tags-selection-button selected"
+                      : "tags-selection-button"
+                  }
+                  onClick={() => toggleTag(tag)}
+                >
+                  <span className="tags-selection-title">{tag}</span>
+                </button>
+              </div>
+            ))}
           </div>
+        </div>
+      ))}
 
-        ))}
-
-      </div>
+      <button
+        type="button"
+        className="show-more-tags"
+        onClick={() => setShowAllTags(!showAllTags)}
+      >
+        {showAllTags ? "Show fewer tags" : "Show all tags"}
+      </button>
 
     </div>
 

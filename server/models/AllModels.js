@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { clothesKey } = require("../utils/clothesKey.js");
+const { PATTERNS, PLAIN } = require("../constants/patternRules.js");
 
 /* -------------------- USER -------------------- */
 
@@ -59,7 +60,8 @@ summer: { type: Boolean, required: true },
 autumn: { type: Boolean, required: true },
 winter: { type: Boolean, required: true },
 
-styles: { type: [String], default: [] },
+// Every item's pattern (services/outfitEvaluator.js describeOutfit).
+patterns: { type: [String], default: [] },
 tags: { type: [String], required: false },
 
 lastWornDate: { type: Date, default: null },
@@ -136,7 +138,9 @@ index: true,
 // No temperature range here - only matches have one, worked out from their
 // subtypes (server/services/presetTemperatureService.js).
 colors: { type: [String], required: true },
-styles: { type: [String], required: true },
+// One of shared/patterns.json. Items saved before this field existed have
+// none and are read as Plain.
+pattern: { type: String, enum: PATTERNS, default: PLAIN },
 type: { type: String, required: true },
 subtype: { type: String, required: true },
 

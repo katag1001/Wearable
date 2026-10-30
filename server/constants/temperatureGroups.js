@@ -16,31 +16,34 @@
 const TOP_GROUPS = {
   short: [
     "Short t-shirt", "Vest", "Croptop", "Off-the-shoulder top", "Linen shirt",
-    "Bodysuit", "Fancy top", "Party top", "Tunic", "Waistcoat",
+    "Bodysuit", "Fancy top", "Party top", "Tunic", "Waistcoat", "Knit vest/tank",
+    "Halter/strappy top",
   ],
   long: [
-    "Long t-shirt", "Buttondown shirt", "Fancy blouse", "Short turtleneck",
-    "Long turtleneck", "Turtleneck", "Light jumper", "Light cardigan",
-    "Floaty blouse",
+    "Long-sleeve t-shirt", "Buttondown shirt", "Fancy blouse", "Short turtleneck",
+    "Long turtleneck", "Turtleneck", "Fine-knit jumper", "Light cardigan",
+    "Floaty blouse", "Denim shirt", "Peasant/boho blouse", "Thin turtleneck jumper",
+    "Oversized shirt",
   ],
   warm: [
-    "Hoodie/sweatshirt", "Warm jumper", "Turtleneck jumper", "Warm cardigan",
+    "Hoodie/sweatshirt", "Warm jumper", "Thick turtleneck jumper", "Warm cardigan",
   ],
 };
 
 const BOTTOM_GROUPS = {
   short: [
     "Mini skirt", "Shorts", "Casual shorts", "Denim shorts", "Linen shorts",
-    "Cargo shorts", "Skater shorts", "Fancy Shorts", "Maxi skirt",
+    "Cargo shorts", "Skater shorts", "Fancy Shorts", "Floaty maxi skirt",
+    "Fitted maxi skirt",
   ],
   lightLong: [
-    "Smart skirt", "Midi-skirt",
-    "Linen pants", "Cropped trousers",
+    "Smart skirt", "Midi-skirt", "Winter mini skirt",
+    "Linen pants", "Cropped trousers", "Floaty trousers",
   ],
   long: [
     "Jeans", "Flared jeans", "Wide leg jeans", "High waisted jeans",
     "Low waist jeans", "Skinny jeans", "Boyfriend jeans", "Tailored trousers",
-    "Wide leg trousers", "Chinos", "Cargo pants", "Leather trousers",
+    "Tailored wide leg trousers", "Flared trousers", "Chinos", "Cargo pants", "Leather trousers",
     "Leggings", "Sweatpants", "Cropped jeans",
   ],
 };
@@ -54,7 +57,10 @@ const BASE_RANGES = {
 
 // [min, max] for a onepiece on its own, no top or outer.
 const ONEPIECE_RANGES = {
+  "Strappy summer dress": [22, 36],
   "Summer dress": [22, 36],
+  "Buttondown dress": [22, 36],
+  "Shirt dress": [22, 36],
   "Playsuit": [21, 34],
   "Romper": [21, 34],
   "Casual dress": [18, 28],
@@ -69,18 +75,24 @@ const ONEPIECE_RANGES = {
 
 // Degrees an outer moves an outfit's range down.
 const OUTER_WARMTH_POINTS = {
-  "Blazer": 2,
+  "Tailored blazer": 2,
+  "Longline blazer": 2,
   "Denim jacket": 2,
   "Shacket": 3,
   "Rain coat": 3,
   "Leather jacket": 3,
   "Spring coat": 4,
-  "Short jacket": 3,
+  "Knit coat": 4,
+  "Cropped jacket": 3,
+  "Bomber": 3,
+  "Gilet": 3,
   "Poncho": 4,
   "Fleece": 3,
-  "Trench coat": 4,
+  "Classic trench": 4,
+  "Long leather coat": 4,
   "Duffle coat": 7,
-  "Winter Coat": 9,
+  "Wool coat": 9,
+  "Parka": 9,
   "Fur coat": 8,
   "Puffer coat": 11,
 };
@@ -94,19 +106,25 @@ const NO_OUTER_MIN_TEMP = 14;
 
 // With one outer (two: the lower of the two):
 const OUTER_MIN_TEMPS = {
-  "Blazer": 12,
+  "Tailored blazer": 12,
+  "Longline blazer": 12,
   "Denim jacket": 10,
   "Shacket": 11,
   "Leather jacket": 9,
   "Rain coat": 8,
   "Spring coat": 10,
-  "Short jacket": 11,
+  "Knit coat": 10,
+  "Cropped jacket": 11,
+  "Bomber": 11,
+  "Gilet": 11,
   "Poncho": 12,
   "Fleece": 10,
-  "Trench coat": 6,
+  "Classic trench": 6,
+  "Long leather coat": 6,
   "Duffle coat": 0,
   "Fur coat": -5,
-  "Winter Coat": -6,
+  "Wool coat": -6,
+  "Parka": -6,
   "Puffer coat": -10,
 };
 
@@ -115,8 +133,9 @@ const OUTER_MIN_TEMPS = {
 const SKIRT_DRESS_MIN_TEMP = 7;
 
 const SKIRT_DRESS_SUBTYPES = [
-  "Mini skirt", "Maxi skirt", "Smart skirt", "Midi-skirt",
-  "Summer dress", "Casual dress", "Wedding guest dress", "Cocktail dress",
+  "Mini skirt", "Winter mini skirt", "Floaty maxi skirt", "Fitted maxi skirt",
+  "Smart skirt", "Midi-skirt", "Strappy summer dress", "Summer dress",
+  "Buttondown dress", "Shirt dress", "Casual dress", "Wedding guest dress", "Cocktail dress",
   "Evening dress", "Work dress", "Winter dress",
 ];
 
@@ -140,8 +159,8 @@ const OVER_ONLY_TOPS = ["Waistcoat"];
 // any other top worn as a layer (a shirt over a t-shirt, a waistcoat, a
 // blouse over a dress) uses the "other" cap.
 const LAYER_KINDS = {
-  warmJumper: ["Hoodie/sweatshirt", "Warm jumper", "Turtleneck jumper", "Warm cardigan"],
-  lightJumper: ["Light jumper", "Light cardigan"],
+  warmJumper: ["Hoodie/sweatshirt", "Warm jumper", "Thick turtleneck jumper", "Warm cardigan"],
+  lightJumper: ["Fine-knit jumper", "Thin turtleneck jumper", "Light cardigan"],
 };
 
 const LAYERED_MAX_TEMPS = { warmJumper: 18, lightJumper: 24, other: 28 };

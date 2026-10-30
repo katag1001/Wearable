@@ -12,7 +12,7 @@ const CLOTHING_FIELDS = [
   "imageUrl",
   "cloudinaryId",
   "colors",
-  "styles",
+  "pattern",
   "type",
   "subtype",
   "tags",

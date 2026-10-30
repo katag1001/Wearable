@@ -1,0 +1,10 @@
+[
+  { "group": "Everyday", "tags": ["Comfy casual", "Elevated everyday", "Smart casual", "Errands"] },
+  { "group": "Work", "tags": ["Work from home", "Business casual", "Formal office"] },
+  { "group": "Daytime", "tags": ["Brunch / lunch", "Day out", "Garden party / daytime event"] },
+  { "group": "Evening", "tags": ["Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Gig / concert"] },
+  { "group": "Celebrations", "tags": ["Party", "Cocktail party", "Festive party", "Wedding guest", "Formal / black tie"] },
+  { "group": "Travel and holiday", "tags": ["Travel day", "City break", "Beach / pool", "Festival"] },
+  { "group": "Active", "tags": ["Gym / sport", "Outdoor / hiking"] },
+  { "group": "Home", "tags": ["Lounge / home"] }
+]

@@ -23,12 +23,12 @@ export const FilterSheet = ({
   filters,
   setFilters,
   availableColors,
-  availableStyles,
+  availablePatterns,
   availableTags,
   clothesByCategory,
   showSeasons = true,
   showColors = true,
-  showStyles = true,
+  showPatterns = true,
   showTags = true,
   showTemperature = false,
   showFavourites = false,
@@ -40,7 +40,7 @@ export const FilterSheet = ({
     setFilters,
     onClose,
     availableColors,
-    availableStyles,
+    availablePatterns,
     availableTags,
     clothesByCategory,
   });
@@ -133,16 +133,16 @@ export const FilterSheet = ({
             </>
           )}
 
-          {showStyles && (
+          {showPatterns && (
             <>
-              <SectionTitle title="Styles" />
+              <SectionTitle title="Pattern" />
               <ChipRow>
-                {panel.styles.map((style) => (
+                {panel.patterns.map((pattern) => (
                   <Chip
-                    key={style}
-                    label={capitalise(style)}
-                    selected={draft.styles.includes(style)}
-                    onPress={() => panel.toggleInList("styles", style)}
+                    key={pattern}
+                    label={pattern}
+                    selected={draft.patterns.includes(pattern)}
+                    onPress={() => panel.toggleInList("patterns", pattern)}
                   />
                 ))}
               </ChipRow>

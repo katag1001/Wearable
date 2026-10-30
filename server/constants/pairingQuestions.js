@@ -15,7 +15,10 @@
 // The keys must match between the two files.
 
 const DRESSES = [
+  "Strappy summer dress",
   "Summer dress",
+  "Buttondown dress",
+  "Shirt dress",
   "Wedding guest dress",
   "Evening dress",
   "Cocktail dress",
@@ -30,8 +33,8 @@ const pairingQuestions = {
   shirtsOverTops: {
     pairGroups: [
       [
-        ["Buttondown shirt", "Linen shirt"],
-        ["Short t-shirt", "Long t-shirt", "Vest", "Croptop", "Bodysuit", "Fancy top"],
+        ["Buttondown shirt", "Denim shirt", "Linen shirt"],
+        ["Short t-shirt", "Long-sleeve t-shirt", "Vest", "Knit vest/tank", "Croptop", "Bodysuit", "Fancy top"],
       ],
     ],
   },
@@ -40,31 +43,31 @@ const pairingQuestions = {
     pairGroups: [
       [
         ["Short turtleneck", "Long turtleneck"],
-        ["Buttondown shirt", "Linen shirt", "Floaty blouse", "Fancy blouse"],
+        ["Buttondown shirt", "Denim shirt", "Linen shirt", "Floaty blouse", "Peasant/boho blouse", "Fancy blouse"],
       ],
     ],
   },
 
   topsUnderDresses: {
     pairGroups: [
-      [["Short t-shirt", "Long t-shirt", "Short turtleneck", "Long turtleneck"], DRESSES],
+      [["Short t-shirt", "Long-sleeve t-shirt", "Short turtleneck", "Long turtleneck"], DRESSES],
     ],
   },
 
   smartAndCasual: {
     pairGroups: [
-      [["Hoodie/sweatshirt"], ["Blazer", "Trench coat"]],
-      [["Blazer", "Trench coat"], ["Sweatpants", "Leggings"]],
+      [["Hoodie/sweatshirt"], ["Tailored blazer", "Longline blazer", "Classic trench"]],
+      [["Tailored blazer", "Longline blazer", "Classic trench"], ["Sweatpants", "Leggings"]],
       [
         ["Hoodie/sweatshirt"],
-        ["Mini skirt", "Midi-skirt", "Maxi skirt", "Smart skirt"],
+        ["Mini skirt", "Winter mini skirt", "Midi-skirt", "Floaty maxi skirt", "Fitted maxi skirt", "Smart skirt"],
       ],
-      [["Cargo pants"], ["Fancy top", "Fancy blouse", "Blazer"]],
+      [["Cargo pants"], ["Fancy top", "Fancy blouse", "Tailored blazer", "Longline blazer"]],
     ],
   },
 
   croptopsLowRise: {
-    pairGroups: [[["Croptop"], ["Low waist jeans"]]],
+    pairGroups: [[["Croptop", "Halter/strappy top"], ["Low waist jeans"]]],
   },
 };
 

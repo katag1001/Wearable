@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {
   colorOptions,
   seasonOptions,
-  styleOptions,
+  patternOptions,
   tagOptions,
 } from "../constants/optionsBank.js";
 import {
@@ -33,7 +33,7 @@ export const useFilterPanel = ({
   setFilters,
   onClose,
   availableColors = [],
-  availableStyles = [],
+  availablePatterns = [],
   availableTags = [],
   clothesByCategory = {},
 }) => {
@@ -59,7 +59,7 @@ export const useFilterPanel = ({
 
   const seasons = seasonOptions;
   const colors = narrowTo(colorOptions, availableColors, (color) => color.name);
-  const styles = narrowTo(styleOptions, availableStyles);
+  const patterns = narrowTo(patternOptions, availablePatterns);
   const tags = narrowTo(tagOptions, availableTags, (tag) => tag.name);
 
   /* -------------------- Draft edits -------------------- */
@@ -154,7 +154,7 @@ export const useFilterPanel = ({
 
     seasons,
     colors,
-    styles,
+    patterns,
     tags,
 
     toggleInList,

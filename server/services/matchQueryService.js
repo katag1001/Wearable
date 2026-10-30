@@ -40,7 +40,7 @@ const parseMatchQuery = (query = {}) => {
     season: SEASONS.includes(query.season) ? query.season : null,
     seasons: parseSeasons(query.seasons),
     colors: parseList(query.colors),
-    styles: parseList(query.styles),
+    patterns: parseList(query.patterns),
     tags: parseList(query.tags),
     items: parseList(query.items).filter(isValidId),
     item,
@@ -63,7 +63,7 @@ const buildSearchCondition = (search, matchingClothesIds = []) => {
     $or: [
       { clothes: { $in: matchingClothesIds } },
       { colors: regex },
-      { styles: regex },
+      { patterns: regex },
       { tags: regex },
     ],
   };
@@ -86,7 +86,7 @@ const seasonsCondition = ({ seasons }) => anySeasonCondition(seasons);
 
 const colorsCondition = ({ colors }) => anyOfCondition("colors", colors);
 
-const stylesCondition = ({ styles }) => anyOfCondition("styles", styles);
+const patternsCondition = ({ patterns }) => anyOfCondition("patterns", patterns);
 
 const tagsCondition = ({ tags }) => anyOfCondition("tags", tags);
 
@@ -159,7 +159,7 @@ const FILTER_RULES = [
   seasonButtonCondition,
   seasonsCondition,
   colorsCondition,
-  stylesCondition,
+  patternsCondition,
   tagsCondition,
   favouriteCondition,
   itemsCondition,

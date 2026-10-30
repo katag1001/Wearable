@@ -240,7 +240,7 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
         filters={outfits.filters}
         setFilters={outfits.setFilters}
         availableColors={outfits.filterOptions?.colors}
-        availableStyles={outfits.filterOptions?.styles}
+        availablePatterns={outfits.filterOptions?.patterns}
         availableTags={outfits.filterOptions?.tags}
         clothesByCategory={outfits.filterOptions?.clothesByCategory}
         showTemperature

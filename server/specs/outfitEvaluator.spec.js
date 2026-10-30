@@ -13,7 +13,7 @@ function item(overrides) {
     type: "top",
     subtype: "Short t-shirt",
     colors: ["Cream"],
-    styles: ["plain"],
+    pattern: "Plain",
     tags: ["Everyday"],
     spring: true,
     summer: true,
@@ -38,10 +38,10 @@ test("countRoles tallies each type independently", () => {
   });
 });
 
-test("describeOutfit computes temperature, role counts, hasOuter, and merges tags/colours/styles", () => {
+test("describeOutfit computes temperature, role counts, hasOuter, and merges tags/colours/patterns", () => {
   const items = [
-    item({ subtype: "Short t-shirt", type: "top", colors: ["Cream"], styles: ["plain"], tags: ["Everyday"] }),
-    item({ subtype: "Jeans", type: "bottom", colors: ["Tan"], styles: ["plain"], tags: ["Everyday"] }),
+    item({ subtype: "Short t-shirt", type: "top", colors: ["Cream"], pattern: "Plain", tags: ["Everyday"] }),
+    item({ subtype: "Jeans", type: "bottom", colors: ["Tan"], pattern: "Plain", tags: ["Everyday"] }),
   ];
 
   const result = describeOutfit(items, { isUserMade: false });
@@ -55,6 +55,7 @@ test("describeOutfit computes temperature, role counts, hasOuter, and merges tag
   assert.equal(result.outerCount, 0);
   assert.equal(result.hasOuter, false);
   assert.deepEqual(new Set(result.colors), new Set(["Cream", "Tan"]));
+  assert.deepEqual(result.patterns, ["Plain"]);
   assert.deepEqual(result.tags, ["Everyday"]);
 });
 
@@ -101,8 +102,8 @@ test("validateOutfit fails when the pattern check fails even if the matrix passe
   };
 
   const items = [
-    item({ subtype: "Short t-shirt", type: "top", styles: ["patterned"] }),
-    item({ subtype: "Jeans", type: "bottom", styles: ["patterned"] }),
+    item({ subtype: "Short t-shirt", type: "top", pattern: "Stripe" }),
+    item({ subtype: "Jeans", type: "bottom", pattern: "Stripe" }),
   ];
 
   assert.equal(validateOutfit(items, { baselineMatrix: baseline, colorRules }), false);
@@ -198,8 +199,8 @@ test("validateOutfit passes a clean, compatible, single-palette outfit", () => {
   };
 
   const items = [
-    item({ subtype: "Short t-shirt", type: "top", colors: ["Cream"], styles: ["plain"] }),
-    item({ subtype: "Jeans", type: "bottom", colors: ["Tan"], styles: ["plain"] }),
+    item({ subtype: "Short t-shirt", type: "top", colors: ["Cream"], pattern: "Plain" }),
+    item({ subtype: "Jeans", type: "bottom", colors: ["Tan"], pattern: "Plain" }),
   ];
 
   assert.equal(validateOutfit(items, { baselineMatrix: baseline, colorRules }), true);
@@ -212,8 +213,8 @@ test("validateOutfit fails an outfit with two items marked as a mismatch", () =>
   };
 
   const items = [
-    item({ _id: "tee", subtype: "Short t-shirt", type: "top", colors: ["Cream"], styles: ["plain"], mismatchedWith: ["jeans"] }),
-    item({ _id: "jeans", subtype: "Jeans", type: "bottom", colors: ["Tan"], styles: ["plain"], mismatchedWith: ["tee"] }),
+    item({ _id: "tee", subtype: "Short t-shirt", type: "top", colors: ["Cream"], pattern: "Plain", mismatchedWith: ["jeans"] }),
+    item({ _id: "jeans", subtype: "Jeans", type: "bottom", colors: ["Tan"], pattern: "Plain", mismatchedWith: ["tee"] }),
   ];
 
   assert.equal(validateOutfit(items, { baselineMatrix: baseline, colorRules }), false);

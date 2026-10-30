@@ -1,17 +1,13 @@
-export const tagOptions = [
-  { name: "Work" },
-  { name: "Gym" },
-  { name: "Loungewear" },
-  { name: "Comfortable" },
-  { name: "Party" },
-  { name: "Date night" },
-  { name: "Formal" },
-  { name: "Beach" },
-  { name: "Outdoor" },
-  { name: "Lunch" },
-  { name: "Dinner" },
-  { name: "Everyday" }
-];
+import patterns from "../../shared/patterns.json";
+import occasionTagGroups from "../../shared/occasionTags.json";
+
+// Occasion tags, in shared/occasionTags.json's order, each with its group
+// ("Everyday", "Work"...). The server reads the same file.
+export const tagGroups = occasionTagGroups;
+
+export const tagOptions = occasionTagGroups.flatMap(({ group, tags }) =>
+  tags.map((name) => ({ name, group }))
+);
 
 
 export const seasonOptions = [
@@ -74,8 +70,7 @@ export const colorOptions = [
 ];
 
 
-export const styleOptions = [
-  "plain",
-  "patterned"
-];
+// A clothing item's pattern (one each). The matching rules for patterns are
+// in server/constants/patternRules.js.
+export const patternOptions = patterns;
 

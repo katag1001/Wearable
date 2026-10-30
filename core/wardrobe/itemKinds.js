@@ -39,7 +39,8 @@ export const WARDROBE_KINDS = {
     // Items saved before temperature moved to matches may still carry
     // these - never send them back. `favourite` is only changed by the
     // heart (useItemFavourite), so a form opened before a tap can't undo it.
-    dropFields: ["min_temp", "max_temp", "favourite"],
+    // `styles` is footwear's (clothing has `pattern` instead).
+    dropFields: ["min_temp", "max_temp", "favourite", "styles"],
     create: (fields) =>
       createClothing({
         ...fields,
@@ -58,7 +59,7 @@ export const WARDROBE_KINDS = {
     hasCategories: false,
     hasMatches: false,
     // Fields from the shared form state that footwear doesn't store.
-    dropFields: ["type", "min_temp", "max_temp", "wearWithTights"],
+    dropFields: ["type", "min_temp", "max_temp", "wearWithTights", "pattern"],
     create: createFootwear,
     update: updateFootwear,
     remove: deleteFootwear,

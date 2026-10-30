@@ -6,7 +6,7 @@
 // matching reads has changed - renaming an item does nothing here.
 //
 // A change to a field that decides the outfits (REMATCH_ITEM_FIELDS:
-// type, subtype, colours, seasons, tags, styles) rematches the item: every
+// type, subtype, colours, seasons, tags, pattern) rematches the item: every
 // one of its outfits that isn't protected is deleted, and the search that
 // follows builds them again with new scores (it skips the protected ones,
 // which still exist). Any other change (the tights answer) only re-checks
@@ -26,7 +26,7 @@
 const { Match, Clothes, Today } = require("../models/AllModels.js");
 const { OUTFIT_SHAPES, ROLES } = require("../constants/outfitShapes.js");
 const { describeOutfit, validateOutfit, hasSharedSeason } = require("./outfitEvaluator.js");
-const { hasSharedTag } = require("./helpers.js");
+const { hasSharedTag, computeMatchTags } = require("./helpers.js");
 const { buildMatchingContext } = require("./matchService.js");
 const { getUserMatchingPreferences } = require("./matchScoreService.js");
 const { deleteMatches } = require("./matchLifecycleService.js");
@@ -41,7 +41,7 @@ const ITEM_FIELD_TO_OUTFIT_FIELDS = {
   autumn: ["autumn"],
   winter: ["winter"],
   colors: ["colors"],
-  styles: ["styles"],
+  pattern: ["patterns"],
   tags: ["tags"],
   subtype: ["min_temp", "max_temp", "tights"],
   wearWithTights: ["tights"],
@@ -51,7 +51,7 @@ const ITEM_FIELD_TO_OUTFIT_FIELDS = {
 const MATCHING_ITEM_FIELDS = Object.keys(ITEM_FIELD_TO_OUTFIT_FIELDS);
 
 // Item fields whose change rematches the item from scratch.
-const REMATCH_ITEM_FIELDS = ["type", "subtype", "colors", "spring", "summer", "autumn", "winter", "tags", "styles"];
+const REMATCH_ITEM_FIELDS = ["type", "subtype", "colors", "spring", "summer", "autumn", "winter", "tags", "pattern"];
 
 const needsRematch = (changedItemFields) =>
   changedItemFields.some((field) => REMATCH_ITEM_FIELDS.includes(field));
@@ -99,6 +99,7 @@ function isValidAutoOutfit(items, context) {
     fitsAnOutfitShape(items) &&
     hasSharedSeason(items) &&
     hasSharedTag(items) &&
+    computeMatchTags(items, context.gender).length > 0 &&
     validateOutfit(items, context)
   );
 }
@@ -126,6 +127,7 @@ function planMatchRefresh(matches, itemsById, outfitFields, context, { rematch =
     const described = describeOutfit(items, {
       isUserMade: true,
       temperaturePreference: context.temperaturePreference,
+      gender: context.gender,
     });
 
     const fields = {};

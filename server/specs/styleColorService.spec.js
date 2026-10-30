@@ -1,33 +1,55 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const { passesPatternCheck, passesColorCheck } = require("../services/styleColorService.js");
+const {
+  isPatterned,
+  patternFailure,
+  passesPatternCheck,
+  passesColorCheck,
+} = require("../services/styleColorService.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
 
 const colorRules = getColorRules("mid");
 
-test("passesPatternCheck allows at most one patterned item", () => {
-  assert.equal(
-    passesPatternCheck([{ styles: ["patterned"] }, { styles: ["plain"] }]),
-    true
-  );
+const worn = (...patterns) => patterns.map((pattern) => ({ pattern }));
 
-  assert.equal(
-    passesPatternCheck([{ styles: ["patterned"] }, { styles: ["patterned"] }]),
-    false
-  );
+test("isPatterned is anything but Plain, and an item with no pattern counts as plain", () => {
+  assert.equal(isPatterned({ pattern: "Stripe" }), true);
+  assert.equal(isPatterned({ pattern: "Plain" }), false);
+  assert.equal(isPatterned({}), false);
 });
 
-test("passesPatternCheck matches \"Patterned\" case-insensitively, matching how it's actually stored", () => {
-  assert.equal(
-    passesPatternCheck([{ styles: ["Patterned"] }, { styles: ["Plain"] }]),
-    true
-  );
+test("at min, a second patterned item fails whatever the patterns", () => {
+  assert.equal(passesPatternCheck(worn("Stripe", "Plain", "Plain"), "min"), true);
+  assert.equal(passesPatternCheck(worn("Stripe", "Floral"), "min"), false);
+  assert.equal(passesPatternCheck(worn("Lace/broderie", "Lace/broderie"), "min"), false);
+});
 
-  assert.equal(
-    passesPatternCheck([{ styles: ["Patterned"] }, { styles: ["Patterned"] }]),
-    false
-  );
+test("at mid and max, two patterns pass but three don't", () => {
+  ["mid", "max"].forEach((level) => {
+    assert.equal(passesPatternCheck(worn("Stripe", "Floral"), level), true);
+    assert.equal(passesPatternCheck(worn("Stripe", "Floral", "Spots/dots"), level), false);
+  });
+});
+
+test("the same pattern twice fails, except Lace/broderie", () => {
+  assert.equal(passesPatternCheck(worn("Stripe", "Stripe"), "max"), false);
+  assert.equal(passesPatternCheck(worn("Lace/broderie", "Lace/broderie"), "mid"), true);
+});
+
+test("a graphic print never goes with another pattern", () => {
+  assert.equal(passesPatternCheck(worn("Graphic/slogan", "Stripe"), "max"), false);
+  assert.equal(passesPatternCheck(worn("Graphic/slogan", "Plain"), "min"), true);
+});
+
+test("two bold patterns fail below max", () => {
+  assert.equal(passesPatternCheck(worn("Floral", "Animal print"), "mid"), false);
+  assert.equal(passesPatternCheck(worn("Floral", "Animal print"), "max"), true);
+});
+
+test("patternFailure says why, and defaults to the mid level", () => {
+  assert.equal(patternFailure(worn("Stripe", "Floral"), "min"), "more than 1 patterned item");
+  assert.equal(patternFailure(worn("Stripe", "Floral")), null);
 });
 
 test("passesColorCheck passes when all combined colours fit one shared palette", () => {

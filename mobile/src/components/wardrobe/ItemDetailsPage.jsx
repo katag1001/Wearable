@@ -1,12 +1,17 @@
 // The lower half of the item form: seasons, tights (skirts, dresses and
-// shorts only), colours and tags (pre-filled for a new item from its name
-// and type).
+// shorts only), colours, pattern (clothing only) and tags (pre-filled for a
+// new item from its name and type).
+
+import { useState } from "react";
 
 import {
   colorOptions,
+  patternOptions,
   seasonOptions,
-  tagOptions,
 } from "@core/constants/optionsBank.js";
+import { visibleTagGroups } from "@core/utils/tagOptions.js";
+
+import { View } from "react-native";
 
 import { Chip, ChipRow, SectionTitle, SegmentedControl } from "../ui";
 
@@ -19,6 +24,8 @@ const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
 export const ItemDetailsPage = ({ form }) => {
   const { formData } = form;
+  // Only the item's own tags until "Show all" is pressed.
+  const [showAllTags, setShowAllTags] = useState(false);
 
   return (
     <>
@@ -58,17 +65,46 @@ export const ItemDetailsPage = ({ form }) => {
         ))}
       </ChipRow>
 
-      <SectionTitle title="Tags" />
-      <ChipRow>
-        {tagOptions.map((tag) => (
+      {form.asksPattern ? (
+        <>
+          <SectionTitle title="Pattern" />
+          <ChipRow>
+            {patternOptions.map((pattern) => (
+              <Chip
+                key={pattern}
+                label={pattern}
+                selected={(formData.pattern || "Plain") === pattern}
+                onPress={() => form.setPattern(pattern)}
+              />
+            ))}
+          </ChipRow>
+        </>
+      ) : null}
+
+      <SectionTitle
+        title="Tags"
+        right={
           <Chip
-            key={tag.name}
-            label={tag.name}
-            selected={formData.tags.includes(tag.name)}
-            onPress={() => form.toggleTag(tag.name)}
+            label={showAllTags ? "Show fewer" : "Show all"}
+            onPress={() => setShowAllTags(!showAllTags)}
           />
-        ))}
-      </ChipRow>
+        }
+      />
+      {visibleTagGroups(formData.tags, showAllTags).map(({ group, tags }) => (
+        <View key={group}>
+          {showAllTags ? <SectionTitle description={group} /> : null}
+          <ChipRow>
+            {tags.map((tag) => (
+              <Chip
+                key={tag}
+                label={tag}
+                selected={formData.tags.includes(tag)}
+                onPress={() => form.toggleTag(tag)}
+              />
+            ))}
+          </ChipRow>
+        </View>
+      ))}
     </>
   );
 };

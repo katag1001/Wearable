@@ -2,7 +2,9 @@
   "shift": 2,
   "askBySubtype": {
     "Mini skirt": true,
-    "Maxi skirt": true,
+    "Winter mini skirt": true,
+    "Floaty maxi skirt": true,
+    "Fitted maxi skirt": true,
     "Smart skirt": true,
     "Midi-skirt": true,
     "Fancy Shorts": true,
@@ -15,7 +17,10 @@
     "Cocktail dress": true,
     "Work dress": true,
     "Winter dress": true,
+    "Strappy summer dress": false,
     "Summer dress": false,
+    "Buttondown dress": false,
+    "Shirt dress": false,
     "Wedding guest dress": false,
     "Evening dress": false
   }

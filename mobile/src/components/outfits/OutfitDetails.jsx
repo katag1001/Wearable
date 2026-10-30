@@ -2,9 +2,11 @@
 // tights (when its items allow them) and tags.
 // `card` is useMatchCard, already editing (its draft).
 
-import { StyleSheet } from "react-native";
+import { useState } from "react";
+import { StyleSheet, View } from "react-native";
 
-import { seasonOptions, tagOptions } from "@core/constants/optionsBank.js";
+import { seasonOptions } from "@core/constants/optionsBank.js";
+import { visibleTagGroups } from "@core/utils/tagOptions.js";
 import { TEMPERATURE_RANGE } from "@core/matches/matchFields.js";
 
 import { Chip, ChipRow, RangeSlider, SectionTitle, StarRating } from "../ui";
@@ -13,6 +15,8 @@ const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
 export const OutfitDetails = ({ card }) => {
   const { draft } = card;
+  // Only the outfit's own tags until "Show all" is pressed.
+  const [showAllTags, setShowAllTags] = useState(false);
 
   if (!draft) return null;
 
@@ -55,17 +59,30 @@ export const OutfitDetails = ({ card }) => {
         </>
       ) : null}
 
-      <SectionTitle title="Tags" />
-      <ChipRow>
-        {tagOptions.map((tag) => (
+      <SectionTitle
+        title="Tags"
+        right={
           <Chip
-            key={tag.name}
-            label={tag.name}
-            selected={draft.tags.includes(tag.name)}
-            onPress={() => card.toggleTag(tag.name)}
+            label={showAllTags ? "Show fewer" : "Show all"}
+            onPress={() => setShowAllTags(!showAllTags)}
           />
-        ))}
-      </ChipRow>
+        }
+      />
+      {visibleTagGroups(draft.tags, showAllTags).map(({ group, tags }) => (
+        <View key={group}>
+          {showAllTags ? <SectionTitle description={group} /> : null}
+          <ChipRow>
+            {tags.map((tag) => (
+              <Chip
+                key={tag}
+                label={tag}
+                selected={draft.tags.includes(tag)}
+                onPress={() => card.toggleTag(tag)}
+              />
+            ))}
+          </ChipRow>
+        </View>
+      ))}
     </>
   );
 };

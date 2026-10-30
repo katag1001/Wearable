@@ -71,8 +71,9 @@ const hasPatternedStyle = (styles = []) =>
     (style) => typeof style === "string" && style.toLowerCase() === "patterned"
   );
 
-// A match's combined styles include "Patterned" if any item is patterned.
-export const isOutfitPatterned = (match) => hasPatternedStyle(match?.styles);
+// An outfit is patterned if any of its items' patterns isn't Plain.
+export const isOutfitPatterned = (match) =>
+  (match?.patterns || []).some((pattern) => pattern !== "Plain");
 
 // Shoes are Patterned whenever they have more than one colour.
 const isShoePatterned = (item) =>

@@ -397,16 +397,16 @@ return res.status(401).json({ error: "Unauthorized" });
 }
 
 try {
-const [colors, styles, tags, typesAndSubtypes] = await Promise.all([
+const [colors, patterns, tags, typesAndSubtypes] = await Promise.all([
 Clothes.distinct("colors", { userId }),
-Clothes.distinct("styles", { userId }),
+Clothes.distinct("pattern", { userId }),
 Clothes.distinct("tags", { userId }),
 Clothes.find({ userId }).select("type subtype").lean(),
 ]);
 
 return res.json({
 colors,
-styles,
+patterns,
 tags,
 subtypesByType: groupSubtypesByType(typesAndSubtypes),
 });
@@ -617,11 +617,12 @@ exports.createMatch = async (req, res) => {
     // Manual outfits are never rejected - describeOutfit only computes
     // descriptive fields here (temperature, tags, role counts, etc.),
     // it never validates compatibility/colour/pattern.
-    const { temperature } = await getUserMatchingPreferences(userId);
+    const { temperature, gender } = await getUserMatchingPreferences(userId);
 
     const described = describeOutfit(clothes, {
       isUserMade: true,
       temperaturePreference: temperature,
+      gender,
     });
 
     // Only the checked clothes come from the request (in `described`).
@@ -691,9 +692,9 @@ exports.getMatchFilterOptions = async (req, res) => {
 const userId = req.user?.userId;
 
 try {
-const [colors, styles, tags, clothesIds] = await Promise.all([
+const [colors, patterns, tags, clothesIds] = await Promise.all([
 Match.distinct("colors", { userId }),
-Match.distinct("styles", { userId }),
+Match.distinct("patterns", { userId }),
 Match.distinct("tags", { userId }),
 Match.distinct("clothes", { userId }),
 ]);
@@ -704,7 +705,7 @@ const clothes = await Clothes.find({ _id: { $in: clothesIds }, userId })
 
 return res.json({
 colors,
-styles,
+patterns,
 tags,
 clothesByCategory: groupClothesByType(clothes),
 });

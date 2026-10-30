@@ -17,7 +17,7 @@ const Filter = ({
   filters,
   setFilters,
   availableColors = [],
-  availableStyles = [],
+  availablePatterns = [],
   availableTags = [],
   clothesByCategory = {
     top: [],
@@ -28,7 +28,7 @@ const Filter = ({
   showItemFilter = false,
   showSeasons = true,
   showColors = true,
-  showStyles = true,
+  showPatterns = true,
   showTags = true,
   showTemperature = true,
   showFavourites = false,
@@ -39,7 +39,7 @@ const Filter = ({
     setView,
     seasons,
     colors,
-    styles,
+    patterns,
     tags,
     toggleInList: toggleArrayFilter,
     toggleFavourite,
@@ -57,7 +57,7 @@ const Filter = ({
     setFilters,
     onClose,
     availableColors,
-    availableStyles,
+    availablePatterns,
     availableTags,
     clothesByCategory,
   });
@@ -267,21 +267,21 @@ return (
           </div>
         )}
 
-        {view === "main" && showStyles && (
+        {view === "main" && showPatterns && (
           <div className="filter-section">
-            <h3>Styles</h3>
+            <h3>Pattern</h3>
 
-            {styles.map((style) => (
-              <label key={style}>
+            {patterns.map((pattern) => (
+              <label key={pattern}>
                 <input
                   type="checkbox"
-                  checked={localFilters.styles.includes(style)}
+                  checked={localFilters.patterns.includes(pattern)}
                   onChange={() =>
-                    toggleArrayFilter("styles", style)
+                    toggleArrayFilter("patterns", pattern)
                   }
                 />
 
-                {style.charAt(0).toUpperCase() + style.slice(1)}
+                {pattern}
               </label>
             ))}
           </div>

@@ -96,6 +96,7 @@ const AddUpdateItem = ({ kind, item, onClose, onBack, refresh }) => {
                   toggleColor={form.toggleColor}
                   toggleTag={form.toggleTag}
                   tights={form}
+                  pattern={form}
                 />
               )}
 

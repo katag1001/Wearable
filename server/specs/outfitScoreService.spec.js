@@ -110,7 +110,7 @@ test("computeColourScore adds the favourite bonus", () => {
   assert.equal(computeColourScore(items, real, []), 82.5);
 });
 
-const patterned = (subtype, colors) => ({ subtype, colors, styles: ["Patterned"] });
+const patterned = (subtype, colors) => ({ subtype, colors, pattern: "Floral" });
 
 test("computePatternEchoAdjustment rewards plain pieces that only use the pattern's colours", () => {
   const skirt = patterned("B", ["Black", "White"]);

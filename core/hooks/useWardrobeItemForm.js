@@ -60,7 +60,8 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
   // { id, name, type, message } once saved.
   const [savedItem, setSavedItem] = useState(null);
 
-  // Style isn't asked: it's Patterned whenever there's more than one colour.
+  // Footwear's style isn't asked: it's Patterned whenever there's more than
+  // one colour. (Clothing has a pattern instead, which the user picks.)
   useEffect(() => {
     const nextStyle = formData.colors.length > 1 ? "Patterned" : "Plain";
 
@@ -85,6 +86,10 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
   const asksTights = kind === "clothing" && asksAboutTights(formData.subtype, gender);
   const wearWithTights = wearsWithTights(formData);
   const setWearWithTights = (value) => updateField("wearWithTights", value);
+
+  // Clothing's pattern (shared/patterns.json) - the matching rules use it.
+  const asksPattern = kind === "clothing";
+  const setPattern = (value) => updateField("pattern", value);
 
   const subtypeSuggestions = suggestSubtypesFromName(
     formData.name,
@@ -219,6 +224,9 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
     asksTights,
     wearWithTights,
     setWearWithTights,
+
+    asksPattern,
+    setPattern,
 
     selectedImage,
     setSelectedImage,

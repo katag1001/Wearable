@@ -55,13 +55,13 @@ test("buildMatchFilter combines the season button with any-of filter seasons", (
   ]);
 });
 
-test("buildMatchFilter requires every selected item but any listed colour/style/tag", () => {
+test("buildMatchFilter requires every selected item but any listed colour/pattern/tag", () => {
   const filter = buildMatchFilter(
     USER,
     parseMatchQuery({
       items: `${ID_A},${ID_B}`,
       colors: "blue",
-      styles: "casual",
+      patterns: "Stripe",
       tags: "work",
       favourite: "true",
     })
@@ -69,7 +69,7 @@ test("buildMatchFilter requires every selected item but any listed colour/style/
 
   assert.deepEqual(filter.$and, [
     { colors: { $in: ["blue"] } },
-    { styles: { $in: ["casual"] } },
+    { patterns: { $in: ["Stripe"] } },
     { tags: { $in: ["work"] } },
     { favourite: true },
     { clothes: { $all: [ID_A, ID_B] } },
@@ -120,7 +120,7 @@ test("buildMatchFilter matches nothing for an invalid ?item= id", () => {
   assert.deepEqual(filter.$and, [{ _id: null }]);
 });
 
-test("buildMatchFilter searches clothing names (via ids), colours, styles and tags", () => {
+test("buildMatchFilter searches clothing names (via ids), colours, patterns and tags", () => {
   const filter = buildMatchFilter(
     USER,
     parseMatchQuery({ search: "  Lin.en " }),

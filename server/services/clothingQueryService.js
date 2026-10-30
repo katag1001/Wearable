@@ -26,7 +26,7 @@ const parseClothingQuery = (query = {}) => ({
   type: CLOTHING_TYPES.includes(query.type) ? query.type : null,
   seasons: parseSeasons(query.seasons),
   colors: parseList(query.colors),
-  styles: parseList(query.styles),
+  patterns: parseList(query.patterns),
   tags: parseList(query.tags),
   subtypes: parseList(query.subtypes),
 });
@@ -41,7 +41,8 @@ const seasonsCondition = ({ seasons }) => anySeasonCondition(seasons);
 
 const colorsCondition = ({ colors }) => anyOfCondition("colors", colors);
 
-const stylesCondition = ({ styles }) => anyOfCondition("styles", styles);
+// Each item has one pattern, so this is "is one of the chosen patterns".
+const patternsCondition = ({ patterns }) => anyOfCondition("pattern", patterns);
 
 const tagsCondition = ({ tags }) => anyOfCondition("tags", tags);
 
@@ -49,7 +50,7 @@ const tagsCondition = ({ tags }) => anyOfCondition("tags", tags);
 const subtypesCondition = ({ subtypes }) =>
   anyOfCondition("subtype", subtypes);
 
-// Name, any colour or any style contains the search text.
+// Name, any colour or the pattern contains the search text.
 const searchCondition = ({ search }) => {
   if (!search) return null;
 
@@ -59,7 +60,7 @@ const searchCondition = ({ search }) => {
     $or: [
       { name: regex },
       { colors: regex },
-      { styles: regex },
+      { pattern: regex },
     ],
   };
 };
@@ -68,7 +69,7 @@ const FILTER_RULES = [
   typeCondition,
   seasonsCondition,
   colorsCondition,
-  stylesCondition,
+  patternsCondition,
   tagsCondition,
   subtypesCondition,
   searchCondition,

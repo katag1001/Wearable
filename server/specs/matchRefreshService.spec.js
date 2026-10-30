@@ -17,7 +17,7 @@ function clothes(overrides) {
     _id: overrides.subtype,
     name: overrides.subtype,
     colors: ["Cream"],
-    styles: ["plain"],
+    pattern: "Plain",
     tags: ["Everyday"],
     spring: true,
     summer: true,
@@ -58,7 +58,7 @@ function match(items, overrides = {}) {
     autumn: true,
     winter: true,
     colors: ["Cream"],
-    styles: ["plain"],
+    pattern: "Plain",
     tags: ["Everyday"],
     favourite: false,
     userMade: false,
@@ -108,7 +108,7 @@ test("isProtectedMatch covers favourites, rated, user-made, worn and hand-edited
 });
 
 test("needsRematch is true for the fields that decide outfits, not the tights answer", () => {
-  ["type", "subtype", "colors", "spring", "winter", "tags", "styles"].forEach((field) => {
+  ["type", "subtype", "colors", "spring", "winter", "tags", "pattern"].forEach((field) => {
     assert.equal(needsRematch([field]), true, field);
   });
   assert.equal(needsRematch(["wearWithTights"]), false);

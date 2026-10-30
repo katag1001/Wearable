@@ -8,6 +8,7 @@ const {
   findShapeCombinations,
   findCandidateMatches,
   isStillViable,
+  dropPatternClashes,
   dedupeKey,
   isOnlyDuplicateKeyErrors,
   scoreItemSet,
@@ -21,7 +22,7 @@ function clothes(overrides) {
   return {
     _id: overrides.subtype,
     colors: ["Cream"],
-    styles: ["plain"],
+    pattern: "Plain",
     tags: ["Everyday"],
     spring: true,
     summer: true,
@@ -258,16 +259,16 @@ test("findShapeCombinations prunes a candidate with no tag in common", () => {
 
 test("isStillViable fails on colour, pattern, or season the same way the final checks would", () => {
   const colorRules = getColorRules("mid");
-  const cream = clothes({ subtype: "A", colors: ["Cream"], styles: ["plain"] });
+  const cream = clothes({ subtype: "A", colors: ["Cream"], pattern: "Plain" });
 
   assert.equal(isStillViable([cream], colorRules), true);
 
-  const incompatibleColours = clothes({ subtype: "B", colors: ["Neon Green"], styles: ["plain"] });
+  const incompatibleColours = clothes({ subtype: "B", colors: ["Neon Green"], pattern: "Plain" });
   assert.equal(isStillViable([cream, incompatibleColours], colorRules), false);
 
   const twoPatterned = [
-    clothes({ subtype: "C", styles: ["patterned"] }),
-    clothes({ subtype: "D", styles: ["patterned"] }),
+    clothes({ subtype: "C", pattern: "Stripe" }),
+    clothes({ subtype: "D", pattern: "Stripe" }),
   ];
   assert.equal(isStillViable(twoPatterned, colorRules), false);
 
@@ -276,6 +277,26 @@ test("isStillViable fails on colour, pattern, or season the same way the final c
     clothes({ subtype: "F", spring: false, summer: true, autumn: false, winter: false }),
   ];
   assert.equal(isStillViable(noSharedSeason, colorRules), false);
+});
+
+test("isStillViable uses the pattern level: one pattern at min, two at mid", () => {
+  const colorRules = getColorRules("mid");
+  const stripe = clothes({ subtype: "A", pattern: "Stripe" });
+  const floral = clothes({ subtype: "B", pattern: "Floral" });
+
+  assert.equal(isStillViable([stripe, floral], colorRules, "min"), false);
+  assert.equal(isStillViable([stripe, floral], colorRules, "mid"), true);
+});
+
+test("dropPatternClashes removes every item that can never be worn with the new item's pattern", () => {
+  const newTop = clothes({ subtype: "Short t-shirt", type: "top", pattern: "Stripe" });
+  const plainJeans = clothes({ subtype: "Jeans", type: "bottom", pattern: "Plain" });
+  const floralSkirt = clothes({ subtype: "Midi-skirt", type: "bottom", pattern: "Floral" });
+  const stripeSkirt = clothes({ subtype: "Mini skirt", type: "bottom", pattern: "Stripe" });
+  const pools = { top: [], bottom: [plainJeans, floralSkirt, stripeSkirt], onepiece: [], outer: [] };
+
+  assert.deepEqual(dropPatternClashes(pools, newTop, "min").bottom, [plainJeans]);
+  assert.deepEqual(dropPatternClashes(pools, newTop, "mid").bottom, [plainJeans, floralSkirt]);
 });
 
 test("findShapeCombinations prunes a colour-incompatible candidate during the search", () => {
@@ -295,11 +316,11 @@ test("findShapeCombinations prunes a candidate that pushes the outfit's distinct
   // combined they total 8 distinct colours - over "mid"'s cap of 6.
   const newTop = clothes({
     subtype: "Short t-shirt", type: "top",
-    colors: ["Cream", "Camel", "Tan", "White"], styles: ["plain"],
+    colors: ["Cream", "Camel", "Tan", "White"], pattern: "Plain",
   });
   const jeans = clothes({
     subtype: "Jeans", type: "bottom",
-    colors: ["Gold", "Olive Green", "Brown", "Peach"], styles: ["plain"],
+    colors: ["Gold", "Olive Green", "Brown", "Peach"], pattern: "Plain",
   });
 
   const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };

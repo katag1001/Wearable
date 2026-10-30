@@ -51,3 +51,29 @@
   letter-spacing: var(--tracking-normal);
   text-transform: uppercase;
 }
+
+/* Tag pickers (item form and outfit editor): a group label above each group
+   once every tag is shown, and the "Show all tags" toggle. */
+.tag-group-label {
+  margin: 0.6rem 0 0.3rem;
+  font-size: 0.75rem;
+  color: var(--secondary-color);
+  letter-spacing: var(--tracking-normal);
+  text-transform: uppercase;
+}
+
+.show-more-tags {
+  margin-top: 0.6rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--secondary-color);
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.show-more-tags:hover {
+  color: var(--main-color);
+}

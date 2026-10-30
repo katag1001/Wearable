@@ -13,8 +13,8 @@
 
 const REQUIRES_LAYERING = {
   man: ["Warm cardigan", "Warm jumper", "Waistcoat"],
-  woman: ["Warm cardigan", "Warm jumper", "Turtleneck jumper"],
-  unisex: ["Warm cardigan", "Warm jumper", "Turtleneck jumper"],
+  woman: ["Warm cardigan", "Warm jumper", "Thick turtleneck jumper"],
+  unisex: ["Warm cardigan", "Warm jumper", "Thick turtleneck jumper"],
 };
 
 const REQUIRES_TOP = {

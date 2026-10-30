@@ -24,13 +24,18 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -42,12 +47,18 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -59,17 +70,23 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Lounge / home"
       ]
     },
     {
       "type": "top",
       "category": "Jumpers and cardigans",
-      "name": "Light jumper",
+      "name": "Fine-knit jumper",
       "season": [
         "Spring",
         "Summer",
@@ -77,15 +94,22 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -98,13 +122,49 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Oversized shirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -117,12 +177,19 @@ const typeOptionsByGender = {
         "Autumn"
       ],
       "tags": [
-        "Work",
-        "Beach",
-        "Formal",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool"
       ]
     },
     {
@@ -135,12 +202,18 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "City break",
+        "Lounge / home"
       ]
     },
     {
@@ -154,37 +227,51 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
       "type": "top",
       "category": "Tops",
-      "name": "Long t-shirt",
+      "name": "Long-sleeve t-shirt",
       "season": [
         "Spring",
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Dinner",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -196,16 +283,23 @@ const typeOptionsByGender = {
         "Autumn"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -219,11 +313,15 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
+        "Smart casual",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Lunch"
+        "Drinks / night out",
+        "Party"
       ]
     },
     {
@@ -237,11 +335,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -253,11 +356,17 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Gig / concert",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -271,12 +380,19 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -289,11 +405,15 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -305,15 +425,22 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -327,11 +454,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -345,12 +477,18 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -361,13 +499,18 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -378,10 +521,14 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Beach / pool",
+        "Festival",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -392,11 +539,15 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -408,13 +559,18 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -425,12 +581,17 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -442,9 +603,13 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break"
       ]
     },
     {
@@ -457,18 +622,23 @@ const typeOptionsByGender = {
         "Autumn"
       ],
       "tags": [
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
       "type": "outer",
       "category": "Suits and blazers",
-      "name": "Blazer",
+      "name": "Tailored blazer",
       "season": [
         "Spring",
         "Summer",
@@ -476,10 +646,32 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Dinner",
-        "Date night",
-        "Lunch"
+        "Smart casual",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Suits and blazers",
+      "name": "Longline blazer",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Smart casual",
+        "Business casual",
+        "Brunch / lunch",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night"
       ]
     },
     {
@@ -492,10 +684,14 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Outdoor",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -509,29 +705,62 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking"
       ]
     },
     {
       "type": "outer",
       "category": "Coats",
-      "name": "Trench coat",
+      "name": "Classic trench",
       "season": [
         "Spring",
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Long leather coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -542,33 +771,80 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking"
       ]
     },
     {
       "type": "outer",
       "category": "Coats",
-      "name": "Winter Coat",
+      "name": "Wool coat",
       "season": [
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
-        "Formal",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Parka",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -581,42 +857,96 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
-        "Formal",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
       "type": "outer",
       "category": "Jackets",
-      "name": "Short jacket",
+      "name": "Cropped jacket",
       "season": [
         "Spring",
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
-        "Formal",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Bomber",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -630,10 +960,15 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Lounge / home"
       ]
     },
     {
@@ -647,11 +982,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -664,12 +1004,17 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -682,12 +1027,85 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
-        "Outdoor",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Outdoor / hiking"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Knit coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Gilet",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     }
   ],
@@ -702,13 +1120,18 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -720,29 +1143,64 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
       "type": "top",
       "category": "Jumpers and cardigans",
-      "name": "Turtleneck jumper",
+      "name": "Thick turtleneck jumper",
       "season": [
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Thin turtleneck jumper",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -754,17 +1212,23 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Lounge / home"
       ]
     },
     {
       "type": "top",
       "category": "Jumpers and cardigans",
-      "name": "Light jumper",
+      "name": "Fine-knit jumper",
       "season": [
         "Spring",
         "Summer",
@@ -772,15 +1236,22 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -794,14 +1265,21 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
-        "Beach",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Lounge / home"
       ]
     },
     {
@@ -814,11 +1292,64 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Denim shirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Date night",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Oversized shirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Date night",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -831,12 +1362,19 @@ const typeOptionsByGender = {
         "Autumn"
       ],
       "tags": [
-        "Work",
-        "Beach",
-        "Formal",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool"
       ]
     },
     {
@@ -850,13 +1388,49 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Peasant/boho blouse",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -870,13 +1444,22 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -890,13 +1473,22 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Festive party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -910,9 +1502,13 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Dinner"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Festive party"
       ]
     },
     {
@@ -926,9 +1522,14 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "City break"
       ]
     },
     {
@@ -941,12 +1542,18 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "City break",
+        "Lounge / home"
       ]
     },
     {
@@ -959,13 +1566,19 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
-        "Outdoor",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -977,11 +1590,16 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -995,37 +1613,51 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
       "type": "top",
       "category": "Tops",
-      "name": "Long t-shirt",
+      "name": "Long-sleeve t-shirt",
       "season": [
         "Spring",
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Dinner",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1037,16 +1669,77 @@ const typeOptionsByGender = {
         "Autumn"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Knit vest/tank",
+      "season": [
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Halter/strappy top",
+      "season": [
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1058,15 +1751,21 @@ const typeOptionsByGender = {
         "Autumn"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1080,13 +1779,20 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
-        "Beach",
-        "Formal",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break",
+        "Beach / pool"
       ]
     },
     {
@@ -1098,13 +1804,21 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -1118,18 +1832,46 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
-        "Beach",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Beach / pool"
       ]
     },
     {
       "type": "bottom",
       "category": "Skirts",
-      "name": "Maxi skirt",
+      "name": "Winter mini skirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Beach / pool"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Floaty maxi skirt",
       "season": [
         "Spring",
         "Summer",
@@ -1137,13 +1879,47 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Dinner",
-        "Beach",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break",
+        "Beach / pool"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Fitted maxi skirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break",
+        "Beach / pool"
       ]
     },
     {
@@ -1157,13 +1933,22 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -1177,13 +1962,21 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -1197,11 +1990,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -1214,11 +2012,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -1231,11 +2034,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -1248,11 +2056,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -1265,11 +2078,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -1282,11 +2100,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -1299,9 +2122,13 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break"
       ]
     },
     {
@@ -1315,12 +2142,18 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -1332,17 +2165,23 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Gig / concert",
+        "Party",
+        "City break"
       ]
     },
     {
       "type": "bottom",
       "category": "Trousers",
-      "name": "Wide leg trousers",
+      "name": "Floaty trousers",
       "season": [
         "Spring",
         "Summer",
@@ -1350,12 +2189,68 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Tailored wide leg trousers",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Flared trousers",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -1369,12 +2264,20 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -1387,11 +2290,15 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -1403,14 +2310,20 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Beach",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1424,12 +2337,17 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1443,11 +2361,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1458,11 +2381,14 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Gym",
-        "Party",
-        "Dinner",
+        "Brunch / lunch",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Festive party",
+        "Gym / sport"
       ]
     },
     {
@@ -1473,13 +2399,18 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1490,10 +2421,14 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Beach / pool",
+        "Festival",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -1504,11 +2439,15 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -1520,13 +2459,18 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1540,13 +2484,21 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -1558,14 +2510,21 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Lounge / home"
       ]
     },
     {
@@ -1578,12 +2537,40 @@ const typeOptionsByGender = {
         "Autumn"
       ],
       "tags": [
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Strappy summer dress",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Garden party / daytime event",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Festival"
       ]
     },
     {
@@ -1594,12 +2581,60 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Dinner",
-        "Beach",
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Garden party / daytime event",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool"
+      ]
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Buttondown dress",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Travel day",
+        "City break",
+        "Beach / pool"
+      ]
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Shirt dress",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Travel day",
+        "City break",
+        "Beach / pool"
       ]
     },
     {
@@ -1613,7 +2648,10 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Formal"
+        "Garden party / daytime event",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie"
       ]
     },
     {
@@ -1627,10 +2665,15 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
         "Party",
-        "Dinner",
-        "Formal",
-        "Date night"
+        "Cocktail party",
+        "Festive party",
+        "Wedding guest",
+        "Formal / black tie"
       ]
     },
     {
@@ -1644,9 +2687,13 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
         "Party",
-        "Dinner",
-        "Date night"
+        "Cocktail party",
+        "Festive party"
       ]
     },
     {
@@ -1655,9 +2702,13 @@ const typeOptionsByGender = {
       "name": "Winter dress",
       "season": [],
       "tags": [
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break"
       ]
     },
     {
@@ -1669,10 +2720,15 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Loungewear",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Lounge / home"
       ]
     },
     {
@@ -1683,15 +2739,20 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Work",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "City break"
       ]
     },
     {
       "type": "outer",
       "category": "Suits and blazers",
-      "name": "Blazer",
+      "name": "Tailored blazer",
       "season": [
         "Spring",
         "Summer",
@@ -1699,10 +2760,32 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Dinner",
-        "Date night",
-        "Lunch"
+        "Smart casual",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Suits and blazers",
+      "name": "Longline blazer",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Smart casual",
+        "Business casual",
+        "Brunch / lunch",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night"
       ]
     },
     {
@@ -1715,12 +2798,17 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1733,10 +2821,14 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Outdoor",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -1750,30 +2842,68 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking"
       ]
     },
     {
       "type": "outer",
       "category": "Coats",
-      "name": "Trench coat",
+      "name": "Classic trench",
       "season": [
         "Spring",
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Long leather coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -1785,13 +2915,20 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Lounge / home"
       ]
     },
     {
@@ -1802,33 +2939,80 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking"
       ]
     },
     {
       "type": "outer",
       "category": "Coats",
-      "name": "Winter Coat",
+      "name": "Wool coat",
       "season": [
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
-        "Formal",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Parka",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1841,42 +3025,96 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
-        "Formal",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
       "type": "outer",
       "category": "Jackets",
-      "name": "Short jacket",
+      "name": "Cropped jacket",
       "season": [
         "Spring",
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
-        "Formal",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Bomber",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1890,10 +3128,15 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Lounge / home"
       ]
     },
     {
@@ -1906,12 +3149,17 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1924,12 +3172,108 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
-        "Outdoor",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Outdoor / hiking"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Shacket",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Knit coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Gilet",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     }
   ],
@@ -1944,13 +3288,18 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1962,29 +3311,64 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
       "type": "top",
       "category": "Jumpers and cardigans",
-      "name": "Turtleneck jumper",
+      "name": "Thick turtleneck jumper",
       "season": [
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Jumpers and cardigans",
+      "name": "Thin turtleneck jumper",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -1996,17 +3380,23 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Lounge / home"
       ]
     },
     {
       "type": "top",
       "category": "Jumpers and cardigans",
-      "name": "Light jumper",
+      "name": "Fine-knit jumper",
       "season": [
         "Spring",
         "Summer",
@@ -2014,15 +3404,22 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -2036,14 +3433,21 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
-        "Beach",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Lounge / home"
       ]
     },
     {
@@ -2056,13 +3460,76 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Denim shirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Oversized shirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2075,12 +3542,19 @@ const typeOptionsByGender = {
         "Autumn"
       ],
       "tags": [
-        "Work",
-        "Beach",
-        "Formal",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool"
       ]
     },
     {
@@ -2094,13 +3568,49 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Shirts/Blouses",
+      "name": "Peasant/boho blouse",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2114,13 +3624,22 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2134,13 +3653,22 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Festive party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2154,9 +3682,13 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Dinner"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Festive party"
       ]
     },
     {
@@ -2170,10 +3702,17 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Formal",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2186,12 +3725,18 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "City break",
+        "Lounge / home"
       ]
     },
     {
@@ -2204,14 +3749,22 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
-        "Outdoor",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -2223,11 +3776,16 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -2241,37 +3799,51 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
       "type": "top",
       "category": "Tops",
-      "name": "Long t-shirt",
+      "name": "Long-sleeve t-shirt",
       "season": [
         "Spring",
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Dinner",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -2283,16 +3855,77 @@ const typeOptionsByGender = {
         "Autumn"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Knit vest/tank",
+      "season": [
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Tops",
+      "name": "Halter/strappy top",
+      "season": [
+        "Summer",
+        "Autumn"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -2304,15 +3937,21 @@ const typeOptionsByGender = {
         "Autumn"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -2326,13 +3965,20 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
-        "Beach",
-        "Formal",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break",
+        "Beach / pool"
       ]
     },
     {
@@ -2344,13 +3990,21 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2364,18 +4018,46 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
-        "Beach",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Beach / pool"
       ]
     },
     {
       "type": "bottom",
       "category": "Skirts",
-      "name": "Maxi skirt",
+      "name": "Winter mini skirt",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Beach / pool"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Floaty maxi skirt",
       "season": [
         "Spring",
         "Summer",
@@ -2383,13 +4065,47 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Dinner",
-        "Beach",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break",
+        "Beach / pool"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Skirts",
+      "name": "Fitted maxi skirt",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break",
+        "Beach / pool"
       ]
     },
     {
@@ -2403,13 +4119,22 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2423,13 +4148,21 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2443,11 +4176,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -2460,11 +4198,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -2477,11 +4220,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -2494,11 +4242,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -2511,11 +4264,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -2528,11 +4286,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -2545,9 +4308,13 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break"
       ]
     },
     {
@@ -2561,13 +4328,21 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2579,18 +4354,26 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Gig / concert",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
       "type": "bottom",
       "category": "Trousers",
-      "name": "Wide leg trousers",
+      "name": "Floaty trousers",
       "season": [
         "Spring",
         "Summer",
@@ -2598,12 +4381,70 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Tailored wide leg trousers",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Flared trousers",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "City break"
       ]
     },
     {
@@ -2617,13 +4458,22 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2636,11 +4486,15 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -2652,16 +4506,25 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Dinner",
-        "Beach",
-        "Outdoor",
-        "Formal",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -2675,12 +4538,17 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -2694,11 +4562,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -2712,13 +4585,21 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2729,11 +4610,14 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Gym",
-        "Party",
-        "Dinner",
+        "Brunch / lunch",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Festive party",
+        "Gym / sport"
       ]
     },
     {
@@ -2744,13 +4628,18 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -2761,10 +4650,14 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Beach / pool",
+        "Festival",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -2775,11 +4668,15 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -2791,13 +4688,18 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -2808,12 +4710,17 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -2827,12 +4734,19 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -2844,14 +4758,21 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Lounge / home"
       ]
     },
     {
@@ -2863,9 +4784,13 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break"
       ]
     },
     {
@@ -2878,12 +4803,40 @@ const typeOptionsByGender = {
         "Autumn"
       ],
       "tags": [
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Strappy summer dress",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Garden party / daytime event",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Festival"
       ]
     },
     {
@@ -2894,12 +4847,60 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Dinner",
-        "Beach",
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Garden party / daytime event",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Travel day",
+        "City break",
+        "Beach / pool"
+      ]
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Buttondown dress",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Travel day",
+        "City break",
+        "Beach / pool"
+      ]
+    },
+    {
+      "type": "onepiece",
+      "category": "Dresses",
+      "name": "Shirt dress",
+      "season": [
+        "Summer"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Travel day",
+        "City break",
+        "Beach / pool"
       ]
     },
     {
@@ -2913,7 +4914,10 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Formal"
+        "Garden party / daytime event",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie"
       ]
     },
     {
@@ -2927,10 +4931,15 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
         "Party",
-        "Dinner",
-        "Formal",
-        "Date night"
+        "Cocktail party",
+        "Festive party",
+        "Wedding guest",
+        "Formal / black tie"
       ]
     },
     {
@@ -2944,9 +4953,13 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
         "Party",
-        "Dinner",
-        "Date night"
+        "Cocktail party",
+        "Festive party"
       ]
     },
     {
@@ -2955,9 +4968,13 @@ const typeOptionsByGender = {
       "name": "Winter dress",
       "season": [],
       "tags": [
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break"
       ]
     },
     {
@@ -2969,10 +4986,15 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Loungewear",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Lounge / home"
       ]
     },
     {
@@ -2983,15 +5005,20 @@ const typeOptionsByGender = {
         "Summer"
       ],
       "tags": [
-        "Work",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "City break"
       ]
     },
     {
       "type": "outer",
       "category": "Suits and blazers",
-      "name": "Blazer",
+      "name": "Tailored blazer",
       "season": [
         "Spring",
         "Summer",
@@ -2999,11 +5026,38 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Dinner",
-        "Formal",
+        "Smart casual",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Lunch"
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Suits and blazers",
+      "name": "Longline blazer",
+      "season": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Smart casual",
+        "Business casual",
+        "Brunch / lunch",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie"
       ]
     },
     {
@@ -3016,12 +5070,17 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Loungewear",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -3034,10 +5093,14 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Outdoor",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -3051,30 +5114,68 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Beach",
-        "Outdoor",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking"
       ]
     },
     {
       "type": "outer",
       "category": "Coats",
-      "name": "Trench coat",
+      "name": "Classic trench",
       "season": [
         "Spring",
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Long leather coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
       ]
     },
     {
@@ -3086,14 +5187,23 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Formal",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break",
+        "Lounge / home"
       ]
     },
     {
@@ -3104,33 +5214,80 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking"
       ]
     },
     {
       "type": "outer",
       "category": "Coats",
-      "name": "Winter Coat",
+      "name": "Wool coat",
       "season": [
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
-        "Formal",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Parka",
+      "season": [
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -3143,42 +5300,96 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
-        "Formal",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
       "type": "outer",
       "category": "Jackets",
-      "name": "Short jacket",
+      "name": "Cropped jacket",
       "season": [
         "Spring",
         "Autumn",
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Gym",
-        "Loungewear",
-        "Party",
-        "Dinner",
-        "Beach",
-        "Outdoor",
-        "Formal",
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Bomber",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -3192,10 +5403,15 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Work",
-        "Loungewear",
-        "Everyday",
-        "Lunch"
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "City break",
+        "Lounge / home"
       ]
     },
     {
@@ -3209,11 +5425,16 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -3226,12 +5447,17 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Gym",
-        "Loungewear",
-        "Outdoor",
-        "Everyday",
-        "Comfortable",
-        "Lunch"
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Work from home",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     },
     {
@@ -3244,12 +5470,85 @@ const typeOptionsByGender = {
         "Winter"
       ],
       "tags": [
-        "Party",
-        "Dinner",
-        "Outdoor",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
         "Date night",
-        "Everyday",
-        "Lunch"
+        "Drinks / night out",
+        "Party",
+        "City break",
+        "Outdoor / hiking"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Coats",
+      "name": "Knit coat",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Gilet",
+      "season": [
+        "Spring",
+        "Autumn",
+        "Winter"
+      ],
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Wedding guest",
+        "Formal / black tie",
+        "Travel day",
+        "City break",
+        "Beach / pool",
+        "Gym / sport",
+        "Outdoor / hiking",
+        "Lounge / home"
       ]
     }
   ]

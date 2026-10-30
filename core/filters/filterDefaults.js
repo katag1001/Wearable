@@ -25,7 +25,7 @@ export const emptyItemFilter = {
 export const defaultFilters = {
   seasons: [],
   colors: [],
-  styles: [],
+  patterns: [],
   tags: [],
   // Set from the type buttons on the wardrobe, not from the panel -
   // listed here so Reset clears them too.
@@ -41,7 +41,7 @@ export const defaultFilters = {
 export const defaultWardrobeFilters = {
   seasons: [],
   colors: [],
-  styles: [],
+  patterns: [],
   tags: [],
   subtypes: [],
 };

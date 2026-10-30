@@ -4,7 +4,7 @@ import React, {
   useState,
 } from "react";
 
-import { tagOptions } from "@core/constants/optionsBank.js";
+import { visibleTagGroups } from "@core/utils/tagOptions.js";
 import "./viewMatches.css";
 import "./viewMatchesCard.css";
 import "./matchSelection.css";
@@ -59,6 +59,8 @@ const ViewMatchesCard = ({
 
   // The broken heart's mismatch popup.
   const [mismatching, setMismatching] = useState(false);
+  // The editor shows only the outfit's own tags until "Show all tags".
+  const [showAllTags, setShowAllTags] = useState(false);
 
   /*
    * Scroll the expanded card into the center
@@ -393,32 +395,37 @@ const ViewMatchesCard = ({
                 Tags
               </div>
 
-              <div className="matches-selection-grid">
-                {tagOptions.map((tag) => (
-                  <div
-                    className="matches-selection-item"
-                    key={tag.name}
-                  >
-                    <button
-                      type="button"
-                      className={
-                        updateData.tags.includes(
-                          tag.name
-                        )
-                          ? "matches-selection-button selected"
-                          : "matches-selection-button"
-                      }
-                      onClick={() =>
-                        toggleTag(tag.name)
-                      }
-                    >
-                      <span className="matches-selection-title">
-                        {tag.name}
-                      </span>
-                    </button>
+              {visibleTagGroups(updateData.tags, showAllTags).map(({ group, tags }) => (
+                <div key={group}>
+                  {showAllTags && <div className="tag-group-label">{group}</div>}
+
+                  <div className="matches-selection-grid">
+                    {tags.map((tag) => (
+                      <div className="matches-selection-item" key={tag}>
+                        <button
+                          type="button"
+                          className={
+                            updateData.tags.includes(tag)
+                              ? "matches-selection-button selected"
+                              : "matches-selection-button"
+                          }
+                          onClick={() => toggleTag(tag)}
+                        >
+                          <span className="matches-selection-title">{tag}</span>
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                className="show-more-tags"
+                onClick={() => setShowAllTags(!showAllTags)}
+              >
+                {showAllTags ? "Show fewer tags" : "Show all tags"}
+              </button>
             </div>
 
             {/* BUTTONS */}

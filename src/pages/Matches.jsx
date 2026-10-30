@@ -122,7 +122,7 @@ const Matches = ({ loggedIn }) => {
         showItemFilter
         clothesByCategory={filterOptions?.clothesByCategory}
         availableColors={filterOptions?.colors}
-        availableStyles={filterOptions?.styles}
+        availablePatterns={filterOptions?.patterns}
         availableTags={filterOptions?.tags}
       />
 

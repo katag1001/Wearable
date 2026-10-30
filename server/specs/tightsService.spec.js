@@ -18,24 +18,24 @@ const onepiece = (subtype, wearWithTights) => ({ type: "onepiece", subtype, wear
 const outer = (subtype) => ({ type: "outer", subtype });
 
 // A skirt outfit with a coat whose floor (6) is below the test days.
-const COATED = [top("Warm jumper"), bottom("Midi-skirt"), outer("Trench coat")];
+const COATED = [top("Warm jumper"), bottom("Midi-skirt"), outer("Classic trench")];
 
 test("a skirt with a warm top or an outer can take tights", () => {
   assert.equal(canWearTights([top("Short t-shirt"), top("Warm jumper"), bottom("Mini skirt")]), true);
-  assert.equal(canWearTights([top("Vest"), bottom("Midi-skirt"), outer("Blazer")]), true);
+  assert.equal(canWearTights([top("Vest"), bottom("Midi-skirt"), outer("Tailored blazer")]), true);
 });
 
 test("a skirt without a warm top or an outer can't", () => {
-  assert.equal(canWearTights([top("Long t-shirt"), bottom("Midi-skirt")]), false);
-  assert.equal(canWearTights([top("Light cardigan"), bottom("Maxi skirt")]), false);
+  assert.equal(canWearTights([top("Long-sleeve t-shirt"), bottom("Midi-skirt")]), false);
+  assert.equal(canWearTights([top("Light cardigan"), bottom("Floaty maxi skirt")]), false);
 });
 
 test("dresses follow the same rule; summer, evening and wedding guest dresses never take tights", () => {
   assert.equal(canWearTights([onepiece("Winter dress")]), false);
-  assert.equal(canWearTights([onepiece("Winter dress"), outer("Trench coat")]), true);
+  assert.equal(canWearTights([onepiece("Winter dress"), outer("Classic trench")]), true);
   assert.equal(canWearTights([onepiece("Summer dress"), outer("Denim jacket")]), false);
-  assert.equal(canWearTights([onepiece("Evening dress"), outer("Blazer")]), false);
-  assert.equal(canWearTights([onepiece("Wedding guest dress"), outer("Blazer")]), false);
+  assert.equal(canWearTights([onepiece("Evening dress"), outer("Tailored blazer")]), false);
+  assert.equal(canWearTights([onepiece("Wedding guest dress"), outer("Tailored blazer")]), false);
 });
 
 test("fancy shorts take tights by default; other shorts don't", () => {
@@ -44,14 +44,14 @@ test("fancy shorts take tights by default; other shorts don't", () => {
 });
 
 test("the item's own answer replaces its subtype's default", () => {
-  assert.equal(canWearTights([bottom("Mini skirt", false), outer("Trench coat")]), false);
+  assert.equal(canWearTights([bottom("Mini skirt", false), outer("Classic trench")]), false);
   assert.equal(canWearTights([onepiece("Summer dress", true), outer("Denim jacket")]), true);
-  assert.equal(canWearTights([bottom("Denim shorts", true), outer("Trench coat")]), true);
+  assert.equal(canWearTights([bottom("Denim shorts", true), outer("Classic trench")]), true);
 });
 
 test("playsuits and trousers never take tights, whatever the item says", () => {
   assert.equal(canWearTights([onepiece("Playsuit", true), outer("Denim jacket")]), false);
-  assert.equal(canWearTights([top("Short t-shirt"), bottom("Jeans"), outer("Trench coat")]), false);
+  assert.equal(canWearTights([top("Short t-shirt"), bottom("Jeans"), outer("Classic trench")]), false);
 });
 
 test("the tights range is the stored range moved colder at both ends", () => {
@@ -68,7 +68,7 @@ test("a saved match's floor is the no-outer or outer floor, plus the preference 
   assert.equal(savedMinTempFloor([top("Warm jumper"), bottom("Mini skirt")], "cold"), NO_OUTER_MIN_TEMP + 1);
   assert.equal(
     savedMinTempFloor(COATED),
-    Math.max(OUTER_MIN_TEMPS["Trench coat"], SKIRT_DRESS_MIN_TEMP - TIGHTS_SHIFT)
+    Math.max(OUTER_MIN_TEMPS["Classic trench"], SKIRT_DRESS_MIN_TEMP - TIGHTS_SHIFT)
   );
 });
 

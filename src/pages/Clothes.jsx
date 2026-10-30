@@ -142,10 +142,11 @@ const Clothes = ({ loggedIn }) => {
         filters={wardrobe.filters}
         setFilters={wardrobe.setFilters}
         availableColors={wardrobe.filterOptions?.colors}
+        availablePatterns={wardrobe.filterOptions?.patterns}
         availableTags={wardrobe.filterOptions?.tags}
-        // Styles aren't offered for clothes; subtypes are picked from
-        // the type buttons instead.
-        showStyles={false}
+        // Footwear has no pattern. Subtypes are picked from the type
+        // buttons instead of the panel.
+        showPatterns={!isFootwear}
         // Clothing items have no temperature range - only matches do.
         showTemperature={false}
       />

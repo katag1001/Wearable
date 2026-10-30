@@ -10,7 +10,7 @@
 //
 //   node server/scripts/rematchAll.js            (shows counts, changes nothing)
 //   node server/scripts/rematchAll.js --confirm  (deletes and rematches)
-//   node server/scripts/rematchAll.js --subtype "Turtleneck jumper" [--confirm]
+//   node server/scripts/rematchAll.js --subtype "Thick turtleneck jumper" [--confirm]
 //
 // --subtype limits it to one kind of item: only outfits containing an item
 // of that subtype are deleted, and only those items are matched again (with

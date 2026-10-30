@@ -1,6 +1,6 @@
 // core/utils/tagOptions.js
 
-import { tagOptions } from "../constants/optionsBank.js";
+import { tagGroups, tagOptions } from "../constants/optionsBank.js";
 
 // The tagOptions entry ({ name }) with exactly this name, or null.
 export const getTagOption = (tagName) =>
@@ -15,3 +15,14 @@ export const findTagOption = (tagName) => {
 
   return tagOptions.find((tag) => tag.name.toLowerCase() === normalized) || null;
 };
+
+// The tag groups to show on an item or outfit's tag picker: only the tags it
+// has, or every tag when the picker is expanded ("Show all tags"). Groups
+// with nothing to show are left out.
+export const visibleTagGroups = (selected = [], expanded = false) =>
+  tagGroups
+    .map(({ group, tags }) => ({
+      group,
+      tags: expanded ? tags : tags.filter((tag) => selected.includes(tag)),
+    }))
+    .filter(({ tags }) => tags.length > 0);

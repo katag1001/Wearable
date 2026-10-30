@@ -197,10 +197,12 @@ export default function WardrobeScreen() {
         filters={wardrobe.filters}
         setFilters={wardrobe.setFilters}
         availableColors={wardrobe.filterOptions?.colors}
+        availablePatterns={wardrobe.filterOptions?.patterns}
         availableTags={wardrobe.filterOptions?.tags}
-        // Like the web: no styles for clothes (subtypes come from the
-        // type chips) and no temperature (only outfits have one).
-        showStyles={false}
+        // Like the web: pattern for clothes only (footwear has none),
+        // subtypes from the type chips and no temperature (only outfits
+        // have one).
+        showPatterns={!wardrobe.isFootwear}
       />
     </SafeAreaView>
   );

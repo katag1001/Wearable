@@ -18,63 +18,63 @@ const ALL_SEASONS = ["Spring", "Summer", "Autumn", "Winter"];
 const FOOTWEAR_DEFAULTS = {
   "Ballerinas": {
     season: ["Spring", "Summer", "Autumn"],
-    tags: ["Work", "Everyday", "Dinner", "Date night", "Party", "Comfortable", "Lunch"],
+    tags: ["Comfy casual", "Elevated everyday", "Smart casual", "Errands", "Business casual", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party", "Travel day", "City break"],
   },
   "Loafers": {
     season: ALL_SEASONS,
-    tags: ["Work", "Everyday", "Dinner", "Date night", "Comfortable", "Lunch"],
+    tags: ["Comfy casual", "Elevated everyday", "Smart casual", "Errands", "Business casual", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Travel day", "City break"],
   },
   "Flipflops": {
     season: ["Summer"],
-    tags: ["Beach", "Loungewear", "Everyday", "Comfortable"],
+    tags: ["Comfy casual", "Elevated everyday", "Errands", "Work from home", "Day out", "Travel day", "City break", "Beach / pool", "Lounge / home"],
   },
   "Ankle boots": {
     season: ["Spring", "Autumn", "Winter"],
-    tags: ["Work", "Everyday", "Dinner", "Date night", "Outdoor", "Lunch"],
+    tags: ["Elevated everyday", "Smart casual", "Errands", "Business casual", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "City break", "Outdoor / hiking"],
   },
   "Knee-high boots": {
     season: ["Autumn", "Winter"],
-    tags: ["Everyday", "Dinner", "Date night", "Party", "Lunch"],
+    tags: ["Elevated everyday", "Errands", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party", "City break"],
   },
   "Heeled boots": {
     season: ["Autumn", "Winter"],
-    tags: ["Work", "Dinner", "Date night", "Party", "Lunch"],
+    tags: ["Smart casual", "Business casual", "Brunch / lunch", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party"],
   },
   "Snow boots": {
     season: ["Winter"],
-    tags: ["Outdoor", "Everyday", "Comfortable"],
+    tags: ["Comfy casual", "Elevated everyday", "Errands", "Day out", "Travel day", "City break", "Outdoor / hiking"],
   },
   "Sandals": {
     season: ["Spring", "Summer"],
-    tags: ["Beach", "Everyday", "Dinner", "Date night", "Comfortable", "Lunch"],
+    tags: ["Comfy casual", "Elevated everyday", "Errands", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Travel day", "City break", "Beach / pool"],
   },
   "Walking boots": {
     season: ["Spring", "Autumn", "Winter"],
-    tags: ["Outdoor", "Everyday", "Comfortable"],
+    tags: ["Comfy casual", "Elevated everyday", "Errands", "Day out", "Travel day", "City break", "Outdoor / hiking"],
   },
   "Heeled sandals": {
     season: ["Spring", "Summer"],
-    tags: ["Party", "Dinner", "Date night", "Formal", "Lunch"],
+    tags: ["Brunch / lunch", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party", "Cocktail party", "Wedding guest", "Formal / black tie"],
   },
   "Heels": {
     season: ALL_SEASONS,
-    tags: ["Work", "Dinner", "Date night", "Party", "Formal", "Lunch"],
+    tags: ["Smart casual", "Business casual", "Brunch / lunch", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party", "Cocktail party", "Wedding guest", "Formal / black tie"],
   },
   "Smart trainers": {
     season: ALL_SEASONS,
-    tags: ["Work", "Everyday", "Dinner", "Date night", "Comfortable", "Lunch"],
+    tags: ["Comfy casual", "Elevated everyday", "Smart casual", "Errands", "Business casual", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Travel day", "City break"],
   },
   "Casual trainers": {
     season: ALL_SEASONS,
-    tags: ["Gym", "Everyday", "Outdoor", "Loungewear", "Comfortable", "Lunch"],
+    tags: ["Comfy casual", "Elevated everyday", "Errands", "Work from home", "Brunch / lunch", "Day out", "Travel day", "City break", "Gym / sport", "Outdoor / hiking", "Lounge / home"],
   },
   "Formal shoes": {
     season: ALL_SEASONS,
-    tags: ["Work", "Dinner", "Formal", "Party", "Date night", "Lunch"],
+    tags: ["Smart casual", "Business casual", "Brunch / lunch", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party", "Cocktail party", "Wedding guest", "Formal / black tie"],
   },
   "Boots": {
     season: ["Spring", "Autumn", "Winter"],
-    tags: ["Everyday", "Outdoor", "Work", "Dinner", "Date night", "Comfortable", "Lunch"],
+    tags: ["Comfy casual", "Elevated everyday", "Smart casual", "Errands", "Business casual", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Travel day", "City break", "Outdoor / hiking"],
   },
 };
 

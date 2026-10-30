@@ -5,7 +5,7 @@
 //
 //  - describeOutfit: ALWAYS runs, and NEVER rejects a user-made outfit. It
 //    computes the descriptive fields (temperature, role counts, tags,
-//    combined colours/styles) for any finished item-set - auto-generated or
+//    combined colours/patterns) for any finished item-set - auto-generated or
 //    manually built by the user. The temperature range comes from the
 //    outfit's subtypes alone, so it never causes a rejection. For an
 //    auto-search candidate only, it returns null if the items share no
@@ -14,7 +14,7 @@
 //
 //  - validateOutfit: the gate used ONLY for auto-generated candidates -
 //    fixed compatibility (including layering rules) + no mismatched pair
-//    (mismatchRules.js) + colour + pattern.
+//    (mismatchRules.js) + pattern (at the user's pattern level) + colour.
 //    Never called for a user-made outfit. matchService's search already
 //    prunes on all of this incrementally as it builds a candidate, so by
 //    the time a candidate reaches here it should always pass - this call
@@ -27,8 +27,9 @@ const { computePresetTemperatureRange } = require("./presetTemperatureService.js
 const { passesPatternCheck, passesColorCheck } = require("./styleColorService.js");
 const { isCliqueValid } = require("./matrixService.js");
 const { hasMismatchedPair } = require("./mismatchRules.js");
-const { computeMatchTags, hasSharedTag } = require("./helpers.js");
+const { computeMatchTags } = require("./helpers.js");
 const { canWearTights } = require("./tightsService.js");
+const { PLAIN } = require("../constants/patternRules.js");
 
 const ROLE_TYPE_TO_COUNT_FIELD = {
   top: "topCount",
@@ -76,26 +77,30 @@ function hasSharedSeason(items) {
   return SEASONS.some((season) => items.every((item) => item[season]));
 }
 
-function describeOutfit(items, { isUserMade, temperaturePreference = null }) {
+// `gender` picks the gender-specific tag requirements (constants/occasionTags.js).
+function describeOutfit(items, { isUserMade, temperaturePreference = null, gender = null }) {
   const { min_temp, max_temp } = computePresetTemperatureRange(items, temperaturePreference);
 
   const seasons = computeSeasons(items);
 
-  if (!isUserMade && (!hasSharedSeason(items) || !hasSharedTag(items))) {
+  // An automatic outfit needs a season and an occasion tag in common - after
+  // the tag requirements, which can only be judged on the finished outfit.
+  if (!isUserMade && (!hasSharedSeason(items) || computeMatchTags(items, gender).length === 0)) {
     return null;
   }
 
   const roleCounts = countRoles(items);
 
   const colors = [...new Set(items.flatMap((item) => item.colors || []))];
-  const styles = [...new Set(items.flatMap((item) => item.styles || []))];
-  const tags = computeMatchTags(items);
+  // Every item's pattern (an item saved before pattern existed counts as Plain).
+  const patterns = [...new Set(items.map((item) => item.pattern || PLAIN))];
+  const tags = computeMatchTags(items, gender);
 
   return {
     clothes: items.map((item) => item._id),
     type: "match",
     colors,
-    styles,
+    patterns,
     tags,
     min_temp,
     max_temp,
@@ -106,9 +111,9 @@ function describeOutfit(items, { isUserMade, temperaturePreference = null }) {
   };
 }
 
-// `context` is the same { baselineMatrix, layeringRules, colorRules } object
-// matchService builds once per run.
-function validateOutfit(items, { baselineMatrix, layeringRules, colorRules }) {
+// `context` is the same { baselineMatrix, layeringRules, colorRules,
+// patternLevel } object matchService builds once per run.
+function validateOutfit(items, { baselineMatrix, layeringRules, colorRules, patternLevel }) {
   if (!isCliqueValid(items, baselineMatrix, layeringRules)) {
     return false;
   }
@@ -117,7 +122,7 @@ function validateOutfit(items, { baselineMatrix, layeringRules, colorRules }) {
     return false;
   }
 
-  if (!passesPatternCheck(items)) {
+  if (!passesPatternCheck(items, patternLevel)) {
     return false;
   }
 

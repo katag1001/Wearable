@@ -13,16 +13,21 @@
 // be satisfied again by adding more items. That's what makes it safe to
 // check all of them as early as possible, incrementally, during the search
 // itself - not just after a full candidate is assembled:
+//   0. Pattern partners: before the search, every wardrobe item whose
+//      pattern can never be worn with the new item's (patternRules.js, at
+//      the user's pattern level) is dropped from the pools - at "min", a
+//      patterned new item drops every other patterned item.
 //   1. Shape-level early exit: if the new item can't fill its slot in a
 //      shape (it requires layering but the shape has one slot for its role,
 //      or it requires a top but the shape has none), the whole shape is
 //      skipped before any search work starts.
 //   2. Per-candidate shape check: a pool candidate that can't fill its slot
 //      for the same reasons is skipped the moment it's considered.
-//   3. Incremental compatibility + lowest pair score + colour + pattern +
-//      season + tag checks: every time a candidate is added, the growing
+//   3. Incremental compatibility + lowest pair score + pattern + season +
+//      tag + colour checks: every time a candidate is added, the growing
 //      partial item-set is re-checked; a dead branch is abandoned
-//      immediately. A pair below MIN_PAIR_SCORE (constants/scoring.js) can
+//      immediately. Pattern goes first and colour last, so the cheap checks
+//      cut a branch before the palette search runs. A pair below MIN_PAIR_SCORE (constants/scoring.js) can
 //      never leave the set again, so it ends the branch like an
 //      incompatible pair does.
 // Temperature never rejects a candidate - every outfit's range is worked
@@ -143,6 +148,7 @@ function buildMatchingContext({
   adjustments = new Map(),
 }) {
   return {
+    gender,
     baselineMatrix: getBaselineMatrix(gender),
     adjustments,
     layeringRules: getLayeringRules(gender),
@@ -194,27 +200,41 @@ function scoreItemSet(itemSet, context) {
 }
 
 // A partial (or complete) item-set is still "alive" only if it could still
-// end up passing colour + pattern + season + tags. All four are monotonic (see
+// end up passing pattern + season + tags + colour. All four are monotonic (see
 // file header), so checking them on a growing partial set is equivalent to
 // checking them once at the end - just cheaper, since a dead branch stops
-// growing immediately instead of being built out in full first.
-function isStillViable(items, colorRules) {
-  const colorOk = passesColorCheck(items, colorRules);
-  const patternOk = passesPatternCheck(items);
-  const seasonOk = hasSharedSeason(items);
-  const tagOk = hasSharedTag(items);
+// growing immediately instead of being built out in full first. They run
+// cheapest first and stop at the first failure; the palette search is last.
+function isStillViable(items, colorRules, patternLevel = DEFAULT_PATTERN_LEVEL) {
+  return (
+    passesPatternCheck(items, patternLevel) &&
+    hasSharedSeason(items) &&
+    hasSharedTag(items) &&
+    passesColorCheck(items, colorRules)
+  );
+}
 
-  return colorOk && patternOk && seasonOk && tagOk;
+// The pools without any item whose pattern can never be worn with the new
+// item's. Such an item would fail the pattern check in every outfit, so it
+// never needs to be searched.
+function dropPatternClashes(pools, newItem, patternLevel = DEFAULT_PATTERN_LEVEL) {
+  const kept = {};
+
+  Object.entries(pools).forEach(([role, pool]) => {
+    kept[role] = pool.filter((item) => passesPatternCheck([newItem, item], patternLevel));
+  });
+
+  return kept;
 }
 
 // Backtracking search across the 4 roles for one shape. Prunes the moment a
 // candidate is incompatible with anything chosen so far (including
 // newItem), pairs with any of it below MIN_PAIR_SCORE, can't fill its slot
-// in the shape, or breaks colour, pattern,
-// season or tags - see the file header for why this is safe. `budget` is shared
+// in the shape, or breaks pattern, season,
+// tags or colour - see the file header for why this is safe. `budget` is shared
 // across every shape in one processMatches run.
 function findShapeCombinations(newItem, shape, pools, context, budget) {
-  const { layeringRules, colorRules } = context;
+  const { layeringRules, colorRules, patternLevel } = context;
   const needed = {};
 
   for (const role of ROLES) {
@@ -236,7 +256,7 @@ function findShapeCombinations(newItem, shape, pools, context, budget) {
   // gets a chance to check colour/pattern/season. Check the baseline once,
   // up front - every subsequent incremental check below only ever grows
   // this same set, so this single check covers it for good.
-  if (!isStillViable([newItem], colorRules)) {
+  if (!isStillViable([newItem], colorRules, patternLevel)) {
     return [];
   }
 
@@ -284,7 +304,7 @@ function findShapeCombinations(newItem, shape, pools, context, budget) {
           continue;
         }
 
-        if (!isStillViable([...soFar, candidate], colorRules)) {
+        if (!isStillViable([...soFar, candidate], colorRules, patternLevel)) {
           continue;
         }
 
@@ -317,7 +337,7 @@ function findCandidateMatches(
     budget = createBudget(),
   } = {}
 ) {
-  const pools = buildRolePools(allItems, newItem);
+  const pools = dropPatternClashes(buildRolePools(allItems, newItem), newItem, context.patternLevel);
   const scoredItemSets = [];
 
   OUTFIT_SHAPES.forEach((shape) => {
@@ -356,6 +376,7 @@ function findCandidateMatches(
     const described = describeOutfit(itemSet, {
       isUserMade: false,
       temperaturePreference: context.temperaturePreference,
+      gender: context.gender,
     });
 
     if (!described) {
@@ -450,5 +471,6 @@ module.exports = {
   createBudget,
   findShapeCombinations,
   isStillViable,
+  dropPatternClashes,
   dedupeKey,
 };
