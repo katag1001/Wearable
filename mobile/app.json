@@ -63,6 +63,12 @@
         "projectId": "d4e6961f-d055-4b5f-b88c-f9eb4275dc85"
       }
     },
-    "owner": "kahg1001s-team"
+    "owner": "kahg1001s-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d4e6961f-d055-4b5f-b88c-f9eb4275dc85"
+    }
   }
 }
