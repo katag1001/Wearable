@@ -20,23 +20,23 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAccumulatedPages } from "@core/hooks/useAccumulatedPages.js";
 import { useWardrobePage } from "@core/hooks/useWardrobePage.js";
 
-import { colors, radius, spacing } from "../../theme/tokens";
-import { space } from "../../theme/soft";
-import { FilterSheet } from "../../components/filters/FilterSheet";
+import { colors, radius, spacing } from "../../../theme/tokens";
+import { space } from "../../../theme/soft";
+import { FilterSheet } from "../../../components/filters/FilterSheet";
 import {
   Button,
   EmptyState,
   Message,
   TextField,
-} from "../../components/ui";
-import { CARD_GAP, twoColumnWidth } from "../../components/ui/cardBox";
+} from "../../../components/ui";
+import { CARD_GAP, twoColumnWidth } from "../../../components/ui/cardBox";
 import {
   handOverItem,
   takeWardrobeChanged,
-} from "../../components/wardrobe/itemHandoff";
-import { Atmosphere, PageHeader } from "../../components/soft";
-import { ItemTile } from "../../components/wardrobe/ItemTile";
-import { TypeFilter } from "../../components/wardrobe/TypeFilter";
+} from "../../../components/wardrobe/itemHandoff";
+import { Atmosphere, PageHeader } from "../../../components/soft";
+import { ItemTile } from "../../../components/wardrobe/ItemTile";
+import { TypeFilter } from "../../../components/wardrobe/TypeFilter";
 
 const openItemForm = (kind, item = null) => {
   handOverItem(item);

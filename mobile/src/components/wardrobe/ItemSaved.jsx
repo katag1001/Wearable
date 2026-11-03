@@ -13,10 +13,11 @@ export const ItemSaved = ({ message, itemId, hasMatches, onAddAnother }) => (
         label="View new matches"
         variant="secondary"
         onPress={() =>
-          // Back to the tabs, on Outfits, waiting for the outfits being
-          // made with this item.
+          // Over to the Outfits tab, waiting for the outfits being made
+          // with this item. The group names the tab: plain /outfits would
+          // open them inside this tab's stack.
           router.navigate({
-            pathname: "/outfits",
+            pathname: "/(tabs)/(outfits)/outfits",
             params: { item: itemId, processing: "1" },
           })
         }

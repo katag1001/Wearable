@@ -186,15 +186,20 @@ mobile/
 │   ├── (auth)/login.jsx
 │   ├── (auth)/register.jsx
 │   ├── style-quiz.jsx            gate, like StyleQuizGate
-│   ├── (tabs)/_layout.jsx        bottom tabs
-│   ├── (tabs)/index.jsx          Today ("Hey <name>" + the person button to Profile)
-│   ├── (tabs)/wardrobe.jsx
-│   ├── (tabs)/outfits.jsx
-│   ├── (tabs)/create.jsx         + tab: Add item / Build outfit
-│   ├── profile.jsx               Profile (stack, from Today's person button)
-│   ├── build-outfit.jsx          Build an outfit (stack)
-│   ├── item/edit.jsx             add/edit clothing or footwear (modal)
-│   └── account/weekly.jsx, style.jsx, stats.jsx   (opened from Profile)
+│   ├── (tabs)/_layout.jsx        bottom tabs: (today) (wardrobe) (outfits) (create)
+│   └── (tabs)/(today,wardrobe,outfits,create)/   one stack per tab (shared
+│       │                         routes, 2026-11-03): every page is in every
+│       │                         tab, so the tab bar is always on screen
+│       ├── _layout.jsx           the stack; `anchor` = each tab's first page
+│       ├── index.jsx             Today ("Hey <name>" + the person button to Profile)
+│       ├── wardrobe.jsx, outfits.jsx
+│       ├── create.jsx            + tab: Add item / Build outfit
+│       ├── profile.jsx           Profile (from Today's person button)
+│       ├── build-outfit.jsx, outfit.jsx
+│       ├── item/add.jsx, item/edit.jsx   add/edit clothing or footwear
+│       └── account/weekly.jsx, style.jsx, stats.jsx   (opened from Profile)
+│   A page opens inside the tab it's opened from. To switch tab, name it:
+│   "View new matches" goes to /(tabs)/(outfits)/outfits.
 ├── src/
 │   ├── auth/                     SessionProvider (useAuthSession for every screen)
 │   ├── platform/                 storage, location, imagePicker, config

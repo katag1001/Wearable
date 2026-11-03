@@ -6,10 +6,16 @@ import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, fontWeights, radius, shadows, spacing } from "../../theme/tokens";
-import { wash } from "../../theme/soft";
-import { PressableScale } from "../../components/soft";
-import { Screen } from "../../components/ui";
+import {
+  colors,
+  fontWeights,
+  radius,
+  shadows,
+  spacing,
+} from "../../../theme/tokens";
+import { wash } from "../../../theme/soft";
+import { PressableScale } from "../../../components/soft";
+import { Screen } from "../../../components/ui";
 
 const CHOICES = [
   {

@@ -7,9 +7,9 @@ import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { useDeleteAccount } from "@core/hooks/useDeleteAccount.js";
 
-import { colors, fontSizes, fontWeights, spacing } from "../theme/tokens";
-import { useSession } from "../auth/SessionProvider";
-import { ListRow, Loading, Screen } from "../components/ui";
+import { colors, fontSizes, fontWeights, spacing } from "../../../theme/tokens";
+import { useSession } from "../../../auth/SessionProvider";
+import { ListRow, Loading, Screen } from "../../../components/ui";
 
 export default function ProfileScreen() {
   const { userEmail, logout } = useSession();

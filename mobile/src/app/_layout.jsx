@@ -25,7 +25,6 @@ import { configureCore } from "@core/config.js";
 import { PagedCacheProvider } from "@core/cache/PagedCacheProvider.jsx";
 
 import { SessionProvider, useSession } from "../auth/SessionProvider";
-import { softHeader } from "../components/soft";
 import { Button, EmptyState, Screen } from "../components/ui";
 import { API_URL, CLOUD_NAME, UPLOAD_PRESET } from "../platform/config";
 import { storage } from "../platform/storage";
@@ -98,34 +97,9 @@ function RootNavigator() {
     <PagedCacheProvider loggedIn={loggedIn}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Protected guard={loggedIn && !needsStyleQuiz}>
+          {/* Every signed-in page is inside the tabs, so the tab bar is
+              always there (app/(tabs)/(today,wardrobe,outfits,create)). */}
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen
-            name="profile"
-            options={{
-              headerShown: true,
-              ...softHeader,
-              title: "Profile",
-              headerBackButtonDisplayMode: "minimal",
-            }}
-          />
-          <Stack.Screen name="account" />
-          <Stack.Screen name="item" options={{ presentation: "modal" }} />
-          <Stack.Screen
-            name="build-outfit"
-            options={{
-              headerShown: true,
-              ...softHeader,
-              // Opened from Outfits and from the + tab: just the arrow.
-              headerBackButtonDisplayMode: "minimal",
-            }}
-          />
-          <Stack.Screen
-            name="outfit"
-            options={{
-              headerShown: true,
-              ...softHeader,
-            }}
-          />
         </Stack.Protected>
 
         <Stack.Protected guard={loggedIn && needsStyleQuiz}>

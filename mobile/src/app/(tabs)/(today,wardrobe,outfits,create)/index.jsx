@@ -16,8 +16,11 @@ import { useTodayLook } from "@core/hooks/useTodayLook.js";
 import { useWeather } from "@core/hooks/useWeather.js";
 import { getTodayDayOfWeek } from "@core/utils/dates.js";
 
-import { useSession } from "../../auth/SessionProvider";
-import { takeEditedOutfits, takeRemovedOutfits } from "../../components/outfits/outfitHandoff";
+import { useSession } from "../../../auth/SessionProvider";
+import {
+  takeEditedOutfits,
+  takeRemovedOutfits,
+} from "../../../components/outfits/outfitHandoff";
 import {
   BubbleCelebration,
   BubbleLoader,
@@ -25,13 +28,13 @@ import {
   SoftNote,
   SoftScreen,
   WeatherIcon,
-} from "../../components/soft";
-import { OutfitFeedback } from "../../components/today/OutfitFeedback";
-import { OutfitPicker } from "../../components/today/OutfitPicker";
-import { ShoeChooser } from "../../components/today/ShoeChooser";
-import { WornToday } from "../../components/today/WornToday";
-import { useLocation } from "../../platform/useLocation";
-import { fonts, ink, space } from "../../theme/soft";
+} from "../../../components/soft";
+import { OutfitFeedback } from "../../../components/today/OutfitFeedback";
+import { OutfitPicker } from "../../../components/today/OutfitPicker";
+import { ShoeChooser } from "../../../components/today/ShoeChooser";
+import { WornToday } from "../../../components/today/WornToday";
+import { useLocation } from "../../../platform/useLocation";
+import { fonts, ink, space } from "../../../theme/soft";
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 

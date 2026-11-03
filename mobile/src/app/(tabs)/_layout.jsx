@@ -1,6 +1,8 @@
 // The bottom tabs: Today / Wardrobe / Outfits (the web header's Home /
 // Clothes / Matches) and + (add an item or build an outfit). Profile is
-// the person button on Today. In the soft look: a milk bar with no border,
+// the person button on Today. Each tab is its own stack
+// ((today,wardrobe,outfits,create)/_layout.jsx), so the bar stays on every
+// page. In the soft look: a milk bar with no border,
 // a faint shadow above, and the active tab on a lavender bubble.
 
 import { Tabs } from "expo-router";
@@ -42,19 +44,19 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="(today)"
         options={{ title: "Today", tabBarIcon: tabIcon("sun") }}
       />
       <Tabs.Screen
-        name="wardrobe"
+        name="(wardrobe)"
         options={{ title: "Wardrobe", tabBarIcon: tabIcon("grid") }}
       />
       <Tabs.Screen
-        name="outfits"
+        name="(outfits)"
         options={{ title: "Outfits", tabBarIcon: tabIcon("layers") }}
       />
       <Tabs.Screen
-        name="create"
+        name="(create)"
         options={{ title: "Add", tabBarIcon: tabIcon("plus") }}
       />
     </Tabs>

@@ -12,8 +12,8 @@ import {
   Message,
   Screen,
   SectionTitle,
-} from "../../components/ui";
-import { WeekDayRow } from "../../components/week/WeekDayRow";
+} from "../../../../components/ui";
+import { WeekDayRow } from "../../../../components/week/WeekDayRow";
 
 export default function WeeklyPreferencesScreen() {
   const weekly = useWeeklyPreferences();

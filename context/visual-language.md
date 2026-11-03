@@ -256,8 +256,12 @@ Whole app (2026-11-03):
 - **Screens with their own pages** get the Atmosphere: Wardrobe, Outfits,
   Build outfit, Change shoes, "Not this outfit". Wardrobe / Outfits titles
   are Inter Light; their add / filter buttons are white circles.
-- **Headers**: `softHeader` on the account, item, outfit and build-outfit
-  stacks.
+- **Headers**: `softHeader` - transparent, so the page background runs up
+  behind the back arrow (pages start below it via `useHeaderSpace`); just
+  the arrow, no back title. Set in each tab's stack
+  (`app/(tabs)/(today,wardrobe,outfits,create)/_layout.jsx`).
+- **Tab bar on every page** (2026-11-03): every signed-in page lives inside
+  the tabs, one stack per tab.
 - `today/Confetti` removed; adding an item plays `BubbleCelebration`.
 - Splash and Android icon background: milk `#FCFAFB`.
 - **No backgrounds behind items or outfits** (2026-11-03): `itemBackground` is transparent, so item photos and outfit cards sit straight on the page, like Today. Only palette tiles keep pearl, so their colours read true.

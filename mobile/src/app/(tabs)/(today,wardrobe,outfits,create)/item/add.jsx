@@ -14,14 +14,29 @@ import { useWardrobeItemForm } from "@core/hooks/useWardrobeItemForm.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 import { WARDROBE_KIND_LIST } from "@core/wardrobe/itemKinds.js";
 
-import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
-import { pickImage } from "../../platform/imagePicker";
-import { BubbleCelebration } from "../../components/soft";
-import { Button, ImageTile, Loading, Message, Screen } from "../../components/ui";
-import { AnalysedItemReview } from "../../components/wardrobe/AnalysedItemReview";
-import { markWardrobeChanged } from "../../components/wardrobe/itemHandoff";
-import { ItemForm } from "../../components/wardrobe/ItemForm";
-import { ItemSaved } from "../../components/wardrobe/ItemSaved";
+import {
+  colors,
+  fontSizes,
+  fontWeights,
+  spacing,
+} from "../../../../theme/tokens";
+import { pickImage } from "../../../../platform/imagePicker";
+import { BubbleCelebration } from "../../../../components/soft";
+import {
+  Button,
+  ImageTile,
+  Loading,
+  Message,
+  Screen,
+} from "../../../../components/ui";
+import {
+  AnalysedItemReview,
+} from "../../../../components/wardrobe/AnalysedItemReview";
+import {
+  markWardrobeChanged,
+} from "../../../../components/wardrobe/itemHandoff";
+import { ItemForm } from "../../../../components/wardrobe/ItemForm";
+import { ItemSaved } from "../../../../components/wardrobe/ItemSaved";
 
 const TITLE = "Add item";
 

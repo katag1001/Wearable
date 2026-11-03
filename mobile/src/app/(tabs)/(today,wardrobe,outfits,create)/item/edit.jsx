@@ -15,13 +15,13 @@ import {
   deleteWardrobeItem,
 } from "@core/wardrobe/itemKinds.js";
 
-import { Button, Screen } from "../../components/ui";
+import { Button, Screen } from "../../../../components/ui";
 import {
   markWardrobeChanged,
   takeItem,
-} from "../../components/wardrobe/itemHandoff";
-import { ItemForm } from "../../components/wardrobe/ItemForm";
-import { ItemSaved } from "../../components/wardrobe/ItemSaved";
+} from "../../../../components/wardrobe/itemHandoff";
+import { ItemForm } from "../../../../components/wardrobe/ItemForm";
+import { ItemSaved } from "../../../../components/wardrobe/ItemSaved";
 
 export default function EditItemScreen() {
   const params = useLocalSearchParams();

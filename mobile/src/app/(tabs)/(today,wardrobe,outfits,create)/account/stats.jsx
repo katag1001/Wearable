@@ -13,7 +13,7 @@ import {
   fontWeights,
   radius,
   spacing,
-} from "../../theme/tokens";
+} from "../../../../theme/tokens";
 import {
   Card,
   EmptyState,
@@ -23,7 +23,7 @@ import {
   Screen,
   SectionTitle,
   SegmentedControl,
-} from "../../components/ui";
+} from "../../../../components/ui";
 
 const Rank = ({ index }) => <Text style={styles.rank}>#{index + 1}</Text>;
 

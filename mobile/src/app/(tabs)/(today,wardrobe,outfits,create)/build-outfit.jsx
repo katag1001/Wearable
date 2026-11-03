@@ -32,7 +32,7 @@ import {
   radius,
   shadows,
   spacing,
-} from "../theme/tokens";
+} from "../../../theme/tokens";
 import {
   Button,
   Chip,
@@ -40,14 +40,16 @@ import {
   EmptyState,
   ImageTile,
   TextField,
-} from "../components/ui";
-import { markOutfitsChanged } from "../components/outfits/outfitsChanged";
-import { Atmosphere } from "../components/soft";
+} from "../../../components/ui";
+import { markOutfitsChanged } from "../../../components/outfits/outfitsChanged";
+import { Atmosphere, useHeaderSpace } from "../../../components/soft";
 
 const COLUMNS = 3;
 
 export default function BuildOutfitScreen() {
   const builder = useCreateMatch();
+  // The header is transparent: start below it.
+  const headerSpace = useHeaderSpace();
 
   // Three tiles to a row, filling the width between the side padding.
   const { width } = useWindowDimensions();
@@ -77,7 +79,10 @@ export default function BuildOutfitScreen() {
   }, [result]);
 
   return (
-    <SafeAreaView style={styles.screen} edges={["bottom"]}>
+    <SafeAreaView
+      style={[styles.screen, { paddingTop: headerSpace }]}
+      edges={["bottom"]}
+    >
       <Atmosphere />
 
       <Stack.Screen options={{ title: "Build an outfit" }} />

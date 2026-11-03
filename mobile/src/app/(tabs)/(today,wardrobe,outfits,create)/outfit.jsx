@@ -20,17 +20,22 @@ import { getErrorMessage } from "@core/api/errors.js";
 import { useMatchCard } from "@core/hooks/useMatchCard.js";
 import { buildMatchUpdate } from "@core/matches/matchFields.js";
 
-import { colors, spacing } from "../theme/tokens";
-import { OutfitDetails } from "../components/outfits/OutfitDetails";
-import { OutfitMismatch } from "../components/outfits/OutfitMismatch";
+import { colors, spacing } from "../../../theme/tokens";
+import { OutfitDetails } from "../../../components/outfits/OutfitDetails";
+import { OutfitMismatch } from "../../../components/outfits/OutfitMismatch";
 import {
   markOutfitEdited,
   markOutfitsRemoved,
   takeOutfit,
-} from "../components/outfits/outfitHandoff";
-import { markOutfitsChanged } from "../components/outfits/outfitsChanged";
-import { OutfitImages } from "../components/today/OutfitImages";
-import { Button, FavouriteHeart, Message, Screen } from "../components/ui";
+} from "../../../components/outfits/outfitHandoff";
+import { markOutfitsChanged } from "../../../components/outfits/outfitsChanged";
+import { OutfitImages } from "../../../components/today/OutfitImages";
+import {
+  Button,
+  FavouriteHeart,
+  Message,
+  Screen,
+} from "../../../components/ui";
 
 export default function OutfitScreen() {
   const { from } = useLocalSearchParams();
@@ -141,12 +146,7 @@ export default function OutfitScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: "Outfit",
-          headerBackTitle: fromToday ? "Today" : "Outfits",
-        }}
-      />
+      <Stack.Screen options={{ title: "Outfit" }} />
       <Screen edges={["bottom"]}>
         <View>
           <OutfitImages match={match} footwear={handedOver.footwear} />

@@ -12,7 +12,7 @@ import {
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
 import { getPairingSections } from "@core/styleQuiz/pairingSections.js";
-import { colors, fontSizes, spacing } from "../../theme/tokens";
+import { colors, fontSizes, spacing } from "../../../../theme/tokens";
 
 import {
   Button,
@@ -23,9 +23,11 @@ import {
   Message,
   Screen,
   SectionTitle,
-} from "../../components/ui";
-import { PalettePicker } from "../../components/styleQuiz/PalettePicker";
-import { SeasonalityScale } from "../../components/styleQuiz/SeasonalityScale";
+} from "../../../../components/ui";
+import { PalettePicker } from "../../../../components/styleQuiz/PalettePicker";
+import {
+  SeasonalityScale,
+} from "../../../../components/styleQuiz/SeasonalityScale";
 
 export default function StylePreferencesScreen() {
   const style = useStylePreferences();

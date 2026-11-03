@@ -1,5 +1,7 @@
-// The page wrapper every screen uses: the soft Atmosphere behind, safe
-// area, standard padding, optional title, and (by default) scrolling.
+// The page wrapper every screen uses: the soft Atmosphere behind (running
+// up behind a transparent stack header, with the content starting below
+// it), safe area, standard padding, optional title, and (by default)
+// scrolling.
 // Keyboard avoiding is built in, so forms don't hide behind the keyboard.
 
 import {
@@ -14,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
 import { Atmosphere } from "../soft/Atmosphere";
+import { useHeaderSpace } from "../soft/useHeaderSpace";
 
 export const Screen = ({
   title,
@@ -24,6 +27,8 @@ export const Screen = ({
   contentStyle,
   children,
 }) => {
+  const headerSpace = useHeaderSpace();
+
   const content = (
     <>
       {title ? <Text style={styles.title}>{title}</Text> : null}
@@ -39,7 +44,7 @@ export const Screen = ({
   ];
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { paddingTop: headerSpace }]}>
       <Atmosphere />
 
       <SafeAreaView style={styles.fill} edges={edges}>
