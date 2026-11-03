@@ -9,9 +9,8 @@
 // homepage.
 
 import { useCallback, useEffect, useState } from "react";
-import Feather from "@expo/vector-icons/Feather";
 import { router, useFocusEffect } from "expo-router";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { useTodayLook } from "@core/hooks/useTodayLook.js";
 import { useWeather } from "@core/hooks/useWeather.js";
@@ -22,6 +21,7 @@ import { takeEditedOutfits, takeRemovedOutfits } from "../../components/outfits/
 import {
   BubbleCelebration,
   BubbleLoader,
+  PageHeader,
   SoftNote,
   SoftScreen,
   WeatherIcon,
@@ -145,20 +145,12 @@ export default function TodayScreen() {
       scroll={false}
     >
       {/* The greeting, with the way to the profile menu on the right. */}
-      <View style={styles.greetingRow}>
-        <Text style={styles.greeting} numberOfLines={1}>
-          {firstName ? `Hey ${firstName}` : "Hello"}
-        </Text>
-        <Pressable
-          onPress={() => router.push("/profile")}
-          accessibilityRole="button"
-          accessibilityLabel="Profile"
-          hitSlop={12}
-          style={({ pressed }) => pressed && styles.pressed}
-        >
-          <Feather name="user" size={22} color={ink.soft} />
-        </Pressable>
-      </View>
+      <PageHeader
+        title={firstName ? `Hey ${firstName}` : "Hello"}
+        icon="user"
+        iconLabel="Profile"
+        onIconPress={() => router.push("/profile")}
+      />
 
       {/* Two matching columns: weekday over tag on the left, temperature
           over season on the right, line for line. */}
@@ -203,23 +195,6 @@ export default function TodayScreen() {
 }
 
 const styles = StyleSheet.create({
-  greetingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: space.sm,
-  },
-  greeting: {
-    flexShrink: 1,
-    fontFamily: fonts.light,
-    fontSize: 26,
-    lineHeight: 32,
-    letterSpacing: -0.3,
-    color: ink.main,
-  },
-  pressed: {
-    opacity: 0.5,
-  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",

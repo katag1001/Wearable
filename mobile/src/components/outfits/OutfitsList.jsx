@@ -15,7 +15,6 @@ import {
   Pressable,
   RefreshControl,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
 
@@ -24,14 +23,10 @@ import { useAccumulatedPages } from "@core/hooks/useAccumulatedPages.js";
 import { useMatchSelection } from "@core/hooks/useMatchSelection.js";
 import { useMatchesPage } from "@core/hooks/useMatchesPage.js";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  spacing,
-} from "../../theme/tokens";
+import { colors, radius, spacing } from "../../theme/tokens";
+import { space } from "../../theme/soft";
 import { FilterSheet } from "../filters/FilterSheet";
+import { PageHeader } from "../soft";
 import { Button, Chip, ChipRow, EmptyState, Message, TextField } from "../ui";
 import { OutfitCard } from "./OutfitCard";
 import { handOverOutfit } from "./outfitHandoff";
@@ -110,20 +105,13 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
   return (
     <>
       <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <Text style={styles.title}>
-            Outfits
-            {outfits.count ? (
-              <Text style={styles.count}> ({outfits.count})</Text>
-            ) : null}
-          </Text>
-
-          <Button
-            label="Build"
-            variant="secondary"
-            onPress={() => router.push("/build-outfit")}
-          />
-        </View>
+        <PageHeader
+          title="Outfits"
+          count={outfits.count}
+          icon="plus"
+          iconLabel="Build an outfit"
+          onIconPress={() => router.push("/build-outfit")}
+        />
 
         {itemFilter ? (
           <ChipRow>
@@ -254,27 +242,12 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
 };
 
 const styles = StyleSheet.create({
+  // The same gutter and top spacing as Today (SoftScreen).
   header: {
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
+    paddingHorizontal: space.gutter,
+    paddingTop: space.pageTop,
     paddingBottom: spacing.md,
     gap: spacing.md,
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  title: {
-    fontSize: fontSizes.title,
-    fontFamily: fontWeights.light,
-    letterSpacing: -0.3,
-    color: colors.main,
-  },
-  count: {
-    fontSize: fontSizes.body,
-    fontFamily: fontWeights.regular,
-    color: colors.secondary,
   },
   searchRow: {
     flexDirection: "row",

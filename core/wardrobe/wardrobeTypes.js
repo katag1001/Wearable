@@ -5,12 +5,12 @@
 
 export const FOOTWEAR = "footwear";
 
-export const WARDROBE_TYPES = ["top", "outer", "bottom", "onepiece", FOOTWEAR];
+export const WARDROBE_TYPES = ["top", "bottom", "outer", "onepiece", FOOTWEAR];
 
 export const WARDROBE_TYPE_TITLES = {
-  top: "Top Half",
+  top: "Tops",
+  bottom: "Bottoms",
   outer: "Outerwear",
-  bottom: "Bottom Half",
   onepiece: "One-Pieces",
   [FOOTWEAR]: "Footwear",
 };

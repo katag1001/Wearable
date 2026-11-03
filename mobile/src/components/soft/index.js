@@ -7,6 +7,7 @@ export { BubbleCelebration } from "./BubbleCelebration";
 export { BubbleLoader } from "./BubbleLoader";
 export { IridescentStars } from "./IridescentStars";
 export { softHeader } from "./headerOptions";
+export { PageHeader } from "./PageHeader";
 export { PressableScale } from "./PressableScale";
 export { SelectionHalo } from "./SelectionHalo";
 export { SoftNote } from "./SoftNote";

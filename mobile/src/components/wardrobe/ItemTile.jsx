@@ -1,20 +1,14 @@
-// One wardrobe item in the grid: its photo (a small Cloudinary copy,
-// cached by expo-image) and name. Tap to edit. Clothes (not footwear) get
+// One wardrobe item in the grid: just its photo (a small Cloudinary copy,
+// cached by expo-image) - the name is on its edit screen. Tap to edit. Clothes (not footwear) get
 // a heart - outfits with a favourite item score higher (useItemFavourite).
 
 import { Image } from "expo-image";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { useItemFavourite } from "@core/hooks/useItemFavourite.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  spacing,
-} from "../../theme/tokens";
+import { colors, radius, spacing } from "../../theme/tokens";
 import { FavouriteHeart } from "../ui";
 
 const ItemHeart = ({ item, onToggled, onError }) => {
@@ -48,7 +42,7 @@ export const ItemTile = ({
     accessibilityLabel={`Edit ${item.name}`}
     style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
   >
-    <View>
+    <View style={styles.frame}>
       <Image
         source={item.imageUrl ? getImageUrl(item.imageUrl, 400) : null}
         style={styles.image}
@@ -64,9 +58,6 @@ export const ItemTile = ({
         />
       )}
     </View>
-    <Text style={styles.name} numberOfLines={1}>
-      {item.name}
-    </Text>
   </Pressable>
 );
 
@@ -79,21 +70,23 @@ const styles = StyleSheet.create({
   pressed: {
     transform: [{ scale: 0.98 }],
   },
-  image: {
+  // The photos are trimmed to the item, so the frame pads them: the item
+  // sits inside with room around it rather than filling the tile.
+  frame: {
     width: "100%",
     aspectRatio: 5 / 6,
+    padding: spacing.lg,
     borderRadius: radius.lg,
     borderCurve: "continuous",
     backgroundColor: colors.itemBackground,
+  },
+  image: {
+    flex: 1,
+    width: "100%",
   },
   heart: {
     position: "absolute",
     top: spacing.sm,
     right: spacing.sm,
-  },
-  name: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.small,
-    color: colors.main,
   },
 });

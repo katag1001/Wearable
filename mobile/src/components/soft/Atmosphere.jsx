@@ -12,16 +12,19 @@ import { atmosphereMood, mid } from "../../theme/soft";
 const grain = require("../../../assets/textures/grain.png");
 
 // Around the edge, as in the portfolio: [hue, x, y, radius, strength],
-// x / y / radius in % of the screen.
+// x / y / radius in % of the screen. Mostly lavender, so the page reads
+// purplish. Sky sits in the opposite corners (top right, bottom left) so
+// blue and purple stay distinct instead of blending; mint, and a little
+// blush and peach, keep the rainbow without turning it red.
 const PATCHES = [
-  ["blush", 6, 6, 50, 0.32],
-  ["lavender", 50, 0, 44, 0.28],
-  ["sky", 96, 8, 50, 0.28],
-  ["peach", 102, 52, 42, 0.24],
-  ["blush", 94, 96, 50, 0.26],
-  ["mint", 50, 102, 44, 0.26],
-  ["lavender", 4, 94, 50, 0.28],
-  ["sky", -2, 50, 42, 0.22],
+  ["lavender", 4, 8, 50, 0.38],
+  ["sky", 98, 6, 48, 0.32],
+  ["blush", 102, 52, 40, 0.12],
+  ["lavender", 96, 94, 50, 0.34],
+  ["mint", 50, 102, 44, 0.16],
+  ["sky", 4, 92, 46, 0.28],
+  ["peach", 30, 104, 34, 0.08],
+  ["lavender", -2, 50, 40, 0.24],
 ];
 
 export const Atmosphere = ({ weather }) => {

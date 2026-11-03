@@ -69,6 +69,14 @@ export const fonts = {
 };
 
 export const type = {
+  // The top line of every tab page (components/soft/PageHeader).
+  pageTitle: {
+    fontFamily: fonts.light,
+    fontSize: 26,
+    lineHeight: 32,
+    letterSpacing: -0.3,
+    color: ink.main,
+  },
   display: {
     fontFamily: fonts.light,
     fontSize: 40,
@@ -126,7 +134,10 @@ export const space = {
   lg: 28,
   xl: 48,
   xxl: 72,
+  // The page's side margin, and the space above its first line (under the
+  // safe area).
   gutter: 24,
+  pageTop: 18,
 };
 
 export const radii = {
@@ -154,12 +165,13 @@ export const motion = {
   pressedScale: 0.97,
 };
 
-// How strongly each atmosphere patch shows. Cold days lean sky/lavender,
-// warm days peach/blush; mild (or no weather yet) sits in between.
+// How strongly each atmosphere patch shows. Lavender always leads, so the
+// page stays purplish; cold days lean sky, warm days a touch warmer (blush
+// and peach), never red. Mild (or no weather yet) sits in between.
 const MOODS = {
-  cold: { blush: 0.55, lavender: 1.1, sky: 1.25, mint: 0.9, peach: 0.4 },
-  mild: { blush: 0.85, lavender: 1, sky: 0.85, mint: 1, peach: 0.8 },
-  warm: { blush: 1.15, lavender: 0.8, sky: 0.5, mint: 0.8, peach: 1.25 },
+  cold: { blush: 0.6, lavender: 1.1, sky: 1.25, mint: 0.9, peach: 0.5 },
+  mild: { blush: 0.9, lavender: 1, sky: 1, mint: 1, peach: 0.9 },
+  warm: { blush: 1.2, lavender: 1, sky: 0.7, mint: 0.8, peach: 1.3 },
 };
 
 export const atmosphereMood = (weather) => {

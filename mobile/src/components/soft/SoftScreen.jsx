@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: space.gutter,
-    paddingTop: space.md,
+    paddingTop: space.pageTop,
     paddingBottom: space.sm,
     gap: space.sm,
   },

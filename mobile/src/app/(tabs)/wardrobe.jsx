@@ -12,7 +12,6 @@ import {
   Pressable,
   RefreshControl,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,14 +19,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAccumulatedPages } from "@core/hooks/useAccumulatedPages.js";
 import { useWardrobePage } from "@core/hooks/useWardrobePage.js";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  shadows,
-  spacing,
-} from "../../theme/tokens";
+import { colors, radius, spacing } from "../../theme/tokens";
+import { space } from "../../theme/soft";
 import { FilterSheet } from "../../components/filters/FilterSheet";
 import {
   Button,
@@ -39,7 +32,7 @@ import {
   handOverItem,
   takeWardrobeChanged,
 } from "../../components/wardrobe/itemHandoff";
-import { Atmosphere } from "../../components/soft";
+import { Atmosphere, PageHeader } from "../../components/soft";
 import { ItemTile } from "../../components/wardrobe/ItemTile";
 import { TypeFilter } from "../../components/wardrobe/TypeFilter";
 
@@ -97,24 +90,13 @@ export default function WardrobeScreen() {
       <Atmosphere />
 
       <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <Text style={styles.title}>
-            Wardrobe
-            {wardrobe.count ? (
-              <Text style={styles.count}> ({wardrobe.count})</Text>
-            ) : null}
-          </Text>
-
-          <Pressable
-            onPress={addItem}
-            accessibilityRole="button"
-            accessibilityLabel="Add item"
-            hitSlop={10}
-            style={styles.addButton}
-          >
-            <Feather name="plus" size={22} color={colors.main} />
-          </Pressable>
-        </View>
+        <PageHeader
+          title="Wardrobe"
+          count={wardrobe.count}
+          icon="plus"
+          iconLabel="Add item"
+          onIconPress={addItem}
+        />
 
         <TypeFilter wardrobe={wardrobe} />
 
@@ -211,37 +193,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.pageBackground,
   },
+  // The same gutter and top spacing as Today (SoftScreen).
   header: {
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
+    paddingHorizontal: space.gutter,
+    paddingTop: space.pageTop,
     paddingBottom: spacing.md,
     gap: spacing.md,
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  title: {
-    fontSize: fontSizes.title,
-    fontFamily: fontWeights.light,
-    letterSpacing: -0.3,
-    color: colors.main,
-  },
-  count: {
-    fontSize: fontSizes.body,
-    fontFamily: fontWeights.regular,
-    color: colors.secondary,
-  },
-  // A white bubble, like the Today buttons.
-  addButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.cardBackground,
-    boxShadow: shadows.soft,
-    alignItems: "center",
-    justifyContent: "center",
   },
   searchRow: {
     flexDirection: "row",
