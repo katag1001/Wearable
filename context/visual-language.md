@@ -137,7 +137,7 @@ Fonts come from `@expo-google-fonts/*`, loaded in `mobile/src/app/_layout.jsx`.
 | Component | Was | Becomes |
 |---|---|---|
 | Screen | White, plain title | Atmosphere behind, mono eyebrow, light display title |
-| Button primary | Black fill | Plum-ink pill, uppercase tracked white label, `soft` shadow. One per screen. |
+| Button primary | Black fill | **No big dark buttons** (2026-11-03). The main action is the default `soft` variant: a pill in the selected lavender (`colors.selected`) with an ink uppercase tracked label, `soft` shadow and light top edge. The old plum-ink `primary` has been removed. |
 | Button secondary | Hairline outline | Pearl pill: translucent white, white top edge, no border. Press blooms a faint iridescent wash. |
 | Button text | Grey text | Uppercase tracked label + `→` that slides 4px on press |
 | Pressed state | Opacity 0.5-0.7 | Scale 0.97, 200ms ease-out |
@@ -191,7 +191,7 @@ the UI - weather uses Feather icons.
 
 ## 10. Not AI-looking - checklist
 
-**Don't:** purple-to-blue gradient buttons · gradient text · glass on every
+**Don't:** big dark (ink-filled) buttons · purple-to-blue gradient buttons · gradient text · glass on every
 surface · neon glows · emoji in the UI · centred hero + three cards · one
 radius everywhere · random particle fields · pure black or flat grey.
 
@@ -234,9 +234,11 @@ Theme (mobile only):
 - Fonts (`@expo-google-fonts/inter`, `fira-code`, `instrument-serif`) loaded
   in `mobile/src/app/_layout.jsx`; `react-native-svg` added.
 
-Today: `app/(tabs)/index.jsx` (two-column header, weather icon),
-`components/today/OutfitPicker` and `WornToday` (outfit straight on the
-page, buttons floating over it), `ActionButton` (plain white circles),
+Today: `app/(tabs)/(today,wardrobe,outfits,create)/index.jsx` (two-column
+header, weather icon), `components/today/OutfitPicker` (outfit straight on
+the page, buttons floating over it; wearing it changes nothing but the
+buttons - Change outfit replaces the hearts, swiping and arrows go - with
+the bubbles over the same screen), `ActionButton` (plain white circles),
 `SwipeDeck` (arrow colour). `OutfitImages` has an optional `imageStyle`.
 
 Tab bar: `app/(tabs)/_layout.jsx` + `soft/TabIcon` - Today / Wardrobe / Outfits / + (the + page, `app/(tabs)/create.jsx`, offers Add item and Build outfit as two soft cards). Profile moved to the person button on Today.

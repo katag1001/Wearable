@@ -1,6 +1,8 @@
 // One outfit in the list, for the two-column grid: its items laid out the
 // way they're worn (tops over bottoms, as on Today) in a soft white box -
-// the search box's fill, no border - with a heart to favourite it. The
+// the search box's fill, no border - with a heart to favourite it and,
+// under it, the broken heart to mark two of its items as a mismatch
+// (onMismatch opens the outfit screen's picker). The
 // temperature, seasons and tags are on the outfit screen. Tap to open the
 // outfit screen; long-press to select (then taps select too). Card
 // actions: useMatchCard (shared with the web).
@@ -10,6 +12,7 @@
 // draw.
 
 import Feather from "@expo/vector-icons/Feather";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { useMatchCard } from "@core/hooks/useMatchCard.js";
@@ -38,6 +41,7 @@ export const OutfitCard = ({
   selected,
   selectMode,
   onEdit,
+  onMismatch,
   onToggleSelect,
   onFavouriteToggle,
   onChanged,
@@ -66,12 +70,26 @@ export const OutfitCard = ({
         imageStyle={styles.photo}
       />
 
-      <FavouriteHeart
-        favourite={match.favourite}
-        onPress={card.toggleFavourite}
-        size={CARD_HEART_SIZE}
-        style={cardHeart}
-      />
+      {/* The heart, with the broken heart straight underneath. */}
+      <View style={[cardHeart, styles.hearts]}>
+        <FavouriteHeart
+          favourite={match.favourite}
+          onPress={card.toggleFavourite}
+          size={CARD_HEART_SIZE}
+        />
+        <Pressable
+          onPress={onMismatch}
+          accessibilityRole="button"
+          accessibilityLabel="Mismatch"
+          hitSlop={10}
+        >
+          <MaterialCommunityIcons
+            name="heart-broken-outline"
+            size={CARD_HEART_SIZE}
+            color={colors.muted}
+          />
+        </Pressable>
+      </View>
 
       {selected ? <SelectionHalo radius={radius.lg} /> : null}
 
@@ -91,6 +109,10 @@ const styles = StyleSheet.create({
   },
   photo: {
     backgroundColor: "transparent",
+  },
+  hearts: {
+    alignItems: "center",
+    gap: spacing.sm,
   },
   tick: {
     position: "absolute",

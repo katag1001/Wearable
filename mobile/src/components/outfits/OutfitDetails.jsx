@@ -1,6 +1,7 @@
 // An outfit's editable details: star rating, temperature range, tights
 // (when its items allow them) and tags. Its seasons come from its items.
-// `card` is useMatchCard, already editing (its draft).
+// `card` is useMatchCard, already editing (its draft). `ratingAside`
+// sits on the stars' line, on the right (the outfit screen's Wear today).
 
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -10,7 +11,7 @@ import { TEMPERATURE_RANGE } from "@core/matches/matchFields.js";
 
 import { Chip, ChipRow, RangeSlider, SectionTitle, StarRating } from "../ui";
 
-export const OutfitDetails = ({ card }) => {
+export const OutfitDetails = ({ card, ratingAside }) => {
   const { draft } = card;
   // Only the outfit's own tags until "Show all" is pressed.
   const [showAllTags, setShowAllTags] = useState(false);
@@ -20,7 +21,10 @@ export const OutfitDetails = ({ card }) => {
   return (
     <>
       <SectionTitle title="Rating" />
-      <StarRating rating={draft.rating} onChange={card.setRating} style={styles.stars} />
+      <View style={styles.ratingRow}>
+        <StarRating rating={draft.rating} onChange={card.setRating} style={styles.stars} />
+        {ratingAside}
+      </View>
 
       <SectionTitle title="Temperature range" />
       <RangeSlider
@@ -73,6 +77,12 @@ export const OutfitDetails = ({ card }) => {
 };
 
 const styles = StyleSheet.create({
+  ratingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
   stars: {
     justifyContent: "flex-start",
   },

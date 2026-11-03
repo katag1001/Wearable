@@ -82,6 +82,10 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
         handOverOutfit(match);
         router.push("/outfit");
       }}
+      onMismatch={() => {
+        handOverOutfit(match);
+        router.push({ pathname: "/outfit", params: { mismatch: "1" } });
+      }}
       onToggleSelect={toggleSelected}
       onFavouriteToggle={outfits.onFavouriteToggle}
       onChanged={refreshList}

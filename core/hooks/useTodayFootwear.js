@@ -355,7 +355,18 @@ export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
         setWorn(null);
       }
 
-      const snapshot = wornValuesOf(shoe);
+      // The same shoe moved from another outfit was just undone: its
+      // values are the undo's snapshot (`shoe` is the copy from before).
+      const undone = previous?.footwearId === shoe._id && previous.snapshot;
+      const snapshot = undone ? previous.snapshot : wornValuesOf(shoe);
+
+      // Already worn today and not undone here (another device, or its
+      // undo failed): it's today's shoe, but it isn't counted twice.
+      if (isDateToday(snapshot.lastWornDate)) {
+        setWorn({ footwearId: shoe._id, matchId, bottomSubtype, snapshot: null });
+        return true;
+      }
+
       const { item, pairing } = await wearFootwear(shoe._id, bottomSubtype);
 
       updateItem(item);

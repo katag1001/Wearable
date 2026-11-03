@@ -99,8 +99,8 @@ const layOut = ({ match, footwear, width, height, fit }) => {
 };
 
 // The photo width for an outfit fitted into width x height (fit mode).
-export const outfitImagesFitWidth = (match, width, height) =>
-  layOut({ match, width, height, fit: true }).photoWidth;
+export const outfitImagesFitWidth = (match, width, height, footwear) =>
+  layOut({ match, footwear, width, height, fit: true }).photoWidth;
 
 // How tall an outfit's photos are at `width` (not fit mode).
 export const outfitImagesHeight = (match, width, footwear) =>

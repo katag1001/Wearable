@@ -1,8 +1,9 @@
 // The app's one button, as a pill with an uppercase tracked label.
-// "primary" is soft plum ink (one per screen, for the main action),
+// "soft" (the default) is the main action: the selected lavender with an
+// ink label - there are no big dark buttons (context/visual-language.md).
 // "secondary" a translucent white pill with a light top edge, "text" a
-// plain label. Squeezes slightly when pressed; shows a spinner while
-// `loading`.
+// plain label. Squeezes slightly
+// when pressed; shows a spinner while `loading`.
 
 import { ActivityIndicator, StyleSheet, Text } from "react-native";
 
@@ -18,12 +19,11 @@ import { PressableScale } from "../soft/PressableScale";
 export const Button = ({
   label,
   onPress,
-  variant = "primary",
+  variant = "soft",
   disabled = false,
   loading = false,
   style,
 }) => {
-  const isPrimary = variant === "primary";
   const inactive = disabled || loading;
 
   return (
@@ -36,7 +36,7 @@ export const Button = ({
       style={[styles.base, styles[variant], inactive && styles.dimmed, style]}
     >
       {loading ? (
-        <ActivityIndicator color={isPrimary ? colors.inverse : colors.main} />
+        <ActivityIndicator color={colors.main} />
       ) : (
         <Text style={[styles.label, styles[`${variant}Label`]]}>{label}</Text>
       )}
@@ -52,9 +52,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  primary: {
-    backgroundColor: colors.main,
-    boxShadow: shadows.soft,
+  soft: {
+    backgroundColor: colors.selected,
+    boxShadow: `${shadows.soft}, inset 0px 1px 0px ${colors.lightEdge}`,
   },
   secondary: {
     backgroundColor: colors.cardBackground,
@@ -73,10 +73,10 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     textAlign: "center",
   },
-  primaryLabel: {
-    color: colors.inverse,
-  },
   secondaryLabel: {
+    color: colors.main,
+  },
+  softLabel: {
     color: colors.main,
   },
   textLabel: {

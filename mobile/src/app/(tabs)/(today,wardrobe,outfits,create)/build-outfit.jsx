@@ -54,10 +54,10 @@ import {
   PullUpPanel,
   useHeaderSpace,
 } from "../../../components/soft";
+import { OutfitImages } from "../../../components/today/OutfitImages";
 import {
-  OutfitImages,
-  outfitImagesFitWidth,
-} from "../../../components/today/OutfitImages";
+  useOutfitFollowsPanel,
+} from "../../../components/today/useOutfitFollowsPanel";
 
 // The clothes row's tiles.
 const TILE_SIZE = 96;
@@ -105,12 +105,9 @@ export default function BuildOutfitScreen() {
   const builder = useCreateMatch();
   // The header is transparent: start below it.
   const headerSpace = useHeaderSpace();
-  // The clothes panel's position (0 open, up to panelHeight - PULL_UP_PEEK
-  // tucked away) and height, and the outfit's space - laid out once, at
-  // its full size (the panel tucked away).
+  // The clothes panel's position and height, for the outfit to follow.
   const panelOffset = useRef(new Animated.Value(0)).current;
   const [panelHeight, setPanelHeight] = useState(0);
-  const [outfitSpace, setOutfitSpace] = useState(null);
 
   const { result, selectedItems } = builder;
 
@@ -148,39 +145,12 @@ export default function BuildOutfitScreen() {
 
   const empty = selectedItems.length === 0;
 
-  // With the panel open, the outfit is shrunk (by as much as fitting it
-  // into the space above the panel would) and moved up to sit in that
-  // space; tucked away, it's full size. Driven by the panel's own offset,
-  // so it follows the finger and the snap with no re-layout.
-  const panelTravel = Math.max(0, panelHeight - PULL_UP_PEEK);
-  let outfitMotion = null;
-
-  if (outfitSpace && panelTravel > 0) {
-    const { width, height } = outfitSpace;
-    const openHeight = Math.max(1, height - panelTravel);
-    const fullWidth = outfitImagesFitWidth(outfit, width, height);
-    const openWidth = outfitImagesFitWidth(outfit, width, openHeight);
-    const openScale = fullWidth ? Math.min(1, openWidth / fullWidth) : 1;
-
-    const progress = { inputRange: [0, panelTravel], extrapolate: "clamp" };
-
-    outfitMotion = {
-      transform: [
-        {
-          translateY: panelOffset.interpolate({
-            ...progress,
-            outputRange: [(openHeight - height) / 2, 0],
-          }),
-        },
-        {
-          scale: panelOffset.interpolate({
-            ...progress,
-            outputRange: [openScale, 1],
-          }),
-        },
-      ],
-    };
-  }
+  // The outfit shrinks and moves up as the panel opens.
+  const follow = useOutfitFollowsPanel({
+    match: outfit,
+    panelOffset,
+    panelHeight,
+  });
 
   return (
     <SafeAreaView
@@ -205,11 +175,8 @@ export default function BuildOutfitScreen() {
 
       {/* The outfit being built - most of the page. */}
       <View style={[cardBox, styles.outfitArea]}>
-        <View
-          style={styles.fill}
-          onLayout={(event) => setOutfitSpace(event.nativeEvent.layout)}
-        >
-          <Animated.View style={[styles.fill, outfitMotion]}>
+        <View style={styles.fill} onLayout={follow.onLayout}>
+          <Animated.View style={[styles.fill, follow.style]}>
             <OutfitImages
               match={outfit}
               fit

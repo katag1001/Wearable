@@ -1,11 +1,14 @@
-// Choosing today's outfit: the sorted outfits one at a time, each with its
-// shoes, swiped like cards (next rejects the one being left). Tapping the
-// outfit opens it full screen to change its details (and rate it - no
-// stars on this page for now). The heart
-// wears the outfit and its shoes today (playing onCelebrate), the shoe
-// opens Change shoes (onChangeShoes), the broken heart opens "not this
-// outfit" (onNotThisOutfit - too hot, too cold or a mismatch).
-// Logic: useTodayLook.
+// Today's outfit: the sorted outfits one at a time, each with its shoes,
+// swiped like cards (next rejects the one being left). Tapping the outfit
+// opens it full screen to change its details (and rate it - no stars on
+// this page for now). The heart wears the outfit and its shoes today
+// (playing onCelebrate), the shoe opens Change shoes (onChangeShoes), the
+// broken heart opens "not this outfit" (onNotThisOutfit - too hot, too
+// cold or a mismatch).
+//
+// `worn`: the outfit worn today is on show, exactly where it was - the
+// page doesn't change - with swiping off (no arrows) and Change outfit in
+// place of the hearts (back to choosing). Logic: useTodayLook.
 
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
@@ -17,12 +20,20 @@ import { ActionButton } from "./ActionButton";
 import { OutfitImages } from "./OutfitImages";
 import { SwipeDeck } from "./SwipeDeck";
 
-export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfit }) => {
-  const { filteredOutfits, selectedOutfit, selectedShoe } = today;
+export const OutfitPicker = ({
+  today,
+  worn = false,
+  onCelebrate,
+  onChangeShoes,
+  onNotThisOutfit,
+}) => {
+  const { filteredOutfits } = today;
+  const outfit = worn ? today.wornOutfit : today.selectedOutfit;
+  const shoe = worn ? today.wornShoe : today.selectedShoe;
 
   const openOutfit = () => {
     // With the stars picked here, which the outfit screen saves.
-    handOverOutfit(selectedOutfit.matchId, selectedShoe, today.selectedRating);
+    handOverOutfit(outfit.matchId, shoe, worn ? null : today.selectedRating);
     router.push({ pathname: "/outfit", params: { from: "today" } });
   };
 
@@ -32,7 +43,7 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfi
     }
   };
 
-  if (!selectedOutfit) {
+  if (!outfit) {
     return <Text style={styles.empty}>No outfits saved for today.</Text>;
   }
 
@@ -40,13 +51,13 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfi
     <View style={styles.picker}>
       {/* Only on today's list thanks to its tights range - above the
           outfit, so the photos can run to the bottom */}
-      {selectedOutfit.withTights ? (
+      {outfit.withTights ? (
         <Text style={styles.tights}>Remember some tights today!</Text>
       ) : null}
 
       <View style={styles.deck}>
         <SwipeDeck
-          enabled={filteredOutfits.length > 1}
+          enabled={!worn && filteredOutfits.length > 1}
           onNext={today.goNext}
           onPrev={today.goPrev}
           noun="outfit"
@@ -62,8 +73,8 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfi
           >
             {/* Shrinks to fit, so the page never scrolls. */}
             <OutfitImages
-              match={selectedOutfit.matchId}
-              footwear={selectedShoe}
+              match={outfit.matchId}
+              footwear={shoe}
               fit
               imageStyle={styles.photo}
             />
@@ -72,24 +83,35 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfi
       </View>
 
       {/* Over the bottom of the photos: the two hearts stacked in the
-          bottom left corner, the shoe in the bottom right. Touches between
-          them still reach the outfit (box-none). No stars here for now. */}
+          bottom left corner (Change outfit once it's worn), the shoe in the
+          bottom right. Touches between them still reach the outfit
+          (box-none). No stars here for now. */}
       <View style={styles.actions} pointerEvents="box-none">
-        <View style={styles.hearts}>
+        {worn ? (
+          // Just the circle: the swap icon says it.
           <ActionButton
-            icon="heart-broken-outline"
+            icon="swap-horizontal"
             iconSet={MaterialCommunityIcons}
-            label="Not this outfit"
-            onPress={onNotThisOutfit}
+            label="Change outfit"
+            onPress={today.showOutfitPicker}
           />
-          <ActionButton
-            icon="heart-outline"
-            iconSet={MaterialCommunityIcons}
-            label="Wear this outfit today"
-            onPress={wear}
-            loading={today.wearing}
-          />
-        </View>
+        ) : (
+          <View style={styles.hearts}>
+            <ActionButton
+              icon="heart-broken-outline"
+              iconSet={MaterialCommunityIcons}
+              label="Not this outfit"
+              onPress={onNotThisOutfit}
+            />
+            <ActionButton
+              icon="heart-outline"
+              iconSet={MaterialCommunityIcons}
+              label="Wear this outfit today"
+              onPress={wear}
+              loading={today.wearing}
+            />
+          </View>
+        )}
 
         {today.footwear.hasFootwear ? (
           <ActionButton

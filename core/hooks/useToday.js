@@ -23,7 +23,7 @@ import {
   pickWornUpdate,
   takeWornSnapshot,
 } from "../today/wornSnapshot.js";
-import { getTodayStartISO } from "../utils/dates.js";
+import { getTodayStartISO, isDateToday } from "../utils/dates.js";
 import { weatherNoticeText } from "../today/weatherNotice.js";
 
 // The server builds today's outfits after /today/create, so an empty list
@@ -394,6 +394,16 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     try {
       if (wornToday) {
         await undoWorn(wornToday);
+      }
+
+      // Already worn today but not undoable here (marked on another device
+      // or the Outfits page, or its undo failed): it's today's outfit again,
+      // but it isn't counted twice in a day. One this device undid has its
+      // old date back, so it's counted as usual.
+      if (isDateToday(outfit.matchId.lastWornDate)) {
+        setWornToday(fromAnotherDevice(outfit));
+        setShowSelector(false);
+        return true;
       }
 
       const snapshot = takeWornSnapshot(outfit);

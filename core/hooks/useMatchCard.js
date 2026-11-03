@@ -66,8 +66,9 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
 
   // Resolves to false if it failed, else (the editor can close)
   // { deleted } - plus the new { rating, score } if the rating changed.
-  // The rating goes last, as it can delete the outfit.
-  const save = async () => {
+  // The rating goes last, as it can delete the outfit. `keepEditing`:
+  // the draft stays open afterwards (saving as you go).
+  const save = async ({ keepEditing = false } = {}) => {
     setSaving(true);
 
     try {
@@ -80,7 +81,7 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
         ? await rateMatch(match._id, draft.rating)
         : { deleted: false };
 
-      setDraft(null);
+      if (!keepEditing) setDraft(null);
       onChanged?.();
       return result;
     } catch (err) {

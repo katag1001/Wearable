@@ -1,7 +1,7 @@
 // Today tab: "Hey <name>" with the profile button, the day and weather,
 // then today's outfit filling the rest of the page - swipe to pick one with
-// its shoes (OutfitPicker), then the finished look (WornToday), with
-// bubbles rising when it's worn. Change shoes shows ShoeChooser in place of
+// its shoes (OutfitPicker). Wearing it leaves the page as it is - only the
+// buttons change, to Change outfit - with bubbles rising over it. Change shoes shows ShoeChooser in place of
 // the page (the outfits stay loaded behind it), and the broken heart shows
 // OutfitFeedback the same way. Drawn in the soft look
 // (context/visual-language.md), the atmosphere tinted by the weather.
@@ -32,7 +32,6 @@ import {
 import { OutfitFeedback } from "../../../components/today/OutfitFeedback";
 import { OutfitPicker } from "../../../components/today/OutfitPicker";
 import { ShoeChooser } from "../../../components/today/ShoeChooser";
-import { WornToday } from "../../../components/today/WornToday";
 import { useLocation } from "../../../platform/useLocation";
 import { fonts, ink, space } from "../../../theme/soft";
 
@@ -103,15 +102,12 @@ export default function TodayScreen() {
       return <SoftNote text={today.message} />;
     }
 
-    if (showingWorn) {
-      return (
-        <WornToday today={today} onChangeShoes={() => setChoosingShoes(true)} />
-      );
-    }
-
+    // The same picker either way, so wearing the outfit changes nothing on
+    // screen but the buttons (and the bubbles fly over it).
     return (
       <OutfitPicker
         today={today}
+        worn={showingWorn}
         onCelebrate={() => setCelebrating(true)}
         onChangeShoes={() => setChoosingShoes(true)}
         onNotThisOutfit={() => setGivingFeedback(true)}
