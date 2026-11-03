@@ -20,7 +20,6 @@ import {
   View,
 } from "react-native";
 
-import { seasonOptions } from "@core/constants/optionsBank.js";
 import { useAccumulatedPages } from "@core/hooks/useAccumulatedPages.js";
 import { useMatchSelection } from "@core/hooks/useMatchSelection.js";
 import { useMatchesPage } from "@core/hooks/useMatchesPage.js";
@@ -36,8 +35,6 @@ import { splitIntoColumns } from "./outfitColumns";
 import { handOverOutfit } from "./outfitHandoff";
 import { takeOutfitsChanged } from "./outfitsChanged";
 import { SelectionBar } from "./SelectionBar";
-
-const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
 // The FlatList's one row: both columns. It's one row so the list keeps
 // paging, refresh and its empty / footer states.
@@ -155,17 +152,6 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
             />
           </ChipRow>
         ) : null}
-
-        <ChipRow scroll>
-          {seasonOptions.map((season) => (
-            <Chip
-              key={season}
-              label={capitalise(season)}
-              selected={outfits.selectedSeason === season}
-              onPress={() => outfits.toggleSeason(season)}
-            />
-          ))}
-        </ChipRow>
 
         <View style={styles.searchRow}>
           <TextField

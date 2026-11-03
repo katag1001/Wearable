@@ -1,4 +1,5 @@
-// Adding an item from its photo: take or choose a photo, a loading screen
+// Adding an item from its photo: take or choose a photo (two big cards,
+// like the + tab's), a loading screen
 // while it's analysed (usePhotoAnalysis, shared with the web), then the
 // photo with what was found - each field with a "Change" - and Save
 // (AnalysedItemReview). Saving sends bubbles up over "View new matches" /
@@ -6,7 +7,7 @@
 // the photo attached. Adding by hand is item/edit.jsx.
 
 import { useEffect, useState } from "react";
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { usePhotoAnalysis } from "@core/hooks/usePhotoAnalysis.js";
@@ -20,9 +21,12 @@ import {
   fontWeights,
   spacing,
 } from "../../../../theme/tokens";
+import { wash } from "../../../../theme/soft";
 import { pickImage } from "../../../../platform/imagePicker";
 import { BubbleCelebration } from "../../../../components/soft";
 import {
+  ActionCard,
+  ActionCards,
   Button,
   ImageTile,
   Loading,
@@ -39,15 +43,6 @@ import { ItemForm } from "../../../../components/wardrobe/ItemForm";
 import { ItemSaved } from "../../../../components/wardrobe/ItemSaved";
 
 const TITLE = "Add item";
-
-const addByHand = () =>
-  Alert.alert("Add item", "What would you like to add?", [
-    ...WARDROBE_KIND_LIST.map(({ kind, label }) => ({
-      text: label,
-      onPress: () => router.replace({ pathname: "/item/edit", params: { kind } }),
-    })),
-    { text: "Cancel", style: "cancel" },
-  ]);
 
 // The full item form, with just the photo (the analysis failed).
 const ReviewItem = ({ kind, prefill, onSaved, onCancel }) => {
@@ -189,30 +184,26 @@ export default function AddItemScreen() {
   return (
     <>
       <Stack.Screen options={{ title: TITLE }} />
-      <Screen edges={["bottom"]}>
+      <Screen edges={["bottom"]} centered={flow.step === "pick"}>
         {flow.step === "pick" && (
           <>
-            <Text style={styles.text}>
-              Take or choose a photo of one item - we'll fill in the rest.
-            </Text>
-            <Text style={styles.text}>Best results: daylight and a plain background.</Text>
-            <ImageTile placeholder="No photo yet" aspectRatio={4 / 5} />
-            <View style={styles.row}>
-              <Button
-                label="Take photo"
-                variant="secondary"
+            <ActionCards>
+              <ActionCard
+                icon="camera"
+                title="Take photo"
+                text="Use your camera"
+                tint={wash.lavender}
                 onPress={() => choose("camera")}
-                style={styles.rowButton}
               />
-              <Button
-                label="Choose photo"
-                variant="secondary"
+              <ActionCard
+                icon="image"
+                title="Choose photo"
+                text="Pick one from your photos"
+                tint={wash.sky}
                 onPress={() => choose("library")}
-                style={styles.rowButton}
               />
-            </View>
+            </ActionCards>
             <Message text={flow.error} />
-            <Button label="Add details by hand instead" variant="text" onPress={addByHand} />
           </>
         )}
 

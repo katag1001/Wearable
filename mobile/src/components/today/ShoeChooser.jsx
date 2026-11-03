@@ -3,13 +3,14 @@
 // pairing of the shoe being left). Shown in place of the page, not in a
 // Modal or over it: swiping didn't work inside a Modal. `onChoose(shoe)`
 // may return a promise (saving the worn outfit's shoes); it closes unless
-// that resolves false. `wearing`: choosing wears them (the worn outfit's
-// shoes), so it's the heart, as when wearing an outfit; otherwise a
-// `chooseLabel` button.
+// that resolves false. Choosing is the heart, as when choosing an outfit;
+// `wearing`: it wears them (the worn outfit's shoes), otherwise it picks
+// them for the outfit on show. `chooseLabel` is the heart's label.
 // Logic: useShoeChooser (shared with the web's popup).
 
 import { useEffect, useRef, useState } from "react";
 import Feather from "@expo/vector-icons/Feather";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Image } from "expo-image";
 import { BackHandler, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,7 +20,7 @@ import { getImageUrl } from "@core/utils/getImageUrl.js";
 
 import { colors, fontWeights, spacing } from "../../theme/tokens";
 import { Atmosphere } from "../soft";
-import { Button, Loading } from "../ui";
+import { Loading } from "../ui";
 import { ActionButton, ActionRow } from "./ActionButton";
 import { SwipeDeck } from "./SwipeDeck";
 
@@ -134,23 +135,17 @@ export const ShoeChooser = ({
         <Loading text="Loading footwear..." />
       )}
 
-      {wearing ? (
-        <ActionRow>
-          <ActionButton
-            icon="heart"
-            label={chooseLabel}
-            onPress={current ? choose : undefined}
-            loading={saving}
-          />
-        </ActionRow>
-      ) : (
-        <Button
+      {/* The same heart as choosing an outfit, whether it wears them now
+          (the worn outfit) or picks them for the outfit on show. */}
+      <ActionRow>
+        <ActionButton
+          icon="heart-outline"
+          iconSet={MaterialCommunityIcons}
           label={chooseLabel}
-          onPress={choose}
+          onPress={current ? choose : undefined}
           loading={saving}
-          disabled={!current}
         />
-      )}
+      </ActionRow>
     </View>
   );
 };

@@ -12,7 +12,7 @@ import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { handOverOutfit } from "../outfits/outfitHandoff";
-import { space, type } from "../../theme/soft";
+import { fonts, ink, space, type } from "../../theme/soft";
 import { ActionButton } from "./ActionButton";
 import { OutfitImages } from "./OutfitImages";
 import { SwipeDeck } from "./SwipeDeck";
@@ -41,7 +41,7 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfi
       {/* Only on today's list thanks to its tights range - above the
           outfit, so the photos can run to the bottom */}
       {selectedOutfit.withTights ? (
-        <Text style={styles.tights}>Wear with tights</Text>
+        <Text style={styles.tights}>Remember some tights today!</Text>
       ) : null}
 
       <View style={styles.deck}>
@@ -138,8 +138,12 @@ const styles = StyleSheet.create({
   hearts: {
     gap: space.sm,
   },
+  // In the light Inter of the header above, not a label.
   tights: {
-    ...type.eyebrow,
+    fontFamily: fonts.light,
+    fontSize: 15,
+    lineHeight: 20,
+    color: ink.soft,
     textAlign: "center",
   },
   empty: {

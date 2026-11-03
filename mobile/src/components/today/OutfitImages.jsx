@@ -8,7 +8,9 @@
 // adds to each photo's style (e.g. its background). `width`: lay out to
 // this width straight away instead of measuring (the outfit cards, whose
 // height is worked out before they draw - outfitImagesHeight).
-// `imageSize`: the Cloudinary copy's size.
+// `imageSize`: the Cloudinary copy's size. `onItemPress(item)` makes each
+// item tappable, with `itemLabel(item)` as its accessibility label.
+// `showLoading`: a small breathing bubble on each photo until it loads.
 //
 // The photos get exact pixel sizes from the measured row width: a
 // percentage width + aspectRatio inside a wrapping row in a scroll view
@@ -16,17 +18,41 @@
 
 import { useState } from "react";
 import { Image } from "expo-image";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { outfitRows } from "@core/today/outfitRows.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
 import { colors, radius, spacing } from "../../theme/tokens";
+import { BubbleLoader } from "../soft/BubbleLoader";
 
 const PHOTO_ASPECT = 4 / 3; // height / width
 const PHOTO_SCALE = 0.95;
 
 const UPPER_TYPES = ["top", "outer"];
+
+// One photo, with the bubble over it while it loads (`showLoading`).
+const Photo = ({ uri, style, label, showLoading }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <View>
+      <Image
+        source={{ uri }}
+        style={style}
+        contentFit="contain"
+        transition={150}
+        accessibilityLabel={label}
+        onLoad={() => setLoaded(true)}
+      />
+      {showLoading && !loaded ? (
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <BubbleLoader size={28} />
+        </View>
+      ) : null}
+    </View>
+  );
+};
 
 // The shoe joins the lower row (bottoms / one-pieces): on the left when
 // it fits beside them, otherwise last, so it wraps onto the bottom line.
@@ -72,6 +98,10 @@ const layOut = ({ match, footwear, width, height, fit }) => {
   return { rows, photoWidth, contentHeight };
 };
 
+// The photo width for an outfit fitted into width x height (fit mode).
+export const outfitImagesFitWidth = (match, width, height) =>
+  layOut({ match, width, height, fit: true }).photoWidth;
+
 // How tall an outfit's photos are at `width` (not fit mode).
 export const outfitImagesHeight = (match, width, footwear) =>
   layOut({ match, footwear, width }).contentHeight;
@@ -83,6 +113,9 @@ export const OutfitImages = ({
   imageStyle,
   width: fixedWidth,
   imageSize = 800,
+  onItemPress,
+  itemLabel = (item) => item.name,
+  showLoading = false,
 }) => {
   const [size, setSize] = useState({ width: 0, height: 0 });
 
@@ -113,20 +146,34 @@ export const OutfitImages = ({
       {photoWidth > 0 &&
         rows.map((row) => (
           <View key={row[0]._id} style={styles.row}>
-            {row.map((item) => (
-              <Image
-                key={item._id}
-                source={{ uri: getImageUrl(item.imageUrl, imageSize) }}
-                style={[
-                  styles.image,
-                  imageStyle,
-                  { width: photoWidth, height: photoWidth * PHOTO_ASPECT },
-                ]}
-                contentFit="contain"
-                transition={150}
-                accessibilityLabel={item.name}
-              />
-            ))}
+            {row.map((item) => {
+              const photo = (
+                <Photo
+                  key={item._id}
+                  uri={getImageUrl(item.imageUrl, imageSize)}
+                  style={[
+                    styles.image,
+                    imageStyle,
+                    { width: photoWidth, height: photoWidth * PHOTO_ASPECT },
+                  ]}
+                  label={item.name}
+                  showLoading={showLoading}
+                />
+              );
+
+              return onItemPress ? (
+                <Pressable
+                  key={item._id}
+                  onPress={() => onItemPress(item)}
+                  accessibilityRole="button"
+                  accessibilityLabel={itemLabel(item)}
+                >
+                  {photo}
+                </Pressable>
+              ) : (
+                photo
+              );
+            })}
           </View>
         ))}
     </View>

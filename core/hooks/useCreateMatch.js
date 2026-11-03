@@ -12,7 +12,9 @@ import {
 
 /*
  * Building an outfit by hand: browse the clothes one category at a time
- * (with a search), tick items from any categories, then submit.
+ * (with a search, and optionally narrowed to some of the category's
+ * subtypes - only ones the user owns, like the wardrobe), tick items from
+ * any categories, then submit.
  *
  * `result` ({ title, message, ok }) is the outcome to show after a
  * submit, until `clearResult`.
@@ -26,6 +28,8 @@ export const useCreateMatch = () => {
 
   const [category, setCategory] = useState(ITEM_CATEGORIES[0]);
   const [searchTerm, setSearchTerm] = useState("");
+  // Subtypes picked within the category; none = the whole category.
+  const [selectedSubtypes, setSelectedSubtypes] = useState([]);
 
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
@@ -46,14 +50,32 @@ export const useCreateMatch = () => {
 
   /* -------------------- Browsing -------------------- */
 
-  // A new category starts with an empty search.
+  // A new category starts with an empty search and no subtypes picked.
   const chooseCategory = (next) => {
     setCategory(next);
     setSearchTerm("");
+    setSelectedSubtypes([]);
   };
 
-  const categoryItems = clothesByCategory[category].filter((item) =>
-    itemMatchesSearch(item, searchTerm)
+  // The category's subtypes the user has items in, A-Z.
+  const ownedSubtypes = clothesByCategory[category]
+    .map((item) => item.subtype)
+    .filter(Boolean);
+  const subtypes = [...new Set(ownedSubtypes)].sort((a, b) =>
+    a.localeCompare(b)
+  );
+
+  const toggleSubtype = (subtype) =>
+    setSelectedSubtypes((prev) =>
+      prev.includes(subtype)
+        ? prev.filter((entry) => entry !== subtype)
+        : [...prev, subtype]
+    );
+
+  const categoryItems = clothesByCategory[category].filter(
+    (item) =>
+      itemMatchesSearch(item, searchTerm) &&
+      (selectedSubtypes.length === 0 || selectedSubtypes.includes(item.subtype))
   );
 
   /* -------------------- Selecting -------------------- */
@@ -118,6 +140,9 @@ export const useCreateMatch = () => {
     chooseCategory,
     searchTerm,
     setSearchTerm,
+    subtypes,
+    selectedSubtypes,
+    toggleSubtype,
     categoryItems,
 
     isSelected,

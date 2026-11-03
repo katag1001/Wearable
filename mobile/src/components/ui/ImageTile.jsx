@@ -1,7 +1,7 @@
 // A picture on pearl (the item background, a hue-free warm white),
 // optionally tappable and selectable (an iridescent halo + a tick in a
-// small white bubble). Without a source it shows `placeholder` text
-// instead.
+// small white bubble - `showCheck={false}` for the halo alone). Without a
+// source it shows `placeholder` text instead.
 
 import Feather from "@expo/vector-icons/Feather";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
@@ -24,6 +24,7 @@ export const ImageTile = ({
   onPress,
   aspectRatio = 1,
   resizeMode = "cover",
+  showCheck = true,
   style,
 }) => {
   const content = (
@@ -37,9 +38,11 @@ export const ImageTile = ({
       {selected ? (
         <>
           <SelectionHalo radius={radius.lg} />
-          <View style={styles.check}>
-            <Feather name="check" size={14} color={colors.main} />
-          </View>
+          {showCheck ? (
+            <View style={styles.check}>
+              <Feather name="check" size={14} color={colors.main} />
+            </View>
+          ) : null}
         </>
       ) : null}
     </>
