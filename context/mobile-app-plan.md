@@ -37,7 +37,6 @@ personal_project/
 │   ├── cache/             paged list cache + provider
 │   ├── constants/         options, subtypes, footwear, quiz, weekdays
 │   ├── hooks/             screen logic hooks (no DOM, no RN)
-│   ├── theme/tokens.js    colours, spacing, font sizes
 │   ├── today/  footwear/  weather/  clothes/
 │   └── utils/             query builders, scoring, images, dates
 ├── src/                 Web UI only (components, pages, CSS)
@@ -188,13 +187,14 @@ mobile/
 │   ├── (auth)/register.jsx
 │   ├── style-quiz.jsx            gate, like StyleQuizGate
 │   ├── (tabs)/_layout.jsx        bottom tabs
-│   ├── (tabs)/index.jsx          Today
+│   ├── (tabs)/index.jsx          Today ("Hey <name>" + the person button to Profile)
 │   ├── (tabs)/wardrobe.jsx
 │   ├── (tabs)/outfits.jsx
-│   ├── (tabs)/profile.jsx
+│   ├── (tabs)/create.jsx         + tab: Add item / Build outfit
+│   ├── profile.jsx               Profile (stack, from Today's person button)
 │   ├── build-outfit.jsx          Build an outfit (stack)
 │   ├── item/edit.jsx             add/edit clothing or footwear (modal)
-│   └── account/weekly.jsx, style.jsx, stats.jsx   (opened from the Profile tab)
+│   └── account/weekly.jsx, style.jsx, stats.jsx   (opened from Profile)
 ├── src/
 │   ├── auth/                     SessionProvider (useAuthSession for every screen)
 │   ├── platform/                 storage, location, imagePicker, config
@@ -212,20 +212,19 @@ mobile/
 | `/` Homepage: Today block + season previews | Today tab: weather, outfit carousel, shoes, then "This season" horizontal rows for clothes and outfits with "See all" |
 | `/clothes` | Wardrobe tab |
 | `/matches` + `/buildmatches` | Outfits tab, with a "Build outfit" button that pushes `outfits/build` |
-| `/user` sidebar (weekly / style / stats) | Profile tab: list rows → stack screens, plus Log out and Delete account |
+| `/user` sidebar (weekly / style / stats) | Profile (the person button on Today, since 2026-11-03 - it was a tab): list rows → stack screens, plus Log out and Delete account |
 | `/style-quiz` gate | Same gate in the root layout redirect |
 | Login / Register | `(auth)` group, redirect when logged in |
 | Modals (add/edit, filter, popups) | Full-screen modal for add/edit; bottom sheet (RN `Modal`, slide) for filters; native-feeling confirm dialogs |
 
 ### Design
 
-- **Tokens** from `core/theme/tokens.js`: main `#111`, secondary `#6f6a63`,
-  muted `#99938b`, border `#ddd8d0`, image background `#f1efeb`, plus the
-  error/success sets.
-- System font (Inter isn't bundled; the system fonts are close and need no
-  font loading).
-- Lots of white space, hairline borders, 12px radius cards, square image
-  tiles on the light image background.
+- **Replaced (2026-11-03) by the soft visual language -
+  `context/visual-language.md`.** Tokens now live in `mobile/src/theme/`
+  (`soft.js` + `tokens.js`); `core/theme/tokens.js` was removed (only the
+  mobile app used it). Fonts: Inter, Fira Code, Instrument Serif.
+- Was: black/white tokens, the system font, hairline borders, 12px radius
+  cards.
 - One accent: black. Filled black for the primary button, outline for
   secondary.
 - **UI kit** in `mobile/src/components/ui/`: `Screen` (safe area + scroll),
@@ -431,7 +430,7 @@ moves" above.
 | `core/wardrobe/` | `itemKinds` (clothing vs footwear), `itemValidation`, `saveWardrobeItem` (upload → save → clean up), `typeChoices`, `wardrobeTypes` |
 | `core/filters/filterDefaults.js` | The filter panel's fields and item categories |
 | `src/components/clothes/addUpdateItem.jsx` | The web add/edit modal for both kinds (replaces `addUpdateClothes.jsx` and `addUpdateFootwear.jsx`) |
-| `core/theme/tokens.js` | Colours, font sizes, spacing, radii for mobile |
+| `mobile/src/theme/` | Colours, fonts, spacing, radii, shadows for mobile (was `core/theme/tokens.js`; see `context/visual-language.md`) |
 | `src/main.jsx` | Web calls `configureCore` (localStorage, `src/config.js` URL, `VITE_*` Cloudinary) |
 | `vite.config.js` | `@core` alias |
 | `mobile/src/platform/storage.js`, `useStorageReady.js` | Sync storage mirror: AsyncStorage + SecureStore (token), loaded behind the splash |

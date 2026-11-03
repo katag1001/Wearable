@@ -12,7 +12,7 @@ import {
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
 import { getPairingSections } from "@core/styleQuiz/pairingSections.js";
-import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
+import { colors, fontSizes, spacing } from "../../theme/tokens";
 
 import {
   Button,

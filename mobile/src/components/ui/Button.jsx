@@ -1,17 +1,19 @@
-// The app's one button. "primary" is filled black (one per screen, for
-// the main action), "secondary" is outlined, "text" is a plain link-style
-// button. Shows a spinner while `loading`.
+// The app's one button, as a pill with an uppercase tracked label.
+// "primary" is soft plum ink (one per screen, for the main action),
+// "secondary" a translucent white pill with a light top edge, "text" a
+// plain label. Squeezes slightly when pressed; shows a spinner while
+// `loading`.
 
-import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
+import { ActivityIndicator, StyleSheet, Text } from "react-native";
 
 import {
   colors,
-  fontSizes,
   fontWeights,
-  letterSpacing,
   radius,
+  shadows,
   spacing,
-} from "@core/theme/tokens.js";
+} from "../../theme/tokens";
+import { PressableScale } from "../soft/PressableScale";
 
 export const Button = ({
   label,
@@ -25,42 +27,38 @@ export const Button = ({
   const inactive = disabled || loading;
 
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       disabled={inactive}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: inactive, busy: loading }}
-      style={({ pressed }) => [
-        styles.base,
-        styles[variant],
-        (pressed || inactive) && styles.dimmed,
-        style,
-      ]}
+      style={[styles.base, styles[variant], inactive && styles.dimmed, style]}
     >
       {loading ? (
         <ActivityIndicator color={isPrimary ? colors.inverse : colors.main} />
       ) : (
         <Text style={[styles.label, styles[`${variant}Label`]]}>{label}</Text>
       )}
-    </Pressable>
+    </PressableScale>
   );
 };
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 48,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.lg,
+    minHeight: 52,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
   },
   primary: {
     backgroundColor: colors.main,
+    boxShadow: shadows.soft,
   },
   secondary: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.main,
+    backgroundColor: colors.cardBackground,
+    boxShadow: `${shadows.soft}, inset 0px 1px 0px ${colors.lightEdge}`,
   },
   text: {
     minHeight: 40,
@@ -69,9 +67,11 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   label: {
-    fontSize: fontSizes.body,
-    fontWeight: fontWeights.semibold,
-    letterSpacing: letterSpacing.tight,
+    fontFamily: fontWeights.semibold,
+    fontSize: 13,
+    letterSpacing: 1.6,
+    textTransform: "uppercase",
+    textAlign: "center",
   },
   primaryLabel: {
     color: colors.inverse,
@@ -81,6 +81,5 @@ const styles = StyleSheet.create({
   },
   textLabel: {
     color: colors.secondary,
-    fontWeight: fontWeights.medium,
   },
 });

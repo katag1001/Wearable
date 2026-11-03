@@ -19,13 +19,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAccumulatedPages } from "@core/hooks/useAccumulatedPages.js";
 import { useWardrobePage } from "@core/hooks/useWardrobePage.js";
+
 import {
   colors,
   fontSizes,
   fontWeights,
+  radius,
+  shadows,
   spacing,
-} from "@core/theme/tokens.js";
-
+} from "../../theme/tokens";
 import { FilterSheet } from "../../components/filters/FilterSheet";
 import {
   Button,
@@ -37,6 +39,7 @@ import {
   handOverItem,
   takeWardrobeChanged,
 } from "../../components/wardrobe/itemHandoff";
+import { Atmosphere } from "../../components/soft";
 import { ItemTile } from "../../components/wardrobe/ItemTile";
 import { TypeFilter } from "../../components/wardrobe/TypeFilter";
 
@@ -91,6 +94,8 @@ export default function WardrobeScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={["top"]}>
+      <Atmosphere />
+
       <View style={styles.header}>
         <View style={styles.titleRow}>
           <Text style={styles.title}>
@@ -107,7 +112,7 @@ export default function WardrobeScreen() {
             hitSlop={10}
             style={styles.addButton}
           >
-            <Feather name="plus" size={22} color={colors.inverse} />
+            <Feather name="plus" size={22} color={colors.main} />
           </Pressable>
         </View>
 
@@ -158,7 +163,7 @@ export default function WardrobeScreen() {
         }
         ListEmptyComponent={
           list.isFirstLoad ? (
-            <ActivityIndicator color={colors.main} style={styles.spinner} />
+            <ActivityIndicator color={colors.muted} style={styles.spinner} />
           ) : wardrobe.data?.total === 0 ? (
             // Nothing in this collection at all, not just nothing matching.
             <EmptyState
@@ -178,7 +183,7 @@ export default function WardrobeScreen() {
         }
         ListFooterComponent={
           list.hasMore ? (
-            <ActivityIndicator color={colors.main} style={styles.spinner} />
+            <ActivityIndicator color={colors.muted} style={styles.spinner} />
           ) : null
         }
         keyboardShouldPersistTaps="handled"
@@ -219,19 +224,22 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fontSizes.title,
-    fontWeight: fontWeights.semibold,
+    fontFamily: fontWeights.light,
+    letterSpacing: -0.3,
     color: colors.main,
   },
   count: {
     fontSize: fontSizes.body,
-    fontWeight: fontWeights.regular,
+    fontFamily: fontWeights.regular,
     color: colors.secondary,
   },
+  // A white bubble, like the Today buttons.
   addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.main,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.cardBackground,
+    boxShadow: shadows.soft,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -244,11 +252,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   filterButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    width: 50,
+    height: 50,
+    borderRadius: radius.md,
+    borderCurve: "continuous",
+    backgroundColor: "rgba(255, 255, 255, 0.78)",
+    boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
     alignItems: "center",
     justifyContent: "center",
   },

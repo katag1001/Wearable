@@ -4,14 +4,16 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { weekDays } from "@core/constants/weekDays.js";
+import { getTagOption } from "@core/utils/tagOptions.js";
+
 import {
   colors,
   fontSizes,
   fontWeights,
   radius,
   spacing,
-} from "@core/theme/tokens.js";
-import { getTagOption } from "@core/utils/tagOptions.js";
+} from "../../theme/tokens";
+import { mid } from "../../theme/soft";
 
 export const WeekDayRow = ({ weeklyTags, activeDay, onDayPress }) => (
   <View style={styles.row}>
@@ -61,22 +63,24 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingVertical: spacing.sm,
     borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    borderCurve: "continuous",
+    backgroundColor: colors.cardBackground,
+    boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
   },
   activeDay: {
-    borderColor: colors.main,
-    backgroundColor: colors.main,
+    backgroundColor: `${mid.lavender}80`,
   },
   dayName: {
     fontSize: fontSizes.tag,
-    fontWeight: fontWeights.medium,
+    fontFamily: fontWeights.medium,
     color: colors.secondary,
   },
   activeText: {
-    color: colors.inverse,
+    fontFamily: fontWeights.semibold,
+    color: colors.main,
   },
   tagName: {
+    fontFamily: fontWeights.regular,
     height: 28,
     lineHeight: 28,
     paddingHorizontal: 2,
@@ -84,6 +88,7 @@ const styles = StyleSheet.create({
     color: colors.main,
   },
   empty: {
+    fontFamily: fontWeights.regular,
     height: 28,
     lineHeight: 28,
     fontSize: fontSizes.sectionTitle,

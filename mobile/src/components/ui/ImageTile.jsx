@@ -1,6 +1,7 @@
-// A picture on the item background (white, like the page), optionally tappable and
-// selectable (black border + tick). Without a source it shows
-// `placeholder` text instead.
+// A picture on pearl (the item background, a hue-free warm white),
+// optionally tappable and selectable (an iridescent halo + a tick in a
+// small white bubble). Without a source it shows `placeholder` text
+// instead.
 
 import Feather from "@expo/vector-icons/Feather";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
@@ -8,9 +9,12 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import {
   colors,
   fontSizes,
+  fontWeights,
   radius,
+  shadows,
   spacing,
-} from "@core/theme/tokens.js";
+} from "../../theme/tokens";
+import { SelectionHalo } from "../soft/SelectionHalo";
 
 export const ImageTile = ({
   source,
@@ -31,19 +35,17 @@ export const ImageTile = ({
       )}
 
       {selected ? (
-        <View style={styles.check}>
-          <Feather name="check" size={14} color={colors.inverse} />
-        </View>
+        <>
+          <SelectionHalo radius={radius.lg} />
+          <View style={styles.check}>
+            <Feather name="check" size={14} color={colors.main} />
+          </View>
+        </>
       ) : null}
     </>
   );
 
-  const tileStyle = [
-    styles.tile,
-    { aspectRatio },
-    selected && styles.selected,
-    style,
-  ];
+  const tileStyle = [styles.tile, { aspectRatio }, style];
 
   if (!onPress) {
     return <View style={tileStyle}>{content}</View>;
@@ -65,24 +67,21 @@ export const ImageTile = ({
 const styles = StyleSheet.create({
   tile: {
     borderRadius: radius.lg,
+    borderCurve: "continuous",
     backgroundColor: colors.itemBackground,
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "transparent",
-  },
-  selected: {
-    borderColor: colors.main,
   },
   pressed: {
-    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   image: {
     width: "100%",
     height: "100%",
   },
   placeholder: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.small,
     color: colors.muted,
     textAlign: "center",
@@ -92,10 +91,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: spacing.sm,
     right: spacing.sm,
-    width: 24,
-    height: 24,
+    width: 26,
+    height: 26,
     borderRadius: radius.pill,
-    backgroundColor: colors.main,
+    backgroundColor: colors.inverse,
+    boxShadow: shadows.soft,
     alignItems: "center",
     justifyContent: "center",
   },

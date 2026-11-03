@@ -1,25 +1,19 @@
-// One outfit in the list: its items' photos, temperature range, seasons
-// and tags, with a heart to favourite it. Tap to open the outfit screen;
+// One outfit in the list: just its items' photos, with a heart to
+// favourite it - the temperature, seasons and tags are on the outfit
+// screen. Tap to open the outfit screen;
 // long-press to select (then taps select too). Card actions: useMatchCard
 // (shared with the web).
 
 import Feather from "@expo/vector-icons/Feather";
 import { Image } from "expo-image";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { useMatchCard } from "@core/hooks/useMatchCard.js";
-import {
-  formatMatchSeasons,
-  formatMatchTemperature,
-} from "@core/matches/matchFields.js";
-import {
-  colors,
-  fontSizes,
-  radius,
-  spacing,
-} from "@core/theme/tokens.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
+import { colors, radius, shadows, spacing } from "../../theme/tokens";
+import { mid } from "../../theme/soft";
+import { SelectionHalo } from "../soft";
 import { Card, FavouriteHeart } from "../ui";
 
 export const OutfitCard = ({
@@ -45,7 +39,7 @@ export const OutfitCard = ({
       accessibilityHint={selectMode ? "Selects the outfit" : "Opens the outfit"}
       accessibilityState={{ selected }}
     >
-      <Card style={[styles.card, selected && styles.selected]}>
+      <Card style={styles.card}>
         <View style={styles.images}>
           {clothes.map((item) => (
             <Image
@@ -59,26 +53,13 @@ export const OutfitCard = ({
           ))}
         </View>
 
-        <View style={styles.infoRow}>
-          <View style={styles.info}>
-            <Text style={styles.temperature}>
-              {formatMatchTemperature(match)}
-            </Text>
-            <Text style={styles.seasons}>{formatMatchSeasons(match)}</Text>
-          </View>
-
-          {match.tags?.length ? (
-            <Text style={styles.tags} numberOfLines={2}>
-              {match.tags.join(" · ")}
-            </Text>
-          ) : null}
-        </View>
-
         <FavouriteHeart
           favourite={match.favourite}
           onPress={card.toggleFavourite}
           style={styles.heart}
         />
+
+        {selected ? <SelectionHalo radius={radius.xl} /> : null}
 
         {selectMode && (
           <View style={[styles.tick, selected && styles.tickOn]}>
@@ -93,12 +74,11 @@ export const OutfitCard = ({
 };
 
 const styles = StyleSheet.create({
+  // No card behind the outfit: it sits straight on the page.
   card: {
-    borderWidth: StyleSheet.hairlineWidth,
-  },
-  selected: {
-    borderColor: colors.main,
-    borderWidth: 2,
+    padding: 0,
+    backgroundColor: "transparent",
+    boxShadow: "none",
   },
   images: {
     flexDirection: "row",
@@ -109,29 +89,6 @@ const styles = StyleSheet.create({
     aspectRatio: 3 / 4,
     borderRadius: radius.md,
     backgroundColor: colors.itemBackground,
-  },
-  infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  info: {
-    gap: 2,
-  },
-  temperature: {
-    fontSize: fontSizes.body,
-    color: colors.main,
-  },
-  seasons: {
-    fontSize: fontSizes.small,
-    color: colors.secondary,
-  },
-  tags: {
-    flexShrink: 1,
-    marginLeft: spacing.md,
-    fontSize: fontSizes.small,
-    color: colors.secondary,
-    textAlign: "right",
   },
   heart: {
     position: "absolute",
@@ -145,13 +102,13 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: radius.pill,
-    borderWidth: 2,
-    borderColor: colors.main,
-    backgroundColor: colors.pageBackground,
+    backgroundColor: colors.inverse,
+    boxShadow: `${shadows.soft}, inset 0px 0px 0px 1.5px ${colors.hoverBorder}`,
     alignItems: "center",
     justifyContent: "center",
   },
   tickOn: {
-    backgroundColor: colors.main,
+    backgroundColor: mid.lavender,
+    boxShadow: shadows.soft,
   },
 });

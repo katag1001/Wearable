@@ -3,8 +3,7 @@
 
 import { StyleSheet, View } from "react-native";
 
-import { spacing } from "@core/theme/tokens.js";
-
+import { spacing } from "../../theme/tokens";
 import { Button } from "../ui";
 
 export const QuizActions = ({ onBack, onNext, nextDisabled, disabled }) => (

@@ -1,8 +1,10 @@
-// A bordered box on white - the base for outfit and item cards.
+// A raised surface - the base for outfit and item cards: translucent
+// white over the atmosphere, a faint shadow and a light top edge, no
+// border.
 
 import { StyleSheet, View } from "react-native";
 
-import { colors, radius, spacing } from "@core/theme/tokens.js";
+import { colors, radius, shadows, spacing } from "../../theme/tokens";
 
 export const Card = ({ style, children }) => (
   <View style={[styles.card, style]}>{children}</View>
@@ -10,11 +12,11 @@ export const Card = ({ style, children }) => (
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
+    borderCurve: "continuous",
     padding: spacing.md,
     gap: spacing.sm,
     backgroundColor: colors.cardBackground,
+    boxShadow: `${shadows.soft}, inset 0px 1px 0px ${colors.lightEdge}`,
   },
 });

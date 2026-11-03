@@ -26,6 +26,9 @@ const userSchema = new mongoose.Schema(
 {
 email: { type: String, unique: true, required: true },
 password: { type: String, required: true },
+// What the apps greet the user by ("Hey Katy"). Not unique. Accounts made
+// before sign-up asked for it have none.
+firstName: { type: String, trim: true, maxlength: 50 },
 },
 { strictQuery: false 
 

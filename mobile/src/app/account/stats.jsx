@@ -5,15 +5,15 @@ import { Image, StyleSheet, Text, View } from "react-native";
 
 import { useStats } from "@core/hooks/useStats.js";
 import { STATS_MODES, formatWornCount } from "@core/stats/topWorn.js";
+import { getImageUrl } from "@core/utils/getImageUrl.js";
+
 import {
   colors,
   fontSizes,
   fontWeights,
   radius,
   spacing,
-} from "@core/theme/tokens.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
-
+} from "../../theme/tokens";
 import {
   Card,
   EmptyState,
@@ -119,10 +119,11 @@ const styles = StyleSheet.create({
   },
   rank: {
     fontSize: fontSizes.small,
-    fontWeight: fontWeights.semibold,
+    fontFamily: fontWeights.semibold,
     color: colors.main,
   },
   count: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.small,
     color: colors.secondary,
   },
@@ -140,10 +141,12 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   name: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.body,
     color: colors.main,
   },
   empty: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.body,
     color: colors.secondary,
   },

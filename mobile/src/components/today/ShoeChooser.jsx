@@ -15,15 +15,10 @@ import { BackHandler, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useShoeChooser } from "@core/hooks/useShoeChooser.js";
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  spacing,
-} from "@core/theme/tokens.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
+import { colors, fontWeights, spacing } from "../../theme/tokens";
+import { Atmosphere } from "../soft";
 import { Button, Loading } from "../ui";
 import { ActionButton, ActionRow } from "./ActionButton";
 import { SwipeDeck } from "./SwipeDeck";
@@ -99,6 +94,8 @@ export const ShoeChooser = ({
         },
       ]}
     >
+      <Atmosphere />
+
       <View style={styles.header}>
         <Text style={styles.title}>Change shoes</Text>
         <Pressable
@@ -107,7 +104,7 @@ export const ShoeChooser = ({
           accessibilityLabel="Close"
           hitSlop={12}
         >
-          <Feather name="x" size={24} color={colors.main} />
+          <Feather name="x" size={24} color={colors.muted} />
         </Pressable>
       </View>
 
@@ -171,8 +168,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   title: {
-    fontSize: fontSizes.sectionTitle,
-    fontWeight: fontWeights.semibold,
+    fontSize: 24,
+    lineHeight: 30,
+    fontFamily: fontWeights.light,
     color: colors.main,
   },
   photo: {
@@ -182,6 +180,5 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     width: "100%",
-    borderRadius: radius.lg,
   },
 });

@@ -3,7 +3,7 @@
 
 import { ScrollView, StyleSheet, View } from "react-native";
 
-import { spacing } from "@core/theme/tokens.js";
+import { spacing } from "../../theme/tokens";
 
 export const ChipRow = ({ scroll = false, children }) =>
   scroll ? (

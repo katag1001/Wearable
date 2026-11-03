@@ -1,7 +1,7 @@
 // Adding an item from its photo: take or choose a photo, a loading screen
 // while it's analysed (usePhotoAnalysis, shared with the web), then the
 // photo with what was found - each field with a "Change" - and Save
-// (AnalysedItemReview). Saving bursts confetti over "View new matches" /
+// (AnalysedItemReview). Saving sends bubbles up over "View new matches" /
 // "Add another item". If the analysis fails, the full item form opens with
 // the photo attached. Adding by hand is item/edit.jsx.
 
@@ -11,12 +11,12 @@ import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { usePhotoAnalysis } from "@core/hooks/usePhotoAnalysis.js";
 import { useWardrobeItemForm } from "@core/hooks/useWardrobeItemForm.js";
-import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 import { WARDROBE_KIND_LIST } from "@core/wardrobe/itemKinds.js";
 
+import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
 import { pickImage } from "../../platform/imagePicker";
-import { Confetti } from "../../components/today/Confetti";
+import { BubbleCelebration } from "../../components/soft";
 import { Button, ImageTile, Loading, Message, Screen } from "../../components/ui";
 import { AnalysedItemReview } from "../../components/wardrobe/AnalysedItemReview";
 import { markWardrobeChanged } from "../../components/wardrobe/itemHandoff";
@@ -113,7 +113,7 @@ export default function AddItemScreen() {
             />
           </Screen>
 
-          {celebrating ? <Confetti onDone={() => setCelebrating(false)} /> : null}
+          {celebrating ? <BubbleCelebration onDone={() => setCelebrating(false)} /> : null}
         </View>
       </>
     );
@@ -230,6 +230,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   text: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.body,
     color: colors.secondary,
     textAlign: "center",

@@ -11,9 +11,9 @@ import { StyleSheet, View } from "react-native";
 
 import { useAnalysedItemReview } from "@core/hooks/useAnalysedItemReview.js";
 import { useWardrobeItemForm } from "@core/hooks/useWardrobeItemForm.js";
-import { spacing } from "@core/theme/tokens.js";
 import { WARDROBE_KINDS } from "@core/wardrobe/itemKinds.js";
 
+import { spacing } from "../../theme/tokens";
 import { Button, FieldRow, ImageTile, Message, TextField } from "../ui";
 import {
   ColoursField,

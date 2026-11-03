@@ -6,6 +6,7 @@ import {
   readSession,
   saveSession,
   saveSessionEmail,
+  saveSessionFirstName,
 } from "../auth/session.js";
 import { checkNeedsStyleQuiz } from "../auth/styleQuizStatus.js";
 
@@ -18,12 +19,14 @@ import { checkNeedsStyleQuiz } from "../auth/styleQuizStatus.js";
  * true (show a loading / splash screen until then). A token the server
  * rejects is cleared. If the server can't be reached at all, the saved
  * login is kept - the screens will show their own load errors - so
- * opening the app offline doesn't log you out.
+ * opening the app offline doesn't log you out. `firstName` is for the
+ * greeting: "" for an account without one.
  */
 export const useAuthSession = () => {
   const [isCheckingToken, setIsCheckingToken] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
   const [needsStyleQuiz, setNeedsStyleQuiz] = useState(false);
 
   const refreshStyleQuizStatus = useCallback(async () => {
@@ -37,7 +40,7 @@ export const useAuthSession = () => {
   /* -------------------- RESTORE SESSION -------------------- */
   useEffect(() => {
     const restoreSession = async () => {
-      const { token, email } = readSession();
+      const { token, email, firstName: savedFirstName } = readSession();
 
       if (!token) {
         setIsCheckingToken(false);
@@ -51,6 +54,12 @@ export const useAuthSession = () => {
         saveSessionEmail(verifiedEmail);
         setUserEmail(verifiedEmail);
 
+        // An older server sends no name: keep the saved one.
+        const verifiedFirstName = data.firstName ?? savedFirstName;
+
+        saveSessionFirstName(verifiedFirstName);
+        setFirstName(verifiedFirstName);
+
         await refreshStyleQuizStatus();
 
         setLoggedIn(true);
@@ -61,6 +70,7 @@ export const useAuthSession = () => {
         } else {
           // No answer (offline): carry on with the saved login.
           setUserEmail(email || "");
+          setFirstName(savedFirstName);
           setLoggedIn(true);
         }
       } finally {
@@ -82,12 +92,14 @@ export const useAuthSession = () => {
       }
 
       const signedInEmail = data.email || email;
+      const signedInFirstName = data.firstName || "";
 
-      saveSession(data.token, signedInEmail);
+      saveSession(data.token, signedInEmail, signedInFirstName);
 
       await refreshStyleQuizStatus();
 
       setUserEmail(signedInEmail);
+      setFirstName(signedInFirstName);
       setLoggedIn(true);
     },
     [refreshStyleQuizStatus]
@@ -99,6 +111,7 @@ export const useAuthSession = () => {
 
     setLoggedIn(false);
     setUserEmail("");
+    setFirstName("");
     setNeedsStyleQuiz(false);
   }, []);
 
@@ -110,6 +123,7 @@ export const useAuthSession = () => {
     isCheckingToken,
     loggedIn,
     userEmail,
+    firstName,
     needsStyleQuiz,
     login,
     logout,

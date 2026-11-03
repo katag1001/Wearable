@@ -1,15 +1,11 @@
-// A full-width tappable row with a chevron, for menus like the Profile
-// tab. `destructive` shows it in the error colour (Delete account).
+// A full-width tappable row with an arrow, for menus like the Profile
+// tab. No dividers - rows are spaced; a pressed row nudges right.
+// `destructive` shows it in the error colour (Delete account).
 
 import Feather from "@expo/vector-icons/Feather";
 import { Pressable, StyleSheet, Text } from "react-native";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  spacing,
-} from "@core/theme/tokens.js";
+import { colors, fontWeights, spacing } from "../../theme/tokens";
 
 export const ListRow = ({ label, onPress, destructive = false, chevron = true }) => (
   <Pressable
@@ -21,27 +17,25 @@ export const ListRow = ({ label, onPress, destructive = false, chevron = true })
       {label}
     </Text>
     {chevron ? (
-      <Feather name="chevron-right" size={18} color={colors.muted} />
+      <Feather name="arrow-right" size={18} color={colors.muted} />
     ) : null}
   </Pressable>
 );
 
 const styles = StyleSheet.create({
   row: {
-    minHeight: 52,
+    minHeight: 56,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
   },
   pressed: {
-    opacity: 0.6,
+    transform: [{ translateX: 6 }],
   },
   label: {
-    fontSize: fontSizes.body,
-    fontWeight: fontWeights.medium,
+    fontFamily: fontWeights.regular,
+    fontSize: 17,
     color: colors.main,
   },
   destructive: {

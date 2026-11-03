@@ -1,7 +1,8 @@
-// A summary row: a field's label and value, with a small greyed-out
-// action on the right (e.g. "Change"). `children` show under the row when
-// it's open - e.g. the field's picker. `swatches` (colour hexes) show as
-// small circles before the value.
+// A summary row: a field's label and value, with a small soft action on
+// the right (e.g. "Change"). `children` show under the row when it's open
+// - e.g. the field's picker. `swatches` (colour hexes) show as small
+// circles with a white ring before the value. Rows are separated by space,
+// not lines.
 
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -10,8 +11,10 @@ import {
   fontSizes,
   fontWeights,
   radius,
+  shadows,
   spacing,
-} from "@core/theme/tokens.js";
+} from "../../theme/tokens";
+import { type } from "../../theme/soft";
 
 export const FieldRow = ({
   label,
@@ -51,8 +54,6 @@ export const FieldRow = ({
 const styles = StyleSheet.create({
   field: {
     paddingVertical: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
   },
   row: {
     flexDirection: "row",
@@ -61,43 +62,44 @@ const styles = StyleSheet.create({
   },
   text: {
     flex: 1,
-    gap: 2,
+    gap: spacing.xs,
   },
   label: {
-    fontSize: fontSizes.small,
-    color: colors.secondary,
+    ...type.eyebrow,
   },
   valueRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xs,
+    gap: spacing.sm,
   },
   swatch: {
     width: 16,
     height: 16,
     borderRadius: radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.hoverBorder,
+    borderWidth: 2,
+    borderColor: colors.inverse,
+    boxShadow: shadows.soft,
   },
   value: {
     flexShrink: 1,
-    fontSize: fontSizes.body,
-    fontWeight: fontWeights.medium,
+    fontFamily: fontWeights.regular,
+    fontSize: 16,
     color: colors.main,
   },
   action: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md + 2,
+    paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    backgroundColor: colors.cardBackground,
+    boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
   },
   pressed: {
-    opacity: 0.5,
+    transform: [{ scale: 0.97 }],
   },
   actionLabel: {
+    fontFamily: fontWeights.medium,
     fontSize: fontSizes.small,
-    color: colors.muted,
+    color: colors.secondary,
   },
   content: {
     paddingTop: spacing.sm,

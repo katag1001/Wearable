@@ -8,8 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import { BackHandler, StyleSheet } from "react-native";
 
 import { useOutfitMismatch } from "@core/hooks/useOutfitMismatch.js";
-import { spacing } from "@core/theme/tokens.js";
 
+import { spacing } from "../../theme/tokens";
 import { Message, Screen } from "../ui";
 import { MismatchPicker } from "./MismatchPicker";
 

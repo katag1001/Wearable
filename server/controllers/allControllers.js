@@ -102,7 +102,9 @@ function matchInBackground(item, allItems) {
 
 /* -------------------- AUTH HELPER -------------------- */
 
-exports.verify_token = (req, res) => {
+// Also sends the user's first name, so a session restored on app start
+// has it ("" if the account has none, or the database can't be reached).
+exports.verify_token = async (req, res) => {
 const authHeader = req.headers.authorization;
 
 if (!authHeader) {
@@ -113,23 +115,47 @@ const token = authHeader.startsWith("Bearer ")
 ? authHeader.slice(7)
 : authHeader;
 
+let decoded;
+
 try {
-const decoded = jwt.verify(token, jwt_secret);
-return res.json({ ok: true, decoded });
+decoded = jwt.verify(token, jwt_secret);
 } catch (err) {
 return res.status(401).json({ ok: false, message: "Invalid token" });
 }
+
+let firstName = "";
+
+try {
+const user = await User.findById(decoded.userId).select("firstName").lean();
+firstName = user?.firstName || "";
+} catch (err) {
+console.error("verify_token: couldn't load the first name -", err.message);
+}
+
+return res.json({ ok: true, decoded, firstName });
 };
 
 /* -------------------- USER CONTROLLERS -------------------- */
 
+// The same limit as the User schema's firstName.
+const MAX_FIRST_NAME_LENGTH = 50;
+
 exports.createItemregister = async (req, res) => {
   const { email, password, password2 } = req.body;
+  const firstName =
+    typeof req.body.firstName === "string" ? req.body.firstName.trim() : "";
 
-  if (!email || !password || !password2) {
+  if (!firstName || !email || !password || !password2) {
     return res.status(400).json({
       ok: false,
       message: "All fields required",
+    });
+  }
+
+  if (firstName.length > MAX_FIRST_NAME_LENGTH) {
+    return res.status(400).json({
+      ok: false,
+      message: `First name must be ${MAX_FIRST_NAME_LENGTH} characters or fewer`,
     });
   }
 
@@ -164,6 +190,7 @@ exports.createItemregister = async (req, res) => {
     await User.create({
       email,
       password: hash,
+      firstName,
     });
 
     return res.json({
@@ -280,6 +307,7 @@ return res.json({
   message: "welcome back",
   token,
   email: user.email,
+  firstName: user.firstName || "",
 });
 
 } catch (error) {

@@ -1,16 +1,21 @@
 // A min / max slider with two thumbs (temperature ranges), like the web's
 // temperatureSlider.jsx. The thumbs can't cross. Screen readers can
-// adjust each thumb by one step.
+// adjust each thumb by one step. The chosen range is graded cold to warm
+// (sky → mint → peach) and the thumbs are white bubbles.
 
 import { useRef, useState } from "react";
 import { PanResponder, StyleSheet, Text, View } from "react-native";
+import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 
 import {
   colors,
   fontSizes,
+  fontWeights,
   radius,
+  shadows,
   spacing,
-} from "@core/theme/tokens.js";
+} from "../../theme/tokens";
+import { mid } from "../../theme/soft";
 
 const THUMB = 28;
 
@@ -95,7 +100,18 @@ export const RangeSlider = ({
         onLayout={(event) => setTrackWidth(event.nativeEvent.layout.width)}
       >
         <View style={styles.rail} />
-        <View style={[styles.range, { left, width: right - left }]} />
+        <View style={[styles.range, { left, width: right - left }]}>
+          <Svg width="100%" height="100%">
+            <Defs>
+              <LinearGradient id="rangeTrack" x1="0" y1="0" x2="1" y2="0">
+                <Stop offset="0" stopColor={mid.sky} />
+                <Stop offset="0.5" stopColor={mid.mint} />
+                <Stop offset="1" stopColor={mid.peach} />
+              </LinearGradient>
+            </Defs>
+            <Rect width="100%" height="100%" rx={3} fill="url(#rangeTrack)" />
+          </Svg>
+        </View>
 
         <View
           {...responders.current.min.panHandlers}
@@ -133,15 +149,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   rail: {
-    height: 4,
+    height: 6,
     borderRadius: radius.pill,
-    backgroundColor: colors.border,
+    backgroundColor: colors.imageBackground,
   },
   range: {
     position: "absolute",
-    height: 4,
+    height: 6,
     borderRadius: radius.pill,
-    backgroundColor: colors.main,
+    overflow: "hidden",
   },
   thumb: {
     position: "absolute",
@@ -149,14 +165,14 @@ const styles = StyleSheet.create({
     height: THUMB,
     borderRadius: THUMB / 2,
     backgroundColor: colors.inverse,
-    borderWidth: 2,
-    borderColor: colors.main,
+    boxShadow: `${shadows.lifted}, inset 0px -1px 0px ${mid.lavender}55`,
   },
   values: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
   value: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.small,
     color: colors.secondary,
   },

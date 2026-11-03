@@ -1,7 +1,7 @@
 // Choosing today's outfit: the sorted outfits one at a time, each with its
 // shoes, swiped like cards (next rejects the one being left). Tapping the
-// outfit opens it full screen to change its details. The stars rate it
-// (saved once it's left, or worn - useToday). The heart
+// outfit opens it full screen to change its details (and rate it - no
+// stars on this page for now). The heart
 // wears the outfit and its shoes today (playing onCelebrate), the shoe
 // opens Change shoes (onChangeShoes), the broken heart opens "not this
 // outfit" (onNotThisOutfit - too hot, too cold or a mismatch).
@@ -11,11 +11,9 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
-
 import { handOverOutfit } from "../outfits/outfitHandoff";
-import { StarRating } from "../ui";
-import { ActionButton, ActionRow } from "./ActionButton";
+import { space, type } from "../../theme/soft";
+import { ActionButton } from "./ActionButton";
 import { OutfitImages } from "./OutfitImages";
 import { SwipeDeck } from "./SwipeDeck";
 
@@ -40,6 +38,12 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfi
 
   return (
     <View style={styles.picker}>
+      {/* Only on today's list thanks to its tights range - above the
+          outfit, so the photos can run to the bottom */}
+      {selectedOutfit.withTights ? (
+        <Text style={styles.tights}>Wear with tights</Text>
+      ) : null}
+
       <View style={styles.deck}>
         <SwipeDeck
           enabled={filteredOutfits.length > 1}
@@ -57,25 +61,36 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfi
             style={styles.card}
           >
             {/* Shrinks to fit, so the page never scrolls. */}
-            <OutfitImages match={selectedOutfit.matchId} footwear={selectedShoe} fit />
+            <OutfitImages
+              match={selectedOutfit.matchId}
+              footwear={selectedShoe}
+              fit
+              imageStyle={styles.photo}
+            />
           </Pressable>
         </SwipeDeck>
       </View>
 
-      {/* Only on today's list thanks to its tights range */}
-      {selectedOutfit.withTights ? (
-        <Text style={styles.tights}>Wear with tights</Text>
-      ) : null}
+      {/* Over the bottom of the photos: the two hearts stacked in the
+          bottom left corner, the shoe in the bottom right. Touches between
+          them still reach the outfit (box-none). No stars here for now. */}
+      <View style={styles.actions} pointerEvents="box-none">
+        <View style={styles.hearts}>
+          <ActionButton
+            icon="heart-broken-outline"
+            iconSet={MaterialCommunityIcons}
+            label="Not this outfit"
+            onPress={onNotThisOutfit}
+          />
+          <ActionButton
+            icon="heart-outline"
+            iconSet={MaterialCommunityIcons}
+            label="Wear this outfit today"
+            onPress={wear}
+            loading={today.wearing}
+          />
+        </View>
 
-      <StarRating rating={today.selectedRating} onChange={today.rateSelected} />
-
-      <ActionRow>
-        <ActionButton
-          icon="heart-broken-outline"
-          iconSet={MaterialCommunityIcons}
-          label="Not this outfit"
-          onPress={onNotThisOutfit}
-        />
         {today.footwear.hasFootwear ? (
           <ActionButton
             icon="shoe-sneaker"
@@ -85,13 +100,7 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfi
             small
           />
         ) : null}
-        <ActionButton
-          icon="heart"
-          label="Wear this outfit today"
-          onPress={wear}
-          loading={today.wearing}
-        />
-      </ActionRow>
+      </View>
     </View>
   );
 };
@@ -99,24 +108,43 @@ export const OutfitPicker = ({ today, onCelebrate, onChangeShoes, onNotThisOutfi
 const styles = StyleSheet.create({
   picker: {
     flex: 1,
-    gap: spacing.lg,
+    gap: space.sm,
   },
   deck: {
     flex: 1,
     justifyContent: "center",
   },
+  // No box: the outfit sits straight on the page's white middle.
   card: {
     flex: 1,
   },
+  // The photos have their backgrounds removed; no tile behind them.
+  photo: {
+    backgroundColor: "transparent",
+  },
+  actions: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: space.sm,
+    // Above the swipe deck's side arrows (zIndex / elevation 1), which run
+    // the full height of the outfit and would otherwise take the taps.
+    zIndex: 2,
+    elevation: 2,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+  },
+  hearts: {
+    gap: space.sm,
+  },
   tights: {
-    fontSize: fontSizes.body,
-    color: colors.secondary,
+    ...type.eyebrow,
     textAlign: "center",
   },
   empty: {
-    fontSize: fontSizes.body,
-    color: colors.secondary,
+    ...type.body,
     textAlign: "center",
-    paddingVertical: spacing.xl,
+    paddingVertical: space.lg,
   },
 });

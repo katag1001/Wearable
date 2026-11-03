@@ -6,7 +6,7 @@ import { getErrorMessage } from "@core/api/errors.js";
 
 import { Button, Message, Screen, TextField } from "../../components/ui";
 
-const emptyForm = { email: "", password: "", password2: "" };
+const emptyForm = { firstName: "", email: "", password: "", password2: "" };
 
 // Like the web: on success the form clears and the user logs in.
 export default function RegisterScreen() {
@@ -17,14 +17,19 @@ export default function RegisterScreen() {
   const updateField = (name) => (value) =>
     setForm((prev) => ({ ...prev, [name]: value }));
 
-  const canSubmit = form.email.trim() && form.password && form.password2;
+  const canSubmit =
+    form.firstName.trim() && form.email.trim() && form.password && form.password2;
 
   const handleRegister = async () => {
     setMessage({ text: "", type: "error" });
     setSubmitting(true);
 
     try {
-      const data = await register({ ...form, email: form.email.trim() });
+      const data = await register({
+        ...form,
+        firstName: form.firstName.trim(),
+        email: form.email.trim(),
+      });
 
       setMessage({ text: data.message, type: data.ok ? "success" : "error" });
 
@@ -50,6 +55,15 @@ export default function RegisterScreen() {
     >
       <Message text={message.text} type={message.type} />
 
+      <TextField
+        label="First name"
+        value={form.firstName}
+        onChangeText={updateField("firstName")}
+        autoCapitalize="words"
+        autoComplete="given-name"
+        textContentType="givenName"
+        maxLength={50}
+      />
       <TextField
         label="Email"
         value={form.email}

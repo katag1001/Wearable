@@ -2,12 +2,7 @@
 
 import { StyleSheet, Text, View } from "react-native";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  spacing,
-} from "@core/theme/tokens.js";
+import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
 
 // Without a title, the description sits on the row with `right`.
 export const SectionTitle = ({ title, description, right }) => {
@@ -29,7 +24,7 @@ export const SectionTitle = ({ title, description, right }) => {
 const styles = StyleSheet.create({
   section: {
     gap: spacing.xs,
-    marginTop: spacing.md,
+    marginTop: spacing.lg,
   },
   row: {
     flexDirection: "row",
@@ -37,12 +32,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   title: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.sectionTitle,
-    fontWeight: fontWeights.semibold,
+    lineHeight: 26,
     color: colors.main,
   },
   description: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.small,
+    lineHeight: 19,
     color: colors.secondary,
   },
 });

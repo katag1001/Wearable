@@ -8,8 +8,7 @@ import {
   fontWeights,
   radius,
   spacing,
-} from "@core/theme/tokens.js";
-
+} from "../../theme/tokens";
 import { Button } from "../ui";
 
 export const SelectionBar = ({ count, onClear, onDelete }) => (
@@ -33,7 +32,7 @@ const styles = StyleSheet.create({
   count: {
     flex: 1,
     fontSize: fontSizes.body,
-    fontWeight: fontWeights.medium,
+    fontFamily: fontWeights.medium,
     color: colors.main,
   },
 });

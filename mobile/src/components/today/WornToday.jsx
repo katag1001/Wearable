@@ -1,14 +1,14 @@
 // The outfit worn today with its shoes, all the same size, filling the
-// page. Underneath: "Change outfit" (bottom left) goes back to choosing,
-// the shoe (bottom right) opens the shoe panel (onChangeShoes).
+// page. Underneath: "Change outfit" (bottom left) goes back to
+// choosing, the shoe (bottom right) opens the shoe panel (onChangeShoes).
 // Logic: useTodayLook (`today`).
 
 import Feather from "@expo/vector-icons/Feather";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
-import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
-
+import { PressableScale } from "../soft";
+import { ink, space, type } from "../../theme/soft";
 import { ActionButton } from "./ActionButton";
 import { OutfitImages } from "./OutfitImages";
 
@@ -17,19 +17,26 @@ export const WornToday = ({ today, onChangeShoes }) => {
 
   return (
     <View style={styles.fill}>
-      <OutfitImages match={outfit?.matchId} footwear={today.wornShoe} fit />
+      <View style={styles.card}>
+        <OutfitImages
+          match={outfit?.matchId}
+          footwear={today.wornShoe}
+          fit
+          imageStyle={styles.photo}
+        />
+      </View>
 
       <View style={styles.buttons}>
-        <Pressable
+        <PressableScale
           onPress={today.showOutfitPicker}
           accessibilityRole="button"
           accessibilityLabel="Change outfit"
           hitSlop={8}
-          style={({ pressed }) => [styles.changeOutfit, pressed && styles.pressed]}
+          style={styles.changeOutfit}
         >
-          <Feather name="chevron-left" size={18} color={colors.secondary} />
+          <Feather name="arrow-left" size={16} color={ink.main} />
           <Text style={styles.changeOutfitText}>Change outfit</Text>
-        </Pressable>
+        </PressableScale>
 
         {today.footwear.hasFootwear ? (
           <ActionButton
@@ -48,7 +55,15 @@ export const WornToday = ({ today, onChangeShoes }) => {
 const styles = StyleSheet.create({
   fill: {
     flex: 1,
-    gap: spacing.lg,
+    gap: space.md,
+  },
+  // No box: the outfit sits straight on the page's white middle.
+  card: {
+    flex: 1,
+  },
+  // The photos have their backgrounds removed; no tile behind them.
+  photo: {
+    backgroundColor: "transparent",
   },
   buttons: {
     flexDirection: "row",
@@ -58,13 +73,9 @@ const styles = StyleSheet.create({
   changeOutfit: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 2,
+    gap: space.xs,
   },
   changeOutfitText: {
-    fontSize: fontSizes.body,
-    color: colors.secondary,
-  },
-  pressed: {
-    opacity: 0.5,
+    ...type.label,
   },
 });

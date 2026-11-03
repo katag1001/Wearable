@@ -4,8 +4,8 @@
 import { StyleSheet, Text } from "react-native";
 
 import { pairingAnswerOptions } from "@core/constants/pairingQuestions.js";
-import { colors, fontSizes } from "@core/theme/tokens.js";
 
+import { colors, fontSizes, fontWeights } from "../../theme/tokens";
 import { ChoiceCard, Grid, ImageTile } from "../ui";
 import { QuizActions } from "./QuizActions";
 
@@ -43,6 +43,7 @@ export const PairingStep = ({ quiz }) => {
 
 const styles = StyleSheet.create({
   question: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.body,
     color: colors.main,
   },

@@ -1,26 +1,43 @@
-// The bottom tabs: Today / Wardrobe / Outfits / Profile (the web header's
-// Home / Clothes / Matches / User).
+// The bottom tabs: Today / Wardrobe / Outfits (the web header's Home /
+// Clothes / Matches) and + (add an item or build an outfit). Profile is
+// the person button on Today. In the soft look: a milk bar with no border,
+// a faint shadow above, and the active tab on a lavender bubble.
 
-import Feather from "@expo/vector-icons/Feather";
 import { Tabs } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors, fontSizes, fontWeights } from "@core/theme/tokens.js";
+import { tabIcon } from "../../components/soft";
+import { fonts, ink, surface } from "../../theme/soft";
 
-const tabIcon =
-  (name) =>
-  ({ color, size }) => <Feather name={name} size={size} color={color} />;
+// Taller than the default bar (49), so the icon pill and the Inter labels
+// have room. The phone's bottom inset is added on top.
+const BAR_HEIGHT = 62;
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.main,
-        tabBarInactiveTintColor: colors.muted,
-        tabBarStyle: { borderTopColor: colors.border },
+        tabBarActiveTintColor: ink.main,
+        tabBarInactiveTintColor: ink.muted,
+        tabBarStyle: {
+          height: BAR_HEIGHT + insets.bottom,
+          paddingTop: 8,
+          backgroundColor: surface.milk,
+          borderTopWidth: 0,
+          elevation: 0,
+          boxShadow: "0px -6px 24px rgba(46, 40, 56, 0.04)",
+        },
         tabBarLabelStyle: {
-          fontSize: fontSizes.tag,
-          fontWeight: fontWeights.medium,
+          fontFamily: fonts.medium,
+          fontSize: 11,
+          letterSpacing: 0.3,
+          // Inter sits taller than the system font the bar is sized for;
+          // a fixed line and a little space below lift it clear.
+          lineHeight: 14,
+          marginBottom: 3,
         },
       }}
     >
@@ -37,8 +54,8 @@ export default function TabsLayout() {
         options={{ title: "Outfits", tabBarIcon: tabIcon("layers") }}
       />
       <Tabs.Screen
-        name="profile"
-        options={{ title: "Profile", tabBarIcon: tabIcon("user") }}
+        name="create"
+        options={{ title: "Add", tabBarIcon: tabIcon("plus") }}
       />
     </Tabs>
   );

@@ -15,8 +15,8 @@ export const SessionProvider = ({ children }) => {
   return <SessionContext value={session}>{children}</SessionContext>;
 };
 
-// { isCheckingToken, loggedIn, userEmail, needsStyleQuiz, login, logout,
-//   completeStyleQuiz }
+// { isCheckingToken, loggedIn, userEmail, firstName, needsStyleQuiz, login,
+//   logout, completeStyleQuiz }
 export const useSession = () => {
   const session = use(SessionContext);
 

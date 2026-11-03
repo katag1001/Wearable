@@ -4,7 +4,8 @@
 // and a fuller one wraps; a lone item is full width. `match` is a
 // populated match. `fit`: fill the height it's given and shrink the photos
 // so the whole outfit fits inside it. `footwear`: a shoe shown on the
-// bottoms row (withShoes), the same size as the clothes.
+// bottoms row (withShoes), the same size as the clothes. `imageStyle`
+// adds to each photo's style (e.g. its background).
 //
 // The photos get exact pixel sizes from the measured row width: a
 // percentage width + aspectRatio inside a wrapping row in a scroll view
@@ -14,9 +15,10 @@ import { useState } from "react";
 import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 
-import { colors, radius, spacing } from "@core/theme/tokens.js";
 import { outfitRows } from "@core/today/outfitRows.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
+
+import { colors, radius, spacing } from "../../theme/tokens";
 
 const PHOTO_ASPECT = 4 / 3; // height / width
 const PHOTO_SCALE = 0.95;
@@ -40,7 +42,7 @@ const withShoes = (rows, clothes, shoes, columns) => {
   return [...rows.slice(0, -1), lowerWithShoes];
 };
 
-export const OutfitImages = ({ match, footwear, fit = false }) => {
+export const OutfitImages = ({ match, footwear, fit = false, imageStyle }) => {
   const [size, setSize] = useState({ width: 0, height: 0 });
   const rowWidth = size.width;
 
@@ -80,6 +82,7 @@ export const OutfitImages = ({ match, footwear, fit = false }) => {
                 source={{ uri: getImageUrl(item.imageUrl, 800) }}
                 style={[
                   styles.image,
+                  imageStyle,
                   { width: photoWidth, height: photoWidth * PHOTO_ASPECT },
                 ]}
                 contentFit="contain"

@@ -1,12 +1,18 @@
-// The round icon buttons under a swipe deck (heart, bin, shoe). `active`
-// fills it in - e.g. the heart for what's already worn today. `small`: a
-// lesser action, sat between the big ones. `iconSet`: an @expo/vector-icons
-// set (Feather by default).
+// The round icon buttons under a swipe deck (heart, broken heart, shoe):
+// the icon in soft ink on a plain translucent white circle with a faint
+// shadow - no rim or highlight. `active` fills it in blush - e.g. the
+// heart for what's already worn today.
+// `small`: a lesser action, sat between the big ones. `iconSet`: an
+// @expo/vector-icons set (Feather by default).
 
 import Feather from "@expo/vector-icons/Feather";
-import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
-import { colors, spacing } from "@core/theme/tokens.js";
+import { PressableScale } from "../soft";
+import { deep, ink, shadows, space, surface, wash } from "../../theme/soft";
+
+const SIZE = 60;
+const SMALL_SIZE = 46;
 
 export const ActionButton = ({
   icon,
@@ -17,28 +23,28 @@ export const ActionButton = ({
   small = false,
   iconSet: Icon = Feather,
 }) => {
-  const iconColor = active ? colors.inverse : colors.main;
+  const size = small ? SMALL_SIZE : SIZE;
+  const iconColor = active ? deep.blush : ink.soft;
 
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       disabled={loading}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected: Boolean(active) }}
-      style={({ pressed }) => [
+      style={[
         styles.button,
-        small && styles.small,
+        { width: size, height: size, borderRadius: size / 2 },
         active && styles.active,
-        pressed && styles.pressed,
       ]}
     >
       {loading ? (
         <ActivityIndicator color={iconColor} />
       ) : (
-        <Icon name={icon} size={small ? 22 : 28} color={iconColor} />
+        <Icon name={icon} size={small ? 22 : 27} color={iconColor} />
       )}
-    </Pressable>
+    </PressableScale>
   );
 };
 
@@ -51,25 +57,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: spacing.xxl,
+    gap: space.xl,
   },
   button: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.imageBackground,
-  },
-  small: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
+    backgroundColor: surface.veil,
+    boxShadow: shadows.soft,
   },
   active: {
-    backgroundColor: colors.main,
-  },
-  pressed: {
-    opacity: 0.6,
+    backgroundColor: wash.blush,
   },
 });

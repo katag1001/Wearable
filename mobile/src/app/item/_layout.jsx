@@ -2,17 +2,10 @@
 
 import { Stack } from "expo-router";
 
-import { colors, fontWeights } from "@core/theme/tokens.js";
+import { softHeader } from "../../components/soft";
 
 export default function ItemLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerTintColor: colors.main,
-        headerShadowVisible: false,
-        headerTitleStyle: { fontWeight: fontWeights.semibold },
-        headerStyle: { backgroundColor: colors.pageBackground },
-      }}
-    />
+    <Stack screenOptions={softHeader} />
   );
 }

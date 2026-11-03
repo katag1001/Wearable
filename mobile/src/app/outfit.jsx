@@ -19,8 +19,8 @@ import { deleteMatches } from "@core/api/matches.js";
 import { getErrorMessage } from "@core/api/errors.js";
 import { useMatchCard } from "@core/hooks/useMatchCard.js";
 import { buildMatchUpdate } from "@core/matches/matchFields.js";
-import { colors, radius, spacing } from "@core/theme/tokens.js";
 
+import { colors, radius, shadows, spacing } from "../theme/tokens";
 import { OutfitDetails } from "../components/outfits/OutfitDetails";
 import { OutfitMismatch } from "../components/outfits/OutfitMismatch";
 import {
@@ -217,11 +217,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing.sm,
   },
-  // Matches FavouriteHeart's background.
+  // Matches FavouriteHeart's circle.
   brokenHeart: {
-    padding: spacing.xs,
+    padding: spacing.xs + 2,
     borderRadius: radius.pill,
-    backgroundColor: colors.pageBackground,
+    backgroundColor: colors.cardBackground,
+    boxShadow: shadows.soft,
   },
   actions: {
     flexDirection: "row",

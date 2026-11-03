@@ -1,6 +1,7 @@
-// A panel that slides up from the bottom over a dimmed screen (filters).
-// Tapping the dimmed area or the cross closes it. `footer` stays pinned
-// under the scrolling content.
+// A panel that slides up from the bottom over a dimmed screen (filters):
+// milk, with big rounded corners and a grab handle, over a light
+// plum-tinted backdrop. Tapping the dimmed area or the cross closes it.
+// `footer` stays pinned under the scrolling content.
 
 import Feather from "@expo/vector-icons/Feather";
 import {
@@ -15,11 +16,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   colors,
-  fontSizes,
   fontWeights,
   radius,
+  shadows,
   spacing,
-} from "@core/theme/tokens.js";
+} from "../../theme/tokens";
 
 export const Sheet = ({ visible, title, onClose, footer, children }) => {
   const insets = useSafeAreaInsets();
@@ -39,6 +40,8 @@ export const Sheet = ({ visible, title, onClose, footer, children }) => {
         />
 
         <View style={[styles.panel, { paddingBottom: insets.bottom + spacing.md }]}>
+          <View style={styles.handle} />
+
           <View style={styles.header}>
             <Text style={styles.title}>{title}</Text>
             <Pressable
@@ -47,7 +50,7 @@ export const Sheet = ({ visible, title, onClose, footer, children }) => {
               accessibilityLabel="Close"
               hitSlop={12}
             >
-              <Feather name="x" size={22} color={colors.main} />
+              <Feather name="x" size={22} color={colors.muted} />
             </Pressable>
           </View>
 
@@ -74,19 +77,31 @@ const styles = StyleSheet.create({
   panel: {
     maxHeight: "85%",
     backgroundColor: colors.pageBackground,
-    borderTopLeftRadius: radius.lg * 2,
-    borderTopRightRadius: radius.lg * 2,
+    borderTopLeftRadius: 36,
+    borderTopRightRadius: 36,
+    borderCurve: "continuous",
+    boxShadow: shadows.lifted,
+  },
+  handle: {
+    alignSelf: "center",
+    width: 40,
+    height: 5,
+    marginTop: spacing.md,
+    borderRadius: radius.pill,
+    backgroundColor: colors.imageBackground,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     padding: spacing.xl,
+    paddingTop: spacing.md,
     paddingBottom: spacing.md,
   },
   title: {
-    fontSize: fontSizes.sectionTitle,
-    fontWeight: fontWeights.semibold,
+    fontFamily: fontWeights.light,
+    fontSize: 24,
+    lineHeight: 30,
     color: colors.main,
   },
   content: {

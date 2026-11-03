@@ -4,7 +4,7 @@
 import { Children } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { spacing } from "@core/theme/tokens.js";
+import { spacing } from "../../theme/tokens";
 
 export const Grid = ({ columns = 2, gap = spacing.md, children }) => (
   <View style={[styles.grid, { marginHorizontal: -gap / 2 }]}>

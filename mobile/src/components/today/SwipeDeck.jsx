@@ -18,7 +18,8 @@ import {
   View,
 } from "react-native";
 
-import { colors, spacing } from "@core/theme/tokens.js";
+import { spacing } from "../../theme/tokens";
+import { ink } from "../../theme/soft";
 
 // How far (px) or fast (px/ms) a drag must go to count as a swipe.
 const SWIPE_DISTANCE = 90;
@@ -49,7 +50,7 @@ const Arrow = ({ name, label, onPress, hidden }) => (
     <Feather
       name={name}
       size={ARROW_SIZE}
-      color={colors.muted}
+      color={ink.muted}
       style={styles.chevron}
     />
   </Pressable>

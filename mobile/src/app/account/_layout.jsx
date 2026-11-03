@@ -2,17 +2,14 @@
 
 import { Stack } from "expo-router";
 
-import { colors, fontWeights } from "@core/theme/tokens.js";
+import { softHeader } from "../../components/soft";
 
 export default function AccountLayout() {
   return (
     <Stack
       screenOptions={{
-        headerTintColor: colors.main,
-        headerShadowVisible: false,
+        ...softHeader,
         headerBackTitle: "Profile",
-        headerTitleStyle: { fontWeight: fontWeights.semibold },
-        headerStyle: { backgroundColor: colors.pageBackground },
       }}
     >
       <Stack.Screen name="weekly" options={{ title: "Weekly preferences" }} />

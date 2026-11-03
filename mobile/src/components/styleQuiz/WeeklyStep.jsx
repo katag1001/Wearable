@@ -5,8 +5,8 @@ import { StyleSheet, Text } from "react-native";
 
 import { tagOptions } from "@core/constants/optionsBank.js";
 import { useWeekTagPicker } from "@core/hooks/useWeekTagPicker.js";
-import { colors, fontSizes, fontWeights } from "@core/theme/tokens.js";
 
+import { colors, fontSizes, fontWeights } from "../../theme/tokens";
 import { Chip, ChipRow } from "../ui";
 import { WeekDayRow } from "../week/WeekDayRow";
 import { QuizActions } from "./QuizActions";
@@ -44,7 +44,7 @@ export const WeeklyStep = ({ quiz }) => {
 const styles = StyleSheet.create({
   activeDay: {
     fontSize: fontSizes.body,
-    fontWeight: fontWeights.semibold,
+    fontFamily: fontWeights.semibold,
     color: colors.main,
   },
 });

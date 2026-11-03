@@ -1,6 +1,8 @@
-// A labelled text input. Any TextInput prop (secureTextEntry,
-// keyboardType, autoComplete...) passes straight through.
+// A labelled text input: a small spaced-capitals label over a soft white
+// field with no border, glowing lavender while focused. Any TextInput prop
+// (secureTextEntry, keyboardType, autoComplete...) passes straight through.
 
+import { useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 
 import {
@@ -9,36 +11,52 @@ import {
   fontWeights,
   radius,
   spacing,
-} from "@core/theme/tokens.js";
+} from "../../theme/tokens";
+import { mid, type } from "../../theme/soft";
 
-export const TextField = ({ label, style, ...inputProps }) => (
-  <View style={[styles.field, style]}>
-    {label ? <Text style={styles.label}>{label}</Text> : null}
-    <TextInput
-      style={styles.input}
-      placeholderTextColor={colors.muted}
-      accessibilityLabel={label}
-      {...inputProps}
-    />
-  </View>
-);
+export const TextField = ({ label, style, onFocus, onBlur, ...inputProps }) => {
+  const [focused, setFocused] = useState(false);
+
+  return (
+    <View style={[styles.field, style]}>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
+      <TextInput
+        style={[styles.input, focused && styles.focused]}
+        placeholderTextColor={colors.muted}
+        accessibilityLabel={label}
+        onFocus={(event) => {
+          setFocused(true);
+          onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          setFocused(false);
+          onBlur?.(event);
+        }}
+        {...inputProps}
+      />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   field: {
-    gap: spacing.xs,
+    gap: spacing.sm,
   },
   label: {
-    fontSize: fontSizes.small,
-    fontWeight: fontWeights.medium,
-    color: colors.secondary,
+    ...type.eyebrow,
   },
   input: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
+    borderCurve: "continuous",
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.md + 2,
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.body,
     color: colors.main,
+    backgroundColor: "rgba(255, 255, 255, 0.78)",
+    boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
+  },
+  focused: {
+    boxShadow: `0px 0px 0px 3px ${mid.lavender}66, 0px 8px 22px ${mid.lavender}40`,
   },
 });

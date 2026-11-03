@@ -4,9 +4,10 @@
 // so existing web sessions and caches carry on working.
 
 export const STORAGE_KEYS = {
-  // The login token and the logged-in user's email.
+  // The login token, the logged-in user's email and first name.
   token: "token",
   user: "user",
+  firstName: "first_name",
 
   // Today's forecast + location (core/weather/weatherCache.js).
   weather: "weather_cache",

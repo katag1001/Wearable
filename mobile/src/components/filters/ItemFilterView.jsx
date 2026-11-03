@@ -10,14 +10,16 @@ import {
   ITEM_CATEGORIES,
   ITEM_CATEGORY_LABELS,
 } from "@core/filters/filterDefaults.js";
+import { getImageUrl } from "@core/utils/getImageUrl.js";
+
 import {
   colors,
   fontSizes,
+  fontWeights,
   radius,
   spacing,
-} from "@core/theme/tokens.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
-
+} from "../../theme/tokens";
+import { SelectionHalo } from "../soft";
 import { SectionTitle, TextField } from "../ui";
 
 const Arrow = ({ name, label, onPress, disabled }) => (
@@ -29,7 +31,7 @@ const Arrow = ({ name, label, onPress, disabled }) => (
     hitSlop={8}
     style={[styles.arrow, disabled && styles.disabled]}
   >
-    <Feather name={name} size={22} color={colors.main} />
+    <Feather name={name} size={22} color={colors.muted} />
   </Pressable>
 );
 
@@ -63,8 +65,9 @@ export const ItemFilterView = ({ panel }) => (
                 onPress={() => panel.toggleCategoryItem(category, item)}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
-                style={[styles.item, selected && styles.selected]}
+                style={styles.item}
               >
+                {selected ? <SelectionHalo radius={radius.lg} /> : null}
                 <Image
                   source={item.imageUrl ? getImageUrl(item.imageUrl, 200) : null}
                   style={styles.image}
@@ -112,22 +115,20 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     padding: spacing.sm,
     borderRadius: radius.lg,
-    borderWidth: 2,
-    borderColor: "transparent",
+    borderCurve: "continuous",
     backgroundColor: colors.itemBackground,
-  },
-  selected: {
-    borderColor: colors.main,
   },
   image: {
     width: 96,
     height: 96,
   },
   name: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.small,
     color: colors.main,
   },
   empty: {
+    fontFamily: fontWeights.regular,
     textAlign: "center",
     paddingVertical: spacing.xl,
     fontSize: fontSizes.small,

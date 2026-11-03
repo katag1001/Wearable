@@ -4,8 +4,7 @@
 
 import { StyleSheet, View } from "react-native";
 
-import { spacing } from "@core/theme/tokens.js";
-
+import { spacing } from "../../theme/tokens";
 import { Button, Message, TextField } from "../ui";
 import { ItemDetailsPage } from "./ItemDetailsPage";
 import { PhotoPicker } from "./PhotoPicker";

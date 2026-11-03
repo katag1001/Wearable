@@ -23,13 +23,14 @@ import { seasonOptions } from "@core/constants/optionsBank.js";
 import { useAccumulatedPages } from "@core/hooks/useAccumulatedPages.js";
 import { useMatchSelection } from "@core/hooks/useMatchSelection.js";
 import { useMatchesPage } from "@core/hooks/useMatchesPage.js";
+
 import {
   colors,
   fontSizes,
   fontWeights,
+  radius,
   spacing,
-} from "@core/theme/tokens.js";
-
+} from "../../theme/tokens";
 import { FilterSheet } from "../filters/FilterSheet";
 import { Button, Chip, ChipRow, EmptyState, Message, TextField } from "../ui";
 import { OutfitCard } from "./OutfitCard";
@@ -177,7 +178,7 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
 
       {outfits.waitingForNewMatch ? (
         <EmptyState title="Finding your new matches...">
-          <ActivityIndicator color={colors.main} />
+          <ActivityIndicator color={colors.muted} />
         </EmptyState>
       ) : (
         <FlatList
@@ -206,7 +207,7 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
           }
           ListEmptyComponent={
             list.isFirstLoad ? (
-              <ActivityIndicator color={colors.main} style={styles.spinner} />
+              <ActivityIndicator color={colors.muted} style={styles.spinner} />
             ) : outfits.data?.total === 0 ? (
               <EmptyState
                 title="No outfits yet"
@@ -227,7 +228,7 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
           }
           ListFooterComponent={
             list.hasMore ? (
-              <ActivityIndicator color={colors.main} style={styles.spinner} />
+              <ActivityIndicator color={colors.muted} style={styles.spinner} />
             ) : null
           }
           keyboardShouldPersistTaps="handled"
@@ -266,12 +267,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fontSizes.title,
-    fontWeight: fontWeights.semibold,
+    fontFamily: fontWeights.light,
+    letterSpacing: -0.3,
     color: colors.main,
   },
   count: {
     fontSize: fontSizes.body,
-    fontWeight: fontWeights.regular,
+    fontFamily: fontWeights.regular,
     color: colors.secondary,
   },
   searchRow: {
@@ -283,11 +285,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   filterButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    width: 50,
+    height: 50,
+    borderRadius: radius.md,
+    borderCurve: "continuous",
+    backgroundColor: "rgba(255, 255, 255, 0.78)",
+    boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -1,14 +1,15 @@
-// Profile tab: the web's /user sidebar as a list. Each preferences screen
-// opens on top (src/app/account/), and both actions confirm first.
+// Profile: the web's /user sidebar as a list, opened from the person
+// button on Today. Each preferences screen opens on top (src/app/account/),
+// and both actions confirm first.
 
 import { router } from "expo-router";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { useDeleteAccount } from "@core/hooks/useDeleteAccount.js";
-import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
 
-import { useSession } from "../../auth/SessionProvider";
-import { ListRow, Loading, Screen } from "../../components/ui";
+import { colors, fontSizes, fontWeights, spacing } from "../theme/tokens";
+import { useSession } from "../auth/SessionProvider";
+import { ListRow, Loading, Screen } from "../components/ui";
 
 export default function ProfileScreen() {
   const { userEmail, logout } = useSession();
@@ -43,7 +44,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <Screen title="Profile">
+    <Screen edges={["bottom"]}>
       <Text style={styles.email}>{userEmail}</Text>
 
       <View>
@@ -73,6 +74,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   email: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.body,
     color: colors.secondary,
   },

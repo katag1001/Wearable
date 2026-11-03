@@ -7,8 +7,8 @@ import {
   seasonalityQuestion,
   seasonalityScale,
 } from "@core/constants/styleQuizOptions.js";
-import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
 
+import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
 import { SegmentedControl } from "../ui";
 
 const OPTIONS = seasonalityScale.map((point) => ({ key: String(point), label: String(point) }));
@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   hint: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.small,
     color: colors.secondary,
   },
@@ -41,6 +42,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   label: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.small,
     color: colors.secondary,
   },

@@ -6,9 +6,9 @@ import { router, useLocalSearchParams } from "expo-router";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { colors } from "@core/theme/tokens.js";
-
+import { colors } from "../../theme/tokens";
 import { OutfitsList } from "../../components/outfits/OutfitsList";
+import { Atmosphere } from "../../components/soft";
 
 export default function OutfitsScreen() {
   const { item, processing } = useLocalSearchParams();
@@ -16,6 +16,8 @@ export default function OutfitsScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={["top"]}>
+      <Atmosphere />
+
       <OutfitsList
         key={itemFilter ?? "all"}
         itemFilter={itemFilter}

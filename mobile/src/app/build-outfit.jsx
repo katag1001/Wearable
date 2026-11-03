@@ -23,15 +23,16 @@ import {
   ITEM_CATEGORY_LABELS,
 } from "@core/filters/filterDefaults.js";
 import { useCreateMatch } from "@core/hooks/useCreateMatch.js";
+import { getImageUrl } from "@core/utils/getImageUrl.js";
+
 import {
   colors,
   fontSizes,
   fontWeights,
   radius,
+  shadows,
   spacing,
-} from "@core/theme/tokens.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
-
+} from "../theme/tokens";
 import {
   Button,
   Chip,
@@ -41,6 +42,7 @@ import {
   TextField,
 } from "../components/ui";
 import { markOutfitsChanged } from "../components/outfits/outfitsChanged";
+import { Atmosphere } from "../components/soft";
 
 const COLUMNS = 3;
 
@@ -76,6 +78,8 @@ export default function BuildOutfitScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={["bottom"]}>
+      <Atmosphere />
+
       <Stack.Screen options={{ title: "Build an outfit" }} />
 
       <View style={styles.header}>
@@ -104,7 +108,7 @@ export default function BuildOutfitScreen() {
                     hitSlop={8}
                     style={styles.remove}
                   >
-                    <Feather name="x" size={12} color={colors.inverse} />
+                    <Feather name="x" size={12} color={colors.main} />
                   </Pressable>
                 </View>
               ))}
@@ -153,7 +157,7 @@ export default function BuildOutfitScreen() {
         )}
         ListEmptyComponent={
           builder.loading ? (
-            <ActivityIndicator color={colors.main} style={styles.spinner} />
+            <ActivityIndicator color={colors.muted} style={styles.spinner} />
           ) : (
             <EmptyState title="No items found." />
           )
@@ -184,10 +188,11 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: fontSizes.body,
-    fontWeight: fontWeights.semibold,
+    fontFamily: fontWeights.semibold,
     color: colors.main,
   },
   hint: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.small,
     color: colors.secondary,
   },
@@ -209,10 +214,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -4,
     right: -4,
-    width: 20,
-    height: 20,
+    width: 22,
+    height: 22,
     borderRadius: radius.pill,
-    backgroundColor: colors.main,
+    backgroundColor: colors.inverse,
+    boxShadow: shadows.soft,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -231,7 +237,5 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
   },
 });

@@ -1,21 +1,31 @@
 // The app's boot sequence and top-level navigation.
 //
 // 1. The splash screen stays up while saved data loads from the device
-//    (useStorageReady) and the saved login is checked (useAuthSession).
+//    (useStorageReady), the fonts load and the saved login is checked
+//    (useAuthSession).
 // 2. Then one of three areas opens, decided by Stack.Protected:
 //    logged out -> (auth); logged in but quiz not done -> style-quiz;
 //    otherwise -> (tabs). When the login changes, the router moves to
 //    the area that's now allowed.
 
 import { useEffect } from "react";
+import { FiraCode_500Medium } from "@expo-google-fonts/fira-code";
+import {
+  Inter_300Light,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  useFonts,
+} from "@expo-google-fonts/inter";
+import { InstrumentSerif_400Regular_Italic } from "@expo-google-fonts/instrument-serif";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
 import { configureCore } from "@core/config.js";
-import { colors } from "@core/theme/tokens.js";
 import { PagedCacheProvider } from "@core/cache/PagedCacheProvider.jsx";
 
 import { SessionProvider, useSession } from "../auth/SessionProvider";
+import { softHeader } from "../components/soft";
 import { Button, EmptyState, Screen } from "../components/ui";
 import { API_URL, CLOUD_NAME, UPLOAD_PRESET } from "../platform/config";
 import { storage } from "../platform/storage";
@@ -49,8 +59,18 @@ export function ErrorBoundary({ error, retry }) {
 
 export default function RootLayout() {
   const storageReady = useStorageReady();
+  // The soft look's fonts (theme/soft.js). If they fail to load, the app
+  // carries on with the system font.
+  const [fontsLoaded, fontError] = useFonts({
+    Inter_300Light,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    FiraCode_500Medium,
+    InstrumentSerif_400Regular_Italic,
+  });
 
-  if (!storageReady) {
+  if (!storageReady || (!fontsLoaded && !fontError)) {
     return null;
   }
 
@@ -79,23 +99,31 @@ function RootNavigator() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Protected guard={loggedIn && !needsStyleQuiz}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="profile"
+            options={{
+              headerShown: true,
+              ...softHeader,
+              title: "Profile",
+              headerBackButtonDisplayMode: "minimal",
+            }}
+          />
           <Stack.Screen name="account" />
           <Stack.Screen name="item" options={{ presentation: "modal" }} />
           <Stack.Screen
             name="build-outfit"
             options={{
               headerShown: true,
-              headerTintColor: colors.main,
-              headerShadowVisible: false,
-              headerBackTitle: "Outfits",
+              ...softHeader,
+              // Opened from Outfits and from the + tab: just the arrow.
+              headerBackButtonDisplayMode: "minimal",
             }}
           />
           <Stack.Screen
             name="outfit"
             options={{
               headerShown: true,
-              headerTintColor: colors.main,
-              headerShadowVisible: false,
+              ...softHeader,
             }}
           />
         </Stack.Protected>

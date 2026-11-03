@@ -1,5 +1,6 @@
-// A small rounded toggle: seasons, colours, types, filters. `swatch`
-// shows a colour dot before the label.
+// A small rounded toggle: seasons, colours, types, filters. A translucent
+// white pill; selected, it turns soft lavender with a stronger label.
+// `swatch` shows a colour dot (with a white ring) before the label.
 
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -8,8 +9,10 @@ import {
   fontSizes,
   fontWeights,
   radius,
+  shadows,
   spacing,
-} from "@core/theme/tokens.js";
+} from "../../theme/tokens";
+import { mid } from "../../theme/soft";
 
 export const Chip = ({ label, selected = false, onPress, swatch }) => (
   <Pressable
@@ -35,34 +38,34 @@ const styles = StyleSheet.create({
   chip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xs,
-    paddingHorizontal: spacing.md,
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md + 2,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
     backgroundColor: colors.cardBackground,
+    boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
   },
   selected: {
-    backgroundColor: colors.main,
-    borderColor: colors.main,
+    backgroundColor: `${mid.lavender}80`,
   },
   pressed: {
-    opacity: 0.7,
+    transform: [{ scale: 0.97 }],
   },
   swatch: {
     width: 14,
     height: 14,
     borderRadius: radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.hoverBorder,
+    borderWidth: 2,
+    borderColor: colors.inverse,
+    boxShadow: shadows.soft,
   },
   label: {
+    fontFamily: fontWeights.medium,
     fontSize: fontSizes.small,
-    fontWeight: fontWeights.medium,
-    color: colors.main,
+    color: colors.secondary,
   },
   selectedLabel: {
-    color: colors.inverse,
+    fontFamily: fontWeights.semibold,
+    color: colors.main,
   },
 });

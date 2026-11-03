@@ -6,14 +6,15 @@ import { Image } from "expo-image";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useItemFavourite } from "@core/hooks/useItemFavourite.js";
+import { getImageUrl } from "@core/utils/getImageUrl.js";
+
 import {
   colors,
   fontSizes,
+  fontWeights,
   radius,
   spacing,
-} from "@core/theme/tokens.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
-
+} from "../../theme/tokens";
 import { FavouriteHeart } from "../ui";
 
 const ItemHeart = ({ item, onToggled, onError }) => {
@@ -76,12 +77,13 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   pressed: {
-    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
   },
   image: {
     width: "100%",
     aspectRatio: 5 / 6,
     borderRadius: radius.lg,
+    borderCurve: "continuous",
     backgroundColor: colors.itemBackground,
   },
   heart: {
@@ -90,6 +92,7 @@ const styles = StyleSheet.create({
     right: spacing.sm,
   },
   name: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.small,
     color: colors.main,
   },

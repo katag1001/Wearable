@@ -1,5 +1,6 @@
 // Two or three options side by side, one selected ("All Time" /
-// "This Year"). `options` is [{ key, label }].
+// "This Year"): a soft lavender track with the selected option on a white
+// pill. `options` is [{ key, label }].
 
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -8,8 +9,9 @@ import {
   fontSizes,
   fontWeights,
   radius,
+  shadows,
   spacing,
-} from "@core/theme/tokens.js";
+} from "../../theme/tokens";
 
 export const SegmentedControl = ({ options, value, onChange }) => (
   <View style={styles.control} accessibilityRole="tablist">
@@ -36,25 +38,27 @@ export const SegmentedControl = ({ options, value, onChange }) => (
 const styles = StyleSheet.create({
   control: {
     flexDirection: "row",
-    padding: 3,
+    padding: 4,
     borderRadius: radius.pill,
     backgroundColor: colors.imageBackground,
   },
   segment: {
     flex: 1,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.sm + 1,
     borderRadius: radius.pill,
     alignItems: "center",
   },
   selected: {
-    backgroundColor: colors.main,
+    backgroundColor: colors.inverse,
+    boxShadow: shadows.soft,
   },
   label: {
+    fontFamily: fontWeights.medium,
     fontSize: fontSizes.small,
-    fontWeight: fontWeights.medium,
     color: colors.secondary,
   },
   selectedLabel: {
-    color: colors.inverse,
+    fontFamily: fontWeights.semibold,
+    color: colors.main,
   },
 });

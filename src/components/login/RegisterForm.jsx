@@ -5,6 +5,7 @@ import { getErrorMessage } from '@core/api/errors.js';
 
 const RegisterForm = () => {
   const [form, setForm] = useState({
+    firstName: '',
     email: '',
     password: '',
     password2: '',
@@ -29,6 +30,7 @@ const RegisterForm = () => {
 
       if (data.ok) {
         setForm({
+          firstName: '',
           email: '',
           password: '',
           password2: '',
@@ -47,6 +49,18 @@ const RegisterForm = () => {
       {message && <p>{message}</p>}
 
       <form onSubmit={handleSubmit}>
+        <input
+          name="firstName"
+          type="text"
+          placeholder="First name"
+          value={form.firstName}
+          onChange={handleChange}
+          autoComplete="given-name"
+          maxLength={50}
+          required
+        />
+        <br />
+
         <input
           name="email"
           type="email"

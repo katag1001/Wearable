@@ -22,9 +22,10 @@ import {
   TOO_COLD,
   TOO_HOT,
 } from "@core/today/outfitFeedback.js";
-import { colors, fontSizes, fontWeights, spacing } from "@core/theme/tokens.js";
 
+import { colors, fontWeights, spacing } from "../../theme/tokens";
 import { MismatchPicker } from "../outfits/MismatchPicker";
+import { Atmosphere } from "../soft";
 import { Button } from "../ui";
 
 export const OutfitFeedback = ({ today, onClose }) => {
@@ -69,6 +70,8 @@ export const OutfitFeedback = ({ today, onClose }) => {
         { paddingTop: insets.top + spacing.md, paddingBottom: spacing.md },
       ]}
     >
+      <Atmosphere />
+
       <View style={styles.header}>
         <Text style={styles.title}>{TITLES[feedback.step]}</Text>
         <Pressable
@@ -77,7 +80,7 @@ export const OutfitFeedback = ({ today, onClose }) => {
           accessibilityLabel="Close"
           hitSlop={12}
         >
-          <Feather name="x" size={24} color={colors.main} />
+          <Feather name="x" size={24} color={colors.muted} />
         </Pressable>
       </View>
 
@@ -160,8 +163,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   title: {
-    fontSize: fontSizes.sectionTitle,
-    fontWeight: fontWeights.semibold,
+    fontSize: 24,
+    lineHeight: 30,
+    fontFamily: fontWeights.light,
     color: colors.main,
   },
   options: {

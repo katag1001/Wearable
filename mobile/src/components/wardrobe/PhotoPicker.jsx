@@ -3,9 +3,9 @@
 
 import { Alert, StyleSheet, View } from "react-native";
 
-import { spacing } from "@core/theme/tokens.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
+import { spacing } from "../../theme/tokens";
 import { pickImage } from "../../platform/imagePicker";
 import { Button, ImageTile } from "../ui";
 

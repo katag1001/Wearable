@@ -81,7 +81,9 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   // Whether the outfit picker shows, or just the worn outfit.
   const [showSelector, setShowSelector] = useState(!cachedToday?.wornToday);
 
-  // { title, message } to show after an action, until clearNotice.
+  // { title, message } to show after an action, until clearNotice. The
+  // "marked worn" one also has kind: "worn", so an app with its own
+  // celebration can skip it.
   const [notice, setNotice] = useState(null);
 
   // { matchId, rating }: stars picked for an outfit, not saved yet.
@@ -402,7 +404,7 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
 
       setWornToday(snapshot);
       setShowSelector(false);
-      setNotice({ title: "Success", message: "Marked as worn today!" });
+      setNotice({ kind: "worn", title: "Success", message: "Marked as worn today!" });
       return true;
     } catch (err) {
       setNotice({

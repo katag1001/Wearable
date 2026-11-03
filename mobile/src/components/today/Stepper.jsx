@@ -4,7 +4,8 @@
 import Feather from "@expo/vector-icons/Feather";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
+import { colors, shadows, spacing } from "../../theme/tokens";
+import { type } from "../../theme/soft";
 
 const Arrow = ({ name, label, onPress }) => (
   <Pressable
@@ -14,7 +15,7 @@ const Arrow = ({ name, label, onPress }) => (
     hitSlop={12}
     style={({ pressed }) => [styles.arrow, pressed && styles.pressed]}
   >
-    <Feather name={name} size={24} color={colors.main} />
+    <Feather name={name} size={22} color={colors.secondary} />
   </Pressable>
 );
 
@@ -42,15 +43,14 @@ const styles = StyleSheet.create({
   arrow: {
     padding: spacing.sm,
     borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    backgroundColor: colors.cardBackground,
+    boxShadow: shadows.soft,
   },
   pressed: {
-    opacity: 0.6,
+    transform: [{ scale: 0.97 }],
   },
   position: {
-    fontSize: fontSizes.small,
-    color: colors.secondary,
+    ...type.eyebrow,
     minWidth: 60,
     textAlign: "center",
   },

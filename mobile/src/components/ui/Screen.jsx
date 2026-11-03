@@ -1,6 +1,6 @@
-// The page wrapper every screen uses: safe area, white background,
-// standard padding, optional title, and (by default) scrolling. Keyboard
-// avoiding is built in, so forms don't hide behind the keyboard.
+// The page wrapper every screen uses: the soft Atmosphere behind, safe
+// area, standard padding, optional title, and (by default) scrolling.
+// Keyboard avoiding is built in, so forms don't hide behind the keyboard.
 
 import {
   KeyboardAvoidingView,
@@ -12,7 +12,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { colors, fontSizes, fontWeights, spacing } from "@core/theme/tokens.js";
+import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
+import { Atmosphere } from "../soft/Atmosphere";
 
 export const Screen = ({
   title,
@@ -38,23 +39,27 @@ export const Screen = ({
   ];
 
   return (
-    <SafeAreaView style={styles.screen} edges={edges}>
-      <KeyboardAvoidingView
-        style={styles.screen}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        {scroll ? (
-          <ScrollView
-            contentContainerStyle={[contentStyles, styles.scrollContent]}
-            keyboardShouldPersistTaps="handled"
-          >
-            {content}
-          </ScrollView>
-        ) : (
-          <View style={[contentStyles, styles.fill]}>{content}</View>
-        )}
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    <View style={styles.screen}>
+      <Atmosphere />
+
+      <SafeAreaView style={styles.fill} edges={edges}>
+        <KeyboardAvoidingView
+          style={styles.fill}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          {scroll ? (
+            <ScrollView
+              contentContainerStyle={[contentStyles, styles.scrollContent]}
+              keyboardShouldPersistTaps="handled"
+            >
+              {content}
+            </ScrollView>
+          ) : (
+            <View style={[contentStyles, styles.fill]}>{content}</View>
+          )}
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -63,6 +68,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.pageBackground,
   },
+  fill: {
+    flex: 1,
+  },
   content: {
     padding: spacing.xl,
     gap: spacing.md,
@@ -70,19 +78,20 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
-  fill: {
-    flex: 1,
-  },
   centered: {
     justifyContent: "center",
   },
   title: {
+    fontFamily: fontWeights.light,
     fontSize: fontSizes.title,
-    fontWeight: fontWeights.semibold,
+    lineHeight: 36,
+    letterSpacing: -0.3,
     color: colors.main,
   },
   subtitle: {
+    fontFamily: fontWeights.regular,
     fontSize: fontSizes.body,
+    lineHeight: 22,
     color: colors.secondary,
     marginBottom: spacing.sm,
   },

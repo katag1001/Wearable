@@ -2,7 +2,7 @@
 
 import { api } from "./client.js";
 
-// { ok, token, email } on success; axios throws on a 4xx/5xx.
+// { ok, token, email, firstName } on success; axios throws on a 4xx/5xx.
 export const login = async (email, password) => {
   const response = await api.post("/users/login", { email, password });
 
@@ -10,9 +10,10 @@ export const login = async (email, password) => {
 };
 
 // { ok, message }. password2 is the "confirm password" field, checked on
-// the server.
-export const register = async ({ email, password, password2 }) => {
+// the server. firstName is required (it needn't be unique).
+export const register = async ({ firstName, email, password, password2 }) => {
   const response = await api.post("/users/register", {
+    firstName,
     email,
     password,
     password2,
@@ -28,7 +29,7 @@ export const deleteAccount = async () => {
   return response.data;
 };
 
-// { ok, decoded } for a valid token.
+// { ok, decoded, firstName } for a valid token.
 export const verifyToken = async () => {
   const response = await api.post("/users/verify_token");
 

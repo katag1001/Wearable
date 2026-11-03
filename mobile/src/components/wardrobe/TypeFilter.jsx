@@ -4,12 +4,12 @@
 
 import { View } from "react-native";
 
-import { spacing } from "@core/theme/tokens.js";
 import {
   WARDROBE_TYPES,
   WARDROBE_TYPE_TITLES,
 } from "@core/wardrobe/wardrobeTypes.js";
 
+import { spacing } from "../../theme/tokens";
 import { Chip, ChipRow } from "../ui";
 
 export const TypeFilter = ({ wardrobe }) => {
