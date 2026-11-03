@@ -96,7 +96,13 @@ function RootNavigator() {
   return (
     <PagedCacheProvider loggedIn={loggedIn}>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Protected guard={loggedIn && !needsStyleQuiz}>
+        {/* Opening the app at a page that isn't allowed (e.g. Today, at "/",
+            while logged out) goes to the page that is - otherwise the
+            router finds no page there and shows Unmatched route. */}
+        <Stack.Protected
+          guard={loggedIn && !needsStyleQuiz}
+          redirectTo={loggedIn ? "/style-quiz" : "/login"}
+        >
           {/* Every signed-in page is inside the tabs, so the tab bar is
               always there (app/(tabs)/(today,wardrobe,outfits,create)). */}
           <Stack.Screen name="(tabs)" />
