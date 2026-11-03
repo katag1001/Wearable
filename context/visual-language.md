@@ -170,7 +170,7 @@ the UI - weather uses Feather icons.
   "Marked as worn" alert - the bubble celebration says it (the web keeps
   its popup; the notice carries `kind: "worn"`). Outfit straight on the white middle (no card), bubble action
   row, bubble celebration on wear.
-- **Wardrobe / Outfits** - pearl tile grids with 18px gaps, no card borders.
+- **Wardrobe / Outfits** - Wardrobe: a two-up grid of item photos with room around each, no names. Outfits (2026-11-03): two Pinterest-style columns that stack independently; each outfit sits tops-over-bottoms (as on Today) in a soft white box (the search box fill, `colors.fieldBackground`, no border), items small and centred. Each card goes into the shorter column, in score order, its height worked out before it draws (`outfits/outfitColumns.js`, `outfitCardHeight`).
   Filters in the frosted sheet; select mode shows halos and a floating pearl
   selection bar.
 - **Item add / edit / AI review** - photo large on pearl, fields below as

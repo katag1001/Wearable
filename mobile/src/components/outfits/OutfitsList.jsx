@@ -1,11 +1,12 @@
-// The Outfits tab's content. The list logic is useMatchesPage (shared with
-// the web); pages load as you scroll. Long-press outfits to select several
-// and delete them together.
+// The Outfits tab's content: outfits in two Pinterest-style columns that
+// stack independently (outfitColumns.js). The list logic is useMatchesPage
+// (shared with the web); pages load as you scroll. Long-press outfits to
+// select several and delete them together.
 //
 // `itemFilter` shows only outfits with one item ("View new matches"
 // after adding clothes), waiting for them to be made if `waitForNew`.
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Feather from "@expo/vector-icons/Feather";
 import { router, useFocusEffect } from "expo-router";
 import {
@@ -15,6 +16,7 @@ import {
   Pressable,
   RefreshControl,
   StyleSheet,
+  useWindowDimensions,
   View,
 } from "react-native";
 
@@ -28,12 +30,18 @@ import { space } from "../../theme/soft";
 import { FilterSheet } from "../filters/FilterSheet";
 import { PageHeader } from "../soft";
 import { Button, Chip, ChipRow, EmptyState, Message, TextField } from "../ui";
+import { CARD_GAP, twoColumnWidth } from "../ui/cardBox";
 import { OutfitCard } from "./OutfitCard";
+import { splitIntoColumns } from "./outfitColumns";
 import { handOverOutfit } from "./outfitHandoff";
 import { takeOutfitsChanged } from "./outfitsChanged";
 import { SelectionBar } from "./SelectionBar";
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+
+// The FlatList's one row: both columns. It's one row so the list keeps
+// paging, refresh and its empty / footer states.
+const COLUMNS_ROW = [{ key: "columns" }];
 
 export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
   const outfits = useMatchesPage({
@@ -58,6 +66,31 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
     list.items
   );
   const selectMode = selectedIds.size > 0;
+
+  const { width: screenWidth } = useWindowDimensions();
+  const columnWidth = twoColumnWidth(screenWidth, space.gutter);
+  const columns = useMemo(
+    () => splitIntoColumns(list.items, columnWidth, CARD_GAP),
+    [list.items, columnWidth]
+  );
+
+  const renderCard = (match) => (
+    <OutfitCard
+      key={match._id}
+      match={match}
+      width={columnWidth}
+      selected={selectedIds.has(match._id)}
+      selectMode={selectMode}
+      onEdit={() => {
+        handOverOutfit(match);
+        router.push("/outfit");
+      }}
+      onToggleSelect={toggleSelected}
+      onFavouriteToggle={outfits.onFavouriteToggle}
+      onChanged={refreshList}
+      onError={outfits.setError}
+    />
+  );
 
   const refreshList = () => {
     list.restart();
@@ -170,23 +203,18 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
         </EmptyState>
       ) : (
         <FlatList
-          data={list.items}
-          keyExtractor={(match) => match._id}
+          data={list.items.length ? COLUMNS_ROW : []}
+          keyExtractor={(row) => row.key}
+          extraData={[columns, selectedIds]}
           contentContainerStyle={styles.list}
-          renderItem={({ item: match }) => (
-            <OutfitCard
-              match={match}
-              selected={selectedIds.has(match._id)}
-              selectMode={selectMode}
-              onEdit={() => {
-                handOverOutfit(match);
-                router.push("/outfit");
-              }}
-              onToggleSelect={toggleSelected}
-              onFavouriteToggle={outfits.onFavouriteToggle}
-              onChanged={refreshList}
-              onError={outfits.setError}
-            />
+          renderItem={() => (
+            <View style={styles.columns}>
+              {columns.map((column, index) => (
+                <View key={index} style={styles.column}>
+                  {column.map(renderCard)}
+                </View>
+              ))}
+            </View>
           )}
           onEndReached={list.loadMore}
           onEndReachedThreshold={0.5}
@@ -262,16 +290,23 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: radius.md,
     borderCurve: "continuous",
-    backgroundColor: "rgba(255, 255, 255, 0.78)",
+    backgroundColor: colors.fieldBackground,
     boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
     alignItems: "center",
     justifyContent: "center",
   },
   list: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: space.gutter,
     paddingBottom: spacing.xl,
-    gap: spacing.lg,
     flexGrow: 1,
+  },
+  columns: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: CARD_GAP,
+  },
+  column: {
+    gap: CARD_GAP,
   },
   spinner: {
     marginVertical: spacing.xl,

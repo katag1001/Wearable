@@ -3,7 +3,7 @@
 // Screens use these; ./soft.js has the fuller set (washes, mids, type
 // styles, shadows, motion) for the parts that need it.
 
-import { fonts, ink, radii, semantic, shadows, surface, wash } from "./soft";
+import { fonts, ink, mid, radii, semantic, shadows, surface, wash } from "./soft";
 
 export { fonts, shadows };
 
@@ -19,11 +19,16 @@ export const colors = {
   pageBackground: surface.milk,
   // Raised surfaces: translucent white over the atmosphere, no border.
   cardBackground: "rgba(255, 255, 255, 0.7)",
+  // Text fields, the filter buttons beside them and the outfit cards.
+  fieldBackground: "rgba(255, 255, 255, 0.78)",
   // Edges are made of light, never ink: a faint lavender-grey line where
   // one is truly needed, and a light rim for raised things.
   border: "rgba(142, 123, 184, 0.14)",
   hoverBorder: "rgba(142, 123, 184, 0.28)",
   lightEdge: surface.lightEdge,
+  // Something chosen: selected chips, choices and days - and a favourite
+  // heart.
+  selected: `${mid.lavender}80`,
   // Quiet fills: segmented tracks, placeholders, inactive controls.
   imageBackground: wash.lavender,
   // Behind item photos: nothing - their backgrounds are removed, so the

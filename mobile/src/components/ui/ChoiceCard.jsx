@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     boxShadow: `${shadows.soft}, inset 0px 1px 0px ${colors.lightEdge}`,
   },
   selected: {
-    backgroundColor: `${mid.lavender}80`,
+    backgroundColor: colors.selected,
     boxShadow: `0px 10px 28px ${mid.lavender}66, inset 0px 1px 0px ${colors.lightEdge}`,
   },
   dimmed: {

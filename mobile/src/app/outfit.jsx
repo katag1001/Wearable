@@ -20,7 +20,7 @@ import { getErrorMessage } from "@core/api/errors.js";
 import { useMatchCard } from "@core/hooks/useMatchCard.js";
 import { buildMatchUpdate } from "@core/matches/matchFields.js";
 
-import { colors, radius, shadows, spacing } from "../theme/tokens";
+import { colors, spacing } from "../theme/tokens";
 import { OutfitDetails } from "../components/outfits/OutfitDetails";
 import { OutfitMismatch } from "../components/outfits/OutfitMismatch";
 import {
@@ -217,12 +217,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing.sm,
   },
-  // Matches FavouriteHeart's circle.
+  // Just the icon, like FavouriteHeart beside it.
   brokenHeart: {
-    padding: spacing.xs + 2,
-    borderRadius: radius.pill,
-    backgroundColor: colors.cardBackground,
-    boxShadow: shadows.soft,
+    padding: spacing.xs,
   },
   actions: {
     flexDirection: "row",

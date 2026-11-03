@@ -12,6 +12,7 @@ import {
   Pressable,
   RefreshControl,
   StyleSheet,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -28,6 +29,7 @@ import {
   Message,
   TextField,
 } from "../../components/ui";
+import { CARD_GAP, twoColumnWidth } from "../../components/ui/cardBox";
 import {
   handOverItem,
   takeWardrobeChanged,
@@ -50,6 +52,8 @@ const addItem = () => router.push("/item/add");
 
 export default function WardrobeScreen() {
   const wardrobe = useWardrobePage();
+  // Two columns, sized like the outfit cards.
+  const columnWidth = twoColumnWidth(useWindowDimensions().width, space.gutter);
   const [showFilters, setShowFilters] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -131,6 +135,7 @@ export default function WardrobeScreen() {
         renderItem={({ item }) => (
           <ItemTile
             item={item}
+            width={columnWidth}
             onPress={() => openItemForm(wardrobe.kindOnShow, item)}
             {...(!wardrobe.isFootwear && {
               onFavouriteToggled: wardrobe.onItemFavouriteToggled,
@@ -213,19 +218,20 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: radius.md,
     borderCurve: "continuous",
-    backgroundColor: "rgba(255, 255, 255, 0.78)",
+    backgroundColor: colors.fieldBackground,
     boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
     alignItems: "center",
     justifyContent: "center",
   },
+  // The same gutter and gaps as the outfit cards.
   list: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: space.gutter,
     paddingBottom: spacing.xl,
     flexGrow: 1,
   },
   column: {
-    justifyContent: "space-between",
-    marginBottom: spacing.lg,
+    gap: CARD_GAP,
+    marginBottom: CARD_GAP,
   },
   spinner: {
     marginVertical: spacing.xl,

@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     fontFamily: fontWeights.regular,
     fontSize: fontSizes.body,
     color: colors.main,
-    backgroundColor: "rgba(255, 255, 255, 0.78)",
+    backgroundColor: colors.fieldBackground,
     boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
   },
   focused: {

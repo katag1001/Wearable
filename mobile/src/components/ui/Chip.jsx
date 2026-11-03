@@ -12,7 +12,6 @@ import {
   shadows,
   spacing,
 } from "../../theme/tokens";
-import { mid } from "../../theme/soft";
 
 export const Chip = ({ label, selected = false, onPress, swatch }) => (
   <Pressable
@@ -46,7 +45,7 @@ const styles = StyleSheet.create({
     boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
   },
   selected: {
-    backgroundColor: `${mid.lavender}80`,
+    backgroundColor: colors.selected,
   },
   pressed: {
     transform: [{ scale: 0.97 }],

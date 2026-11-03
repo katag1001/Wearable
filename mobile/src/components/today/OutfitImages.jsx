@@ -5,7 +5,10 @@
 // populated match. `fit`: fill the height it's given and shrink the photos
 // so the whole outfit fits inside it. `footwear`: a shoe shown on the
 // bottoms row (withShoes), the same size as the clothes. `imageStyle`
-// adds to each photo's style (e.g. its background).
+// adds to each photo's style (e.g. its background). `width`: lay out to
+// this width straight away instead of measuring (the outfit cards, whose
+// height is worked out before they draw - outfitImagesHeight).
+// `imageSize`: the Cloudinary copy's size.
 //
 // The photos get exact pixel sizes from the measured row width: a
 // percentage width + aspectRatio inside a wrapping row in a scroll view
@@ -42,10 +45,9 @@ const withShoes = (rows, clothes, shoes, columns) => {
   return [...rows.slice(0, -1), lowerWithShoes];
 };
 
-export const OutfitImages = ({ match, footwear, fit = false, imageStyle }) => {
-  const [size, setSize] = useState({ width: 0, height: 0 });
-  const rowWidth = size.width;
-
+// Rows, photo size and total height for an outfit laid out `width` wide
+// (and, with `fit`, no taller than `height`).
+const layOut = ({ match, footwear, width, height, fit }) => {
   const clothes = (match?.clothes || []).filter((item) => item?.imageUrl);
   const shoes = footwear?.imageUrl ? [footwear] : [];
   const columns = clothes.length + shoes.length === 1 ? 1 : 2;
@@ -53,25 +55,60 @@ export const OutfitImages = ({ match, footwear, fit = false, imageStyle }) => {
 
   // Rounded down and a touch under the full share, so two always fit side
   // by side - an exact fit can wrap from sub-pixel rounding.
-  const widthFit = ((rowWidth - spacing.sm * (columns - 1)) / columns) * PHOTO_SCALE;
+  const widthFit = ((width - spacing.sm * (columns - 1)) / columns) * PHOTO_SCALE;
 
   // In fit mode, also no taller than the space: every line of photos
   // (a row of three or more wraps) and the gaps between them.
   const lines = rows.reduce((sum, row) => sum + Math.ceil(row.length / columns), 0);
   const heightFit =
     fit && lines > 0
-      ? (size.height - spacing.sm * (lines - 1)) / lines / PHOTO_ASPECT
+      ? (height - spacing.sm * (lines - 1)) / lines / PHOTO_ASPECT
       : Infinity;
 
-  const photoWidth = Math.floor(Math.min(widthFit, heightFit));
+  const photoWidth = Math.max(0, Math.floor(Math.min(widthFit, heightFit)));
+  const contentHeight =
+    lines > 0 ? lines * photoWidth * PHOTO_ASPECT + spacing.sm * (lines - 1) : 0;
+
+  return { rows, photoWidth, contentHeight };
+};
+
+// How tall an outfit's photos are at `width` (not fit mode).
+export const outfitImagesHeight = (match, width, footwear) =>
+  layOut({ match, footwear, width }).contentHeight;
+
+export const OutfitImages = ({
+  match,
+  footwear,
+  fit = false,
+  imageStyle,
+  width: fixedWidth,
+  imageSize = 800,
+}) => {
+  const [size, setSize] = useState({ width: 0, height: 0 });
+
+  const { rows, photoWidth } = layOut({
+    match,
+    footwear,
+    width: fixedWidth ?? size.width,
+    height: size.height,
+    fit,
+  });
 
   return (
     <View
-      style={[styles.outfit, fit && styles.fit]}
-      onLayout={(event) => {
-        const { width, height } = event.nativeEvent.layout;
-        setSize({ width, height });
-      }}
+      style={[
+        styles.outfit,
+        fit && styles.fit,
+        fixedWidth != null && { width: fixedWidth },
+      ]}
+      onLayout={
+        fixedWidth != null
+          ? undefined
+          : (event) => {
+              const { width, height } = event.nativeEvent.layout;
+              setSize({ width, height });
+            }
+      }
     >
       {photoWidth > 0 &&
         rows.map((row) => (
@@ -79,7 +116,7 @@ export const OutfitImages = ({ match, footwear, fit = false, imageStyle }) => {
             {row.map((item) => (
               <Image
                 key={item._id}
-                source={{ uri: getImageUrl(item.imageUrl, 800) }}
+                source={{ uri: getImageUrl(item.imageUrl, imageSize) }}
                 style={[
                   styles.image,
                   imageStyle,

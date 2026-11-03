@@ -13,7 +13,6 @@ import {
   radius,
   spacing,
 } from "../../theme/tokens";
-import { mid } from "../../theme/soft";
 
 export const WeekDayRow = ({ weeklyTags, activeDay, onDayPress }) => (
   <View style={styles.row}>
@@ -68,7 +67,7 @@ const styles = StyleSheet.create({
     boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
   },
   activeDay: {
-    backgroundColor: `${mid.lavender}80`,
+    backgroundColor: colors.selected,
   },
   dayName: {
     fontSize: fontSizes.tag,

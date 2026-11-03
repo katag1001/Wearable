@@ -1,15 +1,22 @@
-// One wardrobe item in the grid: just its photo (a small Cloudinary copy,
-// cached by expo-image) - the name is on its edit screen. Tap to edit. Clothes (not footwear) get
-// a heart - outfits with a favourite item score higher (useItemFavourite).
+// One wardrobe item in the grid, in the same box as the outfit cards
+// (ui/cardBox): its photo (a small Cloudinary copy, cached by expo-image)
+// small and centred, no name - that's on its edit screen. Tap to edit.
+// Clothes (not footwear) get the heart in the corner - outfits with a
+// favourite item score higher (useItemFavourite). `width` is the column's.
 
 import { Image } from "expo-image";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 
 import { useItemFavourite } from "@core/hooks/useItemFavourite.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import { colors, radius, spacing } from "../../theme/tokens";
 import { FavouriteHeart } from "../ui";
+import {
+  CARD_HEART_SIZE,
+  cardBox,
+  cardContentWidth,
+  cardHeart,
+} from "../ui/cardBox";
 
 const ItemHeart = ({ item, onToggled, onError }) => {
   const { favourite, toggleFavourite } = useItemFavourite({
@@ -22,8 +29,8 @@ const ItemHeart = ({ item, onToggled, onError }) => {
     <FavouriteHeart
       favourite={favourite}
       onPress={toggleFavourite}
-      size={18}
-      style={styles.heart}
+      size={CARD_HEART_SIZE}
+      style={cardHeart}
     />
   );
 };
@@ -32,20 +39,23 @@ const ItemHeart = ({ item, onToggled, onError }) => {
 // only for clothes; without them there's no heart.
 export const ItemTile = ({
   item,
+  width,
   onPress,
   onFavouriteToggled,
   onFavouriteError,
-}) => (
-  <Pressable
-    onPress={onPress}
-    accessibilityRole="button"
-    accessibilityLabel={`Edit ${item.name}`}
-    style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
-  >
-    <View style={styles.frame}>
+}) => {
+  const photoSize = cardContentWidth(width);
+
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Edit ${item.name}`}
+      style={({ pressed }) => [cardBox, { width }, pressed && styles.pressed]}
+    >
       <Image
         source={item.imageUrl ? getImageUrl(item.imageUrl, 400) : null}
-        style={styles.image}
+        style={{ width: photoSize, height: photoSize }}
         contentFit="contain"
         transition={150}
       />
@@ -57,36 +67,12 @@ export const ItemTile = ({
           onError={onFavouriteError}
         />
       )}
-    </View>
-  </Pressable>
-);
+    </Pressable>
+  );
+};
 
 const styles = StyleSheet.create({
-  // Two to a row (the list puts the space between them).
-  tile: {
-    width: "48%",
-    gap: spacing.xs,
-  },
   pressed: {
     transform: [{ scale: 0.98 }],
-  },
-  // The photos are trimmed to the item, so the frame pads them: the item
-  // sits inside with room around it rather than filling the tile.
-  frame: {
-    width: "100%",
-    aspectRatio: 5 / 6,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    borderCurve: "continuous",
-    backgroundColor: colors.itemBackground,
-  },
-  image: {
-    flex: 1,
-    width: "100%",
-  },
-  heart: {
-    position: "absolute",
-    top: spacing.sm,
-    right: spacing.sm,
   },
 });
