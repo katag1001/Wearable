@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     flex: 1,
     aspectRatio: 3 / 4,
     borderRadius: radius.md,
-    backgroundColor: colors.imageBackground,
+    backgroundColor: colors.itemBackground,
   },
   infoRow: {
     flexDirection: "row",

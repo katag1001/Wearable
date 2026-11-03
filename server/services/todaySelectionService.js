@@ -1,28 +1,39 @@
 // server/services/todaySelectionService.js
 //
 // Which outfits make today's list, in what order. Pure - no DB access.
+// (Numbers: constants/todayOutfits.js.)
 //
-//  1. Tier 1: outfits whose min_temp and max_temp are each
-//     close to today's daytime min and max (temperatureService.
-//     closeMatchBounds: 1.5° beyond the day or 2° inside it), or whose range
-//     covers ALL of today's daytime temperatures (FULL_COVERAGE).
-//  2. Then one tier per PARTIAL_COVERAGE_STEPS value (90%, 80%, 70%):
-//     those covering at least that much of the day.
-//  An outfit that takes tights (takesTights) is also checked against
-//  its tights range (services/tightsService.js) and goes in whichever tier
-//  is better - without tights on a tie.
-//  Each outfit goes in the first tier it fits. A tier only joins while the
-//  tiers above it have fewer than TODAY_OUTFIT_LIMIT outfits, and always
-//  sits below them.
-//  3. Each tier ordered by todayRankingService (tagged outfits first),
-//     then each tag group spread out so outfits sharing an item aren't
-//     next to each other (todayDiversityService). The list stops at
-//     TODAY_OUTFIT_LIMIT.
+//  1. The weather decides who's in the running. Tier 1: outfits whose
+//     min_temp and max_temp are each close to today's daytime min and max
+//     (temperatureService.closeMatchBounds: 1.5° beyond the day or 2°
+//     inside it), or whose range covers ALL of today's daytime
+//     temperatures (FULL_COVERAGE). Then one tier per COVERAGE_STEPS value
+//     (95%, 90% ... 50%): those covering at least that much of the day.
+//     An outfit that takes tights (takesTights) is also checked against
+//     its tights range (services/tightsService.js) and goes in whichever
+//     tier is better - without tights on a tie. Whole tiers join, best
+//     first, until at least TODAY_OUTFIT_LIMIT outfits are in the running.
+//  2. A notice when few fit: "few" once the FEW_OUTFITS_COVERAGE step had
+//     to join, "shopping" when even the last step leaves fewer than
+//     TODAY_OUTFIT_LIMIT - with the day's weather band.
+//  3. Everything in the running is ranked together, whatever its tier, by
+//     todayRankingService with each outfit's Today score (`scoreOf` -
+//     todayScoreService.js): every outfit with today's tag, then every
+//     outfit without, each group in its own order. No random nudge yet, so
+//     the score and freshness alone decide which TODAY_OUTFIT_LIMIT
+//     outfits are kept.
+//  4. Only then, within the kept outfits and each tag group: the random
+//     nudge (jitter), then outfits sharing an item are spread out
+//     (todayDiversityService).
 
 const {
   TODAY_OUTFIT_LIMIT,
   FULL_COVERAGE,
-  PARTIAL_COVERAGE_STEPS,
+  COVERAGE_STEPS,
+  FEW_OUTFITS_COVERAGE,
+  SHOPPING_COVERAGE,
+  COLD_BELOW,
+  HOT_ABOVE,
 } = require("../constants/todayOutfits.js");
 const { todayCoverageFraction, closeMatchBounds } = require("./temperatureService.js");
 const { rankTodayGroups } = require("./todayRankingService.js");
@@ -47,7 +58,7 @@ const tierOfRange = (range, todayRange) => {
     return 0;
   }
 
-  const step = PARTIAL_COVERAGE_STEPS.findIndex(
+  const step = COVERAGE_STEPS.findIndex(
     (minimum) => coverage >= minimum - EPSILON
   );
 
@@ -82,19 +93,24 @@ const todayFitOf = (match, todayRange, temperaturePreference = null) => {
 const todayTierOf = (match, todayRange, temperaturePreference = null) =>
   todayFitOf(match, todayRange, temperaturePreference)?.tier ?? null;
 
-const TIER_COUNT = 1 + PARTIAL_COVERAGE_STEPS.length;
+const TIER_COUNT = 1 + COVERAGE_STEPS.length;
 
-// The matches for today's list, best first, at most `limit`. `random`
-// drives the ranking jitter (pass one in for tests).
-const selectTodayMatches = ({
-  matches,
-  todayRange,
-  todayTag = null,
-  temperaturePreference = null,
-  now = new Date(),
-  limit = TODAY_OUTFIT_LIMIT,
-  random = Math.random,
-}) => {
+// The coverage of a tier (tier 1 counts as full).
+const coverageOfTier = (tier) => (tier === 0 ? FULL_COVERAGE : COVERAGE_STEPS[tier - 1]);
+
+// "cold" / "mild" / "hot", from the average of today's min and max.
+const weatherBandOf = ({ min, max }) => {
+  const average = (min + max) / 2;
+
+  if (average < COLD_BELOW) return "cold";
+  if (average > HOT_ABOVE) return "hot";
+  return "mild";
+};
+
+// The outfits in the running: whole tiers, best first, until there are at
+// least `limit`. Returns { running, lowestCoverage } - the coverage of the
+// last tier that joined.
+const outfitsInTheRunning = (matches, todayRange, temperaturePreference, limit) => {
   const tiers = Array.from({ length: TIER_COUNT }, () => []);
 
   matches.forEach((match) => {
@@ -105,23 +121,70 @@ const selectTodayMatches = ({
     }
   });
 
-  const ranked = [];
+  const running = [];
+  let lowestCoverage = FULL_COVERAGE;
 
-  for (const tier of tiers) {
-    for (const group of rankTodayGroups(tier, todayTag, now, random)) {
-      if (ranked.length >= limit) {
-        return ranked;
-      }
-
-      ranked.push(...spreadSharedItems(group, ranked, limit - ranked.length));
-    }
+  for (let tier = 0; tier < TIER_COUNT && running.length < limit; tier += 1) {
+    running.push(...tiers[tier]);
+    lowestCoverage = coverageOfTier(tier);
   }
 
-  return ranked;
+  return { running, lowestCoverage };
+};
+
+// { level, band } when few outfits fit today's weather, else null.
+const noticeFor = ({ running, lowestCoverage }, todayRange, limit) => {
+  const reached = (coverage) => lowestCoverage <= coverage + EPSILON;
+  let level = null;
+
+  if (reached(SHOPPING_COVERAGE) && running.length < limit) {
+    level = "shopping";
+  } else if (reached(FEW_OUTFITS_COVERAGE)) {
+    level = "few";
+  }
+
+  return level ? { level, band: weatherBandOf(todayRange) } : null;
+};
+
+// A random() that always nudges by 0 (todayDiversityService.jitter).
+const NO_JITTER = () => 0.5;
+
+// Today's list: { matches (best first, at most `limit`), notice }.
+// `scoreOf(match)` is the outfit's Today score (todayScoreService.js; the
+// saved score by default). `random` drives the ranking jitter (pass one in
+// for tests).
+const selectTodayMatches = ({
+  matches,
+  todayRange,
+  todayTag = null,
+  temperaturePreference = null,
+  scoreOf,
+  now = new Date(),
+  limit = TODAY_OUTFIT_LIMIT,
+  random = Math.random,
+}) => {
+  const inTheRunning = outfitsInTheRunning(matches, todayRange, temperaturePreference, limit);
+
+  // The best `limit`, tagged first - no nudge, so it can't change who's in.
+  const [tagged, untagged] = rankTodayGroups(inTheRunning.running, todayTag, now, NO_JITTER, scoreOf);
+  const keptTagged = tagged.slice(0, limit);
+  const kept = [keptTagged, untagged.slice(0, limit - keptTagged.length)];
+
+  // Then the nudge and the spreading, each tag group on its own.
+  const ranked = [];
+
+  for (const group of kept) {
+    const [nudged] = rankTodayGroups(group, null, now, random, scoreOf);
+
+    ranked.push(...spreadSharedItems(nudged, ranked));
+  }
+
+  return { matches: ranked, notice: noticeFor(inTheRunning, todayRange, limit) };
 };
 
 module.exports = {
   selectTodayMatches,
+  weatherBandOf,
   todayTierOf,
   todayFitOf,
 };

@@ -28,8 +28,8 @@ In short:
 
 - **Page one** of the add form asks for a name, image and subtype. When the
   user clicks **Next**, page two is filled in from the **name** (colours,
-  seasons, tags) and the **subtype** (seasons, tags). Items have no
-  temperature - only matches do.
+  tags) and the **subtype** (tags). Items have no temperature and no
+  seasons - only a `fabric` (3.8); matches have both.
 - **Style** (`Plain` / `Patterned`) is never chosen by the user. It is
   `Patterned` whenever the item has more than one colour.
 - There is **no manual or admin approval**. An item is accepted once it
@@ -38,8 +38,8 @@ In short:
 - Once an item is saved, the server **searches for every possible outfit**
   that includes it from the rest of the wardrobe, in the background. An
   outfit is a candidate only if it passes all of these: fixed compatibility,
-  layering rules, colour palette, pattern limit, a shared season and a
-  shared tag.
+  layering rules, colour palette, pattern limit and a shared tag
+  (seasons never reject an outfit, 3.8).
   Temperature never rejects an outfit - each match gets a preset range from
   its subtypes. Every candidate gets a **pair score** and a **colour score**
   (number of colours, how classic or bold its palette is, the user's
@@ -75,12 +75,27 @@ Files:
 |---|---|
 | `src/components/clothes/addUpdateClothes.jsx` | The two-page modal, validation and saving |
 | `src/components/clothes/uploadComponents/modalOne.jsx` | Page one: name, image, subtype |
-| `src/components/clothes/uploadComponents/modalTwo.jsx` | Page two: seasons, colours, tags |
+| `src/components/clothes/uploadComponents/typePicker.jsx` | The subtype picker (page one and the photo review) |
+| `src/components/clothes/uploadComponents/modalTwo.jsx` | Page two: fabric, colours, pattern, tags - each field also exported on its own |
 | `src/components/clothes/uploadComponents/useClothingForm.jsx` | Form state and toggle handlers |
 | `src/components/clothes/uploadComponents/useClothingDetection.jsx` | Auto-fills page two when Next is clicked |
 | `src/components/clothes/uploadComponents/uploadHelpers.jsx` | Name detection, subtype suggestions, defaults |
-| `src/constants/typeOptions.jsx` | Subtypes per gender, with their category and default seasons/tags |
-| `src/constants/optionsBank.jsx` | Colour, tag and season option lists |
+| `core/constants/typeOptions.js` | Subtypes per gender, with their category and default tags |
+| `core/constants/optionsBank.js` | Colour, fabric, pattern, tag and season option lists |
+
+**Adding from a photo** (the usual way in): the user picks a photo, sees a
+loading screen while it's analysed (`core/hooks/usePhotoAnalysis.js`),
+then the photo with what was found: name, type and colours as rows, each
+with a small greyed-out "Change" that opens that field's picker under it,
+and "Show more fields" for pattern, fabric, tights and tags. Save is at the
+bottom; saving shows "View new matches" / "Add another item" (with
+confetti on mobile). The rows are `core/hooks/useAnalysedItemReview.js`;
+the editing and saving are this same form (`useWardrobeItemForm`, filled
+in from the analysis and never re-filled from the name and type), drawn by
+`src/components/clothes/analysedItemReview.jsx` and
+`mobile/src/components/wardrobe/AnalysedItemReview.jsx`. The type picker
+can also switch the item between clothing and footwear. If the analysis
+fails, the full form below opens with the photo attached.
 
 ### 1.1 When the form opens
 
@@ -91,12 +106,12 @@ Files:
   `unisex` if the user has no preferences or an unknown gender.
 
 The form starts from `getInitialState()` (`uploadHelpers.jsx`): empty name,
-no colours, `styles: "plain"`, and no seasons or tags.
+no colours, `styles: "plain"`, `fabric: ""` and no tags.
 
 ### 1.2 Page one: name, image, subtype
 
 **Name.** Free text and required. It drives the subtype suggestions and,
-later, colour/season/tag detection.
+later, colour/tag detection.
 
 **Image.** `UploadImages` keeps the chosen `File` in `selectedImage`. Nothing
 is uploaded yet. Uploading happens only when the user clicks Save (1.5).
@@ -143,13 +158,12 @@ page two was filled. Going Back and then Next again without changing
 anything leaves page two exactly as the user left it.
 (`resetDetection()` clears this memory when "Add Another Item" is clicked.)
 
-Seasons and tags are cleared first, then rebuilt from the sources below.
+Tags are cleared first, then rebuilt from the sources below.
 
 | Field | Comes from | Rule |
 |---|---|---|
 | `colors` | Name only | Every colour in `colorOptions` whose name appears anywhere in the lowercased item name. **Only replaced if the name changed.** If only the subtype changed, the user's colour picks are kept. |
 | `styles` | Colours | `Patterned` if there are 2 or more colours, otherwise `Plain`. Recalculated every time the colours change (1.4). |
-| `spring`/`summer`/`autumn`/`winter` | Name **plus** subtype | Set to true if the name contains `spring`, `summer`, `autumn`/`fall` or `winter`, **or** the subtype's default `season` list includes it. The result is the union of both. |
 | `tags` | Name **plus** subtype | Tags whose name appears in the item name, plus the subtype's default `tags`, de-duplicated. |
 | `type` | Subtype | Already set on page one. |
 
@@ -175,7 +189,7 @@ so:
   longer alias already found doesn't count, so `"Dark red dress"` is only
   `Dark Red` and `"Hot pink top"` is only `Bright Pink`.
 - There is no plain "Red", "Pink" or "Yellow" either: `Bright Red`,
-  `Dark Red` and `Maroon`; `Baby Pink` and `Bright Pink` (plus `Fuchsia`);
+  `Dark Red` and `Burgundy`; `Baby Pink` and `Bright Pink` (plus `Fuchsia`);
   `Bright Yellow` and `Butter Yellow`.
 - There is no plain "Blue". Only `Bright Blue`, `Dark Blue`,
   `Light Blue`, `Navy`, `Teal` and `Turquoise` exist, so `"Blue jeans"`
@@ -189,7 +203,7 @@ The user can correct all of this on page two.
 `modalTwo.jsx` shows everything filled in above, and the user can change any
 of it:
 
-- **Seasons.** Checkboxes (`toggleSeason`).
+- **Fabric.** One of `shared/fabrics.json`, or "Not sure" (`setFabric`, clothing only).
 - **Colours.** A grid of the 33 `colorOptions`, grouped by colour rather than alphabetical (`toggleColor`).
 - **Tags.** The 10 `tagOptions`: Work, Gym, Loungewear, Party, Date night,
   Formal, Beach, Outdoor, Dinner, Everyday.
@@ -203,7 +217,7 @@ a lowercase `"patterned"`, but the effect overwrites it straight away, so
 the value saved is always `"Plain"` or `"Patterned"`.) There is no control
 for style on the form.
 
-**Validation for page two:** at least one season and at least one colour. Tags are optional.
+**Validation for page two:** at least one colour. Fabric and tags are optional.
 
 ### 1.5 Saving
 
@@ -238,11 +252,11 @@ gets through these checks, in order:
 | # | Where | Check | On failure |
 |---|---|---|---|
 | 1 | Page one (client) | Name, subtype, image present | Message, can't continue |
-| 2 | Page two (client) | ≥1 season, ≥1 colour | Message, can't save |
+| 2 | Page two (client) | ≥1 colour | Message, can't save |
 | 3 | `authMiddleware` | Valid `Bearer` JWT; sets `req.user.userId` | 401 |
 | 4 | `createItem` | `type` present | 400 "Missing type" |
 | 5 | `createItem` | No existing item with the same `name` + `type` for this user | Returns the existing item (see Part 9) |
-| 6 | Mongoose `Clothes` schema | `name`, `userId`, `colors`, `styles`, `type`, `subtype`, all four seasons are required. Fields must cast (for example `tags` must be strings) | 500 with the validation message |
+| 6 | Mongoose `Clothes` schema | `name`, `userId`, `colors`, `type`, `subtype` are required; `fabric` must be "" or one of `shared/fabrics.json`. Fields must cast (for example `tags` must be strings) | 500 with the validation message |
 
 On edit (`updateItem`), checks 3 and 6 run (`runValidators: true`). There is
 no duplicate check on edit.
@@ -277,11 +291,11 @@ appears. Then it shows the matches, filtered to that item.
 - The form starts from the saved item.
 - **Nothing is auto-filled.** `applyDetection` returns straight away, so
   renaming an item doesn't re-detect colours, and changing its subtype
-  doesn't reset seasons or tags. A subtype change still
+  doesn't reset its tags. A subtype change still
   updates `type`.
 - Style is still recalculated from the colours (1.4).
 - If no field matching reads changed (`type`, `subtype`, `colors`,
-  `styles`, `tags`, the four seasons, `wearWithTights`) - e.g. only the
+  `fabric`, `tags`, `pattern`, `wearWithTights`) - e.g. only the
   name - nothing else happens.
 - Otherwise `refreshMatchesForItem` (`server/services/matchRefreshService.js`)
   runs before the response:
@@ -292,20 +306,21 @@ appears. Then it shows the matches, filtered to that item.
     hot / too cold, or "not with tights" for that outfit). This holds for
     all of the app's automatic rematching; the scripts in Part 11 are
     separate.
-  - **Rematch** - a change to `type`, `subtype`, `colors`, `styles`,
-    `tags` or a season (`REMATCH_ITEM_FIELDS`): every unprotected outfit
+  - **Rematch** - a change to `type`, `subtype`, `colors`, `tags` or
+    `pattern` (`REMATCH_ITEM_FIELDS`): every unprotected outfit
     with the item is deleted, valid or not, so the search below builds
     them all again with new scores.
-  - **Re-check** - any other change (the tights answer): each outfit is
-    re-checked against the search's rules (shape, compatibility, layering,
-    colour, pattern, shared season, shared tag), and the unprotected ones
+  - **Re-check** - any other change (the tights answer, the fabric): each
+    outfit is re-checked against the search's rules (shape, compatibility,
+    layering, colour, pattern, shared tag), and the unprotected ones
     that no longer pass are deleted.
   - Deleting lowers no pair scores and takes the outfit's Today entries
     with it.
   - Every kept outfit has only the fields fed by the changed item fields
-    rewritten (`ITEM_FIELD_TO_OUTFIT_FIELDS`: a season → that season,
-    colours/styles/tags → the same field, subtype → temperature range,
-    type → temperature range and role counts). Manual edits to the
+    rewritten (`ITEM_FIELD_TO_OUTFIT_FIELDS`: fabric → the season flags,
+    colours → colours and season flags, tags → tags, subtype → temperature
+    range and season flags, type → temperature range, role counts and
+    season flags). Manual edits to the
     outfit's other fields survive. Score, rejections and wear history are
     never changed.
 - Then `processMatches` runs again for the item in the background and adds
@@ -624,12 +639,13 @@ Black + Bright Red + White + Grey, Brown + Tan + Olive Green + Cream)
 are `classic` palettes at every level, and the colour palettes were
 reviewed in October 2026 so the neutrals (Black, Grey, Navy, Cream,
 Camel, Tan, Brown, Light Blue) pair with most colours. Several palettes
-come as near-twins that differ by one or two colours, e.g. the Dark Red,
-Burgundy and Maroon versions of the autumn palettes.
+come as near-twins that differ by one or two colours, e.g. the Dark Red
+and Burgundy versions of the autumn palettes.
 
-Navy and Dark Blue look different (Navy is a blue-black). Dark Red,
-Burgundy (purple-leaning) and Maroon (brown-leaning) are three separate
-dark reds, each with its own palettes.
+Navy and Dark Blue look different (Navy is a blue-black). Dark Red and
+Burgundy are two separate dark reds, each with its own palettes. Burgundy
+covers every brown- or purple-leaning dark red (wine, plum, maroon,
+oxblood) - Maroon was merged into it in November 2026.
 
 Bright Blue has its own palettes: with White, Navy and Light Blue, and
 with Grey and Black, at every level; with Turquoise/Teal at mid and max;
@@ -664,10 +680,30 @@ the pattern echo adjustment in the colour score (3.10).
 
 ### 3.8 Season and tag rules
 
-All items must share **at least one** season (`hasSharedSeason`). The saved
-outfit is marked for exactly the seasons every item has (`computeSeasons`).
+**Seasons never reject an outfit** (since November 2026). Items have no
+seasons of their own - clothing has a `fabric` (`shared/fabrics.json`,
+"" until known), and fabrics and colour palettes (`shared/colorPalettes.json`
+`seasons`) belong to seasons, or none (any time). The saved outfit's four
+season flags are worked out in `describeOutfit` by `outfitSeasonFlags`
+(`server/services/seasonalityService.js`, numbers in
+`server/constants/seasonality.js`). An outfit is in a season unless:
 
-All items must also share **at least one** tag (`hasSharedTag` in
+- an item's fabric belongs only to other seasons (linen isn't autumn or
+  winter; velvet isn't spring or summer), or a season-named type does
+  ("Winter dress", "Winter mini skirt", "Strappy summer dress", "Summer
+  dress" - `SEASON_NAMED_SUBTYPES`, flags only);
+- its colours only fit palettes of other seasons (a neutral palette, or
+  none, never rules a season out);
+- its temperature range misses the season's band
+  (`SEASON_TEMPERATURE_BANDS`: winter 12° or below, spring and autumn
+  8–20°, summer 18° or above).
+
+The flags are only for the Outfits page season buttons and filter. They're
+refreshed when an item's fabric, colours, type or subtype changes
+(`matchRefreshService.js`). Today uses the season differently - points,
+not a filter (7.1).
+
+All items must share **at least one** tag (`hasSharedTag` in
 `server/services/helpers.js`). An item with no tags shares nothing, so it
 never matches automatically. The saved outfit gets exactly the tags every
 item has (`computeMatchTags`). For example, `Work, Everyday` + `Everyday`
@@ -799,31 +835,18 @@ ranked and sorted by their stored score like every other outfit. See
 
 ### 3.11 Favourite clothing items
 
-`server/services/favouriteItemService.js`, number in
-`server/constants/scoring.js` (`FAVOURITE_ITEM_BONUS`). The heart on a
-wardrobe clothing item (web and app, not footwear) sets `Clothes.favourite`
-through `PUT /clothing/:id` (`core/hooks/useItemFavourite.js`).
+The heart on a wardrobe clothing item (web and app, not footwear) sets
+`Clothes.favourite` through `PUT /clothing/:id`
+(`core/hooks/useItemFavourite.js`). The edit form never sends `favourite`
+(`dropFields` in `core/wardrobe/itemKinds.js`), so only the heart changes
+it.
 
-- An **automatic** outfit with **at least one** favourite item gets **+7**
-  on its stored `score` - once, however many of its items are favourites.
-- It **never goes above 90** (`MAX_AUTO_SCORE`): an 86 gets +4, a 90 gets
-  nothing. The amount actually added is stored in
-  `Match.favouriteItemBonus`.
-- **User-made** outfits stay at 95 (no bonus). Claiming an automatic outfit
-  (5.3) sets it to 95 and its bonus to 0.
-- **Favouriting** an item adds the bonus straight away to every automatic
-  outfit with it that doesn't have one yet (`addFavouriteItemBonus`).
-- **Unfavouriting** takes off exactly the stored bonus - unless another of
-  the outfit's items is still a favourite (`removeFavouriteItemBonus`).
-  An 88 that got +2 goes back to 88.
-- **New automatic outfits** get it in `processMatches` **after** the 65
-  checks and the best-100 cut (`applyFavouriteItemBonus`), never during
-  the search, so a favourite can't let a weaker outfit in or change which
-  100 are saved.
-- The edit form never sends `favourite` (`dropFields` in
-  `core/wardrobe/itemKinds.js`), so only the heart changes it.
-- It's part of the stored score, so the Today ranking and My Outfits order
-  use it as is - nothing is recalculated when Today is built.
+Since November 2026 a favourite **never changes a saved score**. An outfit
+with at least one favourite item gets **+7** only while Today's list is
+chosen (`FAVOURITE_ITEM_BONUS` in `server/constants/todayOutfits.js`,
+`server/services/todayScoreService.js`) - see 7.1. Favourite palettes
+work the same way (+4 on Today, `FAVOURITE_PALETTE_BONUS`), and are no
+longer part of the colour score.
 
 ---
 
@@ -847,8 +870,6 @@ through `PUT /clothing/:id` (`core/hooks/useItemFavourite.js`).
 - Whichever of rating and favouriting the user did last decides the
   score (favourite -> 100, rate 4 -> 85, rate 5 -> 100). Favouriting never
   changes the stars.
-- Rating or favouriting sets `favouriteItemBonus` to 0, and the
-  favourite-item bonus is never added to a rated or favourite outfit.
 - Rated and favourite outfits are **never rejected** on Today (no swipe
   penalty), and a rated outfit is **protected** from automatic rematching
   (`matchProtection.js`).
@@ -883,14 +904,14 @@ for each outfit shape that has a slot for newItem's role:
   findShapeCombinations                      (backtracking search, pruned as it goes)
     each candidate added must pass:
       fits the shape (layering rules) → compatible with every item so far
-      → no pair below 50 → colour → pattern → season → tag
+      → no pair below 50 → pattern → tag → colour
   ▼
 score every item-set found                   (scoreItemSet; pair blend or
                                               colour score below 65 dropped)
   ▼
 best score first, until 2,000 are kept:
   skip if already saved
-  describeOutfit   → temperature (from subtypes) + season + tag + descriptive fields
+  describeOutfit   → temperature (from subtypes) + season flags + tag + descriptive fields
   validateOutfit   → final safety re-check (compatibility, layering, pattern, colour)
   ▼
 Match.insertMany in chunks of 5,000, best first   (stops near the Vercel deadline;
@@ -929,7 +950,7 @@ For every shape with a slot for the new item's role
 2. **Shape-level early exit** (`fitsShape`). Skip the shape if the new item
    can't fill its slot: it requires layering and the shape has one slot
    for its role, or it requires a top and the shape has none.
-3. **Check the new item on its own.** If it fails colour/pattern/season/tag
+3. **Check the new item on its own.** If it fails colour/pattern/tag
    by itself, skip the shape. For example, a single item with 5 colours at
    `min` level fits no palette, and an untagged item has no tag to share.
 4. **Backtracking.** Go through the roles in order (top, bottom,
@@ -941,8 +962,8 @@ For every shape with a slot for the new item's role
       must be compatible (`isCompatible`) with **every** item already
       chosen, including the new item, and no pair with them may score
       below **`MIN_PAIR_SCORE` = 50** (3.10). One such pair rules it out.
-   4. **Colour + pattern + season + tag.** The items chosen so far plus the
-      candidate must still pass all four (`isStillViable`).
+   4. **Pattern + tag + colour.** The items chosen so far plus the
+      candidate must still pass all three (`isStillViable`).
    5. If it passes, choose it and carry on.
 
 These checks are **monotonic**: once a partial outfit fails one, adding more
@@ -992,7 +1013,7 @@ deadline.
         | `styles` | union of item styles (e.g. `["Plain", "Patterned"]`) |
         | `tags` | tags held by **every** item (`computeMatchTags`) |
         | `min_temp` / `max_temp` | whole numbers, from `computePresetTemperatureRange` |
-        | `spring`…`winter` | true only if every item has that season |
+        | `spring`…`winter` | the season flags (3.8) |
         | `topCount` / `bottomCount` / `onepieceCount` / `outerCount` | role counts |
         | `hasOuter` | `outerCount > 0` |
 
@@ -1044,9 +1065,8 @@ Files: `src/components/matches/createMatch.jsx`, `createMatch` in
 2. `describeOutfit(items, { isUserMade: true, ... })`:
    - **No compatibility, layering, colour or pattern checks.**
    - The temperature range comes from the subtypes, like any other match.
-   - Seasons are still computed. With no shared season the outfit is
-     saved with every season false, so it never appears on the Today
-     page.
+   - Its season flags are worked out like any other (3.8); they never
+     keep it off the Today page.
    - Tags are never a reason to reject it. The outfit gets the tags every
      item shares; with none shared it's saved with no tags.
 3. Saved with `userMade: true` and **`score: 95`**.
@@ -1128,67 +1148,91 @@ favourite off and on again adds another 3.
 Today's list is chosen, ordered and capped **on the server, once a day**
 (`createToday` in `allControllers.js`), and every device shows it in that
 order. Files: `server/services/todaySelectionService.js` (which outfits),
+`server/services/todayScoreService.js` (Today's points),
 `server/services/todayRankingService.js` (the order), numbers in
-`server/constants/todayOutfits.js`.
+`server/constants/todayOutfits.js` and `server/constants/seasonality.js`.
 
 **Today's weather.** The client (`core/weather/openMeteo.js`, web and
 mobile) takes the min and max of Open-Meteo's **15-minute** temperatures from
 **07:30 to 22:30** local time (`core/constants/daytimeHours.js`) - the
 overnight low isn't what anyone dresses for. It's shifted by the weather
-offset (sunny / rain) and sent to `/today/create` with the season and the
-user's weekday.
+offset (sunny / rain) and sent to `/today/create` with the season (from
+the date and latitude, `getSeason`) and the user's weekday.
 
-**Which outfits** (`selectTodayMatches`), from those marked for today's
-season (recently rejected ones are then moved out of the top 10, 7.2):
+**1. Who's in the running** - the weather alone, every outfit the user has
+(no season filter):
 
-1. **Tier 1** - either of these, ranked together:
+1. **Tier 1** - either of these:
    - the outfit's `min_temp` and `max_temp` are each close to today's
      daytime min and max: up to **`CLOSE_MATCH_OUTSIDE` = 1.5°** beyond
      the day's range or **`CLOSE_MATCH_INSIDE` = 2°** inside it (a 10–20°
      day takes 8.5–12° minimums and 18–22° maximums;
      `closeMatchBounds` in `server/services/temperatureService.js`);
-   - the outfit's range covers **all** of today's daytime range
-     (`todayCoverageFraction` = 1: `min_temp <= today's min` and
-     `max_temp >= today's max`).
-2. **Tiers 2–4** - one per **`PARTIAL_COVERAGE_STEPS` = 90%, 80%, 70%**:
-   outfits covering at least that much of today's range.
-3. Each outfit goes in the first tier it fits. A tier only joins while the
-   tiers above it have fewer than **`TODAY_OUTFIT_LIMIT` = 200**, and
-   always comes after them. The list is cut to **200**, best first.
+   - the outfit's range covers **all** of today's daytime range.
+2. **Then one tier per `COVERAGE_STEPS` = 95%, 90%, 85% … 50%**: outfits
+   covering at least that much of today's range.
+3. Whole tiers join, best first, until at least **`TODAY_OUTFIT_LIMIT` =
+   150** are in the running - a tier always joins whole, so the running
+   can be far more than 150.
 
 Coverage is measured against the **day's** range, so a narrow outfit
 inside a wide day only counts the part of the day it covers (a 14–16°
 outfit on a 10–20° day covers 20%).
 
-**The order** (`rankTodayMatches`), within each tier: outfits with today's
-weekly-preference tag first, then the rest; each group by a weighted total
-of factors that each run from 0 to 10. Temperature isn't part of it - the
-tiers already decided that.
+**2. The notice** (`shared/todayMessages.json`, picked by
+`core/today/weatherNotice.js`; saved on `Preferences.todayNotice`): **few**
+once the **70%** step had to join; **shopping** when even 50% leaves fewer
+than 150 (also with nothing at all). The message suits the weather band -
+cold below 10°, hot above 20° (the average of today's min and max).
+
+**3. Today's score** (`todayScoreOf`) - the saved score plus points that
+are never saved:
+
+| Points | When |
+|---|---|
+| **+ seasonality** | Any item's fabric belongs to today's season (once per outfit) |
+| **− seasonality** | Any item's fabric belongs only to other seasons (linen + velvet in summer = 0) |
+| **+ seasonality** | Its colours fit a palette of today's season (no minus) |
+| **+7** | Any item is a favourite |
+| **+4** | Its colours fit a favourite palette |
+
+"Seasonality" is the user's answer to *How much does the season affect
+what you wear?* (`Preferences.seasonality`, 1–5, style quiz and Style
+Preferences): 1 = 0, 2 = 2, 3 = 4, 4 = 6, 5 = 8 points
+(`SEASONALITY_POINTS`; unanswered counts as 3).
+
+**4. The order** (`rankTodayGroups`) of everything in the running,
+**whatever its weather tier**: **every** outfit with today's
+weekly-preference tag, then every outfit without it - each group sorted
+on its own by a weighted total of factors that each run from 0 to 10.
+The best **150** are kept, tagged ones first, **before** any random nudge.
 
 | Factor | Weight |
 |---|---|
-| Clothing freshness (average of the outfit's clothes) | 0.25 |
-| Outfit freshness | 0.25 |
-| **Match score** (`score` ÷ 10, or 10 for a favourite) | **0.50** |
+| Clothing freshness (average of the outfit's clothes) | 0.1 |
+| Outfit freshness | 0.2 |
+| **Today's score** ÷ 10 | **0.7** |
 
 Freshness is 10 for never worn, rising from 0 (worn today) to 10 after
 `FRESHNESS_FULL_DAYS` = 30 days.
 
-**Variety** (`server/services/todayDiversityService.js`), so outfits
-sharing an item don't come up back to back:
+**Variety** (`server/services/todayDiversityService.js`), only on the 150
+kept and within each tag group - it never changes which outfits are kept,
+or lifts an untagged one above a tagged one:
 
 - **Jitter** - each ranking total gets a random nudge of up to
   ±**`RANKING_JITTER` = 0.3**, so the order changes from day to day.
-- **Spreading** - within each tag group of each tier, the next outfit is
-  the highest-ranked one sharing **no clothing item** with the last
-  **`SPREAD_LOOKBACK` = 3** outfits placed (including the end of the tier
-  or group above). If every remaining outfit shares something, the one
-  sharing the fewest items goes next. Tiers and tag groups still never
-  mix.
+- **Spreading** - within each tag group, the next outfit is the
+  highest-ranked one sharing **no clothing item** with the last
+  **`SPREAD_LOOKBACK` = 3** outfits placed. If every remaining outfit
+  shares something, the one sharing the fewest items goes next.
+
+Recently rejected outfits are then moved out of the top 10 (7.2).
 
 **Once a day.** `/today/create` does nothing if the user's list was already
 built today (and ranked), so a second device gets the same list. Each
-Today entry stores its `rank`; `/today/get` returns them in rank order.
+Today entry stores its `rank`; `/today/get` returns them in rank order,
+with today's notice.
 
 **Worn today.** `/today/get` also returns the most recently worn outfit
 since the user's local midnight - from Today on any device or the Outfits
@@ -1198,7 +1242,7 @@ marked elsewhere stays counted. The shoe box does the same with the
 footwear's `lastWornDate`.
 
 The page shows one outfit at a time with ‹ / › arrows (wrapping round at
-either end), and the "Filter by Tag" panel beside it - it filters the 200
+either end), and the "Filter by Tag" panel beside it - it filters the 150
 on show. The filter starts on today's weekly-preference tag (click it to
 clear), with a "Today's <tag> outfit" subtitle under the panel title.
 
@@ -1319,6 +1363,10 @@ its CSS and its three usages to remove it.
 ---
 
 ## Part 8 - Worked example
+
+*Written before seasons moved to fabrics (November 2026): items no longer
+have seasons, and seasons don't decide whether an outfit is made (3.8).
+The rest of the example still holds.*
 
 A woman, colour **mid**, temperature **normal**. Her wardrobe already has:
 
@@ -1468,10 +1516,9 @@ undone by accident:
   (−3 per day it's rejected, 7.2) and favourite items (+7, 3.11).
   Re-scoring existing matches isn't ruled out - it just isn't done
   automatically when the pair adjustments change.
-- **The favourite-item bonus comes after matching**, not inside the
-  score used to choose outfits, so it can't push a poor combination in.
-  It's stored on the match (`favouriteItemBonus`) so unfavouriting is
-  exact even when the 90 cap cut it short.
+- **Favourites only count on Today** (since November 2026) - items +7,
+  palettes +4, never saved - so they can't push a poor combination in, and
+  favouriting or unfavouriting needs no rescoring.
 - **Only the best 2,000 new outfits per item are saved**, rather than
   whichever the search happened to find first.
 - **Temperature belongs to matches, not items.** Item ranges were removed;
@@ -1515,6 +1562,57 @@ unless changed by hand. Also deleted the same day: the scripts that reset
 temperature ranges, rescored matches, removed layering violations and moved
 favourites to a score of 100.
 
+On 2 November 2026 a one-off script (also deleted, never committed)
+re-filled the test account's 122 items from the Gemini photo analysis
+(`server/services/itemAnalysisService.js`): every field except the photo
+was replaced with the analysis as-is (no corrections), wear history,
+favourites and mismatches were reset, and all matches, Today entries,
+MatchScore and FootwearScore documents and favourite palettes were deleted
+before `rematchAll.js --confirm` rebuilt the outfits.
+
+Also on 2 November 2026, a one-off script (deleted, never committed)
+removed the background from all 122 item photos with Cloudinary
+(`e_background_removal`, then `e_trim`, at most 1200px): each result
+was saved as its own transparent WebP and shown as the item's image, with a
+300px WebP thumbnail (`thumbnailUrl` / `thumbnailCloudinaryId`) and the
+photo as uploaded kept in `originalImageUrl` / `originalCloudinaryId`.
+`services/imageService.js` deletes all three images together.
+
+Also on 2 November 2026, a one-off script (deleted, never committed) moved
+the database to fabric-based seasons: every clothing item got `fabric: ""`
+(the photo analysis fills it in) and clothes and footwear lost their
+spring/summer/autumn/winter fields; outfits lost `favouriteItemBonus` and
+had their season flags worked out again (3.8); the test user's
+`seasonality` was set to 5. Saved scores still need a full rematch once
+the items have fabrics.
+
+Still on 2 November 2026, a one-off script (deleted, never committed)
+re-analysed all 122 items with prompt v3 (fabric instead of seasons, full
+definitions in `server/constants/analysisDefinitions.js`, stricter tags,
+a piece description before the type, the fixed prompt before the photo)
+and wrote the answers onto the items as-is, keeping their images,
+favourites and wear history. Every match and Today entry was then deleted
+and `rematchAll.js --confirm` rebuilt the outfits.
+
+Still on 2 November 2026, after the user corrected the items by hand
+(saved as the gold standard in `server/scripts/reports/gold-standard-items.json`,
+git-ignored), Maroon was merged into Burgundy: a one-off script (deleted,
+never committed) renamed the one Maroon item's colour, without
+rematching. In `shared/colorPalettes.json` the Maroon palettes became
+Burgundy ones; the three that duplicated a Burgundy palette were deleted
+(maroon-olive-green-gold, maroon-teal-gold, maroon-forest-green-camel), two
+were folded into theirs (maroon-navy-grey added Light Blue to
+burgundy-cream-grey; maroon-black-grey added White and Cream to
+burgundy-black-grey) and the rest were renamed burgundy-*. The same day
+the women's and unisex subtypes Tube top (a top, copied from
+Halter/strappy top) and Maxi dress (a onepiece, copied from Summer dress)
+were added. On 3 November 2026 the subtype Warm jumper was renamed Chunky knit jumper (no items had it), and its score with Oversized shirt and Buttondown shirt set to 50 for every gender.
+
+`evaluateItemAnalysis.js` is kept for now: it re-runs the photo analysis
+on a user's saved items and writes a side-by-side report to
+`server/scripts/reports/` (git-ignored), changing nothing. It is to become
+the backfill script, then be deleted.
+
 ---
 
 ## Where to change things
@@ -1543,7 +1641,11 @@ favourites to a score of 100.
 | Default gender when missing | `DEFAULT_GENDER` in `matchScoreService.js` |
 | Style quiz pairing questions / their pairs / answer values | `src/constants/pairingQuestions.js` / `server/constants/pairingQuestions.js` / `PAIRING_ANSWER_ADJUSTMENTS` in `server/constants/scoring.js` (see 2.6) |
 | Today page weights, tiers and cap | `server/constants/todayOutfits.js` |
-| Favourite clothing item bonus | `FAVOURITE_ITEM_BONUS` in `server/constants/scoring.js`, logic in `server/services/favouriteItemService.js` (3.11) |
+| Today-only points: favourite item / palette | `FAVOURITE_ITEM_BONUS` / `FAVOURITE_PALETTE_BONUS` in `server/constants/todayOutfits.js`, logic in `server/services/todayScoreService.js` (7.1) |
+| Seasonality points, season temperature bands, season-named types | `server/constants/seasonality.js`, logic in `server/services/seasonalityService.js` (3.8, 7.1) |
+| Fabrics and their seasons | `shared/fabrics.json` |
+| Palette seasons | `seasons` in `shared/colorPalettes.json` |
+| Today's "few outfits" messages | `shared/todayMessages.json` |
 | Days a rejected outfit is held back / places it's kept out of | `REJECTION_COOLDOWN_DAYS` / `REJECTED_OUTFIT_TOP_GAP` in `server/constants/scoring.js` |
 | Too hot / too cold shift, mismatch penalty | `TEMPERATURE_FEEDBACK_SHIFT`, `LEARNING_DELTAS.mismatched` in `server/constants/scoring.js` (7.3) |
 | Favourite score | `FAVOURITE_SCORE` in `src/utils/matchScore.js` |
@@ -1553,7 +1655,7 @@ favourites to a score of 100.
 
 Tests: `server/specs/` (`matchService`, `matrixService`,
 `outfitScoreService`, `outfitEvaluator`, `styleColorService`,
-`matchScoreService`, `matchScoreBaseline`, `pairingQuizService`, `matchRejectionService`, `favouriteItemService`,
+`matchScoreService`, `matchScoreBaseline`, `pairingQuizService`, `matchRejectionService`, `seasonalityService`, `todaySelectionService`,
 `mismatchRules`, `temperatureFeedbackService`,
 `matchRefreshService`, `matchProtection`,
 `presetTemperatureService`,

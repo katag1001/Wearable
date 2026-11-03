@@ -1,11 +1,13 @@
 import {
   genderQuestionOptions,
+  seasonalityQuestion,
   temperatureQuestionOptions,
   styleImageOptions,
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
 import PairingPreferences from "./PairingPreferences";
 import PalettePicker from "./PalettePicker";
+import SeasonalityScale from "./SeasonalityScale";
 import "./stylePreferences.css";
 import "../../styles/pages.css";
 
@@ -17,6 +19,8 @@ const StylePreferences = () => {
     chooseGender: handleGenderSelect,
     temperature,
     chooseTemperature: handleTemperatureSelect,
+    seasonality,
+    chooseSeasonality,
     selectedImages,
     toggleImage,
     paletteOptions,
@@ -104,6 +108,16 @@ const StylePreferences = () => {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* SEASONALITY */}
+
+      <div className="style-preferences-section">
+        <h3 className="style-preferences-section-title">
+          {seasonalityQuestion.title}
+        </h3>
+
+        <SeasonalityScale value={seasonality} onChange={chooseSeasonality} />
       </div>
 
       {/* STYLE IMAGES */}

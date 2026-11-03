@@ -1,10 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import UploadImages from "../uploadImages";
-import {
-  getCategories,
-  getCategoryOf,
-  getOptionsInCategory,
-} from "@core/wardrobe/typeChoices.js";
+import TypePicker from "./typePicker";
 import "../../../styles/modal.css";
 
 
@@ -16,21 +12,6 @@ const ModalOne = ({
   typeOptions,
   subtypeSuggestions
 }) => {
-
-
-  const [selectedCategory, setSelectedCategory] = useState(
-    () => getCategoryOf(typeOptions, formData.subtype)
-  );
-
-
-  const categories = getCategories(typeOptions);
-
-
-  const subtypesInCategory = getOptionsInCategory(
-    typeOptions,
-    selectedCategory
-  );
-
 
   return (
 
@@ -83,154 +64,13 @@ const ModalOne = ({
 
         Type
 
-
-        {subtypeSuggestions.length > 0 && (
-
-          <div className="upload-suggestions">
-
-            <h3 className="selection-category-title">
-              Suggested type
-            </h3>
-
-
-            <div className="selection-grid">
-
-              {subtypeSuggestions.map(
-                suggestion => (
-
-                  <button
-                    key={suggestion.name}
-                    type="button"
-                    className={
-                      formData.subtype ===
-                      suggestion.name
-                        ? "selection-button selected"
-                        : "selection-button"
-                    }
-                    onClick={() => {
-
-                      setSelectedCategory(
-                        suggestion.category
-                      );
-
-                      chooseSubtype(suggestion.name);
-
-                    }}
-                  >
-
-                    <span className="selection-title">
-                      {suggestion.name}
-                    </span>
-
-                  </button>
-
-                )
-              )}
-
-            </div>
-
-          </div>
-
-        )}
-
-
-        <div className="selection-container">
-
-          {!selectedCategory && (
-
-            <div className="selection-category">
-
-              <h3 className="selection-category-title">
-                Category
-              </h3>
-
-
-              <div className="selection-grid">
-
-                {categories.map(
-                  category => (
-
-                    <button
-                      type="button"
-                      key={category}
-                      className="selection-button"
-                      onClick={() =>
-                        setSelectedCategory(category)
-                      }
-                    >
-
-                      <span className="selection-title">
-                        {category}
-                      </span>
-
-                    </button>
-
-                  )
-                )}
-
-              </div>
-
-            </div>
-
-          )}
-
-
-          {selectedCategory && (
-
-            <div className="selection-category">
-
-              <button
-                type="button"
-                className="modal-button secondary"
-                onClick={() =>
-                  setSelectedCategory(null)
-                }
-              >
-                ← Back
-              </button>
-
-              <div className="gap"></div>
-
-              <h3 className="selection-category-title">
-                {selectedCategory}
-              </h3>
-
-
-              <div className="selection-grid">
-
-                {subtypesInCategory.map(
-                  subtype => (
-
-                    <button
-                      type="button"
-                      key={subtype.name}
-                      className={
-                        formData.subtype ===
-                        subtype.name
-                          ? "selection-button selected"
-                          : "selection-button"
-                      }
-                      onClick={() =>
-                        chooseSubtype(subtype.name)
-                      }
-                    >
-
-                      <span className="selection-title">
-                        {subtype.name}
-                      </span>
-
-                    </button>
-
-                  )
-                )}
-
-              </div>
-
-            </div>
-
-          )}
-
-        </div>
+        <TypePicker
+          formData={formData}
+          chooseSubtype={chooseSubtype}
+          typeOptions={typeOptions}
+          subtypeSuggestions={subtypeSuggestions}
+          hasCategories
+        />
 
       </div>
 

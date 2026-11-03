@@ -1,4 +1,4 @@
-// A picture on the light image background, optionally tappable and
+// A picture on the item background (white, like the page), optionally tappable and
 // selectable (black border + tick). Without a source it shows
 // `placeholder` text instead.
 
@@ -65,7 +65,7 @@ export const ImageTile = ({
 const styles = StyleSheet.create({
   tile: {
     borderRadius: radius.lg,
-    backgroundColor: colors.imageBackground,
+    backgroundColor: colors.itemBackground,
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",

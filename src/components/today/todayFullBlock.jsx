@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import AutoWeather from './autoWeather';
 import ViewToday from './viewToday';
-import { fetchTodayInfo } from "@core/today/todayInfo.js";
+import { fetchTodayInfo, todayTagFor } from "@core/today/todayInfo.js";
 import { getCachedToday } from "@core/today/todayCache.js";
 import { formatTodayTitle } from "@core/weather/weatherText.js";
 
@@ -15,7 +15,10 @@ const TodayFullBlock = () => {
   // Start with the tag cached earlier today so the title doesn't change
   // once the preferences come back.
   const [todayTag, setTodayTag] = useState(
-    () => getCachedToday()?.todayTag ?? null
+    () => {
+      const cached = getCachedToday();
+      return cached ? todayTagFor(cached.todayTag) : null;
+    }
   );
 
   useEffect(() => {

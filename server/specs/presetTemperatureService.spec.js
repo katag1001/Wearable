@@ -77,7 +77,7 @@ test("the innermost top sets the base and each top over it moves the range down"
   const points = TOP_LAYER_POINTS.warm;
   const expected = capLong(cap(withFloor([min - points, max - points], NO_OUTER_MIN_TEMP), LAYERED_MAX_TEMPS.warmJumper));
 
-  assert.deepEqual(range([top("Warm jumper"), top("Short t-shirt"), bottom("Jeans")]), expected);
+  assert.deepEqual(range([top("Chunky knit jumper"), top("Short t-shirt"), bottom("Jeans")]), expected);
 });
 
 test("a light jumper/cardigan layer caps the maximum", () => {
@@ -133,7 +133,7 @@ test("two outers add their points together and are floored at the lower outer fl
 });
 
 test("a blazer under a trench coat is floored at the trench coat's minimum", () => {
-  const items = [top("Long-sleeve t-shirt"), top("Warm jumper"), bottom("Jeans"), outer("Tailored blazer"), outer("Classic trench")];
+  const items = [top("Long-sleeve t-shirt"), top("Chunky knit jumper"), bottom("Jeans"), outer("Tailored blazer"), outer("Classic trench")];
 
   assert.equal(range(items)[0], Math.min(OUTER_MIN_TEMPS["Tailored blazer"], OUTER_MIN_TEMPS["Classic trench"]));
 });
@@ -144,7 +144,7 @@ test("a warm top over a long top moves the range by WARM_OVER_LONG_POINTS, not t
   const expected = capLong(cap(withFloor([min - points, max - points], NO_OUTER_MIN_TEMP), LAYERED_MAX_TEMPS.warmJumper));
 
   assert.ok(WARM_OVER_LONG_POINTS < TOP_LAYER_POINTS.warm);
-  assert.deepEqual(range([top("Warm jumper"), top("Long-sleeve t-shirt"), bottom("Jeans")]), expected);
+  assert.deepEqual(range([top("Chunky knit jumper"), top("Long-sleeve t-shirt"), bottom("Jeans")]), expected);
 });
 
 test("a waistcoat is never the innermost top when there's another one", () => {
@@ -160,9 +160,9 @@ test("a waistcoat on its own is a short top", () => {
 });
 
 test("a skirt or dress outfit is never below the skirt/dress floor, even with two outers", () => {
-  const skirt = range([top("Long-sleeve t-shirt"), top("Warm jumper"), bottom("Mini skirt"), outer("Tailored blazer"), outer("Classic trench")]);
-  const dress = range([onepiece("Winter dress"), top("Warm jumper"), outer("Cropped jacket"), outer("Puffer coat")]);
-  const jeans = range([top("Long-sleeve t-shirt"), top("Warm jumper"), bottom("Jeans"), outer("Cropped jacket"), outer("Puffer coat")]);
+  const skirt = range([top("Long-sleeve t-shirt"), top("Chunky knit jumper"), bottom("Mini skirt"), outer("Tailored blazer"), outer("Classic trench")]);
+  const dress = range([onepiece("Winter dress"), top("Chunky knit jumper"), outer("Cropped jacket"), outer("Puffer coat")]);
+  const jeans = range([top("Long-sleeve t-shirt"), top("Chunky knit jumper"), bottom("Jeans"), outer("Cropped jacket"), outer("Puffer coat")]);
 
   assert.equal(skirt[0], SKIRT_DRESS_MIN_TEMP);
   assert.equal(dress[0], SKIRT_DRESS_MIN_TEMP);
@@ -175,7 +175,7 @@ test("the higher of the outer floor and the skirt/dress floor wins", () => {
 
   assert.ok(blazerFloor > SKIRT_DRESS_MIN_TEMP && duffleFloor < SKIRT_DRESS_MIN_TEMP);
   assert.ok(range([top("Long-sleeve t-shirt"), bottom("Mini skirt"), outer("Tailored blazer")])[0] >= blazerFloor);
-  assert.equal(range([top("Warm jumper"), bottom("Midi-skirt"), outer("Duffle coat")])[0], SKIRT_DRESS_MIN_TEMP);
+  assert.equal(range([top("Chunky knit jumper"), bottom("Midi-skirt"), outer("Duffle coat")])[0], SKIRT_DRESS_MIN_TEMP);
 });
 
 test("every skirt/dress subtype is a real bottom or onepiece", () => {
@@ -205,7 +205,7 @@ test("tops over a onepiece use the onepiece layer points", () => {
   const points = ONEPIECE_LAYER_POINTS.warm;
   const expected = cap(withFloor([min - points, max - points], NO_OUTER_MIN_TEMP), LAYERED_MAX_TEMPS.warmJumper);
 
-  assert.deepEqual(range([onepiece("Casual dress"), top("Warm jumper")]), expected);
+  assert.deepEqual(range([onepiece("Casual dress"), top("Chunky knit jumper")]), expected);
 });
 
 test("a top over a onepiece moves it down and uses the same layer caps", () => {
@@ -230,14 +230,14 @@ test("the temperature preference shifts both ends of the saved range", () => {
 });
 
 test("the minimum is never above the maximum", () => {
-  const [min, max] = range([top("Warm jumper"), top("Thick turtleneck jumper"), bottom("Jeans")]);
+  const [min, max] = range([top("Chunky knit jumper"), top("Thick turtleneck jumper"), bottom("Jeans")]);
   assert.ok(min <= max);
 });
 
 test("a range narrower than the minimum span is widened upwards from its floor", () => {
   // Two warm tops with no outer drop far below the no-outer floor, so the
   // floor collapses the range to a single temperature before widening.
-  const [min, max] = range([top("Warm jumper"), top("Thick turtleneck jumper"), bottom("Jeans")]);
+  const [min, max] = range([top("Chunky knit jumper"), top("Thick turtleneck jumper"), bottom("Jeans")]);
   assert.deepEqual([min, max], [NO_OUTER_MIN_TEMP, NO_OUTER_MIN_TEMP + MIN_SPAN]);
 });
 

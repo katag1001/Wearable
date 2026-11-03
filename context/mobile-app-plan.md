@@ -346,8 +346,9 @@ that would clash with the Outfits tab's `/outfits` route), opened from a
 Build button on the Outfits tab.
 
 ### 10. Today - done
-`useWeather`, `useTodayFootwear`, `useToday`, and `useSeasonPreviews` (the
-homepage's "this season" rows) → web → mobile Today tab (`expo-location`).
+`useWeather`, `useTodayFootwear` and `useToday` → web → mobile Today tab
+(`expo-location`). (The "this season" rows, `useSeasonPreviews`, were
+removed in November 2026 - outfits' seasons now come from their fabrics.)
 `src/platform/legacyAxiosAuth.js` is deleted: no web component makes its
 own API calls or touches `localStorage` any more - all of it is in `core/`.
 
@@ -425,7 +426,7 @@ moves" above.
 | `core/utils/tagOptions.js` | `getTagOption(name)` |
 | `core/hooks/useWardrobePage.js`, `useFilterPanel.js`, `useWardrobeItemForm.js`, `useAccumulatedPages.js` | Wardrobe list, filter panel, add/edit form, infinite scroll |
 | `core/hooks/useMatchesPage.js`, `useMatchCard.js`, `useCreateMatch.js`, `core/matches/` | Outfits list (+ new-match polling), card actions, building an outfit, field formatting |
-| `core/hooks/useToday.js`, `useTodayFootwear.js`, `useWeather.js`, `useSeasonPreviews.js` | Today outfits, shoes, weather + /today/create, this season's previews |
+| `core/hooks/useToday.js`, `useTodayFootwear.js`, `useWeather.js` | Today outfits, shoes, weather + /today/create |
 | `core/today/` (`wornSnapshot`, `todayCache`, `createTodayOnce`, ...), `core/footwear/footwearOrder.js`, `core/weather/weatherText.js` | Today helpers |
 | `core/wardrobe/` | `itemKinds` (clothing vs footwear), `itemValidation`, `saveWardrobeItem` (upload → save → clean up), `typeChoices`, `wardrobeTypes` |
 | `core/filters/filterDefaults.js` | The filter panel's fields and item categories |

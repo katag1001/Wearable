@@ -8,7 +8,8 @@ export const TEMPERATURE_RANGE = { min: -20, max: 50 };
 
 const capitalise = (word) => word.charAt(0).toUpperCase() + word.slice(1);
 
-// "Spring, Summer" or "N/A".
+// "Spring, Summer" or "N/A". An outfit's seasons are worked out from its
+// items (server/services/seasonalityService.js) - shown, never edited.
 export const formatMatchSeasons = (match) =>
   seasonOptions
     .filter((season) => match[season])
@@ -21,10 +22,6 @@ export const formatMatchTemperature = (match) =>
 
 // The editor's starting values.
 export const getMatchDraft = (match) => ({
-  spring: match.spring || false,
-  summer: match.summer || false,
-  autumn: match.autumn || false,
-  winter: match.winter || false,
   min_temp: match.min_temp ?? "",
   max_temp: match.max_temp ?? "",
   tags: match.tags || [],
@@ -37,10 +34,6 @@ export const getMatchDraft = (match) => ({
 
 // What Save sends.
 export const buildMatchUpdate = (draft) => ({
-  spring: draft.spring,
-  summer: draft.summer,
-  autumn: draft.autumn,
-  winter: draft.winter,
   min_temp: Number(draft.min_temp),
   max_temp: Number(draft.max_temp),
   tags: draft.tags,

@@ -1,7 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
-const cloudinary = require("../cloudinary.js");
 const jwt_secret = process.env.JWT_SECRET;
 
 const { User, Match, Today, Clothes, Preferences } = require("../models/AllModels.js");
@@ -10,6 +9,9 @@ const { waitUntil } = require("@vercel/functions");
 const { deleteAllFootwearForUser } = require("./footwearControllers.js");
 const {
   deleteReplacedImage,
+  destroyItemImages,
+  withReplacedImageFields,
+  ITEM_IMAGE_FIELDS,
   canUseImage,
   IMAGE_IN_USE_ERROR,
 } = require("../services/imageService.js");
@@ -31,9 +33,8 @@ const {
   wipeUserScores,
 } = require("../services/matchScoreService.js");
 const { USER_MADE_SCORE } = require("../constants/scoring.js");
-const { syncFavouriteItemBonus } = require("../services/favouriteItemService.js");
 const { applyPairingAnswers } = require("../services/pairingQuizService.js");
-const { cleanFavouritePalettes } = require("../utils/colorPalettes.js");
+const { cleanFavouritePalettes, getColorRules } = require("../utils/colorPalettes.js");
 const {
   findPage,
   parseIdList,
@@ -70,7 +71,10 @@ const {
   todayTierOf,
   todayFitOf,
 } = require("../services/todaySelectionService.js");
+const { todayScoreOf } = require("../services/todayScoreService.js");
 const { withUserLock } = require("../services/userLock.js");
+const { OCCASION_TAGS } = require("../constants/occasionTags.js");
+const { DEFAULT_TODAY_TAG } = require("../constants/todayOutfits.js");
 const {
   resolveTodayStart,
   applyRejection,
@@ -190,21 +194,12 @@ exports.deleteUser = async (req, res) => {
   try {
     // 1. Find all clothing items belonging to the user
     const clothes = await Clothes.find({ userId }).select(
-      "_id cloudinaryId"
+      ["_id", ...ITEM_IMAGE_FIELDS].join(" ")
     );
 
-    // 2. Delete all clothing images from Cloudinary
+    // 2. Delete all clothing images from Cloudinary (failures are logged)
     for (const item of clothes) {
-      if (item.cloudinaryId) {
-        try {
-          await cloudinary.uploader.destroy(item.cloudinaryId);
-        } catch (cloudinaryError) {
-          console.error(
-            `Failed to delete Cloudinary image ${item.cloudinaryId}:`,
-            cloudinaryError.message
-          );
-        }
-      }
+      await destroyItemImages(item, "account deleted");
     }
 
     // 3. Delete all matches belonging to the user
@@ -447,7 +442,7 @@ if (!existingItem) {
 return res.json({ message: "Item not found" });
 }
 
-const fields = pickFields(req.body, CLOTHING_FIELDS);
+const fields = withReplacedImageFields(pickFields(req.body, CLOTHING_FIELDS), existingItem);
 
 if (
   fields.cloudinaryId !== undefined &&
@@ -465,11 +460,6 @@ const updatedItem = await Clothes.findOneAndUpdate(
 
 // A new image was uploaded - the old one is no longer used.
 await deleteReplacedImage(existingItem, updatedItem);
-
-// Favouriting / unfavouriting raises or lowers its outfits' scores.
-if (!!existingItem.favourite !== !!updatedItem.favourite) {
-  await syncFavouriteItemBonus(userId, updatedItem);
-}
 
 // Only a change to a field matching reads (not e.g. the name) re-checks the
 // item's outfits and searches for new ones.
@@ -514,13 +504,8 @@ exports.deleteItem = async (req, res) => {
 
     console.log("cloudinaryId:", item.cloudinaryId);
 
-    if (item.cloudinaryId) {
-      console.log("Deleting from Cloudinary...");
-      const result = await cloudinary.uploader.destroy(
-        item.cloudinaryId
-      );
-      console.log("Cloudinary result:", result);
-    }
+    console.log("Deleting from Cloudinary...");
+    await destroyItemImages(item, "item deleted");
 
     console.log("Deleting matches...");
     await deleteMatches({ clothes: item._id, userId });
@@ -605,7 +590,7 @@ exports.createMatch = async (req, res) => {
     if (duplicate) {
       const claimed = await Match.findByIdAndUpdate(
         duplicate._id,
-        { $set: { userMade: true, score: USER_MADE_SCORE, favouriteItemBonus: 0 } },
+        { $set: { userMade: true, score: USER_MADE_SCORE } },
         { new: true, runValidators: true }
       );
 
@@ -617,12 +602,13 @@ exports.createMatch = async (req, res) => {
     // Manual outfits are never rejected - describeOutfit only computes
     // descriptive fields here (temperature, tags, role counts, etc.),
     // it never validates compatibility/colour/pattern.
-    const { temperature, gender } = await getUserMatchingPreferences(userId);
+    const { temperature, gender, colour } = await getUserMatchingPreferences(userId);
 
     const described = describeOutfit(clothes, {
       isUserMade: true,
       temperaturePreference: temperature,
       gender,
+      colorRules: getColorRules(colour),
     });
 
     // Only the checked clothes come from the request (in `described`).
@@ -921,7 +907,7 @@ exports.rejectMatch = async (req, res) => {
 // (matchRatingService.js). Body: { rating, wearing } - `wearing` when it's
 // rated as it's worn on Today. Returns { deleted: true } if the rating
 // deleted it (with its Today entries), else { deleted: false, rating,
-// score, favouriteItemBonus }.
+// score }.
 exports.rateMatch = async (req, res) => {
   const userId = req.user?.userId;
 
@@ -955,7 +941,6 @@ exports.rateMatch = async (req, res) => {
       deleted: false,
       rating: match.rating,
       score: match.score,
-      favouriteItemBonus: match.favouriteItemBonus,
     });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -1147,13 +1132,15 @@ const TODAY_CLOTHES_FIELDS =
   "name imageUrl type subtype colors lastWornDate timesWorn timesWornThisYear wornYear";
 
 // Today's tag from the weekly preferences, for the user's weekday (sent by
-// the client - "today" is the user's local day). null if none.
+// the client - "today" is the user's local day), spelt as the outfit tags
+// are. DEFAULT_TODAY_TAG if none is set, or the one set is no longer a tag.
 const getTodayTag = async (userId, dayOfWeek) => {
-  if (!WEEK_DAYS.includes(dayOfWeek)) return null;
+  if (!WEEK_DAYS.includes(dayOfWeek)) return DEFAULT_TODAY_TAG;
 
   const preferences = await Preferences.findOne({ userId }).select(dayOfWeek).lean();
+  const wanted = (preferences?.[dayOfWeek] || "").trim().toLowerCase();
 
-  return preferences?.[dayOfWeek] || null;
+  return OCCASION_TAGS.find((tag) => tag.toLowerCase() === wanted) || DEFAULT_TODAY_TAG;
 };
 
 // Builds today's outfit list - once per day. A second device (or a second
@@ -1161,7 +1148,9 @@ const getTodayTag = async (userId, dayOfWeek) => {
 // device shows the same outfits in the same order. Lists built before
 // ranking moved to the server (no rank) are rebuilt.
 //
-// The weather tiers, ranking and cap: services/todaySelectionService.js.
+// The weather tiers, ranking, notice and cap:
+// services/todaySelectionService.js. `season_today` (the user's local
+// season) only decides Today's seasonal points (todayScoreService.js).
 exports.createToday = async (req, res) => {
   const userId = req.user?.userId;
 
@@ -1221,34 +1210,47 @@ const buildToday = async ({ userId, todayStart, season_today, day_of_week, min_t
     }
 
     // type + subtype: the floors that keep a tights range from going too
-    // cold (todaySelectionService.todayFitOf).
-    const [seasonMatches, { temperature }] = await Promise.all([
-      Match.find({
-        userId,
-        [season_today]: true,
-      }).populate("clothes", "lastWornDate type subtype"),
+    // cold (todaySelectionService.todayFitOf); fabric + favourite: Today's
+    // points (todayScoreService.js).
+    const [allMatches, { temperature, colour, seasonality, favouritePalettes }] = await Promise.all([
+      Match.find({ userId }).populate("clothes", "lastWornDate type subtype fabric favourite"),
       getUserMatchingPreferences(userId),
     ]);
 
     const todayRange = { min: min_temp_today, max: max_temp_today };
 
     // Anything that could get into a weather tier.
-    const matches = seasonMatches.filter(
+    const matches = allMatches.filter(
       (match) => todayTierOf(match, todayRange, temperature) !== null
     );
 
-    // Outfits rejected in the last few days are kept out of the top places.
-    const selected = keepRejectedOutOfTop(
-      selectTodayMatches({
-        matches,
-        todayRange,
-        todayTag: await getTodayTag(userId, day_of_week),
-        temperaturePreference: temperature,
-      }),
-      todayStart
-    );
+    const scoreContext = {
+      season: season_today,
+      seasonality,
+      palettes: getColorRules(colour).palettes,
+      favouritePalettes,
+    };
+    const todayScores = new Map(matches.map((match) => [match, todayScoreOf(match, scoreContext)]));
 
-    await Today.deleteMany({ userId });
+    const { matches: chosen, notice } = selectTodayMatches({
+      matches,
+      todayRange,
+      todayTag: await getTodayTag(userId, day_of_week),
+      temperaturePreference: temperature,
+      scoreOf: (match) => todayScores.get(match),
+    });
+
+    // Outfits rejected in the last few days are kept out of the top places.
+    const selected = keepRejectedOutOfTop(chosen, todayStart);
+
+    await Promise.all([
+      Today.deleteMany({ userId }),
+      Preferences.updateOne(
+        { userId },
+        { $set: { todayNotice: { level: notice?.level ?? null, band: notice?.band ?? null, builtAt: new Date() } } },
+        { upsert: true }
+      ),
+    ]);
 
     if (!selected.length) {
       return {
@@ -1285,7 +1287,7 @@ exports.getToday = async (req, res) => {
   try {
     const todayStart = resolveTodayStart(req.query.today_start);
 
-    const [outfits, wornMatch] = await Promise.all([
+    const [outfits, wornMatch, preferences] = await Promise.all([
       // Not the ones hidden with "too hot" / "too cold".
       Today.find({ userId, hidden: { $ne: true } })
         .sort({ rank: 1, _id: 1 })
@@ -1297,12 +1299,24 @@ exports.getToday = async (req, res) => {
       Match.findOne({ userId, lastWornDate: { $gte: todayStart } })
         .sort({ lastWornDate: -1 })
         .populate("clothes", TODAY_CLOTHES_FIELDS),
+
+      Preferences.findOne({ userId }).select("todayNotice").lean(),
     ]);
+
+    // Only today's list's notice (see buildToday).
+    const notice = preferences?.todayNotice;
+    const todayNotice =
+      notice?.level && notice.builtAt && notice.builtAt >= todayStart
+        ? { level: notice.level, band: notice.band }
+        : null;
 
     return res.json({
       // An outfit deleted since the list was built has no match left.
       outfits: outfits.filter((outfit) => outfit.matchId),
       wornToday: wornMatch ? { matchId: wornMatch } : null,
+      // { level: "few" | "shopping", band: "cold" | "mild" | "hot" } or
+      // null - the message is picked from shared/todayMessages.json.
+      notice: todayNotice,
     });
   } catch (err) {
     console.error(err);
@@ -1358,6 +1372,7 @@ exports.updatePreferences = async (req, res) => {
       colour,
       pattern,
       temperature,
+      seasonality,
       favouritePalettes,
       pairingAnswers,
     } = req.body;
@@ -1389,6 +1404,7 @@ exports.updatePreferences = async (req, res) => {
           colour,
           pattern,
           temperature,
+          seasonality,
           favouritePalettes: cleanFavouritePalettes(favouritePalettes),
         },
         $setOnInsert: {

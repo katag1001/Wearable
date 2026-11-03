@@ -1,10 +1,11 @@
 import React from "react";
 import UploadImages from "../clothes/uploadImages";
+import TypePicker from "../clothes/uploadComponents/typePicker";
 import "../../styles/modal.css";
 
 // Page one of the footwear form: name, image and type. Footwear has a
-// single category, so every type is shown straight away (no category
-// step or Back button, unlike clothing's ModalOne).
+// single category, so every type is shown straight away (TypePicker
+// without categories).
 const FootwearModalOne = ({
   formData,
   updateField,
@@ -13,26 +14,6 @@ const FootwearModalOne = ({
   footwearOptions,
   subtypeSuggestions
 }) => {
-
-  const selectSubtype = chooseSubtype;
-
-  const renderSubtypeButton = (option) => (
-    <button
-      key={option.name}
-      type="button"
-      className={
-        formData.subtype === option.name
-          ? "selection-button selected"
-          : "selection-button"
-      }
-      onClick={() => selectSubtype(option.name)}
-    >
-      <span className="selection-title">
-        {option.name}
-      </span>
-    </button>
-  );
-
 
   return (
 
@@ -77,38 +58,13 @@ const FootwearModalOne = ({
 
         Type
 
-        {subtypeSuggestions.length > 0 && (
-
-          <div className="upload-suggestions">
-
-            <h3 className="selection-category-title">
-              Suggested type
-            </h3>
-
-            <div className="selection-grid">
-              {subtypeSuggestions.map(renderSubtypeButton)}
-            </div>
-
-          </div>
-
-        )}
-
-
-        <div className="selection-container">
-
-          <div className="selection-category">
-
-            <h3 className="selection-category-title">
-              Footwear
-            </h3>
-
-            <div className="selection-grid">
-              {footwearOptions.map(renderSubtypeButton)}
-            </div>
-
-          </div>
-
-        </div>
+        <TypePicker
+          formData={formData}
+          chooseSubtype={chooseSubtype}
+          typeOptions={footwearOptions}
+          subtypeSuggestions={subtypeSuggestions}
+          hasCategories={false}
+        />
 
       </div>
 

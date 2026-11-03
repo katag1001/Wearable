@@ -117,7 +117,7 @@ export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
   useEffect(() => {
     if (!data) return;
 
-    const { weather, season } = readTodayWeather();
+    const { weather } = readTodayWeather();
     const added = {};
 
     for (const outfit of outfits || []) {
@@ -143,7 +143,6 @@ export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
         bottomSubtype,
         pairings: data.pairings,
         weather,
-        season,
         todayTag,
         withTights: tightsOf(outfit),
         outfitColors: outfit.matchId.colors || [],

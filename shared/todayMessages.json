@@ -1,0 +1,31 @@
+{
+  "_about": "Messages shown on Today when few outfits fit the weather (server/services/todaySelectionService.js decides the level, core/today/weatherNotice.js picks one). Edit freely: each list needs at least one message. Bands: cold below 10C, mild 10-20C, hot above 20C (today's daytime average).",
+  "few": {
+    "cold": [
+      "Brrr! It's cold today, and your wardrobe's a bit light for it.",
+      "Wrap up! Not many of your outfits are built for this chill.",
+      "Chilly one! Your clothes are more of a mild-weather crowd."
+    ],
+    "mild": [
+      "Funny weather today - only a few outfits really fit.",
+      "In-between weather! Slim pickings in your wardrobe for this one."
+    ],
+    "hot": [
+      "Phew, it's a scorcher! Not many of your outfits are made for this heat.",
+      "Hot, hot, hot! Your wardrobe's better at cooler days."
+    ]
+  },
+  "shopping": {
+    "cold": [
+      "Time for a coat-shopping trip? Your wardrobe isn't ready for this cold.",
+      "Your wardrobe needs some winter warmers - shopping, anyone?"
+    ],
+    "mild": [
+      "You might need to do some shopping - we're struggling to dress you today!"
+    ],
+    "hot": [
+      "Your wardrobe could use some summer pieces - shopping trip?",
+      "Too hot for most of your clothes - maybe it's time for something breezy?"
+    ]
+  }
+}

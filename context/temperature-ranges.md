@@ -48,7 +48,7 @@ values at the time of writing; the file is the source of truth.
 
 A Waistcoat (`OVER_ONLY_TOPS`) is short on its own - worn like a vest - but
 with another top it's always the layer over it, never the innermost.
-| warm | Hoodie/sweatshirt, Warm jumper, Turtleneck jumper, Warm cardigan |
+| warm | Hoodie/sweatshirt, Chunky knit jumper, Turtleneck jumper, Warm cardigan |
 
 | Bottom group | Subtypes |
 |---|---|
@@ -108,7 +108,7 @@ with another top it's always the layer over it, never the innermost.
   keeps the floor exact - 14–14 becomes 14–17.
 - `LAYERED_MAX_TEMPS` - the highest maximum for an outfit with a top worn
   as an extra layer, by the warmest layer's kind (`LAYER_KINDS`):
-  **warmJumper** 18 (Hoodie/sweatshirt, Warm jumper, Turtleneck jumper,
+  **warmJumper** 18 (Hoodie/sweatshirt, Chunky knit jumper, Turtleneck jumper,
   Warm cardigan), **lightJumper** 24 (Light jumper, Light cardigan),
   **other** 28 (any other top - a shirt over a t-shirt, a waistcoat, a
   blouse over a dress). Part 2, step 5.
@@ -197,13 +197,13 @@ or bottom, a 15–25 onepiece, a 5-point outer). It's reported in
 
 ### Worked example
 
-Short t-shirt + Warm jumper + Denim jacket + Wide leg jeans, "cold"
+Short t-shirt + Chunky knit jumper + Denim jacket + Wide leg jeans, "cold"
 preference, with the values above:
 
 | Step | Range |
 |---|---|
 | 1. Base: short top (the t-shirt) + long bottom | 17–28 |
-| 2. Warm jumper over a short top, −11 | 6–17 |
+| 2. Chunky knit jumper over a short top, −11 | 6–17 |
 | 3. Denim jacket, −2 (maximum capped at 25 − 2 = 23), minimum kept 7° below the maximum | 4–15 |
 | 4. One outer: minimum raised to the Denim jacket's 10 | 10–15 |
 | 5. Caps: warm jumper layer 18, long bottom 25 - 15 is already under both | 10–15 |

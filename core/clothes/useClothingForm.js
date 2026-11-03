@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { getInitialState } from "./uploadHelpers.js";
 
-export const useClothingForm = (item, typeOptions) => {
+// `initialFields` (a new item only) start the form filled in - e.g. from
+// the photo analysis (core/hooks/usePhotoAnalysis.js).
+export const useClothingForm = (item, typeOptions, initialFields = null) => {
 
   const [formData, setFormData] = useState(
-    item
+    item || initialFields
       ? {
           ...getInitialState(),
-          ...item
+          ...(item || initialFields)
         }
       : getInitialState()
   );
@@ -66,16 +68,6 @@ export const useClothingForm = (item, typeOptions) => {
   };
 
 
-  const toggleSeason = (season) => {
-
-    setFormData(prev => ({
-      ...prev,
-      [season]: !prev[season]
-    }));
-
-  };
-
-
   const chooseSubtype = (subtype) => {
 
     const option = typeOptions.find(
@@ -112,7 +104,6 @@ export const useClothingForm = (item, typeOptions) => {
     updateField,
     toggleColor,
     toggleTag,
-    toggleSeason,
     chooseSubtype,
 
     resetForm

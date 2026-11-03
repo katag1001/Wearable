@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     flex: 1,
     aspectRatio: 1,
     borderRadius: radius.md,
-    backgroundColor: colors.imageBackground,
+    backgroundColor: colors.itemBackground,
   },
   clothing: {
     gap: spacing.xs,

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { getErrorMessage } from "../api/errors.js";
 import { getPreferences, updatePreferences } from "../api/preferences.js";
+import { DEFAULT_SEASONALITY_ANSWER } from "../constants/styleQuizOptions.js";
 import { asksPairingQuestions } from "../styleQuiz/quizSteps.js";
 import { favouritePaletteOptions, toggleFavouritePalette } from "../utils/colourPalettes.js";
 import { resolveStyleQuiz } from "../utils/resolveStyleQuiz.js";
@@ -10,7 +11,7 @@ import { useFlashMessage } from "./useFlashMessage.js";
 /*
  * The Style Preferences screen: change the style quiz answers later.
  *
- * Gender, temperature and favourite palettes load from the saved
+ * Gender, seasonality, temperature and favourite palettes load from the saved
  * preferences. The style images and pairing questions always start blank
  * (the answers aren't stored, only their effect): images update colour +
  * pattern only if any are picked, and only answered pairing questions are
@@ -19,6 +20,7 @@ import { useFlashMessage } from "./useFlashMessage.js";
 export const useStylePreferences = () => {
   const [gender, setGender] = useState(null);
   const [temperature, setTemperature] = useState(null);
+  const [seasonality, setSeasonality] = useState(DEFAULT_SEASONALITY_ANSWER);
   const [savedColour, setSavedColour] = useState(null);
   const [favouritePalettes, setFavouritePalettes] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
@@ -36,6 +38,7 @@ export const useStylePreferences = () => {
 
         setGender(data?.gender ?? null);
         setTemperature(data?.temperature ?? null);
+        setSeasonality(data?.seasonality ?? DEFAULT_SEASONALITY_ANSWER);
         setSavedColour(data?.colour ?? null);
         setFavouritePalettes(data?.favouritePalettes ?? []);
       } catch (err) {
@@ -63,6 +66,11 @@ export const useStylePreferences = () => {
 
   const chooseTemperature = (value) => {
     setTemperature(value);
+    clearMessages();
+  };
+
+  const chooseSeasonality = (value) => {
+    setSeasonality(value);
     clearMessages();
   };
 
@@ -101,7 +109,7 @@ export const useStylePreferences = () => {
   const showPairingQuestions = asksPairingQuestions(gender);
 
   const buildChanges = () => {
-    const changes = { gender, temperature, favouritePalettes };
+    const changes = { gender, temperature, seasonality, favouritePalettes };
 
     if (selectedImages.length > 0) {
       Object.assign(changes, resolveStyleQuiz(selectedImages));
@@ -142,6 +150,8 @@ export const useStylePreferences = () => {
     chooseGender,
     temperature,
     chooseTemperature,
+    seasonality,
+    chooseSeasonality,
     selectedImages,
     toggleImage,
     paletteOptions,

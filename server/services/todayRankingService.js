@@ -7,8 +7,9 @@
 //
 // Order: outfits with today's tag first, then the rest; each group by a
 // weighted mix of how long since its clothes were worn, how long since the
-// outfit was worn, and its match score (RANKING_WEIGHTS), plus a small
-// random nudge (RANKING_JITTER). todaySelectionService.js then spreads out
+// outfit was worn, and its score (RANKING_WEIGHTS) - the Today score
+// (todayScoreService.js) when `scoreOf` gives it - plus a small random
+// nudge (RANKING_JITTER). todaySelectionService.js then spreads out
 // outfits sharing an item (todayDiversityService.js).
 
 const {
@@ -54,15 +55,15 @@ const clothingFreshness = (match, now) => {
   return total / clothes.length;
 };
 
-// The match's 0-100 score on the same 0-10 scale.
-const matchScore = (match) => {
-  return (typeof match.score === "number" ? match.score : 0) / 10;
-};
+// The match's saved score - the default for `scoreOf`.
+const savedScore = (match) => (typeof match.score === "number" ? match.score : 0);
 
-const rankingScore = (match, now) =>
+// `scoreOf(match)` is on the 0-100 scale (a Today score can go above
+// 100); it counts on the same 0-10 scale as freshness.
+const rankingScore = (match, now, scoreOf = savedScore) =>
   clothingFreshness(match, now) * RANKING_WEIGHTS.clothingFreshness +
   freshness(match.lastWornDate, now) * RANKING_WEIGHTS.outfitFreshness +
-  matchScore(match) * RANKING_WEIGHTS.score;
+  (scoreOf(match) / 10) * RANKING_WEIGHTS.score;
 
 // Tags are compared ignoring case and spaces at the ends.
 const hasTag = (match, todayTag) => {
@@ -72,13 +73,19 @@ const hasTag = (match, todayTag) => {
 };
 
 // The matches in today's order, as [tagged, untagged] groups (new arrays).
-// Each score gets a random nudge (todayDiversityService.jitter); pass
+// Each score gets a random nudge (todayDiversityService.jitter) last; pass
 // `random` to control it.
-const rankTodayGroups = (matches, todayTag = null, now = new Date(), random = Math.random) => {
+const rankTodayGroups = (
+  matches,
+  todayTag = null,
+  now = new Date(),
+  random = Math.random,
+  scoreOf = savedScore
+) => {
   const scored = matches.map((match) => ({
     match,
     tagged: !todayTag || hasTag(match, todayTag),
-    score: rankingScore(match, now) + jitter(random),
+    score: rankingScore(match, now, scoreOf) + jitter(random),
   }));
 
   const byScore = (a, b) => b.score - a.score;

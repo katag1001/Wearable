@@ -16,6 +16,9 @@ export const colors = {
   border: "#ddd8d0",
   hoverBorder: "#aaa39a",
   imageBackground: "#f1efeb",
+  // Behind item photos (transparent, background removed): the same white as
+  // the page, so items blend into it.
+  itemBackground: "#fff",
 
   errorBackground: "#faf0ee",
   errorBorder: "#e5c9c4",

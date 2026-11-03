@@ -17,6 +17,7 @@
 const DRESSES = [
   "Strappy summer dress",
   "Summer dress",
+  "Maxi dress",
   "Buttondown dress",
   "Shirt dress",
   "Wedding guest dress",
@@ -67,7 +68,7 @@ const pairingQuestions = {
   },
 
   croptopsLowRise: {
-    pairGroups: [[["Croptop", "Halter/strappy top"], ["Low waist jeans"]]],
+    pairGroups: [[["Croptop", "Halter/strappy top", "Tube top"], ["Low waist jeans"]]],
   },
 };
 

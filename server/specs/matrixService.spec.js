@@ -18,13 +18,13 @@ const outer = (subtype) => ({ type: "outer", subtype });
 
 // A small symmetric matrix: null = never, a number = compatible.
 const baseline = {
-  "Short t-shirt": { "Short t-shirt": null, "Warm jumper": 80, Jeans: 90, Chinos: 70, Overalls: 85, "Puffer coat": 60, "Linen shirt": null },
-  "Warm jumper": { "Short t-shirt": 80, "Warm jumper": null, Jeans: 85, Chinos: 80, Overalls: null, "Puffer coat": 70, "Linen shirt": null },
-  "Linen shirt": { "Short t-shirt": null, "Warm jumper": null, Jeans: 70, Chinos: 85, Overalls: null, "Puffer coat": 20, "Linen shirt": null },
-  Jeans: { "Short t-shirt": 90, "Warm jumper": 85, "Linen shirt": 70, Jeans: null, Chinos: null, Overalls: null, "Puffer coat": 75 },
-  Chinos: { "Short t-shirt": 70, "Warm jumper": 80, "Linen shirt": 85, Jeans: null, Chinos: null, Overalls: null, "Puffer coat": 60 },
-  Overalls: { "Short t-shirt": 85, "Warm jumper": null, "Linen shirt": null, Jeans: null, Chinos: null, Overalls: null, "Puffer coat": 70 },
-  "Puffer coat": { "Short t-shirt": 60, "Warm jumper": 70, "Linen shirt": 20, Jeans: 75, Chinos: 60, Overalls: 70, "Puffer coat": null },
+  "Short t-shirt": { "Short t-shirt": null, "Chunky knit jumper": 80, Jeans: 90, Chinos: 70, Overalls: 85, "Puffer coat": 60, "Linen shirt": null },
+  "Chunky knit jumper": { "Short t-shirt": 80, "Chunky knit jumper": null, Jeans: 85, Chinos: 80, Overalls: null, "Puffer coat": 70, "Linen shirt": null },
+  "Linen shirt": { "Short t-shirt": null, "Chunky knit jumper": null, Jeans: 70, Chinos: 85, Overalls: null, "Puffer coat": 20, "Linen shirt": null },
+  Jeans: { "Short t-shirt": 90, "Chunky knit jumper": 85, "Linen shirt": 70, Jeans: null, Chinos: null, Overalls: null, "Puffer coat": 75 },
+  Chinos: { "Short t-shirt": 70, "Chunky knit jumper": 80, "Linen shirt": 85, Jeans: null, Chinos: null, Overalls: null, "Puffer coat": 60 },
+  Overalls: { "Short t-shirt": 85, "Chunky knit jumper": null, "Linen shirt": null, Jeans: null, Chinos: null, Overalls: null, "Puffer coat": 70 },
+  "Puffer coat": { "Short t-shirt": 60, "Chunky knit jumper": 70, "Linen shirt": 20, Jeans: 75, Chinos: 60, Overalls: 70, "Puffer coat": null },
 };
 
 test("canonicalPairKey and pairKey sort a pair the same way regardless of input order", () => {
@@ -35,7 +35,7 @@ test("canonicalPairKey and pairKey sort a pair the same way regardless of input 
 
 test("isCompatible is true when the matrix has a score, and false for null", () => {
   assert.equal(isCompatible(baseline, top("Short t-shirt"), bottom("Jeans")), true);
-  assert.equal(isCompatible(baseline, top("Short t-shirt"), top("Warm jumper")), true);
+  assert.equal(isCompatible(baseline, top("Short t-shirt"), top("Chunky knit jumper")), true);
   assert.equal(isCompatible(baseline, top("Short t-shirt"), top("Linen shirt")), false);
 });
 
@@ -67,18 +67,18 @@ test("a subtype missing from the matrix is never compatible", () => {
 });
 
 test("canStandAlone checks the hardcoded requires-layering list", () => {
-  const requiresLayeringSet = new Set(["Warm jumper"]);
+  const requiresLayeringSet = new Set(["Chunky knit jumper"]);
 
-  assert.equal(canStandAlone(requiresLayeringSet, "Warm jumper"), false);
+  assert.equal(canStandAlone(requiresLayeringSet, "Chunky knit jumper"), false);
   assert.equal(canStandAlone(requiresLayeringSet, "Short t-shirt"), true);
-  assert.equal(canStandAlone(undefined, "Warm jumper"), true);
+  assert.equal(canStandAlone(undefined, "Chunky knit jumper"), true);
 });
 
 test("fitsShape: a top that requires layering needs a 2-top shape", () => {
-  const layeringRules = { requiresLayeringSet: new Set(["Warm jumper"]) };
+  const layeringRules = { requiresLayeringSet: new Set(["Chunky knit jumper"]) };
 
-  assert.equal(fitsShape(top("Warm jumper"), { top: 1, bottom: 1, onepiece: 0, outer: 0 }, layeringRules), false);
-  assert.equal(fitsShape(top("Warm jumper"), { top: 2, bottom: 1, onepiece: 0, outer: 0 }, layeringRules), true);
+  assert.equal(fitsShape(top("Chunky knit jumper"), { top: 1, bottom: 1, onepiece: 0, outer: 0 }, layeringRules), false);
+  assert.equal(fitsShape(top("Chunky knit jumper"), { top: 2, bottom: 1, onepiece: 0, outer: 0 }, layeringRules), true);
 });
 
 test("fitsShape: a onepiece that requires a top needs a shape with a top", () => {
@@ -103,11 +103,11 @@ test("isCliqueValid fails when any one pair is incompatible", () => {
 });
 
 test("isCliqueValid rejects a lone top on the requires-layering list, and allows it once layered", () => {
-  const layeringRules = { requiresLayeringSet: new Set(["Warm jumper"]) };
+  const layeringRules = { requiresLayeringSet: new Set(["Chunky knit jumper"]) };
 
-  assert.equal(isCliqueValid([top("Warm jumper"), bottom("Jeans")], baseline, layeringRules), false);
+  assert.equal(isCliqueValid([top("Chunky knit jumper"), bottom("Jeans")], baseline, layeringRules), false);
   assert.equal(
-    isCliqueValid([top("Warm jumper"), top("Short t-shirt"), bottom("Jeans")], baseline, layeringRules),
+    isCliqueValid([top("Chunky knit jumper"), top("Short t-shirt"), bottom("Jeans")], baseline, layeringRules),
     true
   );
 });

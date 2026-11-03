@@ -8,7 +8,6 @@ import Feather from "@expo/vector-icons/Feather";
 import { router, useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Pressable,
   RefreshControl,
@@ -26,7 +25,6 @@ import {
   fontWeights,
   spacing,
 } from "@core/theme/tokens.js";
-import { WARDROBE_KIND_LIST } from "@core/wardrobe/itemKinds.js";
 
 import { FilterSheet } from "../../components/filters/FilterSheet";
 import {
@@ -50,14 +48,9 @@ const openItemForm = (kind, item = null) => {
   });
 };
 
-const chooseKindToAdd = () =>
-  Alert.alert("Add item", "What would you like to add?", [
-    ...WARDROBE_KIND_LIST.map(({ kind, label }) => ({
-      text: label,
-      onPress: () => openItemForm(kind),
-    })),
-    { text: "Cancel", style: "cancel" },
-  ]);
+// A new item starts from its photo (item/add.jsx), which can still switch
+// to adding by hand.
+const addItem = () => router.push("/item/add");
 
 export default function WardrobeScreen() {
   const wardrobe = useWardrobePage();
@@ -108,7 +101,7 @@ export default function WardrobeScreen() {
           </Text>
 
           <Pressable
-            onPress={chooseKindToAdd}
+            onPress={addItem}
             accessibilityRole="button"
             accessibilityLabel="Add item"
             hitSlop={10}
@@ -174,7 +167,7 @@ export default function WardrobeScreen() {
               }
               text="Add your first item - outfits are made from your clothes automatically."
             >
-              <Button label="Add item" onPress={chooseKindToAdd} />
+              <Button label="Add item" onPress={addItem} />
             </EmptyState>
           ) : (
             <EmptyState

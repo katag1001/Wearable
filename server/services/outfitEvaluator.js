@@ -5,12 +5,13 @@
 //
 //  - describeOutfit: ALWAYS runs, and NEVER rejects a user-made outfit. It
 //    computes the descriptive fields (temperature, role counts, tags,
-//    combined colours/patterns) for any finished item-set - auto-generated or
-//    manually built by the user. The temperature range comes from the
-//    outfit's subtypes alone, so it never causes a rejection. For an
+//    season flags, combined colours/patterns) for any finished item-set -
+//    auto-generated or manually built by the user. The temperature range
+//    comes from the outfit's subtypes alone, so it never causes a
+//    rejection; nor do seasons (services/seasonalityService.js). For an
 //    auto-search candidate only, it returns null if the items share no
-//    season or no tag. A user-made outfit with no shared tag is still
-//    described - it just gets an empty tag list.
+//    tag. A user-made outfit with no shared tag is still described - it
+//    just gets an empty tag list.
 //
 //  - validateOutfit: the gate used ONLY for auto-generated candidates -
 //    fixed compatibility (including layering rules) + no mismatched pair
@@ -30,6 +31,8 @@ const { hasMismatchedPair } = require("./mismatchRules.js");
 const { computeMatchTags } = require("./helpers.js");
 const { canWearTights } = require("./tightsService.js");
 const { PLAIN } = require("../constants/patternRules.js");
+const { outfitSeasonFlags } = require("./seasonalityService.js");
+const { getColorRules } = require("../utils/colorPalettes.js");
 
 const ROLE_TYPE_TO_COUNT_FIELD = {
   top: "topCount",
@@ -57,41 +60,30 @@ function countRoles(items) {
   return counts;
 }
 
-const SEASONS = ["spring", "summer", "autumn", "winter"];
-
-function computeSeasons(items) {
-  const seasons = {};
-
-  SEASONS.forEach((season) => {
-    seasons[season] = items.every((item) => item[season]);
-  });
-
-  return seasons;
-}
-
-// True if there's at least one season every item shares. Monotonic - once
-// false for a partial item-set, adding more items can never make it true
-// again - so this is safe to check early/incrementally during a search, not
-// just on a finished item-set.
-function hasSharedSeason(items) {
-  return SEASONS.some((season) => items.every((item) => item[season]));
-}
-
-// `gender` picks the gender-specific tag requirements (constants/occasionTags.js).
-function describeOutfit(items, { isUserMade, temperaturePreference = null, gender = null }) {
+// `gender` picks the gender-specific tag requirements (constants/occasionTags.js);
+// `colorRules` (the user's colour level, utils/colorPalettes.js) the palettes
+// whose seasons count towards the season flags.
+function describeOutfit(
+  items,
+  { isUserMade, temperaturePreference = null, gender = null, colorRules = getColorRules(null) }
+) {
   const { min_temp, max_temp } = computePresetTemperatureRange(items, temperaturePreference);
 
-  const seasons = computeSeasons(items);
-
-  // An automatic outfit needs a season and an occasion tag in common - after
-  // the tag requirements, which can only be judged on the finished outfit.
-  if (!isUserMade && (!hasSharedSeason(items) || computeMatchTags(items, gender).length === 0)) {
+  // An automatic outfit needs an occasion tag in common - after the tag
+  // requirements, which can only be judged on the finished outfit.
+  if (!isUserMade && computeMatchTags(items, gender).length === 0) {
     return null;
   }
 
   const roleCounts = countRoles(items);
 
   const colors = [...new Set(items.flatMap((item) => item.colors || []))];
+  const seasons = outfitSeasonFlags({
+    items,
+    colours: colors,
+    palettes: colorRules.palettes,
+    range: { min_temp, max_temp },
+  });
   // Every item's pattern (an item saved before pattern existed counts as Plain).
   const patterns = [...new Set(items.map((item) => item.pattern || PLAIN))];
   const tags = computeMatchTags(items, gender);
@@ -133,4 +125,4 @@ function validateOutfit(items, { baselineMatrix, layeringRules, colorRules, patt
   return true;
 }
 
-module.exports = { describeOutfit, validateOutfit, countRoles, hasSharedSeason };
+module.exports = { describeOutfit, validateOutfit, countRoles };

@@ -21,7 +21,7 @@ test("parseClothingQuery ignores an unknown type", () => {
   assert.equal(parseClothingQuery({ type: "outer" }).type, "outer");
 });
 
-test("buildClothingFilter combines type, any-of seasons, colours and patterns", () => {
+test("buildClothingFilter combines type, colours and patterns (items have no seasons)", () => {
   const filter = buildClothingFilter(
     USER,
     parseClothingQuery({
@@ -34,7 +34,6 @@ test("buildClothingFilter combines type, any-of seasons, colours and patterns", 
 
   assert.deepEqual(filter.$and, [
     { type: "top" },
-    { $or: [{ summer: true }, { spring: true }] },
     { colors: { $in: ["blue", "red"] } },
     { pattern: { $in: ["Stripe", "Floral"] } },
   ]);

@@ -21,7 +21,7 @@ const MAX_PATTERNED_ITEMS = { min: 1, mid: 2, max: 2 };
 
 const REPEATABLE_PATTERNS = ["Lace/broderie"];
 
-const BOLD_PATTERNS = ["Floral", "Animal print", "Paisley", "Geometric", "Abstract", "Camo"];
+const BOLD_PATTERNS = ["Floral", "Animal print", "Paisley", "Geometric", "Camo"];
 
 // The levels that allow two bold patterns together.
 const BOLD_PAIR_LEVELS = ["max"];

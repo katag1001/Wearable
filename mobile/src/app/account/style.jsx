@@ -6,6 +6,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { pairingAnswerOptions } from "@core/constants/pairingQuestions.js";
 import {
   genderQuestionOptions,
+  seasonalityQuestion,
   styleImageOptions,
   temperatureQuestionOptions,
 } from "@core/constants/styleQuizOptions.js";
@@ -24,6 +25,7 @@ import {
   SectionTitle,
 } from "../../components/ui";
 import { PalettePicker } from "../../components/styleQuiz/PalettePicker";
+import { SeasonalityScale } from "../../components/styleQuiz/SeasonalityScale";
 
 export default function StylePreferencesScreen() {
   const style = useStylePreferences();
@@ -56,6 +58,9 @@ export default function StylePreferencesScreen() {
           onPress={() => style.chooseTemperature(option.value)}
         />
       ))}
+
+      <SectionTitle title={seasonalityQuestion.title} />
+      <SeasonalityScale value={style.seasonality} onChange={style.chooseSeasonality} />
 
       <SectionTitle
         title="Select all that apply"

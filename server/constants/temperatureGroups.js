@@ -17,7 +17,7 @@ const TOP_GROUPS = {
   short: [
     "Short t-shirt", "Vest", "Croptop", "Off-the-shoulder top", "Linen shirt",
     "Bodysuit", "Fancy top", "Party top", "Tunic", "Waistcoat", "Knit vest/tank",
-    "Halter/strappy top",
+    "Halter/strappy top", "Tube top",
   ],
   long: [
     "Long-sleeve t-shirt", "Buttondown shirt", "Fancy blouse", "Short turtleneck",
@@ -26,7 +26,7 @@ const TOP_GROUPS = {
     "Oversized shirt",
   ],
   warm: [
-    "Hoodie/sweatshirt", "Warm jumper", "Thick turtleneck jumper", "Warm cardigan",
+    "Hoodie/sweatshirt", "Chunky knit jumper", "Thick turtleneck jumper", "Warm cardigan",
   ],
 };
 
@@ -59,6 +59,7 @@ const BASE_RANGES = {
 const ONEPIECE_RANGES = {
   "Strappy summer dress": [22, 36],
   "Summer dress": [22, 36],
+  "Maxi dress": [20, 34],
   "Buttondown dress": [22, 36],
   "Shirt dress": [22, 36],
   "Playsuit": [21, 34],
@@ -135,7 +136,7 @@ const SKIRT_DRESS_MIN_TEMP = 7;
 const SKIRT_DRESS_SUBTYPES = [
   "Mini skirt", "Winter mini skirt", "Floaty maxi skirt", "Fitted maxi skirt",
   "Smart skirt", "Midi-skirt", "Strappy summer dress", "Summer dress",
-  "Buttondown dress", "Shirt dress", "Casual dress", "Wedding guest dress", "Cocktail dress",
+  "Maxi dress", "Buttondown dress", "Shirt dress", "Casual dress", "Wedding guest dress", "Cocktail dress",
   "Evening dress", "Work dress", "Winter dress",
 ];
 
@@ -159,7 +160,7 @@ const OVER_ONLY_TOPS = ["Waistcoat"];
 // any other top worn as a layer (a shirt over a t-shirt, a waistcoat, a
 // blouse over a dress) uses the "other" cap.
 const LAYER_KINDS = {
-  warmJumper: ["Hoodie/sweatshirt", "Warm jumper", "Thick turtleneck jumper", "Warm cardigan"],
+  warmJumper: ["Hoodie/sweatshirt", "Chunky knit jumper", "Thick turtleneck jumper", "Warm cardigan"],
   lightJumper: ["Fine-knit jumper", "Thin turtleneck jumper", "Light cardigan"],
 };
 

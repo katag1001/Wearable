@@ -4,6 +4,7 @@
 
 import {
   genderQuestionOptions,
+  seasonalityQuestion,
   temperatureQuestionOptions,
 } from "@core/constants/styleQuizOptions.js";
 import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
@@ -13,6 +14,7 @@ import { ImagesStep } from "../components/styleQuiz/ImagesStep";
 import { PairingStep } from "../components/styleQuiz/PairingStep";
 import { PalettesStep } from "../components/styleQuiz/PalettesStep";
 import { QuizActions } from "../components/styleQuiz/QuizActions";
+import { SeasonalityScale } from "../components/styleQuiz/SeasonalityScale";
 import { WeeklyStep } from "../components/styleQuiz/WeeklyStep";
 import { Button, ChoiceCard, Message, Screen } from "../components/ui";
 
@@ -30,6 +32,7 @@ const STEP_TITLES = {
     title: "What do you wear through the week?",
     subtitle: "Pick a day, then what you usually wear that day.",
   },
+  seasonality: { title: seasonalityQuestion.title },
   temperature: { title: "Do you generally feel too cold or too hot?" },
 };
 
@@ -70,6 +73,13 @@ export default function StyleQuizScreen() {
       {quiz.step === "pairing" && <PairingStep quiz={quiz} />}
 
       {quiz.step === "weekly" && <WeeklyStep quiz={quiz} />}
+
+      {quiz.step === "seasonality" && (
+        <>
+          <SeasonalityScale value={quiz.seasonality} onChange={quiz.setSeasonality} />
+          <QuizActions onBack={quiz.goBack} onNext={quiz.goToNextStep} />
+        </>
+      )}
 
       {quiz.step === "temperature" && (
         <>

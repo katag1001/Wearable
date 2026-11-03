@@ -2,7 +2,7 @@
   "man": {
     "top": [
       "Hoodie/sweatshirt",
-      "Warm jumper",
+      "Chunky knit jumper",
       "Warm cardigan",
       "Fine-knit jumper",
       "Buttondown shirt",
@@ -56,7 +56,7 @@
   "woman": {
     "top": [
       "Hoodie/sweatshirt",
-      "Warm jumper",
+      "Chunky knit jumper",
       "Thick turtleneck jumper",
       "Thin turtleneck jumper",
       "Warm cardigan",
@@ -80,6 +80,7 @@
       "Vest",
       "Knit vest/tank",
       "Halter/strappy top",
+      "Tube top",
       "Croptop",
       "Off-the-shoulder top",
       "Tunic"
@@ -120,6 +121,7 @@
       "Overalls",
       "Strappy summer dress",
       "Summer dress",
+      "Maxi dress",
       "Buttondown dress",
       "Shirt dress",
       "Wedding guest dress",
@@ -155,7 +157,7 @@
   "unisex": {
     "top": [
       "Hoodie/sweatshirt",
-      "Warm jumper",
+      "Chunky knit jumper",
       "Thick turtleneck jumper",
       "Thin turtleneck jumper",
       "Warm cardigan",
@@ -179,6 +181,7 @@
       "Vest",
       "Knit vest/tank",
       "Halter/strappy top",
+      "Tube top",
       "Croptop",
       "Off-the-shoulder top",
       "Tunic"
@@ -222,6 +225,7 @@
       "Overalls",
       "Strappy summer dress",
       "Summer dress",
+      "Maxi dress",
       "Buttondown dress",
       "Shirt dress",
       "Wedding guest dress",

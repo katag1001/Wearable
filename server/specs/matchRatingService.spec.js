@@ -11,7 +11,6 @@ const {
 
 const outfit = (extra = {}) => ({
   score: 74,
-  favouriteItemBonus: 7,
   rating: null,
   favourite: false,
   userMade: false,
@@ -50,14 +49,11 @@ test("1 or 2 stars while wearing it on Today keeps any outfit at 60", () => {
   }
 });
 
-test("applyRating saves the rating and score and drops the favourite-item bonus", () => {
+test("applyRating saves the rating and score", () => {
   const match = outfit();
 
   assert.equal(applyRating(match, 4), true);
-  assert.deepEqual(
-    { rating: match.rating, score: match.score, favouriteItemBonus: match.favouriteItemBonus },
-    { rating: 4, score: 85, favouriteItemBonus: 0 }
-  );
+  assert.deepEqual({ rating: match.rating, score: match.score }, { rating: 4, score: 85 });
 });
 
 test("applyRating leaves an outfit that's to be deleted unchanged", () => {
@@ -71,7 +67,7 @@ test("favouriting sets the score to 100 and unfavouriting to 85, without touchin
   const match = outfit({ rating: 3, score: 70, favourite: true });
 
   applyFavouriteScore(match);
-  assert.deepEqual([match.score, match.rating, match.favouriteItemBonus], [100, 3, 0]);
+  assert.deepEqual([match.score, match.rating], [100, 3]);
 
   match.favourite = false;
   applyFavouriteScore(match);

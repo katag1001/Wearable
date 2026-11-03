@@ -182,15 +182,15 @@ test("findCandidateMatches skips outfits that are already saved and takes the ne
 });
 
 test("a top on the requires-layering list is only used in 2-top shapes", () => {
-  const warmJumper = clothes({ subtype: "Warm jumper", type: "top" });
+  const warmJumper = clothes({ subtype: "Chunky knit jumper", type: "top" });
   const tshirt = clothes({ subtype: "Short t-shirt", type: "top" });
   const jeans = clothes({ subtype: "Jeans", type: "bottom" });
 
   const results = findCandidateMatches(
     warmJumper,
     [warmJumper, tshirt, jeans],
-    context(openBaseline(["Warm jumper", "Short t-shirt", "Jeans"]), {
-      layeringRules: { requiresLayeringSet: new Set(["Warm jumper"]), requiresTopSet: new Set() },
+    context(openBaseline(["Chunky knit jumper", "Short t-shirt", "Jeans"]), {
+      layeringRules: { requiresLayeringSet: new Set(["Chunky knit jumper"]), requiresTopSet: new Set() },
     })
   );
 
@@ -257,7 +257,7 @@ test("findShapeCombinations prunes a candidate with no tag in common", () => {
   assert.equal(results.length, 0);
 });
 
-test("isStillViable fails on colour, pattern, or season the same way the final checks would", () => {
+test("isStillViable fails on colour or pattern the same way the final checks would - never on season", () => {
   const colorRules = getColorRules("mid");
   const cream = clothes({ subtype: "A", colors: ["Cream"], pattern: "Plain" });
 
@@ -272,11 +272,11 @@ test("isStillViable fails on colour, pattern, or season the same way the final c
   ];
   assert.equal(isStillViable(twoPatterned, colorRules), false);
 
-  const noSharedSeason = [
-    clothes({ subtype: "E", spring: true, summer: false, autumn: false, winter: false }),
-    clothes({ subtype: "F", spring: false, summer: true, autumn: false, winter: false }),
+  const velvetAndLinen = [
+    clothes({ subtype: "E", fabric: "Velvet" }),
+    clothes({ subtype: "F", fabric: "Linen" }),
   ];
-  assert.equal(isStillViable(noSharedSeason, colorRules), false);
+  assert.equal(isStillViable(velvetAndLinen, colorRules), true);
 });
 
 test("isStillViable uses the pattern level: one pattern at min, two at mid", () => {
@@ -338,7 +338,7 @@ test("findShapeCombinations prunes a candidate that pushes the outfit's distinct
 });
 
 test("findShapeCombinations rejects a whole shape when newItem can't fill its slot", () => {
-  const warmJumper = clothes({ subtype: "Warm jumper", type: "top" });
+  const warmJumper = clothes({ subtype: "Chunky knit jumper", type: "top" });
   const jeans = clothes({ subtype: "Jeans", type: "bottom" });
   const pools = { top: [], bottom: [jeans], onepiece: [], outer: [] };
 
@@ -346,8 +346,8 @@ test("findShapeCombinations rejects a whole shape when newItem can't fill its sl
     warmJumper,
     topBottomShape,
     pools,
-    context(openBaseline(["Warm jumper", "Jeans"]), {
-      layeringRules: { requiresLayeringSet: new Set(["Warm jumper"]), requiresTopSet: new Set() },
+    context(openBaseline(["Chunky knit jumper", "Jeans"]), {
+      layeringRules: { requiresLayeringSet: new Set(["Chunky knit jumper"]), requiresTopSet: new Set() },
     }),
     createBudget()
   );

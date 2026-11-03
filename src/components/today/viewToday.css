@@ -942,6 +942,20 @@
   text-transform: uppercase;
 }
 
+/* "Brrr! It's cold today..." - when few outfits fit the weather. */
+.today-weather-notice {
+  width: 100%;
+  margin: 0 auto 1rem;
+  padding: .75rem 1rem;
+  box-sizing: border-box;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--card-background);
+  color: var(--main-color);
+  font-size: var(--description-font-size);
+  text-align: center;
+}
+
 
 /* ================================================================
    RESPONSIVE / SMALL SCREENS

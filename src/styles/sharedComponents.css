@@ -77,3 +77,13 @@
 .show-more-tags:hover {
   color: var(--main-color);
 }
+
+/* Item photos with the background removed are trimmed tight to the item,
+ * so give them room inside whatever box shows them - and never crop
+ * them (some boxes use object-fit: cover for other images). Every such
+ * file has "_nobg" in its name. */
+img[src*="_nobg"] {
+  box-sizing: border-box;
+  padding: 8%;
+  object-fit: contain;
+}

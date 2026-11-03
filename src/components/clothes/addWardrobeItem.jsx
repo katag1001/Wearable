@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 
+import AddFromPhoto from "./addFromPhoto";
 import AddUpdateItem from "./addUpdateItem";
 import { WARDROBE_KIND_LIST as KINDS } from "@core/wardrobe/itemKinds.js";
 
 import "../../styles/modal.css";
 
 /*
- * The Add Item modal on My Wardrobe. A new item starts on a choice of
- * Clothing or Footwear, then opens that form (whose page one has a Back
- * button to return here). Editing skips the choice - `kind` says which
+ * The Add Item modal on My Wardrobe. A new item starts from a photo
+ * (AddFromPhoto), which fills everything in. "Add details by hand" opens a
+ * choice of Clothing or Footwear, then that form (whose page one has a
+ * Back button to return here). Editing skips both - `kind` says which
  * form the item belongs to.
  */
 
@@ -16,10 +18,21 @@ const AddWardrobeItem = ({ item, kind, onClose, refresh }) => {
 
   const isUpdate = !!item;
 
+  const [byHand, setByHand] = useState(false);
   const [chosenKind, setChosenKind] = useState(isUpdate ? kind : null);
 
   // Only a new item can go back to the choice.
   const onBack = isUpdate ? undefined : () => setChosenKind(null);
+
+  if (!isUpdate && !byHand) {
+    return (
+      <AddFromPhoto
+        onClose={onClose}
+        onManual={() => setByHand(true)}
+        refresh={refresh}
+      />
+    );
+  }
 
   if (chosenKind) {
     return (
@@ -77,6 +90,10 @@ const AddWardrobeItem = ({ item, kind, onClose, refresh }) => {
             </div>
 
           </div>
+
+          <button type="button" className="text-button" onClick={() => setByHand(false)}>
+            Add from a photo instead
+          </button>
 
         </div>
 

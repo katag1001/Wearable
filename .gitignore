@@ -23,3 +23,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Photo analysis check reports (server/scripts/evaluateItemAnalysis.js)
+server/scripts/reports/

@@ -11,6 +11,7 @@ export const buildQuizPreferences = ({
   favouritePalettes,
   pairingAnswers,
   weeklyTags,
+  seasonality,
   temperature,
 }) => {
   const { colour, pattern } = resolveStyleQuiz(selectedImages);
@@ -19,6 +20,7 @@ export const buildQuizPreferences = ({
     gender,
     colour,
     pattern,
+    seasonality,
     temperature,
     favouritePalettes,
     // Only sent for genders that were asked the pairing questions.

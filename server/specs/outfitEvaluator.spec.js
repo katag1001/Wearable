@@ -109,36 +109,28 @@ test("validateOutfit fails when the pattern check fails even if the matrix passe
   assert.equal(validateOutfit(items, { baselineMatrix: baseline, colorRules }), false);
 });
 
-test("describeOutfit ANDs season flags across every item", () => {
+test("describeOutfit takes season flags from the items' fabrics (seasonalityService)", () => {
   const items = [
-    item({ subtype: "a", type: "top", spring: true, summer: false, autumn: true, winter: false }),
-    item({ subtype: "b", type: "bottom", spring: true, summer: true, autumn: false, winter: false }),
+    item({ subtype: "a", type: "top", fabric: "Velvet" }),
+    item({ subtype: "b", type: "bottom", fabric: "Cotton / plain woven" }),
   ];
 
   const result = describeOutfit(items, { isUserMade: false });
 
-  assert.equal(result.spring, true);
+  assert.equal(result.spring, false);
   assert.equal(result.summer, false);
-  assert.equal(result.autumn, false);
-  assert.equal(result.winter, false);
 });
 
-test("describeOutfit rejects an auto-search candidate with no shared season at all", () => {
+test("describeOutfit never rejects an outfit for its seasons", () => {
   const items = [
-    item({ subtype: "a", type: "top", spring: true, summer: false, autumn: false, winter: false }),
-    item({ subtype: "b", type: "bottom", spring: false, summer: true, autumn: false, winter: false }),
+    item({ subtype: "a", type: "top", fabric: "Velvet" }),
+    item({ subtype: "b", type: "bottom", fabric: "Linen" }),
   ];
 
-  assert.equal(describeOutfit(items, { isUserMade: false }), null);
-});
+  const result = describeOutfit(items, { isUserMade: false });
 
-test("describeOutfit never rejects a user-made outfit for having no shared season", () => {
-  const items = [
-    item({ subtype: "a", type: "top", spring: true, summer: false, autumn: false, winter: false }),
-    item({ subtype: "b", type: "bottom", spring: false, summer: true, autumn: false, winter: false }),
-  ];
-
-  assert.notEqual(describeOutfit(items, { isUserMade: true }), null);
+  assert.notEqual(result, null);
+  assert.deepEqual([result.spring, result.summer, result.autumn, result.winter], [false, false, false, false]);
 });
 
 test("describeOutfit keeps only the tags every item has", () => {

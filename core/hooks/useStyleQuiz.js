@@ -3,7 +3,7 @@ import { useState } from "react";
 import { updatePreferences } from "../api/preferences.js";
 import { emptyWeeklyTags } from "../constants/weekDays.js";
 import { pairingQuestions } from "../constants/pairingQuestions.js";
-import { styleImageOptions } from "../constants/styleQuizOptions.js";
+import { DEFAULT_SEASONALITY_ANSWER, styleImageOptions } from "../constants/styleQuizOptions.js";
 import { buildQuizPreferences } from "../styleQuiz/quizAnswers.js";
 import { getQuizSteps } from "../styleQuiz/quizSteps.js";
 import { favouritePaletteOptions, toggleFavouritePalette } from "../utils/colourPalettes.js";
@@ -11,7 +11,8 @@ import { resolveStyleQuiz } from "../utils/resolveStyleQuiz.js";
 
 /*
  * The style quiz a new user takes: gender → style images → favourite
- * palettes → pairing questions (some genders only) → weekly tags → temperature, which saves
+ * palettes → pairing questions (some genders only) → weekly tags →
+ * seasonality (1-5) → temperature, which saves
  * everything. `onComplete` runs once the answers are saved.
  */
 export const useStyleQuiz = ({ onComplete } = {}) => {
@@ -22,6 +23,7 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
   const [pairingAnswers, setPairingAnswers] = useState({});
   const [pairingIndex, setPairingIndex] = useState(0);
   const [weeklyTags, setWeeklyTags] = useState(emptyWeeklyTags);
+  const [seasonality, setSeasonality] = useState(DEFAULT_SEASONALITY_ANSWER);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -122,6 +124,7 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
           favouritePalettes,
           pairingAnswers,
           weeklyTags,
+          seasonality,
           temperature,
         })
       );
@@ -159,6 +162,9 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
 
     weeklyTags,
     setWeeklyTag,
+
+    seasonality,
+    setSeasonality,
 
     finish,
   };

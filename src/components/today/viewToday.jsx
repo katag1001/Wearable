@@ -24,6 +24,7 @@ const ViewToday = ({ todayReady }) => {
     loading,
     checkingToday,
     message,
+    weatherNoticeText,
     outfits,
     filteredOutfits,
     selectedOutfit,
@@ -132,12 +133,23 @@ const ViewToday = ({ todayReady }) => {
   }
 
 
+  // When few outfits fit the weather (shared/todayMessages.json).
+  const weatherNoticeLine = weatherNoticeText && (
+    <p className="today-weather-notice">
+      {weatherNoticeText}
+    </p>
+  );
+
+
   if (message) {
 
     return (
-      <p className="today-message">
-        {message}
-      </p>
+      <>
+        {weatherNoticeLine}
+        <p className="today-message">
+          {message}
+        </p>
+      </>
     );
   }
 
@@ -146,6 +158,8 @@ const ViewToday = ({ todayReady }) => {
 
   return (
     <div className="view-today-container">
+
+      {weatherNoticeLine}
 
       {showingWorn ? (
 

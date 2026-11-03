@@ -1,10 +1,8 @@
 const {
   parseList,
   parsePaging,
-  parseSeasons,
   parseSearch,
   searchRegex,
-  anySeasonCondition,
   anyOfCondition,
   combineConditions,
 } = require("./queryHelpers.js");
@@ -22,7 +20,6 @@ const {
 const parseFootwearQuery = (query = {}) => ({
   ...parsePaging(query),
   search: parseSearch(query.search),
-  seasons: parseSeasons(query.seasons),
   colors: parseList(query.colors),
   styles: parseList(query.styles),
   tags: parseList(query.tags),
@@ -32,8 +29,6 @@ const parseFootwearQuery = (query = {}) => ({
 /* -------------------- Filter rules -------------------- */
 
 // Each rule returns a condition, or null when that filter isn't in use.
-
-const seasonsCondition = ({ seasons }) => anySeasonCondition(seasons);
 
 const colorsCondition = ({ colors }) => anyOfCondition("colors", colors);
 
@@ -60,7 +55,6 @@ const searchCondition = ({ search }) => {
 };
 
 const FILTER_RULES = [
-  seasonsCondition,
   colorsCondition,
   stylesCondition,
   tagsCondition,

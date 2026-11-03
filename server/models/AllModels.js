@@ -1,6 +1,24 @@
 const mongoose = require("mongoose");
 const { clothesKey } = require("../utils/clothesKey.js");
 const { PATTERNS, PLAIN } = require("../constants/patternRules.js");
+const FABRICS = require("../../shared/fabrics.json").map(({ name }) => name);
+
+/* -------------------- ITEM ANALYSIS -------------------- */
+
+// How a clothing item or pair of footwear was filled in from its photo
+// (services/itemAnalysisService.js): the model, the prompt version and
+// Gemini's own answer, kept as it was even after the user edits the item -
+// so the answer can be compared with what the user kept. None for items
+// added by hand.
+const analysisSchema = new mongoose.Schema(
+{
+model: { type: String },
+promptVersion: { type: String },
+analysedAt: { type: Date },
+answer: { type: mongoose.Schema.Types.Mixed },
+},
+{ _id: false }
+);
 
 /* -------------------- USER -------------------- */
 
@@ -55,6 +73,9 @@ bottomCount: { type: Number, default: 0 },
 onepieceCount: { type: Number, default: 0 },
 outerCount: { type: Number, default: 0 },
 
+// The seasons the outfit belongs to, from its fabrics, colours, types and
+// temperature range (services/seasonalityService.js outfitSeasonFlags) -
+// for the Outfits page season buttons and filter.
 spring: { type: Boolean, required: true },
 summer: { type: Boolean, required: true },
 autumn: { type: Boolean, required: true },
@@ -88,10 +109,11 @@ lastRejectedDate: { type: Date, default: null },
 rating: { type: Number, min: 1, max: 5, default: null },
 
 // Set when the match is created (server/services/outfitScoreService.js
-// and server/constants/scoring.js), lowered each time it's rejected, and
-// raised while one of its clothes is a favourite (favouriteItemBonus).
+// and server/constants/scoring.js) and lowered each time it's rejected.
 // Rating or favouriting the outfit sets it outright
-// (server/services/matchRatingService.js).
+// (server/services/matchRatingService.js). Favourite items and palettes
+// never change it - they only add points on Today
+// (services/todayScoreService.js).
 score: {
 type: Number,
 required: true,
@@ -99,11 +121,6 @@ min: 0,
 max: 100,
 validate: { validator: Number.isInteger, message: "score must be a whole number" },
 },
-
-// How much of `score` comes from a favourite clothing item: 0 to
-// FAVOURITE_ITEM_BONUS, less when MAX_AUTO_SCORE capped it. Unfavouriting
-// takes off exactly this (server/services/favouriteItemService.js).
-favouriteItemBonus: { type: Number, default: 0 },
 });
 
 // My Outfits pages through a user's matches highest score first
@@ -128,6 +145,14 @@ cloudinaryId: {
     default: ""
   },
 
+// The shown image (above) is the photo with its background removed. A
+// small copy for grids, and the photo as uploaded - see
+// services/imageService.js, which deletes all three together.
+thumbnailUrl: { type: String, default: "" },
+thumbnailCloudinaryId: { type: String, default: "" },
+originalImageUrl: { type: String, default: "" },
+originalCloudinaryId: { type: String, default: "" },
+
 userId: {
 type: mongoose.Schema.Types.ObjectId,
 ref: "User",
@@ -151,13 +176,20 @@ timesWorn: { type: Number, default: 0 },
 timesWornThisYear: { type: Number, default: 0 },
 wornYear: { type: Number, default: null },
 
-spring: { type: Boolean, required: true },
-summer: { type: Boolean, required: true },
-autumn: { type: Boolean, required: true },
-winter: { type: Boolean, required: true },
+// The main fabric (shared/fabrics.json), "" until it's known. Seasonal
+// fabrics decide which seasons the item's outfits belong to
+// (services/seasonalityService.js).
+fabric: {
+  type: String,
+  default: "",
+  validate: {
+    validator: (value) => value === "" || FABRICS.includes(value),
+    message: "fabric must be one of shared/fabrics.json",
+  },
+},
 
-// Automatic outfits with a favourite item score FAVOURITE_ITEM_BONUS
-// higher (server/services/favouriteItemService.js).
+// Outfits with a favourite item score FAVOURITE_ITEM_BONUS higher on Today
+// (services/todayScoreService.js) - their saved score doesn't change.
 favourite: { type: Boolean, default: false },
 
 // Items the user marked as a mismatch with this one on the Today page.
@@ -169,6 +201,8 @@ mismatchedWith: [{ type: mongoose.Schema.Types.ObjectId, ref: "Clothes" }],
 // the skirts, dresses and shorts in shared/tights.json. Unset means that
 // list's default (server/services/tightsService.js).
 wearWithTights: { type: Boolean },
+
+analysis: { type: analysisSchema, default: undefined },
 });
 
 // My Clothes pages through a user's items newest first
@@ -249,9 +283,29 @@ const preferencesSchema = new mongoose.Schema({
   pattern: { type: String, enum: ["max", "mid", "min"], default: null },
   temperature: { type: String, enum: ["cold", "hot", "normal"], default: null },
 
-  // Palette ids (shared/colorPalettes.json) the user likes - automatic
-  // outfits that fit one score FAVOURITE_PALETTE_BONUS higher.
+  // How much the season affects what they wear: 1 (not at all) to 5 (very
+  // much) - Today's seasonal points (constants/seasonality.js).
+  seasonality: { type: Number, min: 1, max: 5, default: null },
+
+  // Palette ids (shared/colorPalettes.json) the user likes - outfits that
+  // fit one score FAVOURITE_PALETTE_BONUS higher on Today
+  // (services/todayScoreService.js).
   favouritePalettes: { type: [String], default: [] },
+
+  // Today's photo analyses (services/analysisQuotaService.js): the UTC day
+  // ("2026-11-02") and how many were run on it.
+  analysisDay: { type: String, default: null },
+  analysisCount: { type: Number, default: 0 },
+
+  // The notice for the Today list built at `builtAt`, when few outfits fit
+  // the weather (services/todaySelectionService.js): the level ("few" /
+  // "shopping") and weather band ("cold" / "mild" / "hot") of the message
+  // to show (shared/todayMessages.json). level null = no notice.
+  todayNotice: {
+    level: { type: String, enum: ["few", "shopping", null], default: null },
+    band: { type: String, enum: ["cold", "mild", "hot", null], default: null },
+    builtAt: { type: Date, default: null },
+  },
 
 });
 
@@ -304,6 +358,14 @@ cloudinaryId: {
     default: ""
   },
 
+// The shown image (above) is the photo with its background removed. A
+// small copy for grids, and the photo as uploaded - see
+// services/imageService.js, which deletes all three together.
+thumbnailUrl: { type: String, default: "" },
+thumbnailCloudinaryId: { type: String, default: "" },
+originalImageUrl: { type: String, default: "" },
+originalCloudinaryId: { type: String, default: "" },
+
 userId: {
 type: mongoose.Schema.Types.ObjectId,
 ref: "User",
@@ -322,10 +384,7 @@ timesWorn: { type: Number, default: 0 },
 timesWornThisYear: { type: Number, default: 0 },
 wornYear: { type: Number, default: null },
 
-spring: { type: Boolean, required: true },
-summer: { type: Boolean, required: true },
-autumn: { type: Boolean, required: true },
-winter: { type: Boolean, required: true },
+analysis: { type: analysisSchema, default: undefined },
 });
 
 // The Footwear tab pages through a user's footwear newest first.

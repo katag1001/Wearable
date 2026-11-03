@@ -14,13 +14,15 @@ import "../../styles/modal.css";
  * (`kind`). The form logic is useWardrobeItemForm (shared with the mobile
  * app); this renders it.
  *
- * onBack (new items only) returns to the Clothing / Footwear choice.
+ * onBack (new items only) returns to the Clothing / Footwear choice (or,
+ * from a photo, to the analysis). `prefill` starts a new item filled in
+ * (see useWardrobeItemForm).
  */
-const AddUpdateItem = ({ kind, item, onClose, onBack, refresh }) => {
+const AddUpdateItem = ({ kind, item, prefill, onClose, onBack, refresh }) => {
 
   const navigate = useNavigate();
 
-  const form = useWardrobeItemForm({ kind, item, onSaved: refresh });
+  const form = useWardrobeItemForm({ kind, item, prefill, onSaved: refresh });
 
   const { formData, page, savedItem, saving, isUpdate } = form;
 
@@ -90,14 +92,7 @@ const AddUpdateItem = ({ kind, item, onClose, onBack, refresh }) => {
               )}
 
               {page === 2 && (
-                <ModalTwo
-                  formData={formData}
-                  toggleSeason={form.toggleSeason}
-                  toggleColor={form.toggleColor}
-                  toggleTag={form.toggleTag}
-                  tights={form}
-                  pattern={form}
-                />
+                <ModalTwo form={form} />
               )}
 
 

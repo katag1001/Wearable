@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: 5 / 6,
     borderRadius: radius.lg,
-    backgroundColor: colors.imageBackground,
+    backgroundColor: colors.itemBackground,
   },
   heart: {
     position: "absolute",

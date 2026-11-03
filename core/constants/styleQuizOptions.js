@@ -37,6 +37,27 @@ export const genderQuestionOptions = [
 ];
 
 /* --------------------------------------------------------------------
+   SEASONALITY QUESTION
+
+   A 5-point scale, 1 (not at all) to 5 (very much), written straight to
+   preferences.seasonality. On Today, outfits in the season's fabrics and
+   colours rank higher the more the season matters
+   (server/constants/seasonality.js).
+-------------------------------------------------------------------- */
+
+export const seasonalityQuestion = {
+  title: "How much does the season affect what you wear?",
+  hint: "For example linen and bright colours in summer, velvet and deep reds in winter.",
+  lowLabel: "Not at all",
+  highLabel: "Very much",
+};
+
+export const seasonalityScale = [1, 2, 3, 4, 5];
+
+// Where the scale starts before it's answered.
+export const DEFAULT_SEASONALITY_ANSWER = 3;
+
+/* --------------------------------------------------------------------
    TEMPERATURE QUESTION
 
    "Do you generally feel too cold or too hot?" — single-select.

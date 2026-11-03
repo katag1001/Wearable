@@ -1,10 +1,11 @@
-const cloudinary = require("../cloudinary.js");
 
 const { Footwear } = require("../models/AllModels.js");
 const { findPage } = require("../services/queryHelpers.js");
 const {
-  destroyImage,
   deleteReplacedImage,
+  destroyItemImages,
+  withReplacedImageFields,
+  ITEM_IMAGE_FIELDS,
   canUseImage,
   IMAGE_IN_USE_ERROR,
 } = require("../services/imageService.js");
@@ -167,7 +168,7 @@ exports.updateFootwear = async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    const fields = editableFields(req.body);
+    const fields = withReplacedImageFields(editableFields(req.body), existingItem);
 
     if (
       fields.cloudinaryId !== undefined &&
@@ -203,9 +204,7 @@ exports.deleteFootwear = async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    if (item.cloudinaryId) {
-      await cloudinary.uploader.destroy(item.cloudinaryId);
-    }
+    await destroyItemImages(item, "item deleted");
 
     await Footwear.deleteOne({ _id: id, userId });
 
@@ -387,12 +386,10 @@ exports.unwearFootwear = async (req, res) => {
 // images and their learned footwear pairings. Image failures are logged
 // and skipped so the account still goes.
 exports.deleteAllFootwearForUser = async (userId) => {
-  const items = await Footwear.find({ userId }).select("cloudinaryId");
+  const items = await Footwear.find({ userId }).select(ITEM_IMAGE_FIELDS.join(" "));
 
   for (const item of items) {
-    if (item.cloudinaryId) {
-      await destroyImage(item.cloudinaryId, "account deleted");
-    }
+    await destroyItemImages(item, "account deleted");
   }
 
   await Footwear.deleteMany({ userId });

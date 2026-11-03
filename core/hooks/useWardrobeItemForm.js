@@ -19,7 +19,7 @@ const LAST_PAGE = 2;
  * The two-page add / edit form for a clothing item or a pair of footwear
  * (`kind`: "clothing" | "footwear" - see core/wardrobe/itemKinds.js).
  *
- * Page one: name, image, type. Page two: seasons, colours, tags (and, for
+ * Page one: name, image, type. Page two: fabric, colours, tags (and, for
  * a skirt, dress or shorts, "Would you wear this with tights?") - filled
  * in from the name and type when a NEW item moves on from page one
  * (useClothingDetection). Editing changes only what the user changes.
@@ -31,8 +31,21 @@ const LAST_PAGE = 2;
  *
  * The chosen image is only uploaded on save. `onSaved` runs after a
  * successful save (e.g. to refresh the list).
+ *
+ * `prefill` ({ fields, fromAnalysis }) starts a NEW item filled in - from
+ * the photo analysis (core/hooks/usePhotoAnalysis.js), or with just the
+ * already-uploaded photo when the analysis failed. An analysed item is
+ * never re-filled from its name and type. `onAddAnother` replaces "Add
+ * another item"'s blank form (e.g. to go back to adding from a photo).
  */
-export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false }) => {
+export const useWardrobeItemForm = ({
+  kind,
+  item,
+  prefill = null,
+  onSaved,
+  onAddAnother,
+  singlePage = false,
+}) => {
   const config = WARDROBE_KINDS[kind];
   const isUpdate = !!item;
 
@@ -41,11 +54,12 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
 
   const typeOptions = useMemo(() => config.getOptions(gender), [config, gender]);
 
-  const form = useClothingForm(item, typeOptions);
+  const form = useClothingForm(item, typeOptions, item ? null : prefill?.fields);
   const { formData, setFormData, updateField } = form;
 
   const { applyDetection, resetDetection } = useClothingDetection(
-    item,
+    // Like an edit: the analysis already chose everything.
+    item || (prefill?.fromAnalysis ? prefill : null),
     setFormData,
     typeOptions
   );
@@ -91,6 +105,11 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
   const asksPattern = kind === "clothing";
   const setPattern = (value) => updateField("pattern", value);
 
+  // Clothing's main fabric (shared/fabrics.json) - decides which seasons
+  // its outfits belong to. "" = not known.
+  const asksFabric = kind === "clothing";
+  const setFabric = (value) => updateField("fabric", value);
+
   const subtypeSuggestions = suggestSubtypesFromName(
     formData.name,
     typeOptions,
@@ -99,7 +118,7 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
 
   /* -------------------- Single page -------------------- */
 
-  // On one page, choosing the type fills in seasons, colours and tags
+  // On one page, choosing the type fills in colours and tags
   // straight away (on two pages, that waits for Next).
   const chooseSubtype = (subtype) => {
     if (subtype !== formData.subtype) {
@@ -194,6 +213,11 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
 
   // After adding one item, start a blank form for the next.
   const addAnother = () => {
+    if (onAddAnother) {
+      onAddAnother();
+      return;
+    }
+
     form.resetForm();
     resetDetection();
 
@@ -217,7 +241,6 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
     updateField,
     toggleColor: form.toggleColor,
     toggleTag: form.toggleTag,
-    toggleSeason: form.toggleSeason,
     chooseSubtype,
     fillDetailsFromName,
 
@@ -227,6 +250,9 @@ export const useWardrobeItemForm = ({ kind, item, onSaved, singlePage = false })
 
     asksPattern,
     setPattern,
+
+    asksFabric,
+    setFabric,
 
     selectedImage,
     setSelectedImage,

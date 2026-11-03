@@ -11,6 +11,7 @@ const {
   needsRematch,
 } = require("../services/matchRefreshService.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
+const { describeOutfit } = require("../services/outfitEvaluator.js");
 
 function clothes(overrides) {
   return {
@@ -19,10 +20,7 @@ function clothes(overrides) {
     colors: ["Cream"],
     pattern: "Plain",
     tags: ["Everyday"],
-    spring: true,
-    summer: true,
-    autumn: true,
-    winter: true,
+    fabric: "",
     userId: "user1",
     ...overrides,
   };
@@ -49,14 +47,21 @@ function context(baselineMatrix) {
   };
 }
 
+// The season flags describeOutfit gives these items (seasonalityService.js).
+function seasonFlagsOf(items) {
+  const { spring, summer, autumn, winter } = describeOutfit(items, {
+    isUserMade: true,
+    colorRules: getColorRules(null),
+  });
+
+  return { spring, summer, autumn, winter };
+}
+
 function match(items, overrides = {}) {
   return {
     _id: `match-${items.map((item) => item._id).join("-")}`,
     clothes: items.map((item) => item._id),
-    spring: true,
-    summer: true,
-    autumn: true,
-    winter: true,
+    ...seasonFlagsOf(items),
     colors: ["Cream"],
     pattern: "Plain",
     tags: ["Everyday"],
@@ -85,14 +90,17 @@ test("changedMatchingFields ignores the name and array order", () => {
 
 test("changedMatchingFields lists each matching field that changed", () => {
   const before = clothes({ subtype: "Tee", type: "top" });
-  const after = { ...before, winter: false, tags: ["Work"] };
+  const after = { ...before, fabric: "Velvet", tags: ["Work"] };
 
-  assert.deepEqual(changedMatchingFields(before, after).sort(), ["tags", "winter"]);
+  assert.deepEqual(changedMatchingFields(before, after).sort(), ["fabric", "tags"]);
 });
 
 test("outfitFieldsFor maps item fields to the outfit fields they feed", () => {
-  assert.deepEqual(outfitFieldsFor(["winter"]), ["winter"]);
-  assert.deepEqual(outfitFieldsFor(["subtype"]).sort(), ["max_temp", "min_temp", "tights"]);
+  const seasons = ["autumn", "spring", "summer", "winter"];
+
+  assert.deepEqual(outfitFieldsFor(["fabric"]).sort(), seasons);
+  assert.deepEqual(outfitFieldsFor(["subtype"]).sort(), ["max_temp", "min_temp", "tights", ...seasons].sort());
+  assert.ok(outfitFieldsFor(["colors"]).includes("summer"));
   assert.ok(outfitFieldsFor(["type"]).includes("hasOuter"));
 });
 
@@ -107,11 +115,12 @@ test("isProtectedMatch covers favourites, rated, user-made, worn and hand-edited
   assert.equal(isProtectedMatch(match([top, bottom], { rating: null })), false);
 });
 
-test("needsRematch is true for the fields that decide outfits, not the tights answer", () => {
-  ["type", "subtype", "colors", "spring", "winter", "tags", "pattern"].forEach((field) => {
+test("needsRematch is true for the fields that decide outfits, not the tights answer or fabric", () => {
+  ["type", "subtype", "colors", "tags", "pattern"].forEach((field) => {
     assert.equal(needsRematch([field]), true, field);
   });
   assert.equal(needsRematch(["wearWithTights"]), false);
+  assert.equal(needsRematch(["fabric"]), false);
   assert.equal(needsRematch([]), false);
 });
 
@@ -122,39 +131,43 @@ test("fitsAnOutfitShape rejects item-sets with no matching shape", () => {
   assert.equal(fitsAnOutfitShape([bottom, secondBottom]), false);
 });
 
-test("isValidAutoOutfit fails once the items share no season", () => {
-  const summerOnlyTop = { ...top, spring: false, autumn: false, winter: false };
-  const winterOnlyBottom = { ...bottom, spring: false, summer: false, autumn: false };
+test("seasons never make an automatic outfit invalid", () => {
+  const velvetTop = { ...top, fabric: "Velvet" };
+  const linenBottom = { ...bottom, fabric: "Linen" };
 
   assert.equal(isValidAutoOutfit([top, bottom], ctx), true);
-  assert.equal(isValidAutoOutfit([summerOnlyTop, winterOnlyBottom], ctx), false);
+  assert.equal(isValidAutoOutfit([velvetTop, linenBottom], ctx), true);
 });
 
-test("planMatchRefresh refreshes only the changed outfit fields on a still-valid outfit", () => {
-  const updatedTop = { ...top, winter: false };
-  // A manual tag edit on the outfit must survive a season change.
+test("planMatchRefresh refreshes only the changed season flags when a fabric changes", () => {
+  const updatedTop = { ...top, fabric: "Velvet" };
+  // A manual tag edit on the outfit must survive a fabric change.
   const existing = match([top, bottom], { tags: ["Manual"] });
-
-  const { updates, deleteIds } = planMatchRefresh(
-    [existing], byId([updatedTop, bottom]), ["winter"], ctx
+  const expected = Object.fromEntries(
+    Object.entries(seasonFlagsOf([updatedTop, bottom])).filter(([season, value]) => existing[season] !== value)
   );
 
+  const { updates, deleteIds } = planMatchRefresh(
+    [existing], byId([updatedTop, bottom]), outfitFieldsFor(["fabric"]), ctx
+  );
+
+  assert.equal(expected.summer, false, "velvet takes the outfit out of summer");
   assert.deepEqual(deleteIds, []);
-  assert.deepEqual(updates, [{ _id: existing._id, fields: { winter: false } }]);
+  assert.deepEqual(updates, [{ _id: existing._id, fields: expected }]);
 });
 
 test("planMatchRefresh skips outfits whose fields already match", () => {
-  const { updates } = planMatchRefresh([match([top, bottom])], byId([top, bottom]), ["winter"], ctx);
+  const { updates } = planMatchRefresh([match([top, bottom])], byId([top, bottom]), outfitFieldsFor(["fabric"]), ctx);
 
   assert.deepEqual(updates, []);
 });
 
 test("planMatchRefresh deletes an unprotected outfit that is no longer valid", () => {
-  const updatedTop = { ...top, spring: false, summer: false, autumn: false, winter: false };
+  const updatedTop = { ...top, tags: ["Work"] };
   const existing = match([top, bottom]);
 
   const { updates, deleteIds } = planMatchRefresh(
-    [existing], byId([updatedTop, bottom]), ["spring", "summer", "autumn", "winter"], ctx
+    [existing], byId([updatedTop, bottom]), ["tags"], ctx
   );
 
   assert.deepEqual(deleteIds, [existing._id]);
@@ -162,24 +175,24 @@ test("planMatchRefresh deletes an unprotected outfit that is no longer valid", (
 });
 
 test("planMatchRefresh keeps and refreshes a protected outfit that is no longer valid", () => {
-  const updatedTop = { ...top, spring: false, summer: false, autumn: false, winter: false };
+  const updatedTop = { ...top, tags: ["Work"] };
 
   [{ favourite: true }, { userMade: true }, { userEdited: true }, { lastWornDate: new Date() }, { timesWorn: 1 }]
     .forEach((protection) => {
       const existing = match([top, bottom], protection);
 
       const { updates, deleteIds } = planMatchRefresh(
-        [existing], byId([updatedTop, bottom]), ["winter"], ctx
+        [existing], byId([updatedTop, bottom]), ["tags"], ctx
       );
 
       assert.deepEqual(deleteIds, []);
-      assert.deepEqual(updates, [{ _id: existing._id, fields: { winter: false } }]);
+      assert.deepEqual(updates, [{ _id: existing._id, fields: { tags: [] } }]);
     });
 });
 
 test("planMatchRefresh leaves an outfit alone when one of its items is missing", () => {
   const { updates, deleteIds } = planMatchRefresh(
-    [match([top, bottom])], byId([top]), ["winter"], ctx
+    [match([top, bottom])], byId([top]), ["fabric"], ctx
   );
 
   assert.deepEqual(updates, []);

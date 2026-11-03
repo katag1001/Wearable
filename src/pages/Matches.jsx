@@ -119,6 +119,7 @@ const Matches = ({ loggedIn }) => {
         filters={outfits.filters}
         setFilters={outfits.setFilters}
         showFavourites
+        showSeasons
         showItemFilter
         clothesByCategory={filterOptions?.clothesByCategory}
         availableColors={filterOptions?.colors}

@@ -1,6 +1,6 @@
 // core/constants/footwearOptions.js
 //
-// Each gender's footwear types, with the seasons and tags that pre-fill
+// Each gender's footwear types, with the tags that pre-fill
 // page two of the Add Footwear form. Footwear is separate from clothing
 // (its own Footwear collection) and has no role or category.
 //
@@ -12,68 +12,52 @@
 
 import footwearByGender from "../../shared/footwearByGender.json";
 
-const ALL_SEASONS = ["Spring", "Summer", "Autumn", "Winter"];
 
 // Defaults per type, shared by every gender that has the type.
 const FOOTWEAR_DEFAULTS = {
   "Ballerinas": {
-    season: ["Spring", "Summer", "Autumn"],
     tags: ["Comfy casual", "Elevated everyday", "Smart casual", "Errands", "Business casual", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party", "Travel day", "City break"],
   },
   "Loafers": {
-    season: ALL_SEASONS,
     tags: ["Comfy casual", "Elevated everyday", "Smart casual", "Errands", "Business casual", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Travel day", "City break"],
   },
   "Flipflops": {
-    season: ["Summer"],
     tags: ["Comfy casual", "Elevated everyday", "Errands", "Work from home", "Day out", "Travel day", "City break", "Beach / pool", "Lounge / home"],
   },
   "Ankle boots": {
-    season: ["Spring", "Autumn", "Winter"],
     tags: ["Elevated everyday", "Smart casual", "Errands", "Business casual", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "City break", "Outdoor / hiking"],
   },
   "Knee-high boots": {
-    season: ["Autumn", "Winter"],
     tags: ["Elevated everyday", "Errands", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party", "City break"],
   },
   "Heeled boots": {
-    season: ["Autumn", "Winter"],
     tags: ["Smart casual", "Business casual", "Brunch / lunch", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party"],
   },
   "Snow boots": {
-    season: ["Winter"],
     tags: ["Comfy casual", "Elevated everyday", "Errands", "Day out", "Travel day", "City break", "Outdoor / hiking"],
   },
   "Sandals": {
-    season: ["Spring", "Summer"],
     tags: ["Comfy casual", "Elevated everyday", "Errands", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Travel day", "City break", "Beach / pool"],
   },
   "Walking boots": {
-    season: ["Spring", "Autumn", "Winter"],
     tags: ["Comfy casual", "Elevated everyday", "Errands", "Day out", "Travel day", "City break", "Outdoor / hiking"],
   },
   "Heeled sandals": {
-    season: ["Spring", "Summer"],
     tags: ["Brunch / lunch", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party", "Cocktail party", "Wedding guest", "Formal / black tie"],
   },
   "Heels": {
-    season: ALL_SEASONS,
     tags: ["Smart casual", "Business casual", "Brunch / lunch", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party", "Cocktail party", "Wedding guest", "Formal / black tie"],
   },
   "Smart trainers": {
-    season: ALL_SEASONS,
     tags: ["Comfy casual", "Elevated everyday", "Smart casual", "Errands", "Business casual", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Travel day", "City break"],
   },
   "Casual trainers": {
-    season: ALL_SEASONS,
     tags: ["Comfy casual", "Elevated everyday", "Errands", "Work from home", "Brunch / lunch", "Day out", "Travel day", "City break", "Gym / sport", "Outdoor / hiking", "Lounge / home"],
   },
   "Formal shoes": {
-    season: ALL_SEASONS,
     tags: ["Smart casual", "Business casual", "Brunch / lunch", "Casual dinner", "Restaurant dinner", "Date night", "Drinks / night out", "Party", "Cocktail party", "Wedding guest", "Formal / black tie"],
   },
   "Boots": {
-    season: ["Spring", "Autumn", "Winter"],
     tags: ["Comfy casual", "Elevated everyday", "Smart casual", "Errands", "Business casual", "Brunch / lunch", "Day out", "Casual dinner", "Restaurant dinner", "Date night", "Travel day", "City break", "Outdoor / hiking"],
   },
 };

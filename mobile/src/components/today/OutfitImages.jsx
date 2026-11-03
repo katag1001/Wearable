@@ -110,6 +110,6 @@ const styles = StyleSheet.create({
   },
   image: {
     borderRadius: radius.lg,
-    backgroundColor: colors.imageBackground,
+    backgroundColor: colors.itemBackground,
   },
 });

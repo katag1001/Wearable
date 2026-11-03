@@ -11,7 +11,7 @@ First decide:
 - **Its role** - `top`, `bottom`, `onepiece` or `outer`.
 - **Which existing subtype it's closest to** - copying that subtype's
   scores and defaults is the easiest starting point.
-- **Its defaults** - category, seasons, tags.
+- **Its defaults** - category and tags.
 - **Its temperature preset** - which temperature group it's in (section 6).
 
 ---
@@ -68,7 +68,7 @@ the specific pairs that should differ. Doing this with a small Node script
 write it back) is far less error-prone than hand-editing 60+ cells per
 row.
 
-## 3. `src/constants/typeOptions.jsx` - the frontend options (required)
+## 3. `core/constants/typeOptions.js` - the frontend options (required)
 
 Add one entry per gender, in the same shape as the others:
 
@@ -77,7 +77,6 @@ Add one entry per gender, in the same shape as the others:
   "type": "top",
   "category": "Tops",
   "name": "Fancy top",
-  "season": ["Spring", "Summer", "Autumn", "Winter"],
   "tags": ["Work", "Party", "Dinner", "Formal", "Date night", "Everyday"]
 }
 ```
@@ -88,12 +87,12 @@ Add one entry per gender, in the same shape as the others:
 - `category` is the group shown in the subtype picker
   (`src/components/clothes/uploadComponents/modalOne.jsx`). Use an
   existing category name unless a new group is genuinely wanted.
-- `season` and `tags` are the **automatic defaults**
+- `tags` are the **automatic defaults**
   filled in by addUpdateClothes when the user clicks Next - see
   `src/components/clothes/uploadComponents/useClothingDetection.jsx`.
   No code change is needed for these to work.
 
-## 4. `src/components/clothes/uploadComponents/uploadHelpers.jsx` - name suggestions (optional)
+## 4. `core/clothes/uploadHelpers.js` - name suggestions (optional)
 
 Add an entry to `SUBTYPE_SYNONYMS` (lowercase key = subtype name) with
 other words people might type, so the picker suggests it:
@@ -129,6 +128,23 @@ subtypes (see `temperature-ranges.md`). Add the new subtype to:
 `subtypesByGender.json` is missing here. Then run
 `node server/scripts/rematchAll.js --confirm` if existing matches should
 pick it up (outfits you've interacted with keep their ranges).
+
+## 7. The other per-subtype lists (required where they apply)
+
+- `server/constants/analysisDefinitions.js` - `SUBTYPE_DEFINITIONS`: what
+  the photo analysis (Gemini) is told the subtype looks like. Every subtype
+  needs one, and neighbouring subtypes' definitions should point to it
+  where they could be confused ("strapless is Tube top").
+- `shared/footwearMatrices.json` - bottoms and onepieces only: a row of
+  footwear scores per gender (copy the closest subtype's row).
+- `shared/tights.json` - skirts, dresses and shorts only: whether the
+  "Would you wear this with tights?" question defaults to yes.
+- `server/constants/temperatureGroups.js` - also `SKIRT_DRESS_SUBTYPES`
+  for a skirt or dress (section 6 covers the rest of this file).
+- `server/constants/pairingQuestions.js` - a dress goes in `DRESSES`, and
+  the subtype in any style-quiz question about similar pieces.
+- `server/constants/seasonality.js` - `SEASON_NAMED_SUBTYPES`, only if the
+  name itself says a season (e.g. "Summer dress").
 
 ---
 

@@ -3,7 +3,9 @@
 import { api } from "./client.js";
 
 // Today's outfits in today's order (ranked and capped on the server), and
-// the outfit worn today if there is one - each as { matchId: <match> }.
+// the outfit worn today if there is one - each as { matchId: <match> } -
+// and the notice when few outfits fit the weather ({ level, band } or null;
+// core/today/weatherNotice.js).
 // `todayStart` is the user's local midnight (ISO). The list is empty
 // while the server is still building it.
 export const fetchTodayOutfits = async (todayStart) => {
@@ -15,17 +17,19 @@ export const fetchTodayOutfits = async (todayStart) => {
 
   // A server from before ranking moved there sends just the list.
   if (Array.isArray(data)) {
-    return { outfits: data, wornToday: null };
+    return { outfits: data, wornToday: null, notice: null };
   }
 
   return {
     outfits: Array.isArray(data?.outfits) ? data.outfits : [],
     wornToday: data?.wornToday ?? null,
+    notice: data?.notice ?? null,
   };
 };
 
 // Builds today's outfit list on the server from the day's temperature
-// range, season and weekday (for the weekly tag) - once per day; a second
+// range, season (for the seasonal points) and weekday (for the weekly
+// tag) - once per day; a second
 // call that day returns { alreadyBuilt: true }. `todayStart` is the
 // user's local midnight (ISO).
 export const createToday = async ({

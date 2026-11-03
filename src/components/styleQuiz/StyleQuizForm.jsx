@@ -1,12 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import {
   genderQuestionOptions,
+  seasonalityQuestion,
   temperatureQuestionOptions,
 } from "@core/constants/styleQuizOptions.js";
 import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
 import WeeklyTagStep from "./WeeklyTagStep";
 import PairingQuestionStep from "./PairingQuestionStep";
 import PalettePicker from "../preferences/PalettePicker";
+import SeasonalityScale from "../preferences/SeasonalityScale";
 import "./styleQuizForm.css";
 
 // The quiz logic lives in useStyleQuiz (core/hooks/useStyleQuiz.js),
@@ -173,6 +175,39 @@ const StyleQuizForm = ({ onComplete }) => {
           onBack={goBack}
           onNext={goToNextStep}
         />
+      )}
+
+      {step === "seasonality" && (
+        <div className="style-quiz-step">
+          <div className="style-quiz-header">
+            <h2 className="page-title">
+              {seasonalityQuestion.title}
+            </h2>
+          </div>
+
+          <SeasonalityScale
+            value={quiz.seasonality}
+            onChange={quiz.setSeasonality}
+          />
+
+          <div className="style-quiz-actions">
+            <button
+              type="button"
+              className="style-quiz-back-button"
+              onClick={goBack}
+            >
+              Back
+            </button>
+
+            <button
+              type="button"
+              className="style-quiz-finish-button"
+              onClick={goToNextStep}
+            >
+              Next
+            </button>
+          </div>
+        </div>
       )}
 
       {step === "temperature" && (

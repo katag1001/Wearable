@@ -21,9 +21,8 @@ import {
  *     every shoe it does (constants/footwearWeather.js), and with tights,
  *     open shoes go to the bottom too (constants/footwearTights.js), so
  *     nothing else can lift an unsuitable shoe above a suitable one;
- *   - then, within each, grouped by season and tag:
- *     in today's season and has today's tag, season only, tag only,
- *     neither. With no season or no tag known, every shoe fits it.
+ *   - then, within each, shoes with today's tag come first. With no tag
+ *     known, every shoe has it.
  *
  * Within a group, by score:
  *   baseline for the outfit's bottom (or one-piece) + the user's learned
@@ -190,9 +189,7 @@ export const getPatternPoints = (item, outfitPatterned, level) => {
     : PATTERN_POINTS.plainOutfit;
 };
 
-/* -------------------- Season + tag -------------------- */
-
-const fitsSeason = (item, season) => !season || Boolean(item[season]);
+/* -------------------- Tag -------------------- */
 
 const hasTag = (item, todayTag) => {
   if (!todayTag) return true;
@@ -202,19 +199,11 @@ const hasTag = (item, todayTag) => {
   return (item.tags || []).some((tag) => tag.trim().toLowerCase() === wanted);
 };
 
-const seasonTagGroup = (item, season, todayTag) => {
-  const inSeason = fitsSeason(item, season);
-  const tagged = hasTag(item, todayTag);
-
-  if (inSeason && tagged) return 0;
-  if (inSeason) return 1;
-  if (tagged) return 2;
-  return 3;
-};
+const tagGroup = (item, todayTag) => (hasTag(item, todayTag) ? 0 : 1);
 
 /* -------------------- Ranking -------------------- */
 
-// context: { gender, bottomSubtype, pairings, weather, season, todayTag,
+// context: { gender, bottomSubtype, pairings, weather, todayTag,
 // withTights, outfitColors, outerColors, outfitPatterned, colourLevel }.
 // Returns a new array; ties keep their original order (newest first).
 export const rankFootwear = (items = [], context = {}) => {
@@ -234,8 +223,8 @@ export const rankFootwear = (items = [], context = {}) => {
       item,
       index,
       group:
-        (unsuitable ? 4 : 0) +
-        seasonTagGroup(item, context.season, context.todayTag),
+        (unsuitable ? 2 : 0) +
+        tagGroup(item, context.todayTag),
       colour: getColourResult(
         item,
         context.outfitColors,

@@ -1,6 +1,6 @@
 // One outfit, full screen: its photos (with a heart to favourite it and a
 // broken heart to mark two of its items as a mismatch), then its star
-// rating, seasons, temperature range and tags to edit. Saving 1-2 stars
+// rating, temperature range and tags to edit. Saving 1-2 stars
 // can delete it (server/services/matchRatingService.js). Opened from the Outfits
 // list, or by tapping the outfit on Today (?from=today).
 //

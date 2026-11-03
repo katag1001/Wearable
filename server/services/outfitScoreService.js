@@ -5,9 +5,10 @@
 //  - A pair's score is its baseline (matrix file) plus the user's personal
 //    adjustment, kept between 0 and 100.
 //  - An automatic outfit's score is a blend of its pair scores and its
-//    colour score (colour count, palette tier, favourite palettes, bright
-//    colours, pattern echo - see constants/scoring.js), worked out once
-//    when the match is created.
+//    colour score (colour count, palette tier, bright colours, pattern
+//    echo - see constants/scoring.js), worked out once when the match is
+//    created. Favourite palettes and items don't count here - they only add
+//    points on Today (services/todayScoreService.js).
 //
 // Scores never decide whether items can be matched - that's
 // matrixService.isCompatible, which never reads personal adjustments.
@@ -23,14 +24,13 @@ const {
   COLOUR_SCORE_WEIGHT,
   COLOUR_COUNT_SCORES,
   PALETTE_TIER_SCORES,
-  FAVOURITE_PALETTE_BONUS,
   BRIGHT_COLOUR_ADJUSTMENTS,
   PATTERN_ECHO_ADJUSTMENTS,
   DEFAULT_PATTERN_LEVEL,
   SINGLE_ITEM_SCORE,
   MAX_AUTO_SCORE,
 } = require("../constants/scoring.js");
-const { allPalettes, paletteFits, BRIGHT_COLOURS } = require("../utils/colorPalettes.js");
+const { paletteFits, BRIGHT_COLOURS } = require("../utils/colorPalettes.js");
 const { isPatterned } = require("./styleColorService.js");
 
 function clampScore(value) {
@@ -86,17 +86,6 @@ function computePaletteTierScore(colours, colorRules) {
     .reduce((best, palette) => Math.max(best, tierScores[palette.tier]), 0);
 }
 
-// FAVOURITE_PALETTE_BONUS if the colours fit one of the user's favourite
-// palettes, whichever levels that palette is used at.
-function computeFavouriteBonus(colours, favouritePalettes = []) {
-  const favourites = new Set(favouritePalettes);
-  const fitsFavourite = allPalettes.some(
-    (palette) => favourites.has(palette.id) && paletteFits(palette, colours)
-  );
-
-  return fitsFavourite ? FAVOURITE_PALETTE_BONUS : 0;
-}
-
 function computeBrightAdjustment(colours, level) {
   const brightCount = colours.filter((colour) => BRIGHT_COLOURS.includes(colour)).length;
 
@@ -121,12 +110,12 @@ function computePatternEchoAdjustment(items, patternLevel = DEFAULT_PATTERN_LEVE
   return entryFor(PATTERN_ECHO_ADJUSTMENTS[patternLevel], newColourCount);
 }
 
-// Average of the colour-count and palette tier scores, plus the favourite
-// bonus, bright-colour and pattern echo adjustments, kept between 0 and
-// 100. Not rounded. `colorRules` is the user's resolved level
+// Average of the colour-count and palette tier scores, plus the
+// bright-colour and pattern echo adjustments, kept between 0 and 100. Not
+// rounded. `colorRules` is the user's resolved level
 // (utils/colorPalettes.js getColorRules); `patternLevel` is
 // Preferences.pattern.
-function computeColourScore(items, colorRules, favouritePalettes = [], patternLevel = DEFAULT_PATTERN_LEVEL) {
+function computeColourScore(items, colorRules, patternLevel = DEFAULT_PATTERN_LEVEL) {
   const colours = distinctColours(items);
   const { level } = colorRules;
 
@@ -135,7 +124,6 @@ function computeColourScore(items, colorRules, favouritePalettes = [], patternLe
 
   return clampScore(
     average +
-      computeFavouriteBonus(colours, favouritePalettes) +
       computeBrightAdjustment(colours, level) +
       computePatternEchoAdjustment(items, patternLevel)
   );
@@ -183,7 +171,7 @@ function combineScores(pairBlend, colourScore) {
 // Pair blend weighted with the colour score, rounded to a whole number. An
 // outfit with no scoreable pairs (a single item) gets SINGLE_ITEM_SCORE,
 // with no colour score. `context` is matchService's matching context
-// ({ baselineMatrix, adjustments, colorRules, favouritePalettes }).
+// ({ baselineMatrix, adjustments, colorRules, patternLevel }).
 function computeOutfitScore(items, context) {
   const pairBlend = computePairBlend(items, context.baselineMatrix, context.adjustments);
 
@@ -193,7 +181,7 @@ function computeOutfitScore(items, context) {
 
   return combineScores(
     pairBlend,
-    computeColourScore(items, context.colorRules, context.favouritePalettes, context.patternLevel)
+    computeColourScore(items, context.colorRules, context.patternLevel)
   );
 }
 
@@ -203,7 +191,6 @@ module.exports = {
   getPairScore,
   computeColourCountScore,
   computePaletteTierScore,
-  computeFavouriteBonus,
   computeBrightAdjustment,
   computePatternEchoAdjustment,
   computeColourScore,

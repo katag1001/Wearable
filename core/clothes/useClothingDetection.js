@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { detectFromName } from "./uploadHelpers.js";
 
-// Fills in page two (seasons, tags, colours) from the name and subtype
+// Fills in page two (tags, colours) from the name and subtype
 // chosen on page one. This only runs when the user
 // clicks Next, so changing their mind on page one doesn't leave
 // suggestions from an earlier choice behind.
@@ -36,7 +36,6 @@ const applyDetection = (name, subtype) => {
 
   const {
     detectedColors,
-    detectedSeasons,
     detectedTags,
   } = detectFromName(name);
 
@@ -47,14 +46,10 @@ const applyDetection = (name, subtype) => {
 
   setFormData(prev => {
 
-    // Start seasons and tags from scratch so suggestions from a
-    // previous name/subtype don't carry over.
+    // Start tags from scratch so suggestions from a previous
+    // name/subtype don't carry over.
     const updated = {
       ...prev,
-      spring: false,
-      summer: false,
-      autumn: false,
-      winter: false,
       tags: []
     };
 
@@ -68,26 +63,10 @@ const applyDetection = (name, subtype) => {
 
     const tags = [...detectedTags];
 
-    Object.entries(detectedSeasons).forEach(([season, value]) => {
-
-      if (value) {
-        updated[season] = true;
-      }
-
-    });
-
 
     if (subtypeOption) {
 
       tags.push(...(subtypeOption.tags || []));
-
-      subtypeOption.season.forEach(season => {
-
-        updated[
-          season.toLowerCase()
-        ] = true;
-
-      });
 
     }
 

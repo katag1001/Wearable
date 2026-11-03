@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 2,
     borderColor: "transparent",
-    backgroundColor: colors.imageBackground,
+    backgroundColor: colors.itemBackground,
   },
   selected: {
     borderColor: colors.main,

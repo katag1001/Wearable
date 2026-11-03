@@ -13,15 +13,14 @@ const CLOTHING_FIELDS = [
   "cloudinaryId",
   "colors",
   "pattern",
+  "fabric",
   "type",
   "subtype",
   "tags",
-  "spring",
-  "summer",
-  "autumn",
-  "winter",
   "favourite",
   "wearWithTights",
+  // Set once, from the photo analysis of a new item.
+  "analysis",
 ];
 
 // A pair of footwear, from its add / edit form. (Worn values are changed
@@ -34,19 +33,14 @@ const FOOTWEAR_FIELDS = [
   "styles",
   "subtype",
   "tags",
-  "spring",
-  "summer",
-  "autumn",
-  "winter",
+  "analysis",
 ];
 
 // An outfit, from the card editor, the heart and "worn today".
 // (createMatch only takes `clothes`, checked against the user's items.)
+// Its seasons aren't here: they come from its items
+// (services/seasonalityService.js).
 const MATCH_FIELDS = [
-  "spring",
-  "summer",
-  "autumn",
-  "winter",
   "min_temp",
   "max_temp",
   "tags",

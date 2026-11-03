@@ -100,8 +100,8 @@ export const rejectMatch = async (matchId) => {
 
 // Rating an outfit 1-5 stars. `wearing`: rated as it's worn on the Today
 // page (a low rating then keeps it). Returns { deleted: true } if the
-// rating deleted it, else { deleted: false, rating, score,
-// favouriteItemBonus }. Rules and numbers:
+// rating deleted it, else { deleted: false, rating, score }. Rules and
+// numbers:
 // server/services/matchRatingService.js.
 export const rateMatch = async (matchId, rating, { wearing = false } = {}) => {
   const response = await api.put(`/match/${matchId}/rating`, { rating, wearing });

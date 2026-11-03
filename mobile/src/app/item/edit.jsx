@@ -1,34 +1,27 @@
 // Add or edit a clothing item / pair of footwear (?kind=clothing|footwear).
 // The item being edited is handed over by the wardrobe (itemHandoff); with
-// none, it's a new item. The form logic is useWardrobeItemForm, shared
-// with the web.
+// none, it's a new item added by hand (adding from a photo is
+// item/add.jsx). The form logic is useWardrobeItemForm, shared with the
+// web.
 
 import { useEffect, useState } from "react";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Alert, StyleSheet, View } from "react-native";
+import { Alert } from "react-native";
 
 import { getErrorMessage } from "@core/api/errors.js";
 import { useWardrobeItemForm } from "@core/hooks/useWardrobeItemForm.js";
-import { spacing } from "@core/theme/tokens.js";
 import {
   WARDROBE_KINDS,
   deleteWardrobeItem,
 } from "@core/wardrobe/itemKinds.js";
 
-import {
-  Button,
-  EmptyState,
-  Message,
-  Screen,
-  TextField,
-} from "../../components/ui";
-import { ItemDetailsPage } from "../../components/wardrobe/ItemDetailsPage";
+import { Button, Screen } from "../../components/ui";
 import {
   markWardrobeChanged,
   takeItem,
 } from "../../components/wardrobe/itemHandoff";
-import { PhotoPicker } from "../../components/wardrobe/PhotoPicker";
-import { TypeChooser } from "../../components/wardrobe/TypeChooser";
+import { ItemForm } from "../../components/wardrobe/ItemForm";
+import { ItemSaved } from "../../components/wardrobe/ItemSaved";
 
 export default function EditItemScreen() {
   const params = useLocalSearchParams();
@@ -78,29 +71,12 @@ export default function EditItemScreen() {
       <>
         <Stack.Screen options={{ title: form.title }} />
         <Screen scroll={false} edges={["bottom"]}>
-          <EmptyState title={form.savedItem.message} />
-          {form.hasMatches && (
-            <Button
-              label="View new matches"
-              variant="secondary"
-              onPress={() =>
-                // Back to the tabs, on Outfits, waiting for the outfits
-                // being made with this item.
-                router.navigate({
-                  pathname: "/outfits",
-                  params: { item: form.savedItem.id, processing: "1" },
-                })
-              }
-            />
-          )}
-          {!form.isUpdate && (
-            <Button
-              label="Add another item"
-              variant="secondary"
-              onPress={form.addAnother}
-            />
-          )}
-          <Button label="Done" onPress={() => router.back()} />
+          <ItemSaved
+            message={form.savedItem.message}
+            itemId={form.savedItem.id}
+            hasMatches={form.hasMatches}
+            onAddAnother={form.isUpdate ? undefined : form.addAnother}
+          />
         </Screen>
       </>
     );
@@ -112,63 +88,21 @@ export default function EditItemScreen() {
     <>
       <Stack.Screen options={{ title: form.title }} />
       <Screen edges={["bottom"]}>
-        <TextField
-          label="Name"
-          value={form.formData.name}
-          onChangeText={(text) => form.updateField("name", text)}
-          onEndEditing={form.fillDetailsFromName}
-          placeholder="e.g. Navy linen shirt"
+        <ItemForm
+          form={form}
+          onCancel={() => router.back()}
+          footer={
+            form.isUpdate && (
+              <Button
+                label="Delete item"
+                variant="text"
+                onPress={confirmDelete}
+                loading={deleting}
+              />
+            )
+          }
         />
-
-        <PhotoPicker
-          selectedImage={form.selectedImage}
-          savedImageUrl={form.formData.imageUrl}
-          onPick={form.setSelectedImage}
-        />
-
-        <TypeChooser form={form} />
-
-        <ItemDetailsPage form={form} />
-
-        <Message text={form.validationMessage} />
-        <Message text={form.error} />
-
-        <View style={styles.actions}>
-          <Button
-            label="Cancel"
-            variant="secondary"
-            onPress={() => router.back()}
-            disabled={form.saving}
-            style={styles.action}
-          />
-          <Button
-            label="Save"
-            onPress={form.save}
-            loading={form.saving}
-            style={styles.action}
-          />
-        </View>
-
-        {form.isUpdate && (
-          <Button
-            label="Delete item"
-            variant="text"
-            onPress={confirmDelete}
-            loading={deleting}
-          />
-        )}
       </Screen>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  actions: {
-    flexDirection: "row",
-    gap: spacing.md,
-    marginTop: spacing.sm,
-  },
-  action: {
-    flex: 1,
-  },
-});

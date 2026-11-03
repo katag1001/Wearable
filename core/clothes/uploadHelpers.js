@@ -10,12 +10,10 @@ export const getInitialState = () => ({
   styles: "plain",
   // Clothing only - picked by the user.
   pattern: "Plain",
+  // Clothing only - shared/fabrics.json, "" until known.
+  fabric: "",
   type: "",
   subtype: "",
-  spring: false,
-  summer: false,
-  autumn: false,
-  winter: false,
   tags: [],
   lastWornDate: null
 });
@@ -41,6 +39,8 @@ const COLOR_NAME_ALIASES = {
   "electric blue": "Bright Blue",
   red: "Bright Red",
   "deep red": "Dark Red",
+  maroon: "Burgundy",
+  oxblood: "Burgundy",
   pink: "Baby Pink",
   "light pink": "Baby Pink",
   "pale pink": "Baby Pink",
@@ -81,17 +81,6 @@ export const detectFromName = (name) => {
 
 
 
-  const detectedSeasons = {
-    spring: lower.includes("spring"),
-    summer: lower.includes("summer"),
-    autumn:
-      lower.includes("autumn") ||
-      lower.includes("fall"),
-    winter: lower.includes("winter")
-  };
-
-
-
   const detectedTags = tagOptions
     .filter(tag =>
       lower.includes(tag.name.toLowerCase())
@@ -107,7 +96,6 @@ export const detectFromName = (name) => {
 
   return {
     detectedColors,
-    detectedSeasons,
     detectedTags,
     style
   };
@@ -119,7 +107,7 @@ export const detectFromName = (name) => {
 // or garments commonly called something else).
 const SUBTYPE_SYNONYMS = {
   "hoodie/sweatshirt": ["hoodie", "sweatshirt", "hoody"],
-  "warm jumper": ["sweater", "wool jumper", "chunky knit"],
+  "chunky knit jumper": ["warm jumper", "sweater", "wool jumper", "cable knit", "chunky jumper"],
   "fine-knit jumper": ["sweater", "thin knit", "light knit", "light jumper", "fine knit"],
   "warm cardigan": ["wool cardigan", "chunky cardigan"],
   "light cardigan": ["thin cardigan", "light knit cardigan"],
@@ -132,7 +120,8 @@ const SUBTYPE_SYNONYMS = {
   "denim shirt": ["chambray shirt", "chambray", "jean shirt"],
   "peasant/boho blouse": ["peasant blouse", "boho blouse", "peasant top", "boho top", "embroidered blouse"],
   "knit vest/tank": ["knitted vest", "knit vest", "crochet top", "knitted tank", "crochet vest"],
-  "halter/strappy top": ["halter", "halterneck", "halter neck", "cami", "camisole", "strappy top", "tube top", "bandeau"],
+  "halter/strappy top": ["halter", "halterneck", "halter neck", "cami", "camisole", "strappy top"],
+  "tube top": ["bandeau", "boob tube", "strapless top", "corset top"],
   "short t-shirt": ["tee", "tshirt", "t shirt", "crewneck", "crew neck"],
   "long-sleeve t-shirt": ["long tee", "long sleeve tee", "long sleeve tshirt", "long sleeve t-shirt", "long sleeve top", "long t-shirt"],
   "off-the-shoulder top": ["off the shoulder top", "bardot top"],
@@ -160,6 +149,7 @@ const SUBTYPE_SYNONYMS = {
   "midi-skirt": ["midi skirt"],
   "winter mini skirt": ["wool mini", "tweed mini", "wool skirt", "tweed skirt"],
   "floaty maxi skirt": ["maxi skirt", "tiered skirt", "flowy skirt"],
+  "maxi dress": ["long dress", "floor length dress", "floor-length dress", "ankle length dress"],
   "fitted maxi skirt": ["maxi skirt", "pencil maxi", "straight skirt", "column skirt"],
   "low waist jeans": ["low waisted jeans"],
   "high waisted jeans": ["high waist jeans"],

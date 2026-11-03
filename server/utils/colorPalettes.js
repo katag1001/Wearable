@@ -4,7 +4,7 @@
 // there - the Today page's shoe box reads the same file in the browser,
 // core/footwear/footwearRanking.js).
 //
-// Each palette is { id, tier, levels, colours }:
+// Each palette is { id, tier, levels, colours, seasons }:
 //  - id: stable name. Users' favourite palettes (Preferences.
 //    favouritePalettes) point at it, so never change an id once it's live.
 //  - tier: "classic", "common" or "bold" - how much the palette scores at
@@ -12,6 +12,9 @@
 //  - levels: the Preferences.colour levels ("min"/"mid"/"max") it's used at.
 //    A user is only ever checked against their own level's palettes.
 //  - colours: names from colorOptions (core/constants/optionsBank.js).
+//  - seasons: the seasons it belongs to ([] = any time, e.g. neutrals) -
+//    for Today's seasonal points and the outfit season flags
+//    (services/seasonalityService.js).
 //
 // Each level also caps how many distinct colours a whole outfit may contain
 // (maxColors; null = no cap). getColorRules() resolves the level's palettes
@@ -23,6 +26,7 @@
 const colorPalettes = require("../../shared/colorPalettes.json");
 
 const COLOUR_LEVELS = ["min", "mid", "max"];
+const SEASONS = ["spring", "summer", "autumn", "winter"];
 const PALETTE_TIERS = ["classic", "common", "bold"];
 
 // Throws a message pointing at the broken palette if the file breaks a rule.
@@ -67,6 +71,10 @@ function checkPalettes({ palettes, maxColors, defaultLevel, brightColours }) {
 
     if (!Array.isArray(palette.colours) || !palette.colours.length) {
       throw new Error(`${where} needs at least one colour.`);
+    }
+
+    if (!Array.isArray(palette.seasons) || palette.seasons.some((season) => !SEASONS.includes(season))) {
+      throw new Error(`${where}: seasons must be a list of ${SEASONS.join(", ")} (empty for any time).`);
     }
   });
 }

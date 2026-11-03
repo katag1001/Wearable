@@ -13,7 +13,7 @@ import { fetchTodayOutfits } from "../api/today.js";
 import { markMatchWorn } from "../matches/matchActions.js";
 import { rejectOutfit, wasRejectedToday } from "../today/outfitRejection.js";
 import { cacheToday, getCachedToday } from "../today/todayCache.js";
-import { fetchTodayInfo } from "../today/todayInfo.js";
+import { fetchTodayInfo, todayTagFor } from "../today/todayInfo.js";
 import { outfitIdsChanged } from "../today/outfitIds.js";
 import { indexAfterRemoving, withoutOutfits } from "../today/outfitFeedback.js";
 import {
@@ -24,7 +24,7 @@ import {
   takeWornSnapshot,
 } from "../today/wornSnapshot.js";
 import { getTodayStartISO } from "../utils/dates.js";
-import { findTagOption } from "../utils/tagOptions.js";
+import { weatherNoticeText } from "../today/weatherNotice.js";
 
 // The server builds today's outfits after /today/create, so an empty list
 // is retried once a second for a while.
@@ -60,11 +60,15 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   const [outfits, setOutfits] = useState(cachedToday?.outfits ?? []);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Today's tag from the weekly preferences (a tagOptions name), or null.
-  const [todayTag, setTodayTag] = useState(cachedToday?.todayTag ?? null);
-  const [selectedTag, setSelectedTag] = useState(
-    tagFilter ? cachedToday?.todayTag ?? null : null
-  );
+  // Today's tag from the weekly preferences (a tagOptions name, or the
+  // default - todayInfo.js). A day cached with an old tag name gets the
+  // default too.
+  const cachedTag = cachedToday ? todayTagFor(cachedToday.todayTag) : null;
+  const [todayTag, setTodayTag] = useState(cachedTag);
+  const [selectedTag, setSelectedTag] = useState(tagFilter ? cachedTag : null);
+
+  // { level, band } when few outfits fit today's weather, else null.
+  const [weatherNotice, setWeatherNotice] = useState(cachedToday?.weatherNotice ?? null);
 
   const [loading, setLoading] = useState(!cachedToday);
   const [checkingToday, setCheckingToday] = useState(false);
@@ -129,13 +133,14 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   // the loading messages and without moving the user's place.
   const loadOutfits = async (silent, attempt = 0) => {
     try {
-      const { outfits: fresh, wornToday: serverWorn } = await fetchTodayOutfits(
+      const { outfits: fresh, wornToday: serverWorn, notice } = await fetchTodayOutfits(
         getTodayStartISO()
       );
 
       if (unmounted.current) return;
 
       applyServerWorn(serverWorn);
+      setWeatherNotice(notice);
 
       // Today is still being created.
       if (fresh.length === 0) {
@@ -187,11 +192,8 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     if (!todayReady) return;
 
     const loadToday = async () => {
-      const { todayTag: preferenceTag } = await fetchTodayInfo();
-
-      // The tagOptions spelling, which is what outfit tags use.
-      const todayTagName =
-        findTagOption(preferenceTag)?.name || preferenceTag || null;
+      // Already the tagOptions spelling, which is what outfit tags use.
+      const { todayTag: todayTagName } = await fetchTodayInfo();
 
       setTodayTag(todayTagName);
 
@@ -214,8 +216,8 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   useEffect(() => {
     if (loading) return;
 
-    cacheToday({ todayTag, outfits, wornToday });
-  }, [outfits, todayTag, wornToday, loading]);
+    cacheToday({ todayTag, outfits, wornToday, weatherNotice });
+  }, [outfits, todayTag, wornToday, weatherNotice, loading]);
 
   /* -------------------- Tag filter -------------------- */
 
@@ -297,7 +299,6 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
         updateMatch(matchId, {
           rating: result.rating,
           score: result.score,
-          favouriteItemBonus: result.favouriteItemBonus,
         });
       }
     } catch (err) {
@@ -512,6 +513,8 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     loading,
     checkingToday,
     message,
+    // "Brrr! It's cold today..." (shared/todayMessages.json), or null.
+    weatherNoticeText: weatherNoticeText(weatherNotice),
 
     outfits,
     filteredOutfits,

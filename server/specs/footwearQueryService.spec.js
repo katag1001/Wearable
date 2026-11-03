@@ -24,7 +24,7 @@ test("parseFootwearQuery ignores a clothing type", () => {
   );
 });
 
-test("buildFootwearFilter combines any-of seasons, colours, tags and subtypes", () => {
+test("buildFootwearFilter combines colours, tags and subtypes (footwear has no seasons)", () => {
   const filter = buildFootwearFilter(
     USER,
     parseFootwearQuery({
@@ -36,7 +36,6 @@ test("buildFootwearFilter combines any-of seasons, colours, tags and subtypes", 
   );
 
   assert.deepEqual(filter.$and, [
-    { $or: [{ winter: true }, { autumn: true }] },
     { colors: { $in: ["Black"] } },
     { tags: { $in: ["Work", "Everyday"] } },
     { subtype: { $in: ["Ankle boots", "Loafers"] } },

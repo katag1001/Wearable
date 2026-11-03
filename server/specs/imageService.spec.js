@@ -2,7 +2,11 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const cloudinary = require("../cloudinary.js");
-const { deleteReplacedImage } = require("../services/imageService.js");
+const {
+  deleteReplacedImage,
+  destroyItemImages,
+  withReplacedImageFields,
+} = require("../services/imageService.js");
 
 // Records destroy calls instead of contacting Cloudinary.
 const stubDestroy = (t, { fail = false } = {}) => {
@@ -48,4 +52,40 @@ test("deleteReplacedImage doesn't throw when Cloudinary fails", async (t) => {
   await assert.doesNotReject(
     deleteReplacedImage({ cloudinaryId: "old" }, { cloudinaryId: "new" })
   );
+});
+
+const withAllImages = (id) => ({
+  cloudinaryId: id,
+  thumbnailCloudinaryId: `${id}_thumb`,
+  originalCloudinaryId: `${id}_original`,
+});
+
+test("deleting an item deletes its image, thumbnail and original", async (t) => {
+  const destroyed = stubDestroy(t);
+
+  await destroyItemImages(withAllImages("a"), "item deleted");
+
+  assert.deepEqual(destroyed, ["a", "a_thumb", "a_original"]);
+});
+
+test("a replaced image takes its thumbnail and original with it", async (t) => {
+  const destroyed = stubDestroy(t);
+
+  await deleteReplacedImage(withAllImages("old"), { cloudinaryId: "new" });
+
+  assert.deepEqual(destroyed, ["old", "old_thumb", "old_original"]);
+});
+
+test("a new image clears the old thumbnail and original fields", () => {
+  const existing = withAllImages("old");
+
+  assert.deepEqual(withReplacedImageFields({ name: "x" }, existing), { name: "x" });
+  assert.deepEqual(withReplacedImageFields({ cloudinaryId: "old" }, existing), { cloudinaryId: "old" });
+  assert.deepEqual(withReplacedImageFields({ cloudinaryId: "new" }, existing), {
+    thumbnailUrl: "",
+    thumbnailCloudinaryId: "",
+    originalImageUrl: "",
+    originalCloudinaryId: "",
+    cloudinaryId: "new",
+  });
 });

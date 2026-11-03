@@ -22,6 +22,8 @@ export const emptyItemFilter = {
   onepiece: null,
 };
 
+// Outfits' seasons come from their fabrics, colours and temperature
+// (server/services/seasonalityService.js); items have none.
 export const defaultFilters = {
   seasons: [],
   colors: [],
@@ -37,9 +39,9 @@ export const defaultFilters = {
   items: emptyItemFilter,
 };
 
-// The wardrobe's filters (no temperature, favourites or items there).
+// The wardrobe's filters (no seasons, temperature, favourites or items
+// there).
 export const defaultWardrobeFilters = {
-  seasons: [],
   colors: [],
   patterns: [],
   tags: [],

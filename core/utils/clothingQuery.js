@@ -24,7 +24,6 @@ export const buildClothingFilterQuery = ({
   if (search.trim()) params.set("search", search.trim());
   if (type) params.set("type", type);
 
-  addList(params, "seasons", filters.seasons);
   addList(params, "colors", filters.colors);
   addList(params, "patterns", filters.patterns);
   addList(params, "tags", filters.tags);

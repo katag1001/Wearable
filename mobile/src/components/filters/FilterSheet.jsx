@@ -26,7 +26,8 @@ export const FilterSheet = ({
   availablePatterns,
   availableTags,
   clothesByCategory,
-  showSeasons = true,
+  // Outfits only - items have no seasons.
+  showSeasons = false,
   showColors = true,
   showPatterns = true,
   showTags = true,

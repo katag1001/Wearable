@@ -20,7 +20,6 @@ export const buildFootwearFilterQuery = ({
 
   if (search.trim()) params.set("search", search.trim());
 
-  addList(params, "seasons", filters.seasons);
   addList(params, "colors", filters.colors);
   addList(params, "styles", filters.styles);
   addList(params, "tags", filters.tags);

@@ -58,7 +58,6 @@ const applyRating = (match, rating, options) => {
 
   match.rating = rating;
   match.score = score;
-  match.favouriteItemBonus = 0;
 
   return true;
 };
@@ -66,7 +65,6 @@ const applyRating = (match, rating, options) => {
 // After the match's `favourite` changed (already set on it).
 const applyFavouriteScore = (match) => {
   match.score = match.favourite ? FAVOURITE_OUTFIT_SCORE : UNFAVOURITED_OUTFIT_SCORE;
-  match.favouriteItemBonus = 0;
 };
 
 module.exports = {

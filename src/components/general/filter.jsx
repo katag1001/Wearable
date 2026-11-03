@@ -26,7 +26,8 @@ const Filter = ({
     onepiece: [],
   },
   showItemFilter = false,
-  showSeasons = true,
+  // Outfits only - items have no seasons.
+  showSeasons = false,
   showColors = true,
   showPatterns = true,
   showTags = true,

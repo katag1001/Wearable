@@ -1,10 +1,8 @@
 const {
   parseList,
   parsePaging,
-  parseSeasons,
   parseSearch,
   searchRegex,
-  anySeasonCondition,
   anyOfCondition,
   combineConditions,
 } = require("./queryHelpers.js");
@@ -24,7 +22,6 @@ const parseClothingQuery = (query = {}) => ({
   ...parsePaging(query),
   search: parseSearch(query.search),
   type: CLOTHING_TYPES.includes(query.type) ? query.type : null,
-  seasons: parseSeasons(query.seasons),
   colors: parseList(query.colors),
   patterns: parseList(query.patterns),
   tags: parseList(query.tags),
@@ -36,8 +33,6 @@ const parseClothingQuery = (query = {}) => ({
 // Each rule returns a condition, or null when that filter isn't in use.
 
 const typeCondition = ({ type }) => (type ? { type } : null);
-
-const seasonsCondition = ({ seasons }) => anySeasonCondition(seasons);
 
 const colorsCondition = ({ colors }) => anyOfCondition("colors", colors);
 
@@ -67,7 +62,6 @@ const searchCondition = ({ search }) => {
 
 const FILTER_RULES = [
   typeCondition,
-  seasonsCondition,
   colorsCondition,
   patternsCondition,
   tagsCondition,

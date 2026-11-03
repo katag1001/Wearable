@@ -3,6 +3,7 @@ const router = express.Router();
 const allControllers = require("../controllers/allControllers");
 const footwearControllers = require("../controllers/footwearControllers");
 const cloudinaryControllers = require("../controllers/cloudinaryControllers");
+const analysisControllers = require("../controllers/analysisControllers");
 const { authMiddleware } = require("../middleware/authMiddleware");
 const { loginLimiter, registerLimiter } = require("../middleware/rateLimits");
 
@@ -39,6 +40,10 @@ router.put("/footwear/:id/unwear", authMiddleware, footwearControllers.unwearFoo
 router.get("/footwear/:id", authMiddleware, footwearControllers.getFootwearById);
 router.put("/footwear/:id", authMiddleware, footwearControllers.updateFootwear);
 router.delete("/footwear/:id", authMiddleware, footwearControllers.deleteFootwear);
+
+/* ITEM ANALYSIS */
+// Fills in a new item from its uploaded photo (nothing is saved).
+router.post("/items/analyse", authMiddleware, analysisControllers.analyseItem);
 
 /* IMAGE ROUTES */
 // Removes an uploaded image no item uses (after a failed save).

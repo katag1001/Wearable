@@ -8,7 +8,7 @@ import { isDateToday } from "../utils/dates.js";
 
 /*
  * One outfit card: favourite, mark worn today, and editing its star
- * rating, seasons, temperature range, tags and - when its items allow
+ * rating, temperature range, tags and - when its items allow
  * tights - whether it can be worn with tights (a draft, saved with
  * `save`). A rating of 1-2 stars can delete the outfit
  * (server/services/matchRatingService.js).
@@ -39,10 +39,6 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
   const startEditing = (overrides) =>
     setDraft({ ...getMatchDraft(match), ...overrides });
   const stopEditing = () => setDraft(null);
-
-  const toggleSeason = (season) => {
-    setDraft((prev) => ({ ...prev, [season]: !prev[season] }));
-  };
 
   const toggleTag = (tagName) => {
     setDraft((prev) => ({
@@ -157,7 +153,6 @@ export const useMatchCard = ({ match, onChanged, onFavouriteToggle, onError }) =
     isEditing: !!draft,
     startEditing,
     stopEditing,
-    toggleSeason,
     toggleTag,
     setTemperature,
     offersTights,

@@ -18,10 +18,10 @@ const onepiece = (subtype, wearWithTights) => ({ type: "onepiece", subtype, wear
 const outer = (subtype) => ({ type: "outer", subtype });
 
 // A skirt outfit with a coat whose floor (6) is below the test days.
-const COATED = [top("Warm jumper"), bottom("Midi-skirt"), outer("Classic trench")];
+const COATED = [top("Chunky knit jumper"), bottom("Midi-skirt"), outer("Classic trench")];
 
 test("a skirt with a warm top or an outer can take tights", () => {
-  assert.equal(canWearTights([top("Short t-shirt"), top("Warm jumper"), bottom("Mini skirt")]), true);
+  assert.equal(canWearTights([top("Short t-shirt"), top("Chunky knit jumper"), bottom("Mini skirt")]), true);
   assert.equal(canWearTights([top("Vest"), bottom("Midi-skirt"), outer("Tailored blazer")]), true);
 });
 
@@ -39,8 +39,8 @@ test("dresses follow the same rule; summer, evening and wedding guest dresses ne
 });
 
 test("fancy shorts take tights by default; other shorts don't", () => {
-  assert.equal(canWearTights([top("Warm jumper"), top("Short t-shirt"), bottom("Fancy Shorts")]), true);
-  assert.equal(canWearTights([top("Warm jumper"), top("Short t-shirt"), bottom("Denim shorts")]), false);
+  assert.equal(canWearTights([top("Chunky knit jumper"), top("Short t-shirt"), bottom("Fancy Shorts")]), true);
+  assert.equal(canWearTights([top("Chunky knit jumper"), top("Short t-shirt"), bottom("Denim shorts")]), false);
 });
 
 test("the item's own answer replaces its subtype's default", () => {
@@ -64,8 +64,8 @@ test("the tights range never takes the minimum below the floor, nor lifts it", (
 });
 
 test("a saved match's floor is the no-outer or outer floor, plus the preference shift", () => {
-  assert.equal(savedMinTempFloor([top("Warm jumper"), bottom("Mini skirt")]), NO_OUTER_MIN_TEMP);
-  assert.equal(savedMinTempFloor([top("Warm jumper"), bottom("Mini skirt")], "cold"), NO_OUTER_MIN_TEMP + 1);
+  assert.equal(savedMinTempFloor([top("Chunky knit jumper"), bottom("Mini skirt")]), NO_OUTER_MIN_TEMP);
+  assert.equal(savedMinTempFloor([top("Chunky knit jumper"), bottom("Mini skirt")], "cold"), NO_OUTER_MIN_TEMP + 1);
   assert.equal(
     savedMinTempFloor(COATED),
     Math.max(OUTER_MIN_TEMPS["Classic trench"], SKIRT_DRESS_MIN_TEMP - TIGHTS_SHIFT)
@@ -73,7 +73,7 @@ test("a saved match's floor is the no-outer or outer floor, plus the preference 
 });
 
 test("with tights, a skirt or dress can go TIGHTS_SHIFT below its bare-legs floor", () => {
-  const warmCoat = [top("Warm jumper"), bottom("Mini skirt"), outer("Puffer coat")];
+  const warmCoat = [top("Chunky knit jumper"), bottom("Mini skirt"), outer("Puffer coat")];
 
   assert.ok(OUTER_MIN_TEMPS["Puffer coat"] < SKIRT_DRESS_MIN_TEMP - TIGHTS_SHIFT);
   assert.equal(savedMinTempFloor(warmCoat), SKIRT_DRESS_MIN_TEMP - TIGHTS_SHIFT);
@@ -86,10 +86,12 @@ test("Today doesn't use tights to take an outfit with no outer below its floor",
     min_temp: NO_OUTER_MIN_TEMP,
     max_temp: 21,
     tights: true,
-    clothes: [top("Warm jumper"), bottom("Mini skirt")],
+    clothes: [top("Chunky knit jumper"), bottom("Mini skirt")],
   };
 
-  assert.equal(todayFitOf(jumperAndSkirt, day), null);
+  // It only gets in further down, on its own range - never with tights.
+  assert.equal(todayFitOf(jumperAndSkirt, day).withTights, false);
+  assert.ok(todayFitOf(jumperAndSkirt, day).tier > 0);
   assert.deepEqual(
     todayFitOf({ ...jumperAndSkirt, clothes: COATED }, day),
     { tier: 0, withTights: true }
@@ -119,8 +121,8 @@ test("an outfit flagged noTights doesn't take tights, even when its items allow 
 test("tightsItemOf finds the outfit's skirt, dress or shorts", () => {
   const skirt = bottom("Midi-skirt");
 
-  assert.equal(tightsItemOf([top("Warm jumper"), skirt]), skirt);
-  assert.equal(tightsItemOf([top("Warm jumper"), bottom("Jeans")]), undefined);
+  assert.equal(tightsItemOf([top("Chunky knit jumper"), skirt]), skirt);
+  assert.equal(tightsItemOf([top("Chunky knit jumper"), bottom("Jeans")]), undefined);
 });
 
 test("Today doesn't use the tights range for an outfit flagged noTights", () => {

@@ -1,0 +1,30 @@
+/* SeasonalityScale.jsx - the 1-5 "how much does the season matter" slider. */
+
+.seasonality-scale {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.seasonality-scale-hint {
+  margin: 0;
+  color: var(--muted-color);
+  font-size: var(--description-font-size);
+  text-align: center;
+}
+
+.seasonality-scale-slider {
+  width: 100%;
+  accent-color: var(--main-color);
+  cursor: pointer;
+}
+
+.seasonality-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted-color);
+  font-size: var(--description-font-size);
+}

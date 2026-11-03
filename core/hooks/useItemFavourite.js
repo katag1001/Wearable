@@ -4,9 +4,9 @@ import { updateClothing } from "../api/clothing.js";
 import { getErrorMessage } from "../api/errors.js";
 
 /*
- * The heart on a wardrobe clothing item. Favouriting an item raises the
- * score of its automatic outfits on the server
- * (server/services/favouriteItemService.js).
+ * The heart on a wardrobe clothing item. Outfits with a favourite item
+ * rank higher on Today (server/services/todayScoreService.js) - their
+ * saved scores don't change.
  *
  * - The heart changes straight away, then shows what the server saved
  *   (rolling back if the save failed or wasn't stored).

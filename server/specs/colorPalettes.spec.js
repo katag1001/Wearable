@@ -42,8 +42,6 @@ test("getColorRules falls back to the default level for null/unknown input", () 
 
 /* -------------------- Palette file -------------------- */
 
-const fs = require("node:fs");
-const path = require("node:path");
 const {
   allPalettes,
   BRIGHT_COLOURS,
@@ -51,14 +49,8 @@ const {
   cleanFavouritePalettes,
 } = require("../utils/colorPalettes.js");
 
-// colorOptions lives in an ES module the server can't require, so read the
-// names straight from the file.
-const colourOptionNames = new Set(
-  [...fs.readFileSync(path.join(__dirname, "../../core/constants/optionsBank.js"), "utf8")
-    .split("export const colorOptions")[1]
-    .split("];")[0]
-    .matchAll(/name: "([^"]+)"/g)].map((match) => match[1])
-);
+// The colours the user can pick (core's colorOptions reads the same file).
+const colourOptionNames = new Set(require("../../shared/colors.json").map(({ name }) => name));
 
 test("every palette and bright colour is one the user can pick", () => {
   allPalettes.forEach((palette) => {
@@ -75,19 +67,22 @@ test("the levels only grow: every min palette fits in a mid one, every mid in a 
   colorPalettesByLevel.mid.forEach((palette) => assert.ok(fitsIn(palette, "max"), palette.id));
 });
 
-test("checkPalettes rejects a duplicate id, an unknown tier or level, and a palette with no colours", () => {
+test("checkPalettes rejects a duplicate id, an unknown tier, level or season, and a palette with no colours", () => {
   const file = (palette) => ({
     defaultLevel: "mid",
     maxColors: { min: 4, mid: 6, max: null },
     brightColours: [],
-    palettes: [{ id: "a", tier: "classic", levels: ["min"], colours: ["Navy"] }, palette],
+    palettes: [{ id: "a", tier: "classic", levels: ["min"], colours: ["Navy"], seasons: [] }, palette],
   });
+  const palette = (fields) => ({ id: "b", tier: "bold", levels: ["max"], colours: ["Red"], seasons: ["summer"], ...fields });
 
-  assert.doesNotThrow(() => checkPalettes(file({ id: "b", tier: "bold", levels: ["max"], colours: ["Red"] })));
-  assert.throws(() => checkPalettes(file({ id: "a", tier: "bold", levels: ["max"], colours: ["Red"] })), /used twice/);
-  assert.throws(() => checkPalettes(file({ id: "b", tier: "loud", levels: ["max"], colours: ["Red"] })), /tier/);
-  assert.throws(() => checkPalettes(file({ id: "b", tier: "bold", levels: ["huge"], colours: ["Red"] })), /levels/);
-  assert.throws(() => checkPalettes(file({ id: "b", tier: "bold", levels: ["max"], colours: [] })), /colour/);
+  assert.doesNotThrow(() => checkPalettes(file(palette({}))));
+  assert.throws(() => checkPalettes(file(palette({ id: "a" }))), /used twice/);
+  assert.throws(() => checkPalettes(file(palette({ tier: "loud" }))), /tier/);
+  assert.throws(() => checkPalettes(file(palette({ levels: ["huge"] }))), /levels/);
+  assert.throws(() => checkPalettes(file(palette({ colours: [] }))), /colour/);
+  assert.throws(() => checkPalettes(file(palette({ seasons: ["monsoon"] }))), /seasons/);
+  assert.throws(() => checkPalettes(file(palette({ seasons: undefined }))), /seasons/);
 });
 
 test("cleanFavouritePalettes keeps only real palette ids, once each", () => {

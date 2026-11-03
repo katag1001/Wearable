@@ -140,6 +140,8 @@ export default function TodayScreen() {
 
       <Message text={location.error} />
       <Message text={weather.error} />
+      {/* When few outfits fit the weather (shared/todayMessages.json). */}
+      <Message text={today.weatherNoticeText} type="success" />
 
       <View style={styles.outfit}>{outfitSection()}</View>
 

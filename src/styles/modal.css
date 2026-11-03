@@ -1181,3 +1181,139 @@ body.modal-open {
   }
 
 }
+
+
+/* ----------------------------------------------------------------
+   Add From Photo (components/clothes/addFromPhoto.jsx)
+----------------------------------------------------------------- */
+
+.photo-analysis {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+/* The loading screen while a photo is analysed. */
+.photo-analysis-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 320px;
+}
+
+.photo-analysis-image {
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: var(--image-background);
+}
+
+.photo-analysis-text {
+  margin: 0;
+  color: var(--muted-color);
+  text-align: center;
+}
+
+.text-button {
+  align-self: center;
+  padding: .25rem .5rem;
+  border: none;
+  background: none;
+  color: var(--muted-color);
+  font-family: inherit;
+  font-size: var(--description-font-size);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.text-button:hover {
+  color: var(--main-color);
+}
+
+/* "More than one item in this photo" - over the modal. */
+.photo-notice-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay-backdrop);
+  z-index: 1070;
+}
+
+.photo-notice {
+  width: min(85%, 360px);
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--card-background);
+  box-shadow: var(--shadow-float);
+  text-align: center;
+}
+
+.photo-notice p {
+  margin: 0 0 1rem;
+}
+
+/* After a photo is analysed: each field as a row with a small "Change"
+   (analysedItemReview.jsx). */
+.review-fields {
+  width: 100%;
+  border-top: 1px solid var(--border-color);
+}
+
+.review-field {
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.review-field-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.review-field-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: .125rem;
+  min-width: 0;
+}
+
+.review-field-label {
+  color: var(--muted-color);
+  font-size: var(--description-font-size);
+}
+
+.review-field-value {
+  overflow-wrap: anywhere;
+}
+
+.review-field-change {
+  flex-shrink: 0;
+  padding: .25rem .75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: none;
+  color: var(--muted-color);
+  font-family: inherit;
+  font-size: var(--description-font-size);
+  cursor: pointer;
+}
+
+.review-field-change:hover {
+  color: var(--main-color);
+}
+
+.review-field-picker {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding-top: .75rem;
+}

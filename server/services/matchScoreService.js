@@ -16,11 +16,13 @@ const { matchScoreBaseline } = require("../constants/matchScoreBaseline.js");
 const { LEARNING_DELTAS } = require("../constants/scoring.js");
 const { canonicalPairKey, pairKey, isCompatible } = require("./matrixService.js");
 const { clampAdjustment } = require("./outfitScoreService.js");
+const { DEFAULT_SEASONALITY } = require("../constants/seasonality.js");
 
 const DEFAULT_GENDER = "unisex";
 
 // Single source for every Preferences-derived matching setting (gender,
-// colour level, pattern level, temperature, favourite palettes) - one Preferences fetch per call, reused by
+// colour level, pattern level, temperature, favourite palettes,
+// seasonality) - one Preferences fetch per call, reused by
 // every caller that needs any of these, rather than each resolving its own.
 async function getUserMatchingPreferences(userId) {
   const preferences = await Preferences.findOne({ userId });
@@ -30,8 +32,9 @@ async function getUserMatchingPreferences(userId) {
   const pattern = preferences?.pattern || null;
   const temperature = preferences?.temperature || null;
   const favouritePalettes = preferences?.favouritePalettes || [];
+  const seasonality = preferences?.seasonality || DEFAULT_SEASONALITY;
 
-  return { gender, colour, pattern, temperature, favouritePalettes };
+  return { gender, colour, pattern, temperature, favouritePalettes, seasonality };
 }
 
 function getBaselineMatrix(gender) {

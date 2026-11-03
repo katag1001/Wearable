@@ -21,7 +21,6 @@ import {
   TEMPERATURE_RANGE,
   formatMatchSeasons,
 } from "@core/matches/matchFields.js";
-import { seasonOptions } from "@core/constants/optionsBank.js";
 
 const ViewMatchesCard = ({
   match,
@@ -51,9 +50,6 @@ const ViewMatchesCard = ({
     wornToday,
     toggleTag,
   } = card;
-
-  const capitalize = (word) =>
-    word.charAt(0).toUpperCase() + word.slice(1);
 
   const cardRef = useRef(null);
 
@@ -308,39 +304,6 @@ const ViewMatchesCard = ({
                 onChange={card.setRating}
                 className="match-editor-stars"
               />
-            </div>
-
-            {/* SEASONS */}
-
-            <div className="editor-section">
-              <label className="form-label">
-                Seasons
-              </label>
-
-              <fieldset className="season-group">
-                {seasonOptions.map((season) => (
-                  <label
-                    key={season}
-                    className="season-label"
-                  >
-                    <input
-                      type="checkbox"
-                      id={`${match._id}-${season}`}
-                      name={season}
-                      checked={
-                        updateData[season]
-                      }
-                      onChange={() =>
-                        card.toggleSeason(season)
-                      }
-                    />
-
-                    {" "}
-
-                    {capitalize(season)}
-                  </label>
-                ))}
-              </fieldset>
             </div>
 
             {/* TEMPERATURE */}

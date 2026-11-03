@@ -1,5 +1,6 @@
 // Picking the item's type on page one: suggestions from the name, then
 // (clothing) a category and the types in it, or (footwear) every type.
+// `titled={false}` leaves out the heading (the photo review has its own).
 
 import { useState } from "react";
 
@@ -11,7 +12,7 @@ import {
 
 import { Button, Chip, ChipRow, SectionTitle } from "../ui";
 
-export const TypeChooser = ({ form }) => {
+export const TypeChooser = ({ form, titled = true }) => {
   const { typeOptions, formData, chooseSubtype } = form;
 
   const [category, setCategory] = useState(() =>
@@ -36,7 +37,7 @@ export const TypeChooser = ({ form }) => {
 
   return (
     <>
-      <SectionTitle title="Type" />
+      {titled ? <SectionTitle title="Type" /> : null}
 
       {form.subtypeSuggestions.length > 0 && (
         <>

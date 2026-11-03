@@ -9,7 +9,7 @@
 // a complete whole before anything is saved.
 //
 // Every check used for pruning here (fixed compatibility, mismatches, the lowest pair
-// score, colour, pattern, season, tags) is monotonic: once violated by a partial item-set, it can never
+// score, colour, pattern, tags) is monotonic: once violated by a partial item-set, it can never
 // be satisfied again by adding more items. That's what makes it safe to
 // check all of them as early as possible, incrementally, during the search
 // itself - not just after a full candidate is assembled:
@@ -23,15 +23,17 @@
 //      skipped before any search work starts.
 //   2. Per-candidate shape check: a pool candidate that can't fill its slot
 //      for the same reasons is skipped the moment it's considered.
-//   3. Incremental compatibility + lowest pair score + pattern + season +
-//      tag + colour checks: every time a candidate is added, the growing
+//   3. Incremental compatibility + lowest pair score + pattern + tag +
+//      colour checks: every time a candidate is added, the growing
 //      partial item-set is re-checked; a dead branch is abandoned
 //      immediately. Pattern goes first and colour last, so the cheap checks
 //      cut a branch before the palette search runs. A pair below MIN_PAIR_SCORE (constants/scoring.js) can
 //      never leave the set again, so it ends the branch like an
 //      incompatible pair does.
-// Temperature never rejects a candidate - every outfit's range is worked
-// out from its subtypes (presetTemperatureService.js) once it's chosen.
+// Temperature and seasons never reject a candidate - every outfit's range
+// is worked out from its subtypes (presetTemperatureService.js) and its
+// season flags from its fabrics, colours and range
+// (seasonalityService.js) once it's chosen.
 // validateOutfit is still called on each survivor as a cheap final safety
 // net, even though by construction it should always pass.
 //
@@ -81,14 +83,10 @@ const {
   combineScores,
 } = require("./outfitScoreService.js");
 const { passesPatternCheck, passesColorCheck } = require("./styleColorService.js");
-const { describeOutfit, validateOutfit, hasSharedSeason } = require("./outfitEvaluator.js");
+const { describeOutfit, validateOutfit } = require("./outfitEvaluator.js");
 const { hasSharedTag } = require("./helpers.js");
 const { clothesKey } = require("../utils/clothesKey.js");
 const { msUntilDeadline } = require("../utils/functionDeadline.js");
-const {
-  applyFavouriteItemBonus,
-  favouriteItemIds,
-} = require("./favouriteItemService.js");
 const {
   MIN_AUTO_SCORE,
   MIN_PAIR_SCORE,
@@ -144,7 +142,6 @@ function buildMatchingContext({
   colour = null,
   pattern = null,
   temperature = null,
-  favouritePalettes = [],
   adjustments = new Map(),
 }) {
   return {
@@ -154,7 +151,6 @@ function buildMatchingContext({
     layeringRules: getLayeringRules(gender),
     colorRules: getColorRules(colour),
     patternLevel: pattern || DEFAULT_PATTERN_LEVEL,
-    favouritePalettes,
     temperaturePreference: temperature,
   };
 }
@@ -185,12 +181,7 @@ function scoreItemSet(itemSet, context) {
     return null;
   }
 
-  const colourScore = computeColourScore(
-    itemSet,
-    context.colorRules,
-    context.favouritePalettes,
-    context.patternLevel
-  );
+  const colourScore = computeColourScore(itemSet, context.colorRules, context.patternLevel);
 
   if (colourScore < MIN_AUTO_SCORE) {
     return null;
@@ -200,7 +191,7 @@ function scoreItemSet(itemSet, context) {
 }
 
 // A partial (or complete) item-set is still "alive" only if it could still
-// end up passing pattern + season + tags + colour. All four are monotonic (see
+// end up passing pattern + tags + colour. All three are monotonic (see
 // file header), so checking them on a growing partial set is equivalent to
 // checking them once at the end - just cheaper, since a dead branch stops
 // growing immediately instead of being built out in full first. They run
@@ -208,7 +199,6 @@ function scoreItemSet(itemSet, context) {
 function isStillViable(items, colorRules, patternLevel = DEFAULT_PATTERN_LEVEL) {
   return (
     passesPatternCheck(items, patternLevel) &&
-    hasSharedSeason(items) &&
     hasSharedTag(items) &&
     passesColorCheck(items, colorRules)
   );
@@ -377,6 +367,7 @@ function findCandidateMatches(
       isUserMade: false,
       temperaturePreference: context.temperaturePreference,
       gender: context.gender,
+      colorRules: context.colorRules,
     });
 
     if (!described) {
@@ -407,23 +398,20 @@ async function processMatches(newItem, allItems) {
 
   const wardrobe = allItems || (await Clothes.find({ userId: newItem.userId }));
 
-  const [{ gender, colour, pattern, temperature, favouritePalettes }, adjustments, existingMatches] = await Promise.all([
+  const [{ gender, colour, pattern, temperature }, adjustments, existingMatches] = await Promise.all([
     getUserMatchingPreferences(newItem.userId),
     loadUserAdjustments(newItem.userId),
     Match.find({ userId: newItem.userId }).select("clothesKey"),
   ]);
 
-  const context = buildMatchingContext({ gender, colour, pattern, temperature, favouritePalettes, adjustments });
+  const context = buildMatchingContext({ gender, colour, pattern, temperature, adjustments });
   const existingKeys = new Set(existingMatches.map((match) => match.clothesKey));
 
   const budget = createBudget({
     timeLimitMs: Math.min(SEARCH_TIME_LIMIT_MS, msUntilDeadline() - SAVE_RESERVE_MS),
   });
 
-  const chosenMatches = findCandidateMatches(newItem, wardrobe, context, { existingKeys, budget });
-
-  // Only once the outfits are chosen, so a favourite never lets one in.
-  const newMatches = applyFavouriteItemBonus(chosenMatches, favouriteItemIds(wardrobe));
+  const newMatches = findCandidateMatches(newItem, wardrobe, context, { existingKeys, budget });
 
   await saveMatchesBestFirst(newMatches);
 }

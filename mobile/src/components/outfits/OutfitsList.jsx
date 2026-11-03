@@ -244,6 +244,7 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
         availableTags={outfits.filterOptions?.tags}
         clothesByCategory={outfits.filterOptions?.clothesByCategory}
         showTemperature
+        showSeasons
         showFavourites
         showItemFilter
       />

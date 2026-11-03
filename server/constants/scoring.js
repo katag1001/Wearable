@@ -6,9 +6,9 @@
 // adjustment for that pair. A match's `score` is set once, when the match
 // is created (see services/outfitScoreService.js). After that it only
 // changes when the user claims an automatic match by building the same
-// outfit themselves, favourites / unfavourites one of
-// its clothing items (services/favouriteItemService.js), or rates or
-// favourites the outfit itself (services/matchRatingService.js).
+// outfit themselves, or rates or favourites the outfit itself
+// (services/matchRatingService.js). Favourite items and palettes only add
+// points on Today (constants/todayOutfits.js).
 
 const MIN_SCORE = 0;
 const MAX_SCORE = 100;
@@ -33,8 +33,9 @@ const PAIR_SCORE_WEIGHT = 0.5;
 const COLOUR_SCORE_WEIGHT = 0.5;
 
 // The colour score is the average of the colour-count score and the palette
-// tier score, plus the favourite-palette bonus, the bright-colour
-// adjustment and the pattern echo adjustment, kept between 0 and 100.
+// tier score, plus the bright-colour adjustment and the pattern echo
+// adjustment, kept between 0 and 100. (Favourite palettes and items only add
+// points on Today - FAVOURITE_*_BONUS in constants/todayOutfits.js.)
 
 // Score for the number of distinct colours in an outfit, per colour level
 // (Preferences.colour). Entry 0 is 1 colour, entry 1 is 2 colours, and so
@@ -54,10 +55,6 @@ const PALETTE_TIER_SCORES = {
   mid: { classic: 80, common: 85, bold: 65 },
   max: { classic: 65, common: 75, bold: 90 },
 };
-
-// Added when the outfit's colours fit one of the user's favourite palettes
-// (Preferences.favouritePalettes), at any level.
-const FAVOURITE_PALETTE_BONUS = 8;
 
 // Change for the number of bright colours in an outfit
 // (brightColours in shared/colorPalettes.json), per colour level. Entry 0 is
@@ -99,14 +96,6 @@ const MAX_AUTO_SCORE = 90;
 
 // Every outfit the user builds (or claims) gets this flat score.
 const USER_MADE_SCORE = 95;
-
-// Added once to an automatic outfit's score when any of its clothing items
-// is a favourite (Clothes.favourite) - after the outfit has passed every
-// check and been chosen, so it never lets a weaker outfit in. It never
-// takes the score above MAX_AUTO_SCORE, and the amount actually added is
-// stored on the match (favouriteItemBonus), so unfavouriting takes off
-// exactly that. User-made outfits stay at USER_MADE_SCORE.
-const FAVOURITE_ITEM_BONUS = 7;
 
 // Change to every compatible pair in an outfit when the user acts on it.
 // Unfavouriting and deleting outfits change nothing. `mismatched` is the
@@ -179,7 +168,6 @@ module.exports = {
   MIN_PAIR_SCORE,
   COLOUR_COUNT_SCORES,
   PALETTE_TIER_SCORES,
-  FAVOURITE_PALETTE_BONUS,
   BRIGHT_COLOUR_ADJUSTMENTS,
   PATTERN_ECHO_ADJUSTMENTS,
   DEFAULT_PATTERN_LEVEL,
@@ -187,7 +175,6 @@ module.exports = {
   MIN_AUTO_SCORE,
   MAX_AUTO_SCORE,
   USER_MADE_SCORE,
-  FAVOURITE_ITEM_BONUS,
   LEARNING_DELTAS,
   PAIRING_ANSWER_ADJUSTMENTS,
   REJECTION_COOLDOWN_DAYS,

@@ -6,7 +6,6 @@ const {
   clampAdjustment,
   getPairScore,
   computePaletteTierScore,
-  computeFavouriteBonus,
   computeBrightAdjustment,
   computePatternEchoAdjustment,
   computeColourScore,
@@ -14,8 +13,7 @@ const {
   combineScores,
   computeOutfitScore,
 } = require("../services/outfitScoreService.js");
-const { SINGLE_ITEM_SCORE, FAVOURITE_PALETTE_BONUS, MAX_AUTO_SCORE } = require("../constants/scoring.js");
-const { allPalettes } = require("../utils/colorPalettes.js");
+const { SINGLE_ITEM_SCORE, MAX_AUTO_SCORE } = require("../constants/scoring.js");
 
 const baseline = {
   A: { A: null, B: 80, C: 80, D: 20 },
@@ -69,15 +67,6 @@ test("computePaletteTierScore uses the best tier among the palettes the colours 
   assert.equal(computePaletteTierScore(["Red"], rules("mid", palettes)), 0);
 });
 
-test("computeFavouriteBonus applies when the colours fit a favourite palette, at any level", () => {
-  const favourite = allPalettes.find((p) => p.id === "tan-light-blue-navy");
-
-  assert.equal(computeFavouriteBonus(["Navy", "White"], [favourite.id]), FAVOURITE_PALETTE_BONUS);
-  assert.equal(computeFavouriteBonus(["Navy", "Red"], [favourite.id]), 0);
-  assert.equal(computeFavouriteBonus(["Navy", "White"], []), 0);
-  assert.equal(computeFavouriteBonus(["Navy", "White"], ["not-a-palette"]), 0);
-});
-
 test("computeBrightAdjustment depends on the number of bright colours and the level", () => {
   const adjustments = (level) => [
     [],
@@ -91,7 +80,7 @@ test("computeBrightAdjustment depends on the number of bright colours and the le
   assert.deepEqual(adjustments("max"), [0, 0, 0, 0]);
 });
 
-test("computeColourScore averages count and tier, then adds the favourite bonus and bright adjustment", () => {
+test("computeColourScore averages count and tier, then adds the bright adjustment", () => {
   const palettes = [palette("common", ["Navy", "Cream", "Orange"])];
   const items = [item("A", ["Navy"]), item("B", ["Orange"]), item("C", ["Cream", "Navy"])];
 
@@ -101,13 +90,12 @@ test("computeColourScore averages count and tier, then adds the favourite bonus 
   assert.equal(computeColourScore(items, rules("min", palettes)), 70);
 });
 
-test("computeColourScore adds the favourite bonus", () => {
+test("computeColourScore has no favourite-palette bonus (that's Today only)", () => {
   const items = [item("A", ["Navy"]), item("B", ["Cream"]), item("C", ["White"])];
   const real = rules("min", [palette("classic", ["Navy", "Cream", "White"])]);
 
-  // 3 colours at min: count 70, classic 95 -> 82.5; favourite +8 = 90.5.
-  assert.equal(computeColourScore(items, real, ["tan-light-blue-navy"]), 90.5);
-  assert.equal(computeColourScore(items, real, []), 82.5);
+  // 3 colours at min: count 70, classic 95 -> 82.5.
+  assert.equal(computeColourScore(items, real), 82.5);
 });
 
 const patterned = (subtype, colors) => ({ subtype, colors, pattern: "Floral" });
@@ -141,7 +129,7 @@ test("computeColourScore adds the pattern echo adjustment", () => {
   const real = rules("min", [palette("classic", ["Black", "White"])]);
 
   // 2 colours at min: count 70, classic 95 -> 82.5; echo +6 at min = 88.5.
-  assert.equal(computeColourScore(items, real, [], "min"), 88.5);
+  assert.equal(computeColourScore(items, real, "min"), 88.5);
 });
 
 test("computePairBlend blends 70% average with 30% lowest pair, unrounded", () => {
@@ -178,7 +166,6 @@ test("computeOutfitScore scores a whole outfit from the matching context", () =>
     baselineMatrix: baseline,
     adjustments: new Map([["A B", 5]]),
     colorRules: rules("mid", [palette("common", ["Cream", "Navy"])]),
-    favouritePalettes: [],
   };
 
   // pair 85; 2 colours at mid: count 65, common 85 -> 75; 0.5 * 85 + 0.5 * 75 = 80

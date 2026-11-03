@@ -3,21 +3,13 @@
 // Inputs to and the stability of each Today outfit's shoe order
 // (core/hooks/useTodayFootwear.js).
 
-import { getSeason } from "../utils/dates.js";
 import { getTodayWeatherEntry } from "../weather/weatherCache.js";
 
-// Today's forecast { min, max, code } and season, from the weather cache.
+// Today's forecast { min, max, code }, from the weather cache.
 export const readTodayWeather = () => {
   const cached = getTodayWeatherEntry();
 
-  if (!cached?.weather) {
-    return { weather: null, season: null };
-  }
-
-  return {
-    weather: cached.weather,
-    season: getSeason(new Date(), cached.location?.latitude ?? null),
-  };
+  return { weather: cached?.weather || null };
 };
 
 // Puts an outfit's cached order back if it was for the same bottom,
