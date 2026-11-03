@@ -7,9 +7,12 @@ import { WARDROBE_KINDS } from "../wardrobe/itemKinds.js";
 
 /*
  * Adding an item from its photo alone (shared by the web and mobile apps).
- * The photo is uploaded to Cloudinary, then the server fills in everything
- * else - clothing or footwear, name, type, colours, pattern, fabric, tags
- * (server/services/itemAnalysisService.js).
+ * The photo is uploaded to Cloudinary, then the server removes its
+ * background and fills in everything else - clothing or footwear, name,
+ * type, colours, pattern, fabric, tags (server/controllers/
+ * analysisControllers.js). The item is shown and saved with the
+ * background-removed photo (`image`); if the background couldn't be
+ * removed, with the photo as uploaded.
  *
  * Steps:
  *   "pick"      - waiting for a photo (`notice` says why a photo was turned
@@ -23,9 +26,10 @@ import { WARDROBE_KINDS } from "../wardrobe/itemKinds.js";
  *                 with the photo already attached (`manualPrefill`)
  *   "saved"     - `savedItem` { id, name, kind, hasMatches, message }
  *
- * The uploaded photo is deleted again if the item is never saved - when
- * another photo is chosen, the flow restarts, or it's closed (unmount).
- * The server only deletes images no item uses, so that's always safe.
+ * The uploaded photo - and the background-removed images made from it -
+ * are deleted again if the item is never saved: when another photo is
+ * chosen, the flow restarts, or it's closed (unmount). The server only
+ * deletes images no item uses, so that's always safe.
  */
 
 export const NOTICES = {
@@ -50,23 +54,32 @@ export const usePhotoAnalysis = () => {
   const [error, setError] = useState("");
   // { kind, fields } from the server.
   const [result, setResult] = useState(null);
-  // { imageUrl, cloudinaryId } once uploaded.
+  // { imageUrl, cloudinaryId } once uploaded - the background-removed
+  // photo once the analysis has made it.
   const [image, setImage] = useState(null);
   const [savedItem, setSavedItem] = useState(null);
 
   // Ignores an analysis that finishes after the user moved on.
   const runRef = useRef(0);
-  // The uploaded image while no saved item uses it.
-  const unsavedImageRef = useRef(null);
+  // Every image made for this photo (the upload, and the background-
+  // removed photo and its thumbnail) while no saved item uses them.
+  const unsavedImagesRef = useRef([]);
 
   const discardImage = () => {
-    const publicId = unsavedImageRef.current;
+    const publicIds = unsavedImagesRef.current;
 
-    unsavedImageRef.current = null;
+    unsavedImagesRef.current = [];
 
-    if (publicId) {
-      deleteUnusedImage(publicId);
-    }
+    publicIds.forEach((publicId) => deleteUnusedImage(publicId));
+  };
+
+  // The server's background-removed photo (`removed`, or null if it
+  // couldn't be made): shown and saved instead of the upload.
+  const takeRemovedImage = (removed) => {
+    if (!removed?.cloudinaryId) return;
+
+    unsavedImagesRef.current = [...unsavedImagesRef.current, ...(removed.createdIds || [removed.cloudinaryId])];
+    setImage({ imageUrl: removed.imageUrl, cloudinaryId: removed.cloudinaryId });
   };
 
   // Closing the flow without saving.
@@ -103,12 +116,17 @@ export const usePhotoAnalysis = () => {
         return;
       }
 
-      unsavedImageRef.current = uploadedImage.cloudinaryId;
+      unsavedImagesRef.current = [uploadedImage.cloudinaryId];
       setImage(uploadedImage);
 
       const analysis = await analyseItemPhoto(uploadedImage.cloudinaryId);
 
-      if (!isCurrent()) return;
+      if (!isCurrent()) {
+        (analysis.image?.createdIds || []).forEach((publicId) => deleteUnusedImage(publicId));
+        return;
+      }
+
+      takeRemovedImage(analysis.image);
 
       if (analysis.status !== "ok") {
         reset(analysis.status === "none" ? "none" : "multiple");
@@ -122,8 +140,11 @@ export const usePhotoAnalysis = () => {
 
       console.error("Photo analysis error:", err, err.response?.data);
 
+      // The background may have been removed before the analysis failed.
+      takeRemovedImage(err.response?.data?.image);
+
       // Not even uploaded: nothing to fill in by hand yet.
-      if (!unsavedImageRef.current) {
+      if (!unsavedImagesRef.current.length) {
         setPhoto(null);
         setStep("pick");
         setError(getErrorMessage(err, "Couldn't upload the photo. Please try again."));
@@ -136,12 +157,14 @@ export const usePhotoAnalysis = () => {
   };
 
   const markSaved = (saved, kind) => {
-    // The review form may have saved it with another photo.
-    if (saved.cloudinaryId !== unsavedImageRef.current) {
+    // Saved with this photo: the item now uses all its images (the
+    // background-removed one, its thumbnail and the original). The manual
+    // form may have saved it with another photo instead.
+    if (unsavedImagesRef.current.includes(saved.cloudinaryId)) {
+      unsavedImagesRef.current = [];
+    } else {
       discardImage();
     }
-
-    unsavedImageRef.current = null;
 
     setSavedItem({
       id: saved._id,
@@ -178,6 +201,8 @@ export const usePhotoAnalysis = () => {
 
     kind: result?.kind || null,
     switchKind,
+    // The photo to show: background removed once analysed.
+    imageUrl: image?.imageUrl || null,
     // For the item form: the analysis, editable before saving.
     reviewPrefill: result
       ? { fields: { ...result.fields, ...image }, fromAnalysis: true }

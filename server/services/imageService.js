@@ -1,6 +1,7 @@
 const cloudinary = require("../cloudinary.js");
 
 const { Clothes, Footwear } = require("../models/AllModels.js");
+const { derivedImageFields } = require("./backgroundRemovalService.js");
 
 /*
  * Cloudinary image clean-up for clothing and footwear. Images are uploaded
@@ -8,7 +9,9 @@ const { Clothes, Footwear } = require("../models/AllModels.js");
  *
  * An item can have up to three images (ITEM_IMAGE_FIELDS): the one shown
  * (cloudinaryId), a small thumbnail, and the original photo kept from
- * before its background was removed. They're always deleted together.
+ * before its background was removed. They're always deleted together. The
+ * app only sends the shown one: the other two are worked out from its id
+ * (withDerivedImageFields; services/backgroundRemovalService.js).
  */
 
 // The image id fields of an item, the shown image first.
@@ -71,6 +74,13 @@ const withReplacedImageFields = (fields, existingItem) => {
   return { ...DERIVED_IMAGE_FIELDS, ...fields };
 };
 
+// A save's fields plus the thumbnail and original of a background-removed
+// image, worked out from its id (the app never sends them).
+const withDerivedImageFields = (fields) =>
+  fields.cloudinaryId === undefined
+    ? fields
+    : { ...fields, ...derivedImageFields(fields.cloudinaryId) };
+
 // Whether any clothing or footwear item (of any user) still uses the image,
 // apart from the item `exceptId` (the one being saved).
 const usedBy = (publicId) => ({ $or: ITEM_IMAGE_FIELDS.map((field) => ({ [field]: publicId })) });
@@ -107,6 +117,16 @@ const isImageUsedByAnotherUser = async (publicId, userId) => {
 const canUseImage = async (cloudinaryId, { exceptId = null } = {}) =>
   !cloudinaryId || !(await isImageInUse(cloudinaryId, { exceptId }));
 
+// canUseImage for every image of the item being saved - the shown one, its
+// thumbnail and its original.
+const canUseItemImages = async (fields, options = {}) => {
+  for (const publicId of itemImageIds(fields)) {
+    if (!(await canUseImage(publicId, options))) return false;
+  }
+
+  return true;
+};
+
 const IMAGE_IN_USE_ERROR = "That image belongs to another item";
 
 module.exports = {
@@ -115,8 +135,10 @@ module.exports = {
   destroyItemImages,
   deleteReplacedImage,
   withReplacedImageFields,
+  withDerivedImageFields,
   isImageInUse,
   isImageUsedByAnotherUser,
   canUseImage,
+  canUseItemImages,
   IMAGE_IN_USE_ERROR,
 };

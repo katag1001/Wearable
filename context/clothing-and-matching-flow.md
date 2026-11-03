@@ -84,8 +84,18 @@ Files:
 | `core/constants/optionsBank.js` | Colour, fabric, pattern, tag and season option lists |
 
 **Adding from a photo** (the usual way in): the user picks a photo, sees a
-loading screen while it's analysed (`core/hooks/usePhotoAnalysis.js`),
-then the photo with what was found: name, type and colours as rows, each
+loading screen while the server removes its background and analyses it
+(`core/hooks/usePhotoAnalysis.js`, `server/controllers/analysisControllers.js`).
+The background comes off first, so Gemini sees the cleaned-up photo:
+`server/services/backgroundRemovalService.js` (numbers in
+`server/constants/backgroundRemoval.js`) saves it as `<id>_nobg` with a
+`<id>_thumb` thumbnail, the same recipe as the existing photos. If
+Cloudinary can't remove it within 45 seconds, the photo is analysed and
+saved as uploaded. The app then shows and saves the background-removed
+photo; on save the server fills in the thumbnail and original from its id
+(`withDerivedImageFields`, `services/imageService.js`), and if the item is
+never saved every image made for it is deleted. Manual adding (no
+analysis) doesn't remove backgrounds. Then the photo with what was found: name, type and colours as rows, each
 with a small greyed-out "Change" that opens that field's picker under it,
 and "Show more fields" for pattern, fabric, tights and tags. Save is at the
 bottom; saving shows "View new matches" / "Add another item" (with

@@ -5,6 +5,7 @@ import FadeLoader from "react-spinners/FadeLoader";
 import AddUpdateItem from "./addUpdateItem";
 import AnalysedItemReview from "./analysedItemReview";
 import { usePhotoAnalysis } from "@core/hooks/usePhotoAnalysis.js";
+import { getImageUrl } from "@core/utils/getImageUrl.js";
 import { WARDROBE_KIND_LIST as KINDS } from "@core/wardrobe/itemKinds.js";
 
 import "../../styles/modal.css";
@@ -45,6 +46,10 @@ const AddFromPhoto = ({ onClose, onManual, refresh }) => {
 
   const previewUrl = usePreviewUrl(flow.photo);
 
+  // The background-removed photo once the analysis made it, else the one
+  // picked.
+  const shownPhoto = flow.imageUrl ? getImageUrl(flow.imageUrl, 900) : previewUrl;
+
   // The full item form over the flow (failed analysis): { kind, prefill } or null.
   const [form, setForm] = useState(null);
 
@@ -79,8 +84,8 @@ const AddFromPhoto = ({ onClose, onManual, refresh }) => {
     );
   }
 
-  const photo = previewUrl && (
-    <img src={previewUrl} alt="Your item" className="photo-analysis-image" />
+  const photo = shownPhoto && (
+    <img src={shownPhoto} alt="Your item" className="photo-analysis-image" />
   );
 
   return (
@@ -157,7 +162,7 @@ const AddFromPhoto = ({ onClose, onManual, refresh }) => {
               key={flow.kind}
               kind={flow.kind}
               prefill={flow.reviewPrefill}
-              photoUrl={previewUrl}
+              photoUrl={shownPhoto}
               onSaved={(saved) => {
                 flow.markSaved(saved, flow.kind);
                 refresh?.();

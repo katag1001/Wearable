@@ -5,8 +5,9 @@ const {
   deleteReplacedImage,
   destroyItemImages,
   withReplacedImageFields,
+  withDerivedImageFields,
   ITEM_IMAGE_FIELDS,
-  canUseImage,
+  canUseItemImages,
   IMAGE_IN_USE_ERROR,
 } = require("../services/imageService.js");
 const { pickFields } = require("../services/requestFields.js");
@@ -34,7 +35,8 @@ const {
  */
 
 // Only FOOTWEAR_FIELDS come from the form (constants/editableFields.js).
-const editableFields = (body) => pickFields(body, FOOTWEAR_FIELDS);
+// With the thumbnail and original of a background-removed image.
+const editableFields = (body) => withDerivedImageFields(pickFields(body, FOOTWEAR_FIELDS));
 
 exports.createFootwear = async (req, res) => {
   const userId = req.user?.userId;
@@ -66,7 +68,7 @@ exports.createFootwear = async (req, res) => {
 
     const fields = editableFields(req.body);
 
-    if (!(await canUseImage(fields.cloudinaryId))) {
+    if (!(await canUseItemImages(fields))) {
       return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
     }
 
@@ -173,7 +175,7 @@ exports.updateFootwear = async (req, res) => {
     if (
       fields.cloudinaryId !== undefined &&
       fields.cloudinaryId !== existingItem.cloudinaryId &&
-      !(await canUseImage(fields.cloudinaryId, { exceptId: existingItem._id }))
+      !(await canUseItemImages(fields, { exceptId: existingItem._id }))
     ) {
       return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
     }

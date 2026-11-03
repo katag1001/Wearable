@@ -12,6 +12,7 @@ import { Alert, StyleSheet, Text, View } from "react-native";
 import { usePhotoAnalysis } from "@core/hooks/usePhotoAnalysis.js";
 import { useWardrobeItemForm } from "@core/hooks/useWardrobeItemForm.js";
 import { colors, fontSizes, spacing } from "@core/theme/tokens.js";
+import { getImageUrl } from "@core/utils/getImageUrl.js";
 import { WARDROBE_KIND_LIST } from "@core/wardrobe/itemKinds.js";
 
 import { pickImage } from "../../platform/imagePicker";
@@ -92,6 +93,10 @@ export default function AddItemScreen() {
     flow.restart();
   };
 
+  // The background-removed photo once the analysis made it, else the one
+  // picked.
+  const shownPhoto = flow.imageUrl ? getImageUrl(flow.imageUrl, 900) : flow.photo?.uri;
+
   /* -------------------- Saved -------------------- */
 
   if (flow.step === "saved") {
@@ -137,7 +142,7 @@ export default function AddItemScreen() {
             key={flow.kind}
             kind={flow.kind}
             prefill={flow.reviewPrefill}
-            photoUri={flow.photo?.uri}
+            photoUri={shownPhoto}
             onSaved={(saved) => flow.markSaved(saved, flow.kind)}
             onSwitchKind={flow.switchKind}
             onChooseAnotherPhoto={flow.restart}
@@ -162,8 +167,8 @@ export default function AddItemScreen() {
 
   /* -------------------- Photo -------------------- */
 
-  const photo = flow.photo ? (
-    <ImageTile source={{ uri: flow.photo.uri }} aspectRatio={4 / 5} resizeMode="contain" />
+  const photo = shownPhoto ? (
+    <ImageTile source={{ uri: shownPhoto }} aspectRatio={4 / 5} resizeMode="contain" />
   ) : null;
 
   return (

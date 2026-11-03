@@ -11,8 +11,9 @@ const {
   deleteReplacedImage,
   destroyItemImages,
   withReplacedImageFields,
+  withDerivedImageFields,
   ITEM_IMAGE_FIELDS,
-  canUseImage,
+  canUseItemImages,
   IMAGE_IN_USE_ERROR,
 } = require("../services/imageService.js");
 const { pickFields } = require("../services/requestFields.js");
@@ -305,7 +306,7 @@ return res.status(400).json({ error: "Missing type" });
 }
 
 try {
-const fields = pickFields(req.body, CLOTHING_FIELDS);
+const fields = withDerivedImageFields(pickFields(req.body, CLOTHING_FIELDS));
 
 const existingItem = await Clothes.findOne({
 name: String(name ?? ""),
@@ -323,7 +324,7 @@ if (existingItem) {
   });
 }
 
-if (!(await canUseImage(fields.cloudinaryId))) {
+if (!(await canUseItemImages(fields))) {
   return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
 }
 
@@ -442,12 +443,12 @@ if (!existingItem) {
 return res.json({ message: "Item not found" });
 }
 
-const fields = withReplacedImageFields(pickFields(req.body, CLOTHING_FIELDS), existingItem);
+const fields = withReplacedImageFields(withDerivedImageFields(pickFields(req.body, CLOTHING_FIELDS)), existingItem);
 
 if (
   fields.cloudinaryId !== undefined &&
   fields.cloudinaryId !== existingItem.cloudinaryId &&
-  !(await canUseImage(fields.cloudinaryId, { exceptId: existingItem._id }))
+  !(await canUseItemImages(fields, { exceptId: existingItem._id }))
 ) {
   return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
 }
