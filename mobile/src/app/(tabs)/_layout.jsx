@@ -9,7 +9,7 @@ import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { tabIcon } from "../../components/soft";
-import { fonts, ink, surface } from "../../theme/soft";
+import { fonts, ink, shadows, surface, textSizes } from "../../theme/soft";
 
 // Taller than the default bar (49), so the icon pill and the Inter labels
 // have room. The phone's bottom inset is added on top.
@@ -30,11 +30,11 @@ export default function TabsLayout() {
           backgroundColor: surface.milk,
           borderTopWidth: 0,
           elevation: 0,
-          boxShadow: "0px -6px 24px rgba(46, 40, 56, 0.04)",
+          boxShadow: shadows.tabBar,
         },
         tabBarLabelStyle: {
           fontFamily: fonts.medium,
-          fontSize: 11,
+          fontSize: textSizes.xxs,
           letterSpacing: 0.3,
           // Inter sits taller than the system font the bar is sized for;
           // a fixed line and a little space below lift it clear.

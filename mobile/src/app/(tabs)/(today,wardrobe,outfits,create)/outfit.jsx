@@ -43,7 +43,7 @@ import {
   shadows,
   spacing,
 } from "../../../theme/tokens";
-import { space } from "../../../theme/soft";
+import { space, textSizes } from "../../../theme/soft";
 import {
   Atmosphere,
   PULL_UP_PEEK,
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   },
   markWornLabel: {
     fontFamily: fontWeights.medium,
-    fontSize: 14,
+    fontSize: textSizes.md,
     color: colors.secondary,
   },
 });

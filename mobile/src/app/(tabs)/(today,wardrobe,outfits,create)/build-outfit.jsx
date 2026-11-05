@@ -38,7 +38,7 @@ import {
   shadows,
   spacing,
 } from "../../../theme/tokens";
-import { ink, space, type } from "../../../theme/soft";
+import { ink, space, textSizes, type } from "../../../theme/soft";
 import {
   Chip,
   ChipRow,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   },
   backLabel: {
     fontFamily: fontWeights.medium,
-    fontSize: 16,
+    fontSize: textSizes.lg,
     color: colors.main,
   },
   pressed: {

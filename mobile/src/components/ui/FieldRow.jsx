@@ -14,7 +14,7 @@ import {
   shadows,
   spacing,
 } from "../../theme/tokens";
-import { type } from "../../theme/soft";
+import { textSizes, type } from "../../theme/soft";
 
 export const FieldRow = ({
   label,
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   value: {
     flexShrink: 1,
     fontFamily: fontWeights.regular,
-    fontSize: 16,
+    fontSize: textSizes.lg,
     color: colors.main,
   },
   action: {

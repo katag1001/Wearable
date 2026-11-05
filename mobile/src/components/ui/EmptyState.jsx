@@ -3,7 +3,7 @@
 
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
+import { colors, fontSizes, fontWeights, spacing, textSizes } from "../../theme/tokens";
 import { Bubble } from "../soft/Bubble";
 
 export const EmptyState = ({ title, text, children }) => (
@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fontWeights.light,
-    fontSize: 22,
+    fontSize: textSizes.h4,
     lineHeight: 28,
     color: colors.main,
     textAlign: "center",

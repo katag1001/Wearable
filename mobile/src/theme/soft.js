@@ -1,6 +1,7 @@
 // The soft visual language (context/visual-language.md): colours, type,
-// spacing, radii, shadows and motion. ./tokens.js maps the app's everyday
-// token names onto it.
+// spacing, radii, shadows and motion. This is the one place to change how
+// the app looks - every colour, font and text size starts here.
+// ./tokens.js maps the app's everyday token names onto it.
 
 import { Easing } from "react-native";
 
@@ -64,22 +65,39 @@ export const fonts = {
   regular: "Inter_400Regular",
   medium: "Inter_500Medium",
   semibold: "Inter_600SemiBold",
-  mono: "FiraCode_500Medium",
   serifItalic: "InstrumentSerif_400Regular_Italic",
+};
+
+// Every text size in the app, smallest to largest.
+export const textSizes = {
+  xxs: 11,
+  xs: 12,
+  sm: 13,
+  md: 14,
+  base: 15,
+  lg: 16,
+  xl: 17,
+  h5: 20,
+  h4: 22,
+  h3: 24,
+  h2: 26,
+  h1: 30,
+  display: 40,
+  accent: 44,
 };
 
 export const type = {
   // The top line of every tab page (components/soft/PageHeader).
   pageTitle: {
     fontFamily: fonts.light,
-    fontSize: 26,
+    fontSize: textSizes.h2,
     lineHeight: 32,
     letterSpacing: -0.3,
     color: ink.main,
   },
   display: {
     fontFamily: fonts.light,
-    fontSize: 40,
+    fontSize: textSizes.display,
     lineHeight: 44,
     letterSpacing: -0.5,
     color: ink.main,
@@ -87,39 +105,40 @@ export const type = {
   // One word per screen at most.
   accent: {
     fontFamily: fonts.serifItalic,
-    fontSize: 44,
+    fontSize: textSizes.accent,
     lineHeight: 48,
     color: ink.main,
   },
   title: {
     fontFamily: fonts.regular,
-    fontSize: 26,
+    fontSize: textSizes.h2,
     lineHeight: 32,
     color: ink.main,
   },
+  // Small spaced capitals: field labels, step counts, loading text.
   eyebrow: {
-    fontFamily: fonts.mono,
-    fontSize: 11,
+    fontFamily: fonts.light,
+    fontSize: textSizes.xxs,
     letterSpacing: 2.4,
     textTransform: "uppercase",
     color: ink.muted,
   },
   body: {
     fontFamily: fonts.regular,
-    fontSize: 15,
+    fontSize: textSizes.base,
     lineHeight: 22,
     color: ink.soft,
   },
   label: {
     fontFamily: fonts.semibold,
-    fontSize: 13,
+    fontSize: textSizes.sm,
     letterSpacing: 1.6,
     textTransform: "uppercase",
     color: ink.main,
   },
   small: {
     fontFamily: fonts.medium,
-    fontSize: 12,
+    fontSize: textSizes.xs,
     lineHeight: 16,
     color: ink.soft,
   },
@@ -155,6 +174,11 @@ export const shadows = {
   soft: "0px 8px 24px rgba(46, 40, 56, 0.06)",
   lifted: "0px 16px 40px rgba(46, 40, 56, 0.08)",
   glow: "0px 10px 30px rgba(233, 184, 203, 0.38)",
+  // Cast upwards, by the tab bar and pull-up panels.
+  tabBar: "0px -6px 24px rgba(46, 40, 56, 0.04)",
+  panel: "0px -10px 30px rgba(46, 40, 56, 0.07)",
+  // The lavender glow under the active tab icon.
+  tabIcon: "0px 4px 14px rgba(198, 182, 230, 0.35)",
 };
 
 export const motion = {

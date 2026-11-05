@@ -14,6 +14,7 @@ import {
   shadows,
   spacing,
 } from "../../theme/tokens";
+import { textSizes } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
 
 export const Button = ({
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: fontWeights.semibold,
-    fontSize: 13,
+    fontSize: textSizes.sm,
     letterSpacing: 1.6,
     textTransform: "uppercase",
     textAlign: "center",

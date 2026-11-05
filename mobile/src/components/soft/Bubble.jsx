@@ -13,7 +13,7 @@ import Svg, {
   Stop,
 } from "react-native-svg";
 
-import { iridescent } from "../../theme/soft";
+import { iridescent, surface } from "../../theme/soft";
 
 // Gradient direction per variant (x1, y1, x2, y2 in 0-1).
 const DIRECTIONS = [
@@ -47,14 +47,14 @@ export const Bubble = ({ size, variant = 0, opacity = 1, style }) => {
         </LinearGradient>
 
         <RadialGradient id={`body${id}`} cx="50%" cy="50%" r="50%">
-          <Stop offset="0.55" stopColor="#FFFFFF" stopOpacity="0" />
-          <Stop offset="0.85" stopColor="#FFFFFF" stopOpacity="0.08" />
-          <Stop offset="1" stopColor="#FFFFFF" stopOpacity="0.28" />
+          <Stop offset="0.55" stopColor={surface.white} stopOpacity="0" />
+          <Stop offset="0.85" stopColor={surface.white} stopOpacity="0.08" />
+          <Stop offset="1" stopColor={surface.white} stopOpacity="0.28" />
         </RadialGradient>
 
         <RadialGradient id={`shine${id}`} cx="50%" cy="50%" r="50%">
-          <Stop offset="0" stopColor="#FFFFFF" stopOpacity="0.75" />
-          <Stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
+          <Stop offset="0" stopColor={surface.white} stopOpacity="0.75" />
+          <Stop offset="1" stopColor={surface.white} stopOpacity="0" />
         </RadialGradient>
       </Defs>
 

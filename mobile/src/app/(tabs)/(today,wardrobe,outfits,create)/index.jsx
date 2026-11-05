@@ -33,7 +33,7 @@ import { OutfitFeedback } from "../../../components/today/OutfitFeedback";
 import { OutfitPicker } from "../../../components/today/OutfitPicker";
 import { ShoeChooser } from "../../../components/today/ShoeChooser";
 import { useLocation } from "../../../platform/useLocation";
-import { fonts, ink, space } from "../../../theme/soft";
+import { fonts, ink, space, textSizes } from "../../../theme/soft";
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   },
   headline: {
     fontFamily: fonts.light,
-    fontSize: 20,
+    fontSize: textSizes.h5,
     lineHeight: 26,
     color: ink.main,
   },
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   // in spaced capitals.
   subline: {
     fontFamily: fonts.light,
-    fontSize: 12,
+    fontSize: textSizes.xs,
     lineHeight: 18,
     letterSpacing: 1.4,
     textTransform: "uppercase",

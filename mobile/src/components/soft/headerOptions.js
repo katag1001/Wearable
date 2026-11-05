@@ -4,13 +4,13 @@
 // header doesn't push the page down, so page wrappers start below it
 // themselves (useHeaderSpace).
 
-import { fonts, ink } from "../../theme/soft";
+import { fonts, ink, textSizes } from "../../theme/soft";
 
 export const softHeader = {
   headerTintColor: ink.main,
   headerShadowVisible: false,
   headerTransparent: true,
   headerStyle: { backgroundColor: "transparent" },
-  headerTitleStyle: { fontFamily: fonts.medium, fontSize: 17 },
+  headerTitleStyle: { fontFamily: fonts.medium, fontSize: textSizes.xl },
   headerBackTitleStyle: { fontFamily: fonts.regular },
 };

@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
 
-import { atmosphereMood, mid } from "../../theme/soft";
+import { atmosphereMood, mid, surface } from "../../theme/soft";
 
 const grain = require("../../../assets/textures/grain.png");
 
@@ -61,13 +61,13 @@ export const Atmosphere = ({ weather }) => {
           {/* A wide, gradual white middle over the patches, so the colour
               only lives at the edges and there's no visible shape. */}
           <RadialGradient id="centre" cx="50" cy="50" r="62" gradientUnits="userSpaceOnUse">
-            <Stop offset="0" stopColor="#FFFFFF" stopOpacity="0.95" />
-            <Stop offset="0.4" stopColor="#FFFFFF" stopOpacity="0.8" />
-            <Stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
+            <Stop offset="0" stopColor={surface.white} stopOpacity="0.95" />
+            <Stop offset="0.4" stopColor={surface.white} stopOpacity="0.8" />
+            <Stop offset="1" stopColor={surface.white} stopOpacity="0" />
           </RadialGradient>
         </Defs>
 
-        <Rect x="0" y="0" width="100" height="100" fill="#FFFFFF" />
+        <Rect x="0" y="0" width="100" height="100" fill={surface.white} />
         {PATCHES.map((_, index) => (
           <Rect
             key={index}

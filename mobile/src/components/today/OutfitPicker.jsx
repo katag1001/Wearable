@@ -15,7 +15,7 @@ import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { handOverOutfit } from "../outfits/outfitHandoff";
-import { fonts, ink, space, type } from "../../theme/soft";
+import { fonts, ink, space, textSizes, type } from "../../theme/soft";
 import { ActionButton } from "./ActionButton";
 import { OutfitImages } from "./OutfitImages";
 import { SwipeDeck } from "./SwipeDeck";
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   // In the light Inter of the header above, not a label.
   tights: {
     fontFamily: fonts.light,
-    fontSize: 15,
+    fontSize: textSizes.base,
     lineHeight: 20,
     color: ink.soft,
     textAlign: "center",

@@ -27,7 +27,7 @@ import { useEffect, useRef, useState } from "react";
 import { Animated, PanResponder, StyleSheet, View } from "react-native";
 
 import { colors, radius } from "../../theme/tokens";
-import { motion } from "../../theme/soft";
+import { motion, shadows } from "../../theme/soft";
 
 // What's left showing when it's tucked away: the strip with the handle.
 export const PULL_UP_PEEK = 30;
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     borderCurve: "continuous",
-    boxShadow: "0px -10px 30px rgba(46, 40, 56, 0.07)",
+    boxShadow: shadows.panel,
   },
   // Fills the rest of a panel with a set height.
   content: {

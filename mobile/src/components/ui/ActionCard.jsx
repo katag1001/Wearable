@@ -13,6 +13,7 @@ import {
   shadows,
   spacing,
 } from "../../theme/tokens";
+import { textSizes } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
 
 export const ActionCard = ({ icon, title, text, tint, onPress }) => (
@@ -68,13 +69,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fontWeights.light,
-    fontSize: 22,
+    fontSize: textSizes.h4,
     lineHeight: 28,
     color: colors.main,
   },
   description: {
     fontFamily: fontWeights.regular,
-    fontSize: 14,
+    fontSize: textSizes.md,
     lineHeight: 20,
     color: colors.secondary,
   },

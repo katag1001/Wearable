@@ -9,7 +9,6 @@
 //    the area that's now allowed.
 
 import { useEffect } from "react";
-import { FiraCode_500Medium } from "@expo-google-fonts/fira-code";
 import {
   Inter_300Light,
   Inter_400Regular,
@@ -65,7 +64,6 @@ export default function RootLayout() {
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
-    FiraCode_500Medium,
     InstrumentSerif_400Regular_Italic,
   });
 

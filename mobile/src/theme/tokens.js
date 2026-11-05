@@ -3,9 +3,9 @@
 // Screens use these; ./soft.js has the fuller set (washes, mids, type
 // styles, shadows, motion) for the parts that need it.
 
-import { fonts, ink, mid, radii, semantic, shadows, surface, wash } from "./soft";
+import { fonts, ink, mid, radii, semantic, shadows, surface, textSizes, wash } from "./soft";
 
-export { fonts, shadows };
+export { fonts, shadows, textSizes };
 
 export const colors = {
   main: ink.main,
@@ -48,11 +48,11 @@ export const colors = {
 };
 
 export const fontSizes = {
-  title: 30,
-  sectionTitle: 20,
-  body: 15,
-  small: 13,
-  tag: 12,
+  title: textSizes.h1,
+  sectionTitle: textSizes.h5,
+  body: textSizes.base,
+  small: textSizes.sm,
+  tag: textSizes.xs,
 };
 
 // Inter weights by name, used as fontFamily (a custom font ignores

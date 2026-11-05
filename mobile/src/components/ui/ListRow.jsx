@@ -5,7 +5,7 @@
 import Feather from "@expo/vector-icons/Feather";
 import { Pressable, StyleSheet, Text } from "react-native";
 
-import { colors, fontWeights, spacing } from "../../theme/tokens";
+import { colors, fontWeights, spacing, textSizes } from "../../theme/tokens";
 
 export const ListRow = ({ label, onPress, destructive = false, chevron = true }) => (
   <Pressable
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: fontWeights.regular,
-    fontSize: 17,
+    fontSize: textSizes.xl,
     color: colors.main,
   },
   destructive: {

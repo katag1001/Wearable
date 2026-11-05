@@ -21,6 +21,7 @@ import {
   shadows,
   spacing,
 } from "../../theme/tokens";
+import { textSizes } from "../../theme/soft";
 
 export const Sheet = ({ visible, title, onClose, footer, children }) => {
   const insets = useSafeAreaInsets();
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fontWeights.light,
-    fontSize: 24,
+    fontSize: textSizes.h3,
     lineHeight: 30,
     color: colors.main,
   },
