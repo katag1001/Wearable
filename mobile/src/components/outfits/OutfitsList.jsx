@@ -23,6 +23,7 @@ import {
 import { useAccumulatedPages } from "@core/hooks/useAccumulatedPages.js";
 import { useMatchSelection } from "@core/hooks/useMatchSelection.js";
 import { useMatchesPage } from "@core/hooks/useMatchesPage.js";
+import { seasonOptions } from "@core/constants/optionsBank.js";
 
 import { colors, radius, spacing } from "../../theme/tokens";
 import { space } from "../../theme/soft";
@@ -39,6 +40,8 @@ import { SelectionBar } from "./SelectionBar";
 // The FlatList's one row: both columns. It's one row so the list keeps
 // paging, refresh and its empty / footer states.
 const COLUMNS_ROW = [{ key: "columns" }];
+
+const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
 export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
   const outfits = useMatchesPage({
@@ -146,6 +149,17 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
           iconLabel="Build an outfit"
           onIconPress={() => router.push("/build-outfit")}
         />
+
+        <ChipRow scroll>
+          {seasonOptions.map((season) => (
+            <Chip
+              key={season}
+              label={capitalise(season)}
+              selected={outfits.selectedSeason === season}
+              onPress={() => outfits.toggleSeason(season)}
+            />
+          ))}
+        </ChipRow>
 
         {itemFilter ? (
           <ChipRow>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Header from '../components/header';
 import MessagePopup from '../components/general/messagePopup';
 import { useDeleteAccount } from '@core/hooks/useDeleteAccount.js';
@@ -7,13 +8,17 @@ import '../styles/userPage.css';
 import WeeklyPreferences from '../components/preferences/weeklyPreferences';
 import StylePreferences from '../components/preferences/stylePreferences';
 import Stats from '../components/stats/stats';
+import Settings from '../components/preferences/settings';
 
 const User = ({ loggedIn, logout }) => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
+  // Other pages can open a screen: navigate('/user', { state: { screen: 'settings' } }).
+  const location = useLocation();
+
   const [activeScreen, setActiveScreen] =
-    useState('weekly-preferences');
+    useState(location.state?.screen || 'weekly-preferences');
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -46,6 +51,9 @@ const User = ({ loggedIn, logout }) => {
 
       case 'stats':
         return <Stats />;
+
+      case 'settings':
+        return <Settings />;
 
       default:
         return <WeeklyPreferences />;
@@ -151,6 +159,20 @@ const User = ({ loggedIn, logout }) => {
                   }
                 >
                   Stats
+                </button>
+
+                <button
+                  type="button"
+                  className={`user-sidebar__button ${
+                    activeScreen === 'settings'
+                      ? 'user-sidebar__button--active'
+                      : ''
+                  }`}
+                  onClick={() =>
+                    handleScreenChange('settings')
+                  }
+                >
+                  Settings
                 </button>
 
               </nav>

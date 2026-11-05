@@ -1,0 +1,34 @@
+/* ----------------------------------------------------------------
+   Settings (settings.jsx) - the rest is stylePreferences.css
+----------------------------------------------------------------- */
+
+.settings-points,
+.settings-sources {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+
+  color: var(--secondary-color);
+
+  font-size: var(--description-font-size);
+  letter-spacing: 0.03em;
+}
+
+.settings-points li,
+.settings-sources li {
+  margin-bottom: 0.4rem;
+}
+
+.settings-points strong,
+.style-preferences-section-description strong {
+  color: var(--main-color);
+  font-weight: 700;
+}
+
+.settings-sources a {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+.settings-sources a:hover {
+  color: var(--main-color);
+}

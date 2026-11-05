@@ -1,10 +1,11 @@
 // server/services/analysisQuotaService.js
 //
-// The daily limit on photo analyses per user (DAILY_ANALYSIS_LIMIT in
-// constants/itemAnalysis.js). The count is kept on the user's Preferences
-// (analysisDay + analysisCount) and claimed before Gemini is called, in
-// one atomic update - two requests at once can't both take the last one.
-// Days are UTC.
+// The daily limit on photos processed per user (DAILY_ANALYSIS_LIMIT in
+// constants/itemAnalysis.js) - analysed by Gemini, or only background-
+// removed for users who opted out of AI analysis; both share one count.
+// The count is kept on the user's Preferences (analysisDay +
+// analysisCount) and claimed before the photo is processed, in one atomic
+// update - two requests at once can't both take the last one. Days are UTC.
 
 const { Preferences } = require("../models/AllModels.js");
 const { DAILY_ANALYSIS_LIMIT } = require("../constants/itemAnalysis.js");

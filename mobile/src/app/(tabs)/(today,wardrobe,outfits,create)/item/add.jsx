@@ -5,11 +5,16 @@
 // (AnalysedItemReview). Saving sends bubbles up over "View new matches" /
 // "Add another item". If the analysis fails, the full item form opens with
 // the photo attached. Adding by hand is item/edit.jsx.
+//
+// Before any of it, a user who hasn't said whether AI may analyse their
+// photos has to answer (AiConsentPrompt). Opted out, the photo only has
+// its background removed and the item form opens with it attached.
 
 import { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
+import { useAiConsent } from "@core/hooks/useAiConsent.js";
 import { usePhotoAnalysis } from "@core/hooks/usePhotoAnalysis.js";
 import { useWardrobeItemForm } from "@core/hooks/useWardrobeItemForm.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
@@ -33,6 +38,7 @@ import {
   Message,
   Screen,
 } from "../../../../components/ui";
+import { AiConsentPrompt } from "../../../../components/wardrobe/AiConsentPrompt";
 import {
   AnalysedItemReview,
 } from "../../../../components/wardrobe/AnalysedItemReview";
@@ -59,7 +65,9 @@ const ReviewItem = ({ kind, prefill, onSaved, onCancel }) => {
 };
 
 export default function AddItemScreen() {
-  const flow = usePhotoAnalysis();
+  const consent = useAiConsent();
+  const useAi = consent.choice === true;
+  const flow = usePhotoAnalysis({ useAi });
 
   // The full item form over the flow (failed analysis): { kind, prefill } or null.
   const [form, setForm] = useState(null);
@@ -107,6 +115,29 @@ export default function AddItemScreen() {
   // picked.
   const shownPhoto = flow.imageUrl ? getImageUrl(flow.imageUrl, 900) : flow.photo?.uri;
 
+  /* -------------------- AI consent -------------------- */
+
+  // The AI question first - nothing can be added until it's answered.
+  if (consent.loading) {
+    return (
+      <>
+        <Stack.Screen options={{ title: TITLE }} />
+        <Loading />
+      </>
+    );
+  }
+
+  if (consent.showPrompt || consent.showSaved) {
+    return (
+      <>
+        <Stack.Screen options={{ title: TITLE }} />
+        <Screen edges={["bottom"]} centered>
+          <AiConsentPrompt consent={consent} />
+        </Screen>
+      </>
+    );
+  }
+
   /* -------------------- Saved -------------------- */
 
   if (flow.step === "saved") {
@@ -135,7 +166,7 @@ export default function AddItemScreen() {
     return (
       <>
         <Stack.Screen options={{ title: TITLE }} />
-        <Loading text="Analysing your item..." />
+        <Loading text={useAi ? "Analysing your item..." : "Preparing your photo..."} />
       </>
     );
   }
@@ -207,7 +238,7 @@ export default function AddItemScreen() {
           </>
         )}
 
-        {flow.step === "failed" && (
+        {(flow.step === "failed" || flow.step === "manual") && (
           <>
             {photo}
             <Message text={flow.error} />

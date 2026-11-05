@@ -40,6 +40,10 @@ export default function TabStack() {
         name="account/stats"
         options={withHeader({ title: "Your favourites" })}
       />
+      <Stack.Screen
+        name="account/settings"
+        options={withHeader({ title: "Settings" })}
+      />
       <Stack.Screen name="build-outfit" options={withHeader()} />
       <Stack.Screen name="outfit" options={withHeader()} />
       <Stack.Screen name="item/add" options={withHeader()} />

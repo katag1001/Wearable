@@ -1528,7 +1528,15 @@ exports.updatePreferences = async (req, res) => {
       seasonality,
       favouritePalettes,
       pairingAnswers,
+      aiAnalysis,
     } = req.body;
+
+    if (aiAnalysis !== undefined && typeof aiAnalysis !== "boolean") {
+      return res.status(400).json({
+        message: "aiAnalysis must be true or false.",
+        success: false,
+      });
+    }
 
     // A user changing their gender invalidates their personal score
     // adjustments (they were learned against a different set of subtypes) -
@@ -1559,6 +1567,7 @@ exports.updatePreferences = async (req, res) => {
           temperature,
           seasonality,
           favouritePalettes: cleanFavouritePalettes(favouritePalettes),
+          aiAnalysis,
         },
         $setOnInsert: {
           userId,

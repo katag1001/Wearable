@@ -107,6 +107,19 @@ in from the analysis and never re-filled from the name and type), drawn by
 can also switch the item between clothing and footwear. If the analysis
 fails, the full form below opens with the photo attached.
 
+**AI consent** (2026-11-05): before a user's first add from a photo, they
+must answer whether AI may analyse their photos - no way past it
+(`core/hooks/useAiConsent.js`, drawn by `src/components/clothes/aiConsentPrompt.jsx`
+and `mobile/src/components/wardrobe/AiConsentPrompt.jsx`; wording in
+`core/constants/aiAnalysis.js`). The answer is `Preferences.aiAnalysis`
+(null = not asked yet), changeable in Settings (web User sidebar, mobile
+Profile -> Settings; `core/hooks/useAiSettings.js`). Opted out, the app
+calls `POST /items/remove-background` instead: the background is still
+removed, nothing goes to Gemini, and the full form opens with the photo
+attached (`usePhotoAnalysis` step "manual"). `/items/analyse` refuses
+(`ai_opted_out` / `consent_required`) unless `aiAnalysis` is true. Both
+routes share the daily photo limit (`shared/photoLimits.json`).
+
 ### 1.1 When the form opens
 
 `addUpdateClothes` fetches `/preferences` once and reads:

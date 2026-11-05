@@ -16,9 +16,11 @@ const PROMPT_VERSION = "v3";
 // "HIGH"). More is slower and costs more.
 const THINKING_LEVEL = "LOW";
 
-// Photos each user may have analysed per day (UTC). A retry inside one
-// analysis doesn't count again.
-const DAILY_ANALYSIS_LIMIT = 200;
+// Photos each user may have processed per day (UTC) - analysed by Gemini,
+// or only background-removed for users who opted out of AI analysis. A
+// retry inside one analysis doesn't count again. In shared/ so the apps'
+// Settings can show it.
+const DAILY_ANALYSIS_LIMIT = require("../../shared/photoLimits.json").dailyPhotoLimit;
 
 // The photo is sent at most this many pixels on its longest side.
 const IMAGE_MAX_SIZE = 1024;

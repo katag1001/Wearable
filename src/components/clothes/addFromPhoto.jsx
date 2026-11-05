@@ -4,6 +4,8 @@ import FadeLoader from "react-spinners/FadeLoader";
 
 import AddUpdateItem from "./addUpdateItem";
 import AnalysedItemReview from "./analysedItemReview";
+import AiConsentPrompt from "./aiConsentPrompt";
+import { useAiConsent } from "@core/hooks/useAiConsent.js";
 import { usePhotoAnalysis } from "@core/hooks/usePhotoAnalysis.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 import { WARDROBE_KIND_LIST as KINDS } from "@core/wardrobe/itemKinds.js";
@@ -17,6 +19,10 @@ import "../../styles/modal.css";
  * and Save (AnalysedItemReview), then "View new matches" / "Add another
  * item". If the analysis fails, the item form opens with the photo
  * attached. `onManual` goes to adding an item by hand instead.
+ *
+ * Before any of it, a user who hasn't said whether AI may analyse their
+ * photos has to answer (AiConsentPrompt). Opted out, the photo only has
+ * its background removed and the item form opens with it attached.
  */
 
 // The chosen File as a URL an <img> can show.
@@ -42,7 +48,11 @@ const AddFromPhoto = ({ onClose, onManual, refresh }) => {
 
   const navigate = useNavigate();
 
-  const flow = usePhotoAnalysis();
+  const consent = useAiConsent();
+
+  const useAi = consent.choice === true;
+
+  const flow = usePhotoAnalysis({ useAi });
 
   const previewUrl = usePreviewUrl(flow.photo);
 
@@ -88,6 +98,34 @@ const AddFromPhoto = ({ onClose, onManual, refresh }) => {
     <img src={shownPhoto} alt="Your item" className="photo-analysis-image" />
   );
 
+  // The AI question first - nothing can be added until it's answered.
+  if (consent.loading || consent.showPrompt || consent.showSaved) {
+    return (
+      <div className="modal-backdrop">
+        <div className="modal-wrapper open">
+          <button className="close-modal" onClick={onClose}>
+            ×
+          </button>
+
+          <div className="modal-title">
+            Add Item
+          </div>
+
+          {consent.loading ? (
+            <div className="photo-analysis-loading">
+              <FadeLoader color="black" loading={true} />
+            </div>
+          ) : (
+            <AiConsentPrompt
+              consent={consent}
+              onReadMore={() => navigate("/user", { state: { screen: "settings" } })}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
 
     <div className="modal-backdrop">
@@ -108,7 +146,9 @@ const AddFromPhoto = ({ onClose, onManual, refresh }) => {
             <div className="photo-analysis">
 
               <p className="photo-analysis-text">
-                Choose a photo of one item - we'll fill in the rest.
+                {useAi
+                  ? "Choose a photo of one item - we'll fill in the rest."
+                  : "Choose a photo of one item - we'll remove the background, then you fill in the details."}
               </p>
 
               <p className="photo-analysis-text">
@@ -145,7 +185,7 @@ const AddFromPhoto = ({ onClose, onManual, refresh }) => {
             <FadeLoader color="black" loading={true} />
 
             <p className="photo-analysis-text">
-              Analysing your item...
+              {useAi ? "Analysing your item..." : "Preparing your photo..."}
             </p>
           </div>
         )}
@@ -174,7 +214,7 @@ const AddFromPhoto = ({ onClose, onManual, refresh }) => {
         )}
 
 
-        {flow.step === "failed" && (
+        {(flow.step === "failed" || flow.step === "manual") && (
           <>
             <div className="modal-title">
               Add Item
@@ -184,7 +224,9 @@ const AddFromPhoto = ({ onClose, onManual, refresh }) => {
 
               {photo}
 
-              <p className="validation-message">{flow.error}</p>
+              {flow.error && (
+                <p className="validation-message">{flow.error}</p>
+              )}
 
               <p className="photo-analysis-text">What is it?</p>
 

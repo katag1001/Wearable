@@ -44,6 +44,8 @@ router.delete("/footwear/:id", authMiddleware, footwearControllers.deleteFootwea
 /* ITEM ANALYSIS */
 // Fills in a new item from its uploaded photo (nothing is saved).
 router.post("/items/analyse", authMiddleware, analysisControllers.analyseItem);
+// The same photo's background removed only - for users who opted out of AI.
+router.post("/items/remove-background", authMiddleware, analysisControllers.removeItemBackground);
 
 /* IMAGE ROUTES */
 // Removes an uploaded image no item uses (after a failed save).

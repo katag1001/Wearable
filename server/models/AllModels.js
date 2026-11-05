@@ -295,8 +295,15 @@ const preferencesSchema = new mongoose.Schema({
   // (services/todayScoreService.js).
   favouritePalettes: { type: [String], default: [] },
 
-  // Today's photo analyses (services/analysisQuotaService.js): the UTC day
-  // ("2026-11-02") and how many were run on it.
+  // Whether new item photos may be analysed by AI (Gemini): null until the
+  // user answers the consent prompt shown before their first add, then
+  // true / false (changeable in Settings). Opted out (false), photos only
+  // have their background removed and the user fills the item in
+  // (controllers/analysisControllers.js).
+  aiAnalysis: { type: Boolean, default: null },
+
+  // Today's processed photos (services/analysisQuotaService.js): the UTC
+  // day ("2026-11-02") and how many were processed on it.
   analysisDay: { type: String, default: null },
   analysisCount: { type: Number, default: 0 },
 

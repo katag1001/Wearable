@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { analyseItemPhoto } from "../api/analysis.js";
+import { analyseItemPhoto, removeItemPhotoBackground } from "../api/analysis.js";
 import { getErrorMessage } from "../api/errors.js";
 import { deleteUnusedImage, uploadImageToCloudinary } from "../api/images.js";
 import { WARDROBE_KINDS } from "../wardrobe/itemKinds.js";
@@ -14,14 +14,21 @@ import { WARDROBE_KINDS } from "../wardrobe/itemKinds.js";
  * background-removed photo (`image`); if the background couldn't be
  * removed, with the photo as uploaded.
  *
+ * `useAi` false (the user opted out of AI analysis - useAiConsent /
+ * Settings): the server only removes the background, nothing goes to
+ * Gemini, and the user fills the item in themselves ("manual").
+ *
  * Steps:
  *   "pick"      - waiting for a photo (`notice` says why a photo was turned
  *                 down: "multiple" items or "none")
- *   "analysing" - uploading and analysing (a loading screen)
+ *   "analysing" - uploading and analysing - or, without AI, removing the
+ *                 background (a loading screen)
  *   "ready"     - analysed: the user checks what was found, changes
  *                 anything, and saves - an item form filled in from the
  *                 analysis (`reviewPrefill`; useAnalysedItemReview), which
  *                 calls markSaved
+ *   "manual"    - without AI: the user fills the form in, with the
+ *                 background-removed photo attached (`manualPrefill`)
  *   "failed"    - couldn't analyse (`error`): the user fills the form in,
  *                 with the photo already attached (`manualPrefill`)
  *   "saved"     - `savedItem` { id, name, kind, hasMatches, message }
@@ -38,15 +45,18 @@ export const NOTICES = {
   none: "We couldn't see any clothing or footwear in this photo. Please try another one.",
 };
 
-const failureMessage = (err) => {
+const failureMessage = (err, useAi) => {
   const code = err.response?.data?.code;
 
   if (code === "daily_limit") return getErrorMessage(err, "");
+  if (code === "ai_opted_out") return "AI analysis is turned off in Settings. You can fill in the details yourself.";
 
-  return "We couldn't analyse this photo. You can fill in the details yourself.";
+  return useAi
+    ? "We couldn't analyse this photo. You can fill in the details yourself."
+    : "We couldn't process this photo. You can fill in the details yourself.";
 };
 
-export const usePhotoAnalysis = () => {
+export const usePhotoAnalysis = ({ useAi = true } = {}) => {
   const [step, setStep] = useState("pick");
   // The chosen photo (a File on the web, { uri, name, type } on a phone).
   const [photo, setPhoto] = useState(null);
@@ -119,6 +129,19 @@ export const usePhotoAnalysis = () => {
       unsavedImagesRef.current = [uploadedImage.cloudinaryId];
       setImage(uploadedImage);
 
+      if (!useAi) {
+        const processed = await removeItemPhotoBackground(uploadedImage.cloudinaryId);
+
+        if (!isCurrent()) {
+          (processed.image?.createdIds || []).forEach((publicId) => deleteUnusedImage(publicId));
+          return;
+        }
+
+        takeRemovedImage(processed.image);
+        setStep("manual");
+        return;
+      }
+
       const analysis = await analyseItemPhoto(uploadedImage.cloudinaryId);
 
       if (!isCurrent()) {
@@ -151,7 +174,7 @@ export const usePhotoAnalysis = () => {
         return;
       }
 
-      setError(failureMessage(err));
+      setError(failureMessage(err, useAi));
       setStep("failed");
     }
   };
@@ -207,7 +230,7 @@ export const usePhotoAnalysis = () => {
     reviewPrefill: result
       ? { fields: { ...result.fields, ...image }, fromAnalysis: true }
       : null,
-    // For the item form after a failed analysis: just the photo.
+    // For the item form without AI, or after a failed analysis: just the photo.
     manualPrefill: image ? { fields: { ...image }, fromAnalysis: false } : null,
 
     // The review (or, after a failed analysis, the manual) form saved it.
