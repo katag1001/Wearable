@@ -3,14 +3,15 @@
 // its shoes (OutfitPicker). Wearing it leaves the page as it is - only the
 // buttons change, to Change outfit - with bubbles rising over it. Change shoes shows ShoeChooser in place of
 // the page (the outfits stay loaded behind it), and the broken heart shows
-// OutfitFeedback the same way. Drawn in the soft look
+// OutfitFeedback the same way. Tapping "[tag] outfit" slides up TagPicker
+// to pick another tag for today (today only). Drawn in the soft look
 // (context/visual-language.md), the atmosphere tinted by the weather.
 // Logic: useWeather, useTodayLook - both shared with the web
 // homepage.
 
 import { useCallback, useEffect, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useTodayLook } from "@core/hooks/useTodayLook.js";
 import { useWeather } from "@core/hooks/useWeather.js";
@@ -32,6 +33,7 @@ import {
 import { OutfitFeedback } from "../../../components/today/OutfitFeedback";
 import { OutfitPicker } from "../../../components/today/OutfitPicker";
 import { ShoeChooser } from "../../../components/today/ShoeChooser";
+import { TagPicker } from "../../../components/today/TagPicker";
 import { useLocation } from "../../../platform/useLocation";
 import { fonts, ink, space, textSizes } from "../../../theme/soft";
 
@@ -52,6 +54,7 @@ export default function TodayScreen() {
   const [celebrating, setCelebrating] = useState(false);
   const [choosingShoes, setChoosingShoes] = useState(false);
   const [givingFeedback, setGivingFeedback] = useState(false);
+  const [pickingTag, setPickingTag] = useState(false);
 
   // Coming back from the outfit screen: show its changes.
   useFocusEffect(
@@ -92,6 +95,10 @@ export default function TodayScreen() {
   const outfitSection = () => {
     if (!weather.ready && today.loading) {
       return weather.error ? null : <BubbleLoader text="Loading outfits" />;
+    }
+
+    if (today.changingTag) {
+      return <BubbleLoader text="Finding your outfits" />;
     }
 
     if (today.loading || today.checkingToday) {
@@ -156,7 +163,17 @@ export default function TodayScreen() {
       <View style={styles.header}>
         <View style={styles.column}>
           <Text style={styles.headline}>{capitalise(getTodayDayOfWeek())}</Text>
-          <Text style={styles.subline}>{tag}</Text>
+          {/* Needs today's weather: a new tag can mean building today's
+              list again. */}
+          <Pressable
+            onPress={() => setPickingTag(true)}
+            disabled={!weather.weather || today.changingTag}
+            accessibilityRole="button"
+            accessibilityHint="Pick another tag for today's outfits"
+            hitSlop={8}
+          >
+            <Text style={styles.subline}>{tag}</Text>
+          </Pressable>
         </View>
 
         {weather.weather ? (
@@ -185,6 +202,13 @@ export default function TodayScreen() {
       <SoftNote text={today.weatherNoticeText} type="success" />
 
       <View style={styles.outfit}>{outfitSection()}</View>
+
+      <TagPicker
+        visible={pickingTag}
+        todayTag={today.todayTag}
+        onPick={(tagName) => today.pickTag(tagName, weather.weather, weather.season)}
+        onClose={() => setPickingTag(false)}
+      />
 
       {celebrating ? (
         <BubbleCelebration onDone={() => setCelebrating(false)} />

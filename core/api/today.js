@@ -49,3 +49,25 @@ export const createToday = async ({
 
   return response.data;
 };
+
+// Another tag for today, from the Today tab - today only. The server
+// re-orders today's list for it, or builds it again when too few of its
+// outfits have the tag (takes the same weather as createToday). Resolves
+// { rebuilt }; fetch the list again afterwards.
+export const changeTodayTag = async ({
+  tag,
+  minTemp,
+  maxTemp,
+  season,
+  todayStart,
+}) => {
+  const response = await api.post("/today/tag", {
+    tag,
+    min_temp_today: minTemp,
+    max_temp_today: maxTemp,
+    season_today: season,
+    today_start: todayStart,
+  });
+
+  return response.data;
+};

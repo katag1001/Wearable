@@ -73,6 +73,7 @@ const {
   todayFitOf,
 } = require("../services/todaySelectionService.js");
 const { todayScoreOf } = require("../services/todayScoreService.js");
+const { hasEnoughForTag, reorderForTag } = require("../services/todayTagService.js");
 const { withUserLock } = require("../services/userLock.js");
 const { OCCASION_TAGS } = require("../constants/occasionTags.js");
 const { DEFAULT_TODAY_TAG } = require("../constants/todayOutfits.js");
@@ -1172,6 +1173,13 @@ const getTodayTag = async (userId, dayOfWeek) => {
   return OCCASION_TAGS.find((tag) => tag.toLowerCase() === wanted) || DEFAULT_TODAY_TAG;
 };
 
+// The day's temperatures and season, as /today/create and /today/tag take
+// them.
+const isValidTodayWeather = ({ min_temp_today, max_temp_today, season_today }) =>
+  typeof min_temp_today === "number" &&
+  typeof max_temp_today === "number" &&
+  ["spring", "summer", "autumn", "winter"].includes(season_today);
+
 // Builds today's outfit list - once per day. A second device (or a second
 // visit with its storage cleared) gets the list already built, so every
 // device shows the same outfits in the same order. Lists built before
@@ -1192,11 +1200,7 @@ exports.createToday = async (req, res) => {
       day_of_week,
     } = req.body;
 
-    if (
-      typeof min_temp_today !== "number" ||
-      typeof max_temp_today !== "number" ||
-      !["spring", "summer", "autumn", "winter"].includes(season_today)
-    ) {
+    if (!isValidTodayWeather(req.body)) {
       return res.status(400).json({
         message: "Invalid input data.",
         success: false,
@@ -1222,13 +1226,57 @@ exports.createToday = async (req, res) => {
   }
 };
 
+// The clothes fields building today's list needs: lastWornDate (clothing
+// freshness), type + subtype (the floors that keep a tights range from
+// going too cold - todaySelectionService.todayFitOf), fabric + favourite
+// (Today's points - todayScoreService.js).
+const TODAY_BUILD_CLOTHES_FIELDS = "lastWornDate type subtype fabric favourite";
+
+// (match) => its Today score (todayScoreService.js), worked out once per
+// match, plus the user's temperature preference.
+const todayScorer = async (userId, season) => {
+  const { temperature, colour, seasonality, favouritePalettes } =
+    await getUserMatchingPreferences(userId);
+
+  const scoreContext = {
+    season,
+    seasonality,
+    palettes: getColorRules(colour).palettes,
+    favouritePalettes,
+  };
+  const scores = new Map();
+
+  const scoreOf = (match) => {
+    if (!scores.has(match)) {
+      scores.set(match, todayScoreOf(match, scoreContext));
+    }
+    return scores.get(match);
+  };
+
+  return { scoreOf, temperature };
+};
+
 // The build itself, run under withUserLock. Returns the response body.
-const buildToday = async ({ userId, todayStart, season_today, day_of_week, min_temp_today, max_temp_today }) => {
-    const alreadyBuilt = await Today.exists({
-      userId,
-      dateCreated: { $gte: todayStart },
-      rank: { $ne: null },
-    });
+// `todayTag`: a tag picked for today in place of the weekly one
+// (changeTodayTag). `rebuild`: build again even though today's list
+// exists - outfits hidden today ("too hot" etc.) stay hidden.
+const buildToday = async ({
+  userId,
+  todayStart,
+  season_today,
+  day_of_week,
+  min_temp_today,
+  max_temp_today,
+  todayTag = null,
+  rebuild = false,
+}) => {
+    const alreadyBuilt =
+      !rebuild &&
+      (await Today.exists({
+        userId,
+        dateCreated: { $gte: todayStart },
+        rank: { $ne: null },
+      }));
 
     if (alreadyBuilt) {
       return {
@@ -1238,42 +1286,42 @@ const buildToday = async ({ userId, todayStart, season_today, day_of_week, min_t
       };
     }
 
-    // type + subtype: the floors that keep a tights range from going too
-    // cold (todaySelectionService.todayFitOf); fabric + favourite: Today's
-    // points (todayScoreService.js).
-    const [allMatches, { temperature, colour, seasonality, favouritePalettes }] = await Promise.all([
-      Match.find({ userId }).populate("clothes", "lastWornDate type subtype fabric favourite"),
-      getUserMatchingPreferences(userId),
+    const [allMatches, { scoreOf, temperature }, hiddenIds] = await Promise.all([
+      Match.find({ userId }).populate("clothes", TODAY_BUILD_CLOTHES_FIELDS),
+      todayScorer(userId, season_today),
+      rebuild
+        ? Today.distinct("matchId", { userId, hidden: true, dateCreated: { $gte: todayStart } })
+        : [],
     ]);
 
     const todayRange = { min: min_temp_today, max: max_temp_today };
+    const hidden = new Set(hiddenIds.map(String));
 
     // Anything that could get into a weather tier.
     const matches = allMatches.filter(
-      (match) => todayTierOf(match, todayRange, temperature) !== null
+      (match) =>
+        !hidden.has(String(match._id)) &&
+        todayTierOf(match, todayRange, temperature) !== null
     );
-
-    const scoreContext = {
-      season: season_today,
-      seasonality,
-      palettes: getColorRules(colour).palettes,
-      favouritePalettes,
-    };
-    const todayScores = new Map(matches.map((match) => [match, todayScoreOf(match, scoreContext)]));
 
     const { matches: chosen, notice } = selectTodayMatches({
       matches,
       todayRange,
-      todayTag: await getTodayTag(userId, day_of_week),
+      todayTag: todayTag ?? (await getTodayTag(userId, day_of_week)),
       temperaturePreference: temperature,
-      scoreOf: (match) => todayScores.get(match),
+      scoreOf,
     });
 
     // Outfits rejected in the last few days are kept out of the top places.
     const selected = keepRejectedOutOfTop(chosen, todayStart);
 
     await Promise.all([
-      Today.deleteMany({ userId }),
+      // A rebuild keeps today's hidden entries, so they stay hidden.
+      Today.deleteMany(
+        rebuild
+          ? { userId, $or: [{ hidden: { $ne: true } }, { dateCreated: { $lt: todayStart } }] }
+          : { userId }
+      ),
       Preferences.updateOne(
         { userId },
         { $set: { todayNotice: { level: notice?.level ?? null, band: notice?.band ?? null, builtAt: new Date() } } },
@@ -1303,6 +1351,82 @@ const buildToday = async ({ userId, todayStart, season_today, day_of_week, min_t
       success: true,
       matchesFound: true,
     };
+};
+
+// Another tag for today, picked on the Today tab - today only, the weekly
+// preferences don't change (services/todayTagService.js). With enough
+// outfits with the tag already in today's list it's re-ordered for the
+// tag; otherwise it's built again for it, from the same weather as
+// /today/create. Responds { rebuilt }; the client then fetches /today/get.
+//
+// Body: `tag` (an occasion tag), plus createToday's min_temp_today,
+// max_temp_today, season_today and today_start.
+exports.changeTodayTag = async (req, res) => {
+  const userId = req.user?.userId;
+
+  try {
+    const { tag, min_temp_today, max_temp_today, season_today, today_start } = req.body;
+
+    const wanted = typeof tag === "string" ? tag.trim().toLowerCase() : "";
+    const todayTag = OCCASION_TAGS.find((name) => name.toLowerCase() === wanted);
+
+    if (!todayTag || !isValidTodayWeather(req.body)) {
+      return res.status(400).json({
+        message: "Invalid input data.",
+        success: false,
+      });
+    }
+
+    const todayStart = resolveTodayStart(today_start);
+
+    const rebuilt = await withUserLock(userId, async () => {
+      const entries = await Today.find({
+        userId,
+        hidden: { $ne: true },
+        dateCreated: { $gte: todayStart },
+        rank: { $ne: null },
+      }).populate({ path: "matchId", populate: { path: "clothes", select: TODAY_BUILD_CLOTHES_FIELDS } });
+
+      // An outfit deleted since the list was built has no match left.
+      const shown = entries.filter((entry) => entry.matchId);
+      const matches = shown.map((entry) => entry.matchId);
+
+      if (hasEnoughForTag(matches, todayTag)) {
+        const { scoreOf } = await todayScorer(userId, season_today);
+        const ordered = reorderForTag({ matches, todayTag, scoreOf, todayStart });
+        const entryOf = new Map(shown.map((entry) => [entry.matchId, entry]));
+
+        await Today.bulkWrite(
+          ordered.map((match, rank) => ({
+            updateOne: { filter: { _id: entryOf.get(match)._id }, update: { $set: { rank } } },
+          }))
+        );
+
+        return false;
+      }
+
+      await buildToday({
+        userId,
+        todayStart,
+        season_today,
+        min_temp_today,
+        max_temp_today,
+        todayTag,
+        rebuild: true,
+      });
+
+      return true;
+    });
+
+    return res.json({ success: true, rebuilt });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: "Internal server error.",
+      success: false,
+    });
+  }
 };
 
 // Today's outfits in rank order, plus the outfit worn today (if any - the

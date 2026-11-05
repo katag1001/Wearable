@@ -1256,6 +1256,28 @@ either end), and the "Filter by Tag" panel beside it - it filters the 150
 on show. The filter starts on today's weekly-preference tag (click it to
 clear), with a "Today's <tag> outfit" subtitle under the panel title.
 
+**Another tag for today (mobile).** Tapping "<tag> outfit" in the Today
+header slides up `TagPicker` - every tag on any of the user's outfits
+(`/match/options`). Picking one is for today only (the weekly preferences
+don't change); `POST /today/tag` (`changeTodayTag`,
+`server/services/todayTagService.js`):
+
+- **At least `TAG_SWITCH_MIN_OUTFITS` = 10** of the outfits on show have
+  the tag: the same list is re-ordered as if built for that tag
+  (`rankForToday` - tagged first, ranking, jitter, spreading - then
+  `keepRejectedOutOfTop`). Nothing joins or leaves.
+- **Fewer**: today's list is built again (`buildToday` with the tag and
+  `rebuild`), from the weather the app sends. Outfits hidden today stay
+  hidden.
+
+The app then fetches `/today/get` and shows only that tag's outfits, with
+no wrapping round: past the last is "No more <tag> outfits that fit
+today's weather", and with none at all "No <tag> outfits that fit today's
+weather" stands in for them. The picked tag is cached for the day on that
+device (`todayCache.js`) and is the one the header, "Not appropriate for
+[tag]" and the shoe ranking use; other devices keep the weekly tag in
+their header but get the new order.
+
 ### 7.2 Rejecting an outfit
 
 Files: `server/services/matchRejectionService.js`,

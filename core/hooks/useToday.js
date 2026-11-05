@@ -9,10 +9,11 @@ import {
   sendTightsFeedback,
 } from "../api/matches.js";
 import { getErrorMessage } from "../api/errors.js";
-import { fetchTodayOutfits } from "../api/today.js";
+import { changeTodayTag, fetchTodayOutfits } from "../api/today.js";
 import { markMatchWorn } from "../matches/matchActions.js";
 import { rejectOutfit, wasRejectedToday } from "../today/outfitRejection.js";
 import { cacheToday, getCachedToday } from "../today/todayCache.js";
+import { todayWeatherParams } from "../today/createTodayOnce.js";
 import { fetchTodayInfo, todayTagFor } from "../today/todayInfo.js";
 import { outfitIdsChanged } from "../today/outfitIds.js";
 import { indexAfterRemoving, withoutOutfits } from "../today/outfitFeedback.js";
@@ -46,13 +47,19 @@ const MAX_RETRIES = 10;
  * on another device stays counted. Whatever was worn today - on any
  * device, or from the Outfits page - is opened on (the server sends it).
  *
+ * Another tag can be picked for the day (pickTag - mobile, today only;
+ * the weekly preferences stay as they are). The server re-orders or
+ * rebuilds today's list for it (server/services/todayTagService.js), and
+ * only outfits with that tag are shown after it - swiping past the last
+ * one reaches the end of them (atTagEnd), with no wrapping round.
+ *
  * Everything is cached for the day, so coming back shows it straight away
  * and refreshes in the background.
  *
  * `todayReady`: true once today's weather is known and /today/create has
  * run (useWeather).
- * `tagFilter`: false shows all of today's outfits, unfiltered (mobile has
- * no tag picker).
+ * `tagFilter`: false shows all of today's outfits, unfiltered until a tag
+ * is picked with pickTag (mobile has no tag filter panel).
  */
 export const useToday = ({ todayReady, tagFilter = true }) => {
   const [cachedToday] = useState(getCachedToday);
@@ -64,8 +71,18 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   // default - todayInfo.js). A day cached with an old tag name gets the
   // default too.
   const cachedTag = cachedToday ? todayTagFor(cachedToday.todayTag) : null;
-  const [todayTag, setTodayTag] = useState(cachedTag);
-  const [selectedTag, setSelectedTag] = useState(tagFilter ? cachedTag : null);
+  const [weeklyTag, setWeeklyTag] = useState(cachedTag);
+
+  // A tag picked in its place for today (pickTag), or null.
+  const [pickedTag, setPickedTag] = useState(cachedToday?.pickedTag ?? null);
+  const [changingTag, setChangingTag] = useState(false);
+
+  // The tag today's outfits are for: the picked one, else the weekly one.
+  const todayTag = pickedTag ?? weeklyTag;
+
+  const [selectedTag, setSelectedTag] = useState(
+    tagFilter ? cachedTag : cachedToday?.pickedTag ?? null
+  );
 
   // { level, band } when few outfits fit today's weather, else null.
   const [weatherNotice, setWeatherNotice] = useState(cachedToday?.weatherNotice ?? null);
@@ -197,7 +214,7 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
       // Already the tagOptions spelling, which is what outfit tags use.
       const { todayTag: todayTagName } = await fetchTodayInfo();
 
-      setTodayTag(todayTagName);
+      setWeeklyTag(todayTagName);
 
       // Start filtered to today's tag - unless cached outfits are already
       // showing, where the user may have picked a different tag.
@@ -218,14 +235,18 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   useEffect(() => {
     if (loading) return;
 
-    cacheToday({ todayTag, outfits, wornToday, weatherNotice });
-  }, [outfits, todayTag, wornToday, weatherNotice, loading]);
+    cacheToday({ todayTag: weeklyTag, pickedTag, outfits, wornToday, weatherNotice });
+  }, [outfits, weeklyTag, pickedTag, wornToday, weatherNotice, loading]);
 
   /* -------------------- Tag filter -------------------- */
 
   const filteredOutfits = selectedTag
     ? outfits.filter((outfit) => outfit?.matchId?.tags?.includes(selectedTag))
     : outfits;
+
+  // Past the last outfit with the picked tag (none at all when the list
+  // has none) - see goNext.
+  const atTagEnd = Boolean(pickedTag) && currentIndex >= filteredOutfits.length;
 
   const selectedOutfit = filteredOutfits[currentIndex] ?? null;
 
@@ -239,6 +260,38 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     saveRating();
     setSelectedTag(selectedTag === tagName ? null : tagName);
     setCurrentIndex(0);
+  };
+
+  // Another tag for today, in place of the weekly one: the server
+  // re-orders or rebuilds today's list for it from today's weather
+  // (useWeather's weather and season), then the list is fetched again and
+  // shows just that tag's outfits, from the first. Back to choosing if an
+  // outfit was already worn.
+  const pickTag = async (tagName, weather, season) => {
+    if (!weather || changingTag) return;
+
+    saveRating();
+    setChangingTag(true);
+
+    try {
+      await changeTodayTag({ tag: tagName, ...todayWeatherParams(weather, season) });
+
+      if (unmounted.current) return;
+
+      setPickedTag(tagName);
+      setSelectedTag(tagName);
+      setShowSelector(true);
+      await loadOutfits(false);
+      setCurrentIndex(0);
+    } catch (err) {
+      console.error("Failed to change today's tag:", err);
+      setNotice({
+        title: "Error",
+        message: `Couldn't change today's tag: ${getErrorMessage(err, err.message)}`,
+      });
+    } finally {
+      if (!unmounted.current) setChangingTag(false);
+    }
   };
 
   /* -------------------- List updates -------------------- */
@@ -336,18 +389,32 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
       .finally(() => pendingRejections.current.delete(matchId));
   };
 
+  // With a picked tag the outfits don't wrap round: next from the last one
+  // goes to the end of them (atTagEnd), and previous from there back.
+  const canMove = pickedTag
+    ? filteredOutfits.length > 0
+    : filteredOutfits.length > 1;
+
   const goNext = () => {
-    if (filteredOutfits.length <= 1) return;
+    if (!canMove || atTagEnd) return;
 
     rejectCurrentOutfit();
     saveRating();
-    setCurrentIndex((prev) => (prev + 1) % filteredOutfits.length);
+    setCurrentIndex((prev) =>
+      pickedTag ? prev + 1 : (prev + 1) % filteredOutfits.length
+    );
   };
 
   const goPrev = () => {
-    if (filteredOutfits.length <= 1) return;
+    if (!canMove) return;
 
     saveRating();
+
+    if (pickedTag) {
+      setCurrentIndex((prev) => Math.max(0, Math.min(prev, filteredOutfits.length) - 1));
+      return;
+    }
+
     setCurrentIndex(
       (prev) => (prev - 1 + filteredOutfits.length) % filteredOutfits.length
     );
@@ -532,16 +599,21 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     filteredOutfits,
     selectedOutfit,
     currentIndex,
+    canMove,
     goNext,
     goPrev,
+    atTagEnd,
     updateMatch,
 
     selectedRating,
     rateSelected,
 
     todayTag,
+    pickedTag,
     selectedTag,
     selectTag,
+    pickTag,
+    changingTag,
 
     wornToday,
     wornOutfit,

@@ -8,7 +8,12 @@
 //
 // `worn`: the outfit worn today is on show, exactly where it was - the
 // page doesn't change - with swiping off (no arrows) and Change outfit in
-// place of the hearts (back to choosing). Logic: useTodayLook.
+// place of the hearts (back to choosing).
+//
+// With another tag picked for today (useToday's pickTag) only its outfits
+// are on show, without wrapping round: past the last one is a note that
+// there are no more, and with none at all the note stands in for them.
+// Logic: useTodayLook.
 
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
@@ -43,6 +48,38 @@ export const OutfitPicker = ({
     }
   };
 
+  // Past the picked tag's last outfit, or it has none.
+  if (!outfit && !worn && today.pickedTag) {
+    const tagWords = today.pickedTag.toLowerCase();
+
+    if (!filteredOutfits.length) {
+      return (
+        <Text style={styles.empty}>
+          No {tagWords} outfits that fit today's weather
+        </Text>
+      );
+    }
+
+    // Still a card, so swiping back reaches the last outfit.
+    return (
+      <View style={styles.deck}>
+        <SwipeDeck
+          enabled={today.canMove}
+          onNext={today.goNext}
+          onPrev={today.goPrev}
+          noun="outfit"
+          fill
+        >
+          <View style={styles.endCard}>
+            <Text style={styles.empty}>
+              No more {tagWords} outfits that fit today's weather
+            </Text>
+          </View>
+        </SwipeDeck>
+      </View>
+    );
+  }
+
   if (!outfit) {
     return <Text style={styles.empty}>No outfits saved for today.</Text>;
   }
@@ -57,7 +94,7 @@ export const OutfitPicker = ({
 
       <View style={styles.deck}>
         <SwipeDeck
-          enabled={!worn && filteredOutfits.length > 1}
+          enabled={!worn && today.canMove}
           onNext={today.goNext}
           onPrev={today.goPrev}
           noun="outfit"
@@ -139,6 +176,10 @@ const styles = StyleSheet.create({
   // No box: the outfit sits straight on the page's white middle.
   card: {
     flex: 1,
+  },
+  endCard: {
+    flex: 1,
+    justifyContent: "center",
   },
   // The photos have their backgrounds removed; no tile behind them.
   photo: {

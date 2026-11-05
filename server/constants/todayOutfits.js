@@ -13,6 +13,12 @@ const TODAY_OUTFIT_LIMIT = 150;
 // one (core/today/todayInfo.js).
 const DEFAULT_TODAY_TAG = "Elevated everyday";
 
+// Picking another tag for the day on the Today tab (/today/tag): with at
+// least this many outfits in today's list carrying the tag, the list is
+// just re-ordered for it; with fewer, it's built again for that tag
+// (services/todayTagService.js).
+const TAG_SWITCH_MIN_OUTFITS = 10;
+
 // Weather tiers - they decide which outfits are in the running, not their
 // order. Each outfit goes in the first tier it fits:
 //  - tier 1: the outfit's min_temp and max_temp are each close to today's
@@ -75,6 +81,7 @@ const MAX_FRESHNESS = 10;
 module.exports = {
   TODAY_OUTFIT_LIMIT,
   DEFAULT_TODAY_TAG,
+  TAG_SWITCH_MIN_OUTFITS,
   CLOSE_MATCH_OUTSIDE,
   CLOSE_MATCH_INSIDE,
   FULL_COVERAGE,

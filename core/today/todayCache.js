@@ -18,8 +18,9 @@ const getCurrentUser = () => {
    READ
 ------------------------- */
 
-// { todayTag, outfits, wornToday, weatherNotice } saved earlier today by
-// this user, or null.
+// { todayTag, pickedTag, outfits, wornToday, weatherNotice } saved earlier
+// today by this user, or null. todayTag is the weekly one; pickedTag the
+// one picked in its place for today (useToday's pickTag), or null.
 export const getCachedToday = () => {
   try {
     const cached = JSON.parse(
@@ -37,6 +38,7 @@ export const getCachedToday = () => {
 
     return {
       todayTag: cached.todayTag ?? null,
+      pickedTag: cached.pickedTag ?? null,
       outfits: cached.outfits,
       wornToday: cached.wornToday ?? null,
       weatherNotice: cached.weatherNotice ?? null,
@@ -52,7 +54,7 @@ export const getCachedToday = () => {
    WRITE
 ------------------------- */
 
-export const cacheToday = ({ todayTag, outfits, wornToday, weatherNotice }) => {
+export const cacheToday = ({ todayTag, pickedTag, outfits, wornToday, weatherNotice }) => {
   try {
     getStorage().setItem(
       STORAGE_KEYS.todayOutfits,
@@ -60,6 +62,7 @@ export const cacheToday = ({ todayTag, outfits, wornToday, weatherNotice }) => {
         date: new Date().toISOString(),
         user: getCurrentUser(),
         todayTag,
+        pickedTag: pickedTag ?? null,
         outfits,
         wornToday: wornToday ?? null,
         weatherNotice: weatherNotice ?? null,

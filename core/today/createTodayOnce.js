@@ -29,15 +29,23 @@ export const createTodayOnce = (weather, season) => {
   return pending;
 };
 
-const sendCreateToday = async (weather, season) => {
+// The day's weather as the server builds today's list from it (also for
+// picking another tag - api/today.js changeTodayTag).
+export const todayWeatherParams = (weather, season) => {
   const offset = getWeatherTempOffset(weather.code);
 
+  return {
+    minTemp: weather.min + offset,
+    maxTemp: weather.max + offset,
+    season,
+    todayStart: getTodayStartISO(),
+  };
+};
+
+const sendCreateToday = async (weather, season) => {
   try {
     const data = await createToday({
-      minTemp: weather.min + offset,
-      maxTemp: weather.max + offset,
-      season,
-      todayStart: getTodayStartISO(),
+      ...todayWeatherParams(weather, season),
       dayOfWeek: getTodayDayOfWeek(),
     });
 

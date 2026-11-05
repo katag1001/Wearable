@@ -165,8 +165,25 @@ const selectTodayMatches = ({
 }) => {
   const inTheRunning = outfitsInTheRunning(matches, todayRange, temperaturePreference, limit);
 
+  return {
+    matches: rankForToday({ matches: inTheRunning.running, todayTag, scoreOf, now, limit, random }),
+    notice: noticeFor(inTheRunning, todayRange, limit),
+  };
+};
+
+// Steps 3 and 4 alone: `matches` in today's order, at most `limit` (all
+// of them by default). Also re-orders a list already built for another tag
+// (services/todayTagService.js).
+const rankForToday = ({
+  matches,
+  todayTag = null,
+  scoreOf,
+  now = new Date(),
+  limit = matches.length,
+  random = Math.random,
+}) => {
   // The best `limit`, tagged first - no nudge, so it can't change who's in.
-  const [tagged, untagged] = rankTodayGroups(inTheRunning.running, todayTag, now, NO_JITTER, scoreOf);
+  const [tagged, untagged] = rankTodayGroups(matches, todayTag, now, NO_JITTER, scoreOf);
   const keptTagged = tagged.slice(0, limit);
   const kept = [keptTagged, untagged.slice(0, limit - keptTagged.length)];
 
@@ -179,11 +196,12 @@ const selectTodayMatches = ({
     ranked.push(...spreadSharedItems(nudged, ranked));
   }
 
-  return { matches: ranked, notice: noticeFor(inTheRunning, todayRange, limit) };
+  return ranked;
 };
 
 module.exports = {
   selectTodayMatches,
+  rankForToday,
   weatherBandOf,
   todayTierOf,
   todayFitOf,

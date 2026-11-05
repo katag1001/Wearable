@@ -106,5 +106,6 @@ module.exports = {
   rankTodayGroups,
   rankTodayMatches,
   rankingScore,
+  hasTag,
   freshness,
 };

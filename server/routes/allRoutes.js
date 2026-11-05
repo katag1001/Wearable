@@ -69,6 +69,7 @@ router.delete("/match/:id", authMiddleware, allControllers.deleteMatch);
 /* TODAY ROUTES */
 router.post("/today/create", authMiddleware, allControllers.createToday);
 router.get("/today/get", authMiddleware, allControllers.getToday);
+router.post("/today/tag", authMiddleware, allControllers.changeTodayTag);
 
 /* PREFERENCES ROUTES */
 router.get("/preferences", authMiddleware, allControllers.getPreferences);
