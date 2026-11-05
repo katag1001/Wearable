@@ -7,7 +7,6 @@ import { pairingAnswerOptions } from "@core/constants/pairingQuestions.js";
 import {
   genderQuestionOptions,
   seasonalityQuestion,
-  styleImageOptions,
   temperatureQuestionOptions,
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
@@ -69,7 +68,7 @@ export default function StylePreferencesScreen() {
         description="Pick every image that feels like you to update your colour and pattern preferences."
       />
       <Grid columns={2}>
-        {styleImageOptions.map((option) => (
+        {style.imageOptions.map((option) => (
           <ImageTile
             key={option.key}
             source={option.image}

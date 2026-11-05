@@ -3,7 +3,7 @@ import { useState } from "react";
 import { updatePreferences } from "../api/preferences.js";
 import { emptyWeeklyTags } from "../constants/weekDays.js";
 import { pairingQuestions } from "../constants/pairingQuestions.js";
-import { DEFAULT_SEASONALITY_ANSWER, styleImageOptions } from "../constants/styleQuizOptions.js";
+import { DEFAULT_SEASONALITY_ANSWER, styleImagesFor } from "../constants/styleQuizOptions.js";
 import { buildQuizPreferences } from "../styleQuiz/quizAnswers.js";
 import { getQuizSteps } from "../styleQuiz/quizSteps.js";
 import { favouritePaletteOptions, toggleFavouritePalette } from "../utils/colourPalettes.js";
@@ -50,9 +50,7 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
   /* -------------------- Style images -------------------- */
 
   // Only the images for the chosen gender.
-  const imageOptions = styleImageOptions.filter((option) =>
-    option.gender.includes(gender)
-  );
+  const imageOptions = styleImagesFor(gender);
 
   const toggleImage = (key) => {
     setSelectedImages((current) =>

@@ -2,7 +2,6 @@ import {
   genderQuestionOptions,
   seasonalityQuestion,
   temperatureQuestionOptions,
-  styleImageOptions,
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
 import PairingPreferences from "./PairingPreferences";
@@ -21,6 +20,7 @@ const StylePreferences = () => {
     chooseTemperature: handleTemperatureSelect,
     seasonality,
     chooseSeasonality,
+    imageOptions,
     selectedImages,
     toggleImage,
     paletteOptions,
@@ -133,7 +133,7 @@ const StylePreferences = () => {
         </p>
 
         <div className="style-preferences-image-grid">
-          {styleImageOptions.map((option) => {
+          {imageOptions.map((option) => {
             const isSelected = selectedImages.includes(option.key);
 
             return (

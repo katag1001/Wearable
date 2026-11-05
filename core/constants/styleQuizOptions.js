@@ -1,27 +1,53 @@
-import fun1 from "../assets/styles/fun1.jpg";
-import fun2 from "../assets/styles/fun2.jpg";
-import fun3 from "../assets/styles/fun3.jpg";
-import classic1 from "../assets/styles/classic1.jpg";
-import classic2 from "../assets/styles/classic2.jpg";
-import classic3 from "../assets/styles/classic3.jpg";
-import fashion1 from "../assets/styles/fashion1.jpg";
-import fashion2 from "../assets/styles/fashion2.jpg";
-import fashion3 from "../assets/styles/fashion3.jpg";
+import women1 from "../assets/styles/women1.jpg";
+import women2 from "../assets/styles/women2.jpg";
+import women3 from "../assets/styles/women3.jpg";
+import women4 from "../assets/styles/women4.jpg";
+import women5 from "../assets/styles/women5.jpg";
+import women6 from "../assets/styles/women6.jpg";
+import women7 from "../assets/styles/women7.jpg";
+import women8 from "../assets/styles/women8.jpg";
+import women9 from "../assets/styles/women9.jpg";
+import women10 from "../assets/styles/women10.jpg";
+import men1 from "../assets/styles/men1.jpg";
+import men2 from "../assets/styles/men2.jpg";
+import men3 from "../assets/styles/men3.jpg";
+import men4 from "../assets/styles/men4.jpg";
+import men5 from "../assets/styles/men5.jpg";
+import men6 from "../assets/styles/men6.jpg";
+import men7 from "../assets/styles/men7.jpg";
+import men8 from "../assets/styles/men8.jpg";
+import men9 from "../assets/styles/men9.jpg";
 
-
+// Unisex sees 6 of each set, picked so its 12 images are 4 / 4 / 4 on
+// both colour and pattern (see STYLE IMAGE MAPPING below).
 export const styleImageOptions = [
-  { key: "fun1", image: fun1, colour: "max", pattern: "max", gender: ["woman"] },
-  { key: "fun2", image: fun2, colour: "mid", pattern: "max", gender: ["unisex"] },
-  { key: "fun3", image: fun3, colour: "max", pattern: "mid", gender: ["woman", "man"] },
+  { key: "women1", image: women1, colour: "min", pattern: "min", gender: ["woman", "unisex"] },
+  { key: "women2", image: women2, colour: "min", pattern: "min", gender: ["woman"] },
+  { key: "women3", image: women3, colour: "min", pattern: "mid", gender: ["woman", "unisex"] },
+  { key: "women4", image: women4, colour: "min", pattern: "mid", gender: ["woman"] },
+  { key: "women5", image: women5, colour: "mid", pattern: "min", gender: ["woman", "unisex"] },
+  { key: "women6", image: women6, colour: "mid", pattern: "mid", gender: ["woman", "unisex"] },
+  { key: "women7", image: women7, colour: "mid", pattern: "mid", gender: ["woman"] },
+  { key: "women8", image: women8, colour: "mid", pattern: "max", gender: ["woman", "unisex"] },
+  { key: "women9", image: women9, colour: "max", pattern: "min", gender: ["woman"] },
+  { key: "women10", image: women10, colour: "max", pattern: "max", gender: ["woman", "unisex"] },
 
-  { key: "classic1", image: classic1, colour: "min", pattern: "min", gender: ["unisex"] },
-  { key: "classic2", image: classic2, colour: "min", pattern: "mid", gender: ["woman"] },
-  { key: "classic3", image: classic3, colour: "mid", pattern: "min", gender: ["man"] },
-
-  { key: "fashion1", image: fashion1, colour: "mid", pattern: "mid", gender: ["woman", "unisex"] },
-  { key: "fashion2", image: fashion2, colour: "max", pattern: "min", gender: ["man"] },
-  { key: "fashion3", image: fashion3, colour: "min", pattern: "max", gender: ["woman"] },
+  { key: "men1", image: men1, colour: "min", pattern: "min", gender: ["man", "unisex"] },
+  { key: "men2", image: men2, colour: "min", pattern: "min", gender: ["man"] },
+  { key: "men3", image: men3, colour: "min", pattern: "mid", gender: ["man", "unisex"] },
+  { key: "men4", image: men4, colour: "mid", pattern: "min", gender: ["man"] },
+  { key: "men5", image: men5, colour: "mid", pattern: "mid", gender: ["man"] },
+  { key: "men6", image: men6, colour: "mid", pattern: "max", gender: ["man", "unisex"] },
+  { key: "men7", image: men7, colour: "max", pattern: "min", gender: ["man", "unisex"] },
+  { key: "men8", image: men8, colour: "max", pattern: "mid", gender: ["man", "unisex"] },
+  { key: "men9", image: men9, colour: "max", pattern: "max", gender: ["man", "unisex"] },
 ];
+
+// The images shown for a gender. No gender yet shows them all.
+export const styleImagesFor = (gender) =>
+  gender
+    ? styleImageOptions.filter((option) => option.gender.includes(gender))
+    : styleImageOptions;
 
 /* --------------------------------------------------------------------
    GENDER QUESTION
@@ -86,8 +112,15 @@ export const temperatureQuestionOptions = [
             is included in this list. "unisex" is its own category:
             it is not implied by "woman" or "man" and vice versa.
 
-   The gender values below were assigned randomly as placeholders —
-   update them to reflect what each image actually shows.
+   Mix (colour rows × pattern columns, min / mid / max):
+
+     woman (10)   min: 1,2 | 3,4 | -     unisex (12)  min: w1,m1 | w3,m3 | -
+                  mid: 5   | 6,7 | 8                  mid: w5    | w6    | w8,m6
+                  max: 9   | -   | 10                 max: m7    | m8    | w10,m9
+
+     man (9)      min: 1,2 | 3   | -
+                  mid: 4   | 5   | 6
+                  max: 7   | 8   | 9
 -------------------------------------------------------------------- */
 
 

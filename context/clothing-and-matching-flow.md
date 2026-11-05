@@ -393,23 +393,25 @@ women and unisex:
 
 ### 2.2 How the images become colour and pattern
 
-Each image in `styleImageOptions` carries two labels:
+Each image in `styleImageOptions` carries a colour and a pattern level.
+Each image is `women1`–`women10` or `men1`–`men9`
+(`core/assets/styles`). Colour rows × pattern columns:
 
-| Image | colour | pattern | Shown for |
+| woman (10) | pattern min | pattern mid | pattern max |
 |---|---|---|---|
-| fun1 | max | max | woman |
-| fun2 | mid | max | unisex |
-| fun3 | max | mid | woman, man |
-| classic1 | min | min | unisex |
-| classic2 | min | mid | woman |
-| classic3 | mid | min | man |
-| fashion1 | mid | mid | woman, unisex |
-| fashion2 | max | min | man |
-| fashion3 | min | max | woman |
+| colour min | women1, women2 | women3, women4 | - |
+| colour mid | women5 | women6, women7 | women8 |
+| colour max | women9 | - | women10 |
 
-(The image keys are just file names - there are no style archetypes any
-more. The comments in `styleQuizOptions.js` note that the gender
-assignments are placeholders.)
+| man (9) | pattern min | pattern mid | pattern max |
+|---|---|---|---|
+| colour min | men1, men2 | men3 | - |
+| colour mid | men4 | men5 | men6 |
+| colour max | men7 | men8 | men9 |
+
+**unisex** sees 12: six from each set, picked so colour and pattern are
+both 4 / 4 / 4 - women1, women3, women5, women6, women8, women10, men1,
+men3, men6, men7, men8, men9.
 
 `resolveStyleQuiz(selectedKeys)` takes a **majority vote** across the
 selected images, separately for each label:
@@ -419,9 +421,9 @@ selected images, separately for each label:
   colours.
 - **pattern.** Same as colour.
 
-Example: a woman picks fun1, classic2 and fashion3.
+Example: a woman picks women10, women3 and women8.
 
-- colour: max 1, min 2 → **min**
+- colour: max 1, min 1, mid 1 → tie → **min**
 - pattern: max 2, mid 1 → **max**
 
 `PUT /preferences` is sent with `{ gender, colour, pattern, temperature,
@@ -432,8 +434,8 @@ favouritePalettes }`.
 `stylePreferences.jsx` (on the user page) lets the user change gender and
 temperature, and optionally re-pick images. Colour and pattern are only
 re-calculated and sent **if at least one image is selected**. Otherwise
-they stay as they were. Unlike the quiz, this page shows all 9 images
-regardless of gender.
+they stay as they were. Like the quiz, it only shows the images for the
+gender currently chosen on the page (`styleImagesFor`).
 
 It also shows the **favourite palettes** ("Colours you love"), loaded from
 the saved preferences. The palettes offered are the newly picked images'

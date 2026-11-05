@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { getErrorMessage } from "../api/errors.js";
 import { getPreferences, updatePreferences } from "../api/preferences.js";
-import { DEFAULT_SEASONALITY_ANSWER } from "../constants/styleQuizOptions.js";
+import { DEFAULT_SEASONALITY_ANSWER, styleImagesFor } from "../constants/styleQuizOptions.js";
 import { asksPairingQuestions } from "../styleQuiz/quizSteps.js";
 import { favouritePaletteOptions, toggleFavouritePalette } from "../utils/colourPalettes.js";
 import { resolveStyleQuiz } from "../utils/resolveStyleQuiz.js";
@@ -106,6 +106,9 @@ export const useStylePreferences = () => {
     clearMessages();
   };
 
+  // The images for the gender currently chosen on the page.
+  const imageOptions = styleImagesFor(gender);
+
   const showPairingQuestions = asksPairingQuestions(gender);
 
   const buildChanges = () => {
@@ -152,6 +155,7 @@ export const useStylePreferences = () => {
     chooseTemperature,
     seasonality,
     chooseSeasonality,
+    imageOptions,
     selectedImages,
     toggleImage,
     paletteOptions,
