@@ -11,7 +11,13 @@ export { useHeaderSpace } from "./useHeaderSpace";
 export { LoopingRow } from "./LoopingRow";
 export { PageHeader } from "./PageHeader";
 export { PressableScale } from "./PressableScale";
-export { PULL_UP_PEEK, PullUpPanel, stopOffset } from "./PullUpPanel";
+export {
+  PULL_UP_PEEK,
+  PullUpPanel,
+  stopOffset,
+  usePullUpBelowScreen,
+} from "./PullUpPanel";
+export { PullUpScrollView } from "./PullUpScrollView";
 export { SelectionHalo } from "./SelectionHalo";
 export { SoftNote } from "./SoftNote";
 export { SoftScreen } from "./SoftScreen";

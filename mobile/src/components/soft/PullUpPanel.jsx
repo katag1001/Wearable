@@ -22,8 +22,12 @@
 // it drives: how far it's moved down from fully open, following the finger
 // and the snap) and `onHeight(px)`; the page can then animate from them
 // without re-laying anything out (e.g. useOutfitFollowsPanel).
+//
+// Below a stop that isn't fully open, the bottom of the panel is below the
+// screen. Scrolling content goes in a PullUpScrollView, which is padded by
+// that much (usePullUpBelowScreen), so it scrolls to its end at any stop.
 
-import { useEffect, useRef, useState } from "react";
+import { createContext, use, useEffect, useRef, useState } from "react";
 import { Animated, PanResponder, StyleSheet, View } from "react-native";
 
 import { colors, radius } from "../../theme/tokens";
@@ -35,6 +39,10 @@ export const PULL_UP_PEEK = 30;
 const DRAG_DISTANCE = 40;
 const DRAG_VELOCITY = 0.5;
 const TAP = 4;
+
+// How much of the panel is below the screen at the stop it's settled at.
+const BelowScreen = createContext(0);
+export const usePullUpBelowScreen = () => use(BelowScreen);
 
 // How far down the panel has moved at a stop.
 export const stopOffset = (stop, height) =>
@@ -56,7 +64,13 @@ export const PullUpPanel = ({
 
   // The pan handlers are made once, so they read the latest values here.
   const latest = useRef({});
-  latest.current = { height, stopIndex, stops, initialStop, dragContent };
+  latest.current = {
+    height,
+    stopIndex,
+    stops,
+    initialStop,
+    dragContent,
+  };
 
   const offsetAt = (index) =>
     stopOffset(latest.current.stops[index], latest.current.height);
@@ -160,6 +174,7 @@ export const PullUpPanel = ({
   }, [height]);
 
   const tucked = stopIndex === 0;
+  const belowScreen = height ? stopOffset(stops[stopIndex], height) : 0;
 
   return (
     <Animated.View
@@ -187,7 +202,7 @@ export const PullUpPanel = ({
       </View>
 
       <View style={styles.content} {...contentPan.panHandlers}>
-        {children}
+        <BelowScreen value={belowScreen}>{children}</BelowScreen>
       </View>
     </Animated.View>
   );

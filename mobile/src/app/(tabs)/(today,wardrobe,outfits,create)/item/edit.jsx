@@ -1,8 +1,11 @@
 // Add or edit a clothing item / pair of footwear (?kind=clothing|footwear).
 // The item being edited is handed over by the wardrobe (itemHandoff); with
 // none, it's a new item added by hand (adding from a photo is
-// item/add.jsx). The form logic is useWardrobeItemForm, shared with the
-// web.
+// item/add.jsx). An existing item shows its photo filling the page with
+// the form on a pull-up panel (ItemPullUpView, like an outfit), and saves
+// its changes on going back (useSaveItemOnLeave); a new one is a plain
+// scrolling form with Save. The form logic is useWardrobeItemForm, shared
+// with the web.
 
 import { useEffect, useState } from "react";
 import { router, Stack, useLocalSearchParams } from "expo-router";
@@ -21,7 +24,9 @@ import {
   takeItem,
 } from "../../../../components/wardrobe/itemHandoff";
 import { ItemForm } from "../../../../components/wardrobe/ItemForm";
+import { ItemPullUpView } from "../../../../components/wardrobe/ItemPullUpView";
 import { ItemSaved } from "../../../../components/wardrobe/ItemSaved";
+import { useSaveItemOnLeave } from "../../../../components/wardrobe/useSaveItemOnLeave";
 
 export default function EditItemScreen() {
   const params = useLocalSearchParams();
@@ -37,6 +42,9 @@ export default function EditItemScreen() {
     // One scrolling page, not the web's two.
     singlePage: true,
   });
+
+  // An existing item saves on going back - not once it's being deleted.
+  useSaveItemOnLeave({ form, enabled: form.isUpdate && !deleting });
 
   // An edit opened without its item (e.g. after a reload) can't work.
   useEffect(() => {
@@ -66,7 +74,8 @@ export default function EditItemScreen() {
 
   /* -------------------- Saved -------------------- */
 
-  if (form.savedItem) {
+  // A new item only: an existing one saves as the screen goes.
+  if (form.savedItem && !form.isUpdate) {
     return (
       <>
         <Stack.Screen options={{ title: form.title }} />
@@ -75,33 +84,42 @@ export default function EditItemScreen() {
             message={form.savedItem.message}
             itemId={form.savedItem.id}
             hasMatches={form.hasMatches}
-            onAddAnother={form.isUpdate ? undefined : form.addAnother}
+            onAddAnother={form.addAnother}
           />
         </Screen>
       </>
     );
   }
 
-  /* -------------------- Form -------------------- */
+  /* -------------------- Existing item -------------------- */
+
+  // Its photo filling the page, the form on a pull-up panel (like an outfit).
+  if (form.isUpdate) {
+    return (
+      <>
+        <Stack.Screen options={{ title: form.title }} />
+        <ItemPullUpView
+          form={form}
+          footer={
+            <Button
+              label="Delete item"
+              variant="text"
+              onPress={confirmDelete}
+              loading={deleting}
+            />
+          }
+        />
+      </>
+    );
+  }
+
+  /* -------------------- New item -------------------- */
 
   return (
     <>
       <Stack.Screen options={{ title: form.title }} />
       <Screen edges={["bottom"]}>
-        <ItemForm
-          form={form}
-          onCancel={() => router.back()}
-          footer={
-            form.isUpdate && (
-              <Button
-                label="Delete item"
-                variant="text"
-                onPress={confirmDelete}
-                loading={deleting}
-              />
-            )
-          }
-        />
+        <ItemForm form={form} onCancel={() => router.back()} />
       </Screen>
     </>
   );

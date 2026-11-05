@@ -26,7 +26,6 @@ import {
   Alert,
   Animated,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -48,6 +47,7 @@ import {
   Atmosphere,
   PULL_UP_PEEK,
   PullUpPanel,
+  PullUpScrollView,
   useHeaderSpace,
 } from "../../../components/soft";
 import { OutfitDetails } from "../../../components/outfits/OutfitDetails";
@@ -290,7 +290,7 @@ export default function OutfitScreen() {
             // opens fully from anywhere on it; fully open, they scroll.
             dragContent
           >
-            <ScrollView
+            <PullUpScrollView
               style={styles.fill}
               contentContainerStyle={styles.details}
             >
@@ -316,9 +316,10 @@ export default function OutfitScreen() {
                   variant="text"
                   onPress={confirmDelete}
                   loading={deleting}
+                  style={styles.delete}
                 />
               )}
-            </ScrollView>
+            </PullUpScrollView>
           </PullUpPanel>
         )}
       </View>
@@ -341,10 +342,16 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     marginBottom: PULL_UP_PEEK + spacing.md,
   },
+  // Fills the panel's visible part, so Delete outfit can sit at its bottom.
   details: {
+    flexGrow: 1,
     paddingHorizontal: space.gutter,
     paddingBottom: spacing.xl,
     gap: spacing.md,
+  },
+  // At the bottom of the panel, however short the details above it are.
+  delete: {
+    marginTop: "auto",
   },
   // The heart, with the broken heart straight underneath it.
   cornerIcons: {

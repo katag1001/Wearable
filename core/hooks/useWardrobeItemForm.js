@@ -169,13 +169,14 @@ export const useWardrobeItemForm = ({
 
   /* -------------------- Save -------------------- */
 
+  // true once saved, false if it couldn't be (missing fields or an error).
   const save = async () => {
     // Ignore repeat submits while a save is running.
-    if (saving) return;
+    if (saving) return false;
 
     if (!validation.valid) {
       setShowValidation(true);
-      return;
+      return false;
     }
 
     setShowValidation(false);
@@ -202,10 +203,12 @@ export const useWardrobeItemForm = ({
       setSelectedImage(null);
 
       onSaved?.(saved);
+      return true;
     } catch (err) {
       console.error(`Save ${kind} error:`, err, err.response?.data);
 
       setError(getErrorMessage(err, err.message || `Error saving ${kind}`));
+      return false;
     } finally {
       setSaving(false);
     }
