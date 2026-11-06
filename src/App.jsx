@@ -21,6 +21,7 @@ import User from "./pages/User";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import StyleQuiz from "./pages/StyleQuiz";
+import Trends from "./pages/Trends";
 
 import  "./styles/pages.css";
 
@@ -149,6 +150,17 @@ const App = () => {
                 <StyleQuizGate loggedIn={loggedIn} needsStyleQuiz={needsStyleQuiz}>
                   <User loggedIn={loggedIn} logout={logout} />
                 </StyleQuizGate>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admins only, with no link to it: the server refuses everyone
+              else, and the page then sends them home. */}
+          <Route
+            path="/trends"
+            element={
+              <ProtectedRoute loggedIn={loggedIn}>
+                <Trends />
               </ProtectedRoute>
             }
           />

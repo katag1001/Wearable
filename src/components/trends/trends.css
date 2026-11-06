@@ -1,0 +1,162 @@
+/* The admin /trends page (pages/Trends.jsx). Plain - it's a tool. */
+
+.trends-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+.trends-heading {
+  margin: 2rem 0 .75rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.trends-error {
+  color: #b3261e;
+}
+
+.trends-form,
+.trends-card {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  padding: 1rem;
+  margin-bottom: .75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--card-background);
+}
+
+.trends-field {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  font-size: var(--description-font-size);
+}
+
+.trends-field input {
+  padding: .5rem .6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font: inherit;
+}
+
+.trends-check {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: var(--description-font-size);
+}
+
+.trends-genders {
+  display: flex;
+  gap: 1rem;
+}
+
+.trends-piece {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 10px;
+}
+
+.trends-piece legend {
+  display: flex;
+  gap: .5rem;
+  font-size: var(--description-font-size);
+}
+
+.trends-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+}
+
+.trends-picker-label {
+  width: 4.5rem;
+  font-size: var(--description-font-size);
+  opacity: .7;
+}
+
+.trends-chip {
+  padding: .2rem .6rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--hover-border-color, #e6e0f2);
+  font: inherit;
+  font-size: var(--description-font-size);
+  cursor: pointer;
+}
+
+.trends-select {
+  padding: .3rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font: inherit;
+  font-size: var(--description-font-size);
+}
+
+.trends-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.trends-button {
+  padding: .55rem 1.2rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--main-color);
+  color: var(--card-background, #fff);
+  font: inherit;
+  cursor: pointer;
+}
+
+.trends-button:disabled {
+  opacity: .6;
+}
+
+.trends-link {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--description-font-size);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.trends-link--danger {
+  color: #b3261e;
+}
+
+.trends-list-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.trends-card {
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.trends-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.trends-card-meta,
+.trends-empty {
+  font-size: var(--description-font-size);
+  opacity: .7;
+}
+
+.trends-card--ended {
+  opacity: .55;
+}

@@ -11,6 +11,7 @@ import {
   genderQuestionOptions,
   seasonalityQuestion,
   temperatureQuestion,
+  trendsQuestion,
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
 import { colors, fontSizes, spacing } from "../../../../theme/tokens";
@@ -58,11 +59,23 @@ export default function StylePreferencesScreen() {
         onChange={style.chooseTemperature}
       />
 
-      <SectionTitle title={seasonalityQuestion.title} />
+      <SectionTitle
+        title={seasonalityQuestion.title}
+        description={seasonalityQuestion.hint}
+      />
       <PointScale
         question={seasonalityQuestion}
+        smooth
         value={style.seasonality}
         onChange={style.chooseSeasonality}
+      />
+
+      <SectionTitle title={trendsQuestion.title} />
+      <PointScale
+        question={trendsQuestion}
+        smooth
+        value={style.trends}
+        onChange={style.chooseTrends}
       />
 
       <SectionTitle

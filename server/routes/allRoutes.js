@@ -4,7 +4,9 @@ const allControllers = require("../controllers/allControllers");
 const footwearControllers = require("../controllers/footwearControllers");
 const cloudinaryControllers = require("../controllers/cloudinaryControllers");
 const analysisControllers = require("../controllers/analysisControllers");
+const trendControllers = require("../controllers/trendControllers");
 const { authMiddleware } = require("../middleware/authMiddleware");
+const { adminMiddleware } = require("../middleware/adminMiddleware");
 const { loginLimiter, registerLimiter } = require("../middleware/rateLimits");
 
 /* USER ROUTES */
@@ -74,6 +76,14 @@ router.get("/today/get", authMiddleware, allControllers.getToday);
 router.post("/today/tag", authMiddleware, allControllers.changeTodayTag);
 
 /* PREFERENCES ROUTES */
+/* TREND ROUTES (admins only - the web /trends page) */
+const admin = [authMiddleware, adminMiddleware];
+router.get("/trends", admin, trendControllers.listTrends);
+router.post("/trends", admin, trendControllers.createTrend);
+router.delete("/trends", admin, trendControllers.clearTrends);
+router.put("/trends/:id", admin, trendControllers.updateTrend);
+router.delete("/trends/:id", admin, trendControllers.deleteTrend);
+
 router.get("/preferences", authMiddleware, allControllers.getPreferences);
 router.put("/preferences", authMiddleware, allControllers.updatePreferences);
 

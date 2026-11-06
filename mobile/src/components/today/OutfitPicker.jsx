@@ -19,6 +19,8 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { trendNoteText } from "@core/today/trendNote.js";
+
 import { handOverOutfit } from "../outfits/outfitHandoff";
 import { fonts, ink, space, textSizes, type } from "../../theme/soft";
 import { ActionButton } from "./ActionButton";
@@ -84,6 +86,9 @@ export const OutfitPicker = ({
     return <Text style={styles.empty}>No outfits saved for today.</Text>;
   }
 
+  const trendNote = trendNoteText(outfit.trendNote, outfit.matchId?._id ?? outfit._id);
+  const shoeTrendNote = today.shoeTrendNote(shoe);
+
   return (
     <View style={styles.picker}>
       {/* Only on today's list thanks to its tights range - above the
@@ -91,6 +96,11 @@ export const OutfitPicker = ({
       {outfit.withTights ? (
         <Text style={styles.tights}>Remember some tights today!</Text>
       ) : null}
+
+      {/* On a current trend (the outfit, or the shoe shown), for users who
+          care a lot about trends */}
+      {trendNote ? <Text style={styles.tights}>{trendNote}</Text> : null}
+      {shoeTrendNote ? <Text style={styles.tights}>{shoeTrendNote}</Text> : null}
 
       <View style={styles.deck}>
         <SwipeDeck
@@ -201,7 +211,8 @@ const styles = StyleSheet.create({
   hearts: {
     gap: space.sm,
   },
-  // In the light Inter of the header above, not a label.
+  // In the light Inter of the header above, not a label (the tights and
+  // trend notes).
   tights: {
     fontFamily: fonts.light,
     fontSize: textSizes.base,

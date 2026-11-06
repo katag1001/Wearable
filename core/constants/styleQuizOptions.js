@@ -132,6 +132,28 @@ export const temperatureQuestion = {
 export const DEFAULT_TEMPERATURE_ANSWER = 3;
 
 /* --------------------------------------------------------------------
+   TRENDS QUESTION
+
+   A 5-point scale, 1 (not at all) to 5 (absolutely), written straight to
+   preferences.trends. The quiz's last step, and optional: skipped or
+   unanswered has no effect. On Today, outfits on a current trend (the web
+   /trends page) gain points, and at 4-5 say so
+   (server/constants/trends.js).
+-------------------------------------------------------------------- */
+
+export const trendsQuestion = {
+  title: "How much do current trends impact the way you dress?",
+  lowLabel: "Not at all",
+  highLabel: "Absolutely",
+};
+
+// Where the quiz's slider starts.
+export const DEFAULT_TRENDS_ANSWER = 3;
+
+// What Style Preferences shows when it was never answered (no effect).
+export const UNANSWERED_TRENDS = 1;
+
+/* --------------------------------------------------------------------
    STYLE IMAGE MAPPING
 
    "Select all that apply" — multi-select grid built from every image

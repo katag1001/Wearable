@@ -401,6 +401,9 @@ export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
   return {
     loading: !data,
     error,
+    // The running shoe trends - empty unless the user cares a lot about
+    // trends (core/today/trendNote.js shoeTrendNoteText).
+    shoeTrends: data?.shoeTrends || [],
     hasFootwear: byId.size > 0,
     shoesFor,
     shoeFor,

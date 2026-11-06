@@ -29,6 +29,9 @@ password: { type: String, required: true },
 // What the apps greet the user by ("Hey Katy"). Not unique. Accounts made
 // before sign-up asked for it have none.
 firstName: { type: String, trim: true, maxlength: 50 },
+// Admins can edit the current trends (web /trends page). Only ever set
+// with server/scripts/setAdmin.js - no API changes it.
+isAdmin: { type: Boolean, default: false },
 },
 { strictQuery: false 
 
@@ -254,6 +257,26 @@ const todaySchema = new mongoose.Schema({
     default: null,
   },
 
+  // The outfit's Today score and its parts when the list was built
+  // (todayScoreService.js todayScoreBreakdown) - shown on the web Today
+  // page only, to see how the scoring moves outfits.
+  scoreBreakdown: {
+    saved: Number,
+    season: Number,
+    trend: Number,
+    favouriteItem: Number,
+    favouritePalette: Number,
+    total: Number,
+  },
+
+  // The trend the outfit is on, for users who care a lot about trends
+  // (constants/trends.js TREND_NOTE_MIN_LEVEL) - the Today card says so,
+  // in words from shared/trendMessages.json. null otherwise.
+  trendNote: {
+    type: { label: String, plural: Boolean },
+    default: null,
+  },
+
   dateCreated: {
     type: Date,
     default: Date.now,
@@ -291,6 +314,10 @@ const preferencesSchema = new mongoose.Schema({
   // How much the season affects what they wear: 1 (not at all) to 5 (very
   // much) - Today's seasonal points (constants/seasonality.js).
   seasonality: { type: Number, min: 1, max: 5, default: null },
+  // How much current trends matter (1 = not at all ... 5 = absolutely) -
+  // Today's trend points (constants/trends.js). Optional: unanswered has
+  // no effect.
+  trends: { type: Number, min: 1, max: 5, default: null },
 
   // Palette ids (shared/colorPalettes.json) the user likes - outfits that
   // fit one score FAVOURITE_PALETTE_BONUS higher on Today
@@ -436,6 +463,38 @@ footwearScoreSchema.index(
 );
 
 
+/* -------------------- TRENDS -------------------- */
+
+// The current trends, shared by every user (services/trendService.js).
+// Edited by admins on the web /trends page. Each piece describes one item;
+// an empty list means "any".
+const trendPieceSchema = new mongoose.Schema(
+  {
+    subtype: { type: [String], default: [] },
+    colour: { type: [String], default: [] },
+    pattern: { type: [String], default: [] },
+    fabric: { type: [String], default: [] },
+    // Shoe types - a shoe trend (a note only, never points).
+    footwear: { type: [String], default: [] },
+  },
+  { _id: false }
+);
+
+const trendSchema = new mongoose.Schema({
+  // How Today's note names it ("Long-sleeve tops with flared jeans").
+  label: { type: String, required: true, trim: true },
+  // "are" rather than "is" in the note.
+  plural: { type: Boolean, default: false },
+  // Who it counts for ("woman" / "unisex" / "man"); empty = everyone.
+  genders: { type: [String], default: [] },
+  pieces: { type: [trendPieceSchema], required: true },
+  added: { type: Date, default: Date.now },
+  // Stops counting after this (TREND_DEFAULT_MONTHS after it's added
+  // unless set).
+  until: { type: Date, required: true },
+});
+
+
 /* -------------------- MODELS -------------------- */
 
 module.exports = {
@@ -447,4 +506,5 @@ Footwear: mongoose.model("Footwear", footwearSchema),
 FootwearScore: mongoose.model("FootwearScore", footwearScoreSchema),
 Preferences: mongoose.model("Preferences", preferencesSchema),
 MatchScore: mongoose.model("MatchScore", matchScoreSchema),
+Trend: mongoose.model("Trend", trendSchema),
 };

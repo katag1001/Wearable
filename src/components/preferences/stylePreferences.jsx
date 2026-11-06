@@ -2,6 +2,7 @@ import {
   genderQuestionOptions,
   seasonalityQuestion,
   temperatureQuestion,
+  trendsQuestion,
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
 import PairingPreferences from "./PairingPreferences";
@@ -20,6 +21,8 @@ const StylePreferences = () => {
     chooseTemperature: handleTemperatureSelect,
     seasonality,
     chooseSeasonality,
+    trends,
+    chooseTrends,
     imageOptions,
     selectedImages,
     toggleImage,
@@ -110,6 +113,16 @@ const StylePreferences = () => {
           value={seasonality}
           onChange={chooseSeasonality}
         />
+      </div>
+
+      {/* TRENDS */}
+
+      <div className="style-preferences-section">
+        <h3 className="style-preferences-section-title">
+          {trendsQuestion.title}
+        </h3>
+
+        <PointScale question={trendsQuestion} value={trends} onChange={chooseTrends} />
       </div>
 
       {/* STYLE IMAGES */}

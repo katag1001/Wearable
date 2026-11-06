@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "./viewToday.css";
 import MessagePopup from "../general/messagePopup.jsx";
 import MatchScoreBadge from "../general/matchScoreBadge.jsx";
+import ScoreBreakdown from "./ScoreBreakdown";
+import TrendNote from "./TrendNote";
 import { useTodayLook } from "@core/hooks/useTodayLook.js";
 import { tagOptions } from "@core/constants/optionsBank.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
@@ -231,6 +233,13 @@ const ViewToday = ({ todayReady }) => {
                 {selectedOutfit?.withTights && (
                   <p className="today-tights-note">Remember a pair tights today!</p>
                 )}
+
+                <TrendNote
+                  outfit={selectedOutfit}
+                  shoeNote={today.shoeTrendNote(selectedShoe)}
+                />
+
+                <ScoreBreakdown breakdown={selectedOutfit?.scoreBreakdown} />
 
                 {/* PREVIOUS / NEXT - next rejects the outfit being left */}
 

@@ -1,6 +1,6 @@
 // A quiz step's subtitle (matching Screen's) with a small Skip on the
 // line below, at the right. Used by the optional steps, which
-// pass no subtitle to Screen.
+// pass no subtitle to Screen. Without `text` it's just the Skip.
 
 import { StyleSheet, Text, View } from "react-native";
 
@@ -8,7 +8,7 @@ import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
 
 export const SubtitleWithSkip = ({ text, onSkip }) => (
   <View style={styles.row}>
-    <Text style={styles.subtitle}>{text}</Text>
+    {text ? <Text style={styles.subtitle}>{text}</Text> : null}
     <Text
       onPress={onSkip}
       accessibilityRole="button"

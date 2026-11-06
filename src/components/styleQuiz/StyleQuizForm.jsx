@@ -3,6 +3,7 @@ import {
   genderQuestionOptions,
   seasonalityQuestion,
   temperatureQuestion,
+  trendsQuestion,
 } from "@core/constants/styleQuizOptions.js";
 import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
 import WeeklyTagStep from "./WeeklyTagStep";
@@ -219,6 +220,39 @@ const StyleQuizForm = ({ onComplete }) => {
             question={seasonalityQuestion}
             value={quiz.seasonality}
             onChange={quiz.setSeasonality}
+          />
+
+          <div className="style-quiz-actions">
+            <button type="button" className="style-quiz-back-button" onClick={goBack}>
+              Back
+            </button>
+
+            <button type="button" className="style-quiz-finish-button" onClick={goToNextStep}>
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === "trends" && (
+        <div className="style-quiz-step">
+          <div className="style-quiz-header">
+            <h2 className="page-title">{trendsQuestion.title}</h2>
+          </div>
+
+          <button
+            type="button"
+            className="style-quiz-skip-link"
+            onClick={quiz.skipTrends}
+            disabled={saving}
+          >
+            Skip
+          </button>
+
+          <PointScale
+            question={trendsQuestion}
+            value={quiz.trends}
+            onChange={quiz.setTrends}
           />
 
           <div className="style-quiz-actions">

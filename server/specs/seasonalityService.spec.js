@@ -42,7 +42,7 @@ test("any-time fabrics, no fabric yet and level 1 add nothing", () => {
   assert.equal(seasonalPoints({ items: cotton, colours: [], palettes: PALETTES, season: "summer", level: 5 }).fabric, 0);
   assert.deepEqual(
     seasonalPoints({ items: [item({ fabric: "Linen" })], colours: [], palettes: PALETTES, season: "summer", level: 1 }),
-    { fabric: 0, palette: 0 }
+    { fabric: 0, palette: 0, total: 0 }
   );
   assert.deepEqual(fabricSeasonsOf(item({ fabric: "Denim" })), []);
 });
@@ -58,7 +58,7 @@ test("colours fitting an in-season palette add the points; other seasons and neu
 
 /* -------------------- Today score -------------------- */
 
-test("the Today score adds seasonal points, a favourite item (+7) and a favourite palette (+4) to the saved score", () => {
+test("the Today score adds seasonal points (once), a favourite item (+7) and a favourite palette (+4) to the saved score", () => {
   const match = {
     score: 80,
     colors: ["Lime Green", "White"],
@@ -66,8 +66,9 @@ test("the Today score adds seasonal points, a favourite item (+7) and a favourit
   };
   const context = { season: "summer", seasonality: 5, palettes: PALETTES, favouritePalettes: [] };
 
-  assert.equal(todayScoreOf(match, context), 80 + 8 + 8 + 7);
-  assert.equal(todayScoreOf({ ...match, clothes: [item({ fabric: "Linen" })] }, context), 80 + 8 + 8);
+  // In-season fabric and palette together still move it by 8.
+  assert.equal(todayScoreOf(match, context), 80 + 8 + 7);
+  assert.equal(todayScoreOf({ ...match, clothes: [item({ fabric: "Linen" })] }, context), 80 + 8);
   assert.equal(todayScoreOf(match, { ...context, season: "winter" }), 80 - 8 + 7);
 });
 
@@ -93,4 +94,16 @@ test("season flags: fabric, season-named types, palettes and temperature bands",
   // Winter is 12°C or below, spring/autumn 8-20°C, summer 18°C or above.
   assert.deepEqual(flags([item({})], [], { min_temp: 21, max_temp: 30 }), { spring: false, summer: true, autumn: false, winter: false });
   assert.deepEqual(flags([item({})], [], { min_temp: 0, max_temp: 7 }), { spring: false, summer: false, autumn: false, winter: true });
+});
+
+test("the season moves the Today score once, by at most the level's points", () => {
+  const total = (fabric, colours, level = 5) =>
+    seasonalPoints({ items: [item({ fabric })], colours, palettes: PALETTES, season: "summer", level }).total;
+
+  assert.equal(total("Linen", ["Lime Green", "White"]), 8);
+  assert.equal(total("Linen", []), 8);
+  assert.equal(total("", ["Lime Green", "White"]), 8);
+  assert.equal(total("Velvet", ["Lime Green", "White"]), 0);
+  assert.equal(total("Velvet", []), -8);
+  assert.equal(total("Linen", ["Lime Green", "White"], 3), 4);
 });

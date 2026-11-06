@@ -1,5 +1,6 @@
 
-const { Footwear } = require("../models/AllModels.js");
+const { Footwear, Trend } = require("../models/AllModels.js");
+const { isShoeTrend, showsTrendNote, trendsForGender } = require("../services/trendService.js");
 const { findPage } = require("../services/queryHelpers.js");
 const {
   deleteReplacedImage,
@@ -229,7 +230,8 @@ const parseSubtype = (value) =>
 // Everything the Today page's shoe box needs in one request: all the
 // user's footwear, their learned pairings, their gender (which picks
 // the matrix) and colour level (which picks the palettes). The box ranks
-// the shoes itself.
+// the shoes itself. Plus the running shoe trends, for users who care a lot
+// about trends - the page notes a trendy shoe (core/today/trendNote.js).
 exports.getTodayFootwear = async (req, res) => {
   const userId = req.user?.userId;
 
@@ -238,13 +240,25 @@ exports.getTodayFootwear = async (req, res) => {
   }
 
   try {
-    const [items, pairings, { gender, colour }] = await Promise.all([
+    const [items, pairings, { gender, colour, trends: trendsLevel }, running] = await Promise.all([
       Footwear.find({ userId }).sort({ _id: -1 }).lean(),
       loadFootwearPairings(userId),
       getUserMatchingPreferences(userId),
+      Trend.find({ until: { $gte: new Date() } }).sort({ added: -1 }).lean(),
     ]);
 
-    return res.json({ items, pairings, gender, colourLevel: colour });
+    const shoeTrends = showsTrendNote(trendsLevel)
+      ? trendsForGender(running, gender)
+          .filter(isShoeTrend)
+          .map(({ label, plural, pieces: [piece] }) => ({
+            label,
+            plural,
+            footwear: piece.footwear,
+            colour: piece.colour,
+          }))
+      : [];
+
+    return res.json({ items, pairings, gender, colourLevel: colour, shoeTrends });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

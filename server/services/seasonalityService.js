@@ -52,19 +52,22 @@ function palettePoints(colours, palettes, season, points) {
     : 0;
 }
 
-// { fabric, palette } points for an outfit today. `level` is
-// Preferences.seasonality; `palettes` the user's level's palettes.
+// { fabric, palette, total } points for an outfit today. `level` is
+// Preferences.seasonality; `palettes` the user's level's palettes. The
+// season only moves the score once: `total` is fabric + palette, limited
+// to +/- the level's points (in-season fabric and palette together are
+// still +points; an out-of-season fabric with an in-season palette is 0).
 function seasonalPoints({ items, colours, palettes, season, level }) {
   const points = pointsFor(level);
 
   if (!points || !SEASONS.includes(season)) {
-    return { fabric: 0, palette: 0 };
+    return { fabric: 0, palette: 0, total: 0 };
   }
 
-  return {
-    fabric: fabricPoints(items, season, points),
-    palette: palettePoints(colours, palettes, season, points),
-  };
+  const fabric = fabricPoints(items, season, points);
+  const palette = palettePoints(colours, palettes, season, points);
+
+  return { fabric, palette, total: Math.max(-points, Math.min(points, fabric + palette)) };
 }
 
 /* -------------------- Season flags -------------------- */

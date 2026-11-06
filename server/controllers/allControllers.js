@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const jwt_secret = process.env.JWT_SECRET;
 
-const { User, Match, Today, Clothes, Preferences } = require("../models/AllModels.js");
+const { User, Match, Today, Clothes, Preferences, Trend } = require("../models/AllModels.js");
 const { processMatches } = require("../services/matchService");
 const { waitUntil } = require("@vercel/functions");
 const { deleteAllFootwearForUser } = require("./footwearControllers.js");
@@ -72,7 +72,8 @@ const {
   todayTierOf,
   todayFitOf,
 } = require("../services/todaySelectionService.js");
-const { todayScoreOf } = require("../services/todayScoreService.js");
+const { todayScoreBreakdown, trendNoteOf } = require("../services/todayScoreService.js");
+const { trendsForGender } = require("../services/trendService.js");
 const { hasEnoughForTag, reorderForTag } = require("../services/todayTagService.js");
 const { withUserLock } = require("../services/userLock.js");
 const { OCCASION_TAGS } = require("../constants/occasionTags.js");
@@ -1229,31 +1230,42 @@ exports.createToday = async (req, res) => {
 // The clothes fields building today's list needs: lastWornDate (clothing
 // freshness), type + subtype (the floors that keep a tights range from
 // going too cold - todaySelectionService.todayFitOf), fabric + favourite
-// (Today's points - todayScoreService.js).
-const TODAY_BUILD_CLOTHES_FIELDS = "lastWornDate type subtype fabric favourite";
+// + colors + pattern (Today's points and trends - todayScoreService.js).
+const TODAY_BUILD_CLOTHES_FIELDS = "lastWornDate type subtype fabric favourite colors pattern";
 
 // (match) => its Today score (todayScoreService.js), worked out once per
-// match, plus the user's temperature preference.
+// match, its parts (breakdownOf) and trend note (trendNoteOf), plus the
+// user's temperature preference.
 const todayScorer = async (userId, season) => {
-  const { temperature, colour, seasonality, favouritePalettes } =
-    await getUserMatchingPreferences(userId);
+  const [{ gender, temperature, colour, seasonality, favouritePalettes, trends: trendsLevel }, running] =
+    await Promise.all([
+      getUserMatchingPreferences(userId),
+      Trend.find({ until: { $gte: new Date() } }).sort({ added: -1 }).lean(),
+    ]);
+  const trends = trendsForGender(running, gender);
 
   const scoreContext = {
     season,
     seasonality,
     palettes: getColorRules(colour).palettes,
     favouritePalettes,
+    trends,
+    trendsLevel,
   };
-  const scores = new Map();
+  const breakdowns = new Map();
 
-  const scoreOf = (match) => {
-    if (!scores.has(match)) {
-      scores.set(match, todayScoreOf(match, scoreContext));
+  const breakdownOf = (match) => {
+    if (!breakdowns.has(match)) {
+      breakdowns.set(match, todayScoreBreakdown(match, scoreContext));
     }
-    return scores.get(match);
+    return breakdowns.get(match);
   };
 
-  return { scoreOf, temperature };
+  const scoreOf = (match) => breakdownOf(match).total;
+
+  const noteOf = (match) => trendNoteOf(match, scoreContext);
+
+  return { scoreOf, breakdownOf, trendNoteOf: noteOf, temperature };
 };
 
 // The build itself, run under withUserLock. Returns the response body.
@@ -1286,7 +1298,7 @@ const buildToday = async ({
       };
     }
 
-    const [allMatches, { scoreOf, temperature }, hiddenIds] = await Promise.all([
+    const [allMatches, { scoreOf, breakdownOf, trendNoteOf: noteOf, temperature }, hiddenIds] = await Promise.all([
       Match.find({ userId }).populate("clothes", TODAY_BUILD_CLOTHES_FIELDS),
       todayScorer(userId, season_today),
       rebuild
@@ -1343,6 +1355,8 @@ const buildToday = async ({
         matchId: match._id,
         rank,
         withTights: todayFitOf(match, todayRange, temperature).withTights,
+        scoreBreakdown: breakdownOf(match),
+        trendNote: noteOf(match),
       }))
     );
 
@@ -1526,6 +1540,7 @@ exports.updatePreferences = async (req, res) => {
       pattern,
       temperature,
       seasonality,
+      trends,
       favouritePalettes,
       pairingAnswers,
       aiAnalysis,
@@ -1566,6 +1581,7 @@ exports.updatePreferences = async (req, res) => {
           pattern,
           temperature,
           seasonality,
+          trends,
           favouritePalettes: cleanFavouritePalettes(favouritePalettes),
           aiAnalysis,
         },

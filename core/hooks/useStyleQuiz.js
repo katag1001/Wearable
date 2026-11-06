@@ -6,6 +6,7 @@ import { layeringOptions, smartCasualOption } from "../constants/pairingQuestion
 import {
   DEFAULT_SEASONALITY_ANSWER,
   DEFAULT_TEMPERATURE_ANSWER,
+  DEFAULT_TRENDS_ANSWER,
   styleImagesFor,
 } from "../constants/styleQuizOptions.js";
 import { buildQuizPreferences } from "../styleQuiz/quizAnswers.js";
@@ -14,7 +15,7 @@ import { asksPairingQuestions, getQuizSteps } from "../styleQuiz/quizSteps.js";
 /*
  * The style quiz a new user takes: gender → temperature (1-5) → style
  * images → layering (some genders only) → weekly tags → seasonality
- * (1-5), whose Finish saves everything. Favourite palettes aren't asked here - they're
+ * (1-5) → trends (1-5, optional), whose Finish (or Skip) saves everything. Favourite palettes aren't asked here - they're
  * set on Style Preferences. `onComplete` runs once the answers are saved.
  */
 export const useStyleQuiz = ({ onComplete } = {}) => {
@@ -27,6 +28,7 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
   const [weeklyTags, setWeeklyTags] = useState(emptyWeeklyTags);
   const [temperature, setTemperature] = useState(DEFAULT_TEMPERATURE_ANSWER);
   const [seasonality, setSeasonality] = useState(DEFAULT_SEASONALITY_ANSWER);
+  const [trends, setTrends] = useState(DEFAULT_TRENDS_ANSWER);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -114,8 +116,10 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
   };
 
   /* -------------------- Finish (saves) -------------------- */
+  // Skip on the trends step saves everything else, leaving trends
+  // unanswered (no effect).
 
-  const finish = async () => {
+  const save = async ({ withTrends }) => {
     try {
       setSaving(true);
       setError("");
@@ -130,6 +134,7 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
           weeklyTags,
           seasonality,
           temperature,
+          trends: withTrends ? trends : undefined,
         })
       );
 
@@ -140,6 +145,9 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
       setSaving(false);
     }
   };
+
+  const finish = () => save({ withTrends: true });
+  const skipTrends = () => save({ withTrends: false });
 
   return {
     step,
@@ -175,6 +183,10 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
 
     seasonality,
     setSeasonality,
+
+    trends,
+    setTrends,
+    skipTrends,
 
     finish,
   };

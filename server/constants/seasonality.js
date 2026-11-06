@@ -14,9 +14,10 @@
 
 const SEASONS = ["spring", "summer", "autumn", "winter"];
 
-// Preferences.seasonality (1 = not at all ... 5 = very much) -> the points
-// an in-season fabric, and an in-season palette, each add on Today. An
-// out-of-season fabric takes the same off.
+// Preferences.seasonality (1 = not at all ... 5 = very much) -> how far the
+// season can move an outfit's Today score, once: an in-season fabric
+// and/or palette adds this, an out-of-season fabric takes it off
+// (services/seasonalityService.js seasonalPoints).
 const SEASONALITY_POINTS = { 1: 0, 2: 2, 3: 4, 4: 6, 5: 8 };
 
 // Users who haven't answered the question yet.

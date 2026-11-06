@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { useToday } from "./useToday.js";
 import { useTodayFootwear } from "./useTodayFootwear.js";
+import { shoeTrendNoteText } from "../today/trendNote.js";
 
 /*
  * Today's outfits with their shoes: useToday (the outfits) plus
@@ -102,6 +103,8 @@ export const useTodayLook = (options) => {
     footwear,
     selectedShoe,
     wornShoe,
+    // "Ballet flats are really in right now." for a trendy shoe, or null.
+    shoeTrendNote: (shoe) => shoeTrendNoteText(shoe, footwear.shoeTrends),
 
     markAsWornToday,
     wearing,

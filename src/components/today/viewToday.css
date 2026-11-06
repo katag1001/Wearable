@@ -1199,6 +1199,16 @@
 }
 
 
+/* How the Today score was made up (ScoreBreakdown.jsx, web only) */
+.today-score-breakdown {
+  margin: .4rem 0 0;
+  font-family: var(--main-font);
+  font-size: var(--description-font-size);
+  text-align: center;
+  opacity: .6;
+}
+
+
 /* Stars under the outfit, above the buttons (starRating.jsx) */
 .today-star-rating {
   flex-shrink: 0;

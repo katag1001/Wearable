@@ -1239,16 +1239,22 @@ are never saved:
 
 | Points | When |
 |---|---|
-| **+ seasonality** | Any item's fabric belongs to today's season (once per outfit) |
+| **+ seasonality** | Any item's fabric belongs to today's season, and/or its colours fit a palette of today's season |
 | **− seasonality** | Any item's fabric belongs only to other seasons (linen + velvet in summer = 0) |
-| **+ seasonality** | Its colours fit a palette of today's season (no minus) |
 | **+7** | Any item is a favourite |
 | **+4** | Its colours fit a favourite palette |
 
 "Seasonality" is the user's answer to *How much does the season affect
 what you wear?* (`Preferences.seasonality`, 1–5, style quiz and Style
 Preferences): 1 = 0, 2 = 2, 3 = 4, 4 = 6, 5 = 8 points
-(`SEASONALITY_POINTS`; unanswered counts as 3).
+(`SEASONALITY_POINTS`; unanswered counts as 3). The season moves the
+score **once**: fabric and palette are added, then limited to ± that
+many points - an in-season fabric and palette together are still +8 at
+5, and an out-of-season fabric with an in-season palette is 0.
+
+The web Today page (only) shows how each outfit's Today score was made
+up - saved score, season, favourite item, favourite palette - from the
+`scoreBreakdown` saved on each Today entry when the list is built.
 
 **4. The order** (`rankTodayGroups`) of everything in the running,
 **whatever its weather tier**: **every** outfit with today's

@@ -1,0 +1,13 @@
+{
+  "_about": "The note on a Today outfit that's on a current trend, for users who said trends matter a lot (4-5). core/today/trendNote.js picks one, the same all day for each outfit. {trend} is the trend's name from the /trends page, and {is} becomes \"is\" or \"are\" (the trend's \"plural\" setting). Start with {trend} to get a capital letter. Edit freely - keep at least one.",
+  "messages": [
+    "{trend} {is} really in right now.",
+    "{trend} {is} everywhere this season.",
+    "Bang on trend: {trend}.",
+    "You're right on trend with {trend}.",
+    "{trend} {is} having a moment.",
+    "{trend}? Very now.",
+    "Trend alert: {trend} {is} so in.",
+    "{trend} {is} one of this season's big looks."
+  ]
+}

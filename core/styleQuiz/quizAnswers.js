@@ -25,6 +25,7 @@ export const buildQuizPreferences = ({
   weeklyTags,
   seasonality,
   temperature,
+  trends,
 }) => {
   const { colour, pattern } = resolveStyleQuiz(selectedImages);
 
@@ -34,6 +35,8 @@ export const buildQuizPreferences = ({
     pattern,
     seasonality,
     temperature,
+    // Left out when the trends step is skipped.
+    ...(trends !== undefined && { trends }),
     // Only sent for genders that were asked the pairing questions.
     ...(asksPairingQuestions(gender) && {
       pairingAnswers: buildPairingAnswers({ layeredTops, layeringAnswered, likesSmartCasual }),

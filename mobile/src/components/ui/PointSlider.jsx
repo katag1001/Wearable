@@ -1,4 +1,4 @@
-// A one-thumb slider over a few fixed points (the 1-5 temperature scale).
+// A one-thumb slider over a few fixed points (the 1-5 scales).
 // The thumb follows the finger smoothly and springs to the nearest point
 // on release; tapping the track jumps there. The track is graded cold to
 // warm (sky → mint → peach) with a small mark at each point, and the thumb
