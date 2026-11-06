@@ -3,14 +3,18 @@ import { useState } from "react";
 import { updatePreferences } from "../api/preferences.js";
 import { emptyWeeklyTags } from "../constants/weekDays.js";
 import { layeringOptions, smartCasualOption } from "../constants/pairingQuestions.js";
-import { DEFAULT_SEASONALITY_ANSWER, styleImagesFor } from "../constants/styleQuizOptions.js";
+import {
+  DEFAULT_SEASONALITY_ANSWER,
+  DEFAULT_TEMPERATURE_ANSWER,
+  styleImagesFor,
+} from "../constants/styleQuizOptions.js";
 import { buildQuizPreferences } from "../styleQuiz/quizAnswers.js";
 import { asksPairingQuestions, getQuizSteps } from "../styleQuiz/quizSteps.js";
 
 /*
- * The style quiz a new user takes: gender → style images → layering
- * (some genders only) → weekly tags → seasonality (1-5) → temperature,
- * which saves everything. Favourite palettes aren't asked here - they're
+ * The style quiz a new user takes: gender → temperature (1-5) → style
+ * images → layering (some genders only) → weekly tags → seasonality
+ * (1-5), whose Finish saves everything. Favourite palettes aren't asked here - they're
  * set on Style Preferences. `onComplete` runs once the answers are saved.
  */
 export const useStyleQuiz = ({ onComplete } = {}) => {
@@ -21,6 +25,7 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
   const [layeredTops, setLayeredTops] = useState([]);
   const [layeringAnswered, setLayeringAnswered] = useState(false);
   const [weeklyTags, setWeeklyTags] = useState(emptyWeeklyTags);
+  const [temperature, setTemperature] = useState(DEFAULT_TEMPERATURE_ANSWER);
   const [seasonality, setSeasonality] = useState(DEFAULT_SEASONALITY_ANSWER);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -39,10 +44,15 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
 
   /* -------------------- Gender -------------------- */
 
+  // Picking selects; Next moves on. A different gender shows different
+  // style images, so any picked under the old one are dropped.
   const chooseGender = (value) => {
+    if (value !== gender) {
+      setSelectedImages([]);
+    }
+
     setGender(value);
     setError("");
-    setStep("images");
   };
 
   /* -------------------- Style images -------------------- */
@@ -97,9 +107,15 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
     setWeeklyTags((current) => ({ ...current, [dayKey]: tagName }));
   };
 
-  /* -------------------- Temperature (saves) -------------------- */
+  // Skip saves no days, even ones picked before skipping.
+  const skipWeekly = () => {
+    setWeeklyTags(emptyWeeklyTags);
+    goToNextStep();
+  };
 
-  const finish = async (temperature) => {
+  /* -------------------- Finish (saves) -------------------- */
+
+  const finish = async () => {
     try {
       setSaving(true);
       setError("");
@@ -152,6 +168,10 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
 
     weeklyTags,
     setWeeklyTag,
+    skipWeekly,
+
+    temperature,
+    setTemperature,
 
     seasonality,
     setSeasonality,

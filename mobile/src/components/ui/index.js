@@ -15,6 +15,7 @@ export { ImageTile } from "./ImageTile";
 export { ListRow } from "./ListRow";
 export { Loading } from "./Loading";
 export { Message } from "./Message";
+export { PointSlider } from "./PointSlider";
 export { RangeSlider } from "./RangeSlider";
 export { Screen } from "./Screen";
 export { SectionTitle } from "./SectionTitle";

@@ -65,7 +65,7 @@ test("the tights range never takes the minimum below the floor, nor lifts it", (
 
 test("a saved match's floor is the no-outer or outer floor, plus the preference shift", () => {
   assert.equal(savedMinTempFloor([top("Chunky knit jumper"), bottom("Mini skirt")]), NO_OUTER_MIN_TEMP);
-  assert.equal(savedMinTempFloor([top("Chunky knit jumper"), bottom("Mini skirt")], "cold"), NO_OUTER_MIN_TEMP + 1);
+  assert.equal(savedMinTempFloor([top("Chunky knit jumper"), bottom("Mini skirt")], 1), NO_OUTER_MIN_TEMP + 1);
   assert.equal(
     savedMinTempFloor(COATED),
     Math.max(OUTER_MIN_TEMPS["Classic trench"], SKIRT_DRESS_MIN_TEMP - TIGHTS_SHIFT)

@@ -107,7 +107,8 @@ export const seasonalityQuestion = {
   highLabel: "Very much",
 };
 
-export const seasonalityScale = [1, 2, 3, 4, 5];
+// The points of every 1-5 scale question (seasonality, temperature).
+export const fivePointScale = [1, 2, 3, 4, 5];
 
 // Where the scale starts before it's answered.
 export const DEFAULT_SEASONALITY_ANSWER = 3;
@@ -115,15 +116,20 @@ export const DEFAULT_SEASONALITY_ANSWER = 3;
 /* --------------------------------------------------------------------
    TEMPERATURE QUESTION
 
-   "Do you generally feel too cold or too hot?" — single-select.
-   `value` is written straight to preferences.temperature.
+   A 5-point scale, 1 (always too cold) to 5 (always too hot), written
+   straight to preferences.temperature. It shifts every outfit's saved
+   temperature range: +1, +0.5, 0, -0.5, -1 degrees
+   (TEMPERATURE_PREFERENCE_SHIFT in server/constants/temperatureGroups.js).
 -------------------------------------------------------------------- */
 
-export const temperatureQuestionOptions = [
-  { label: "Too cold", value: "cold" },
-  { label: "Too hot", value: "hot" },
-  { label: "Normal", value: "normal" },
-];
+export const temperatureQuestion = {
+  title: "Do you generally feel too cold or too hot?",
+  lowLabel: "I'm always too cold",
+  midLabel: "Neither",
+  highLabel: "I'm always too hot",
+};
+
+export const DEFAULT_TEMPERATURE_ANSWER = 3;
 
 /* --------------------------------------------------------------------
    STYLE IMAGE MAPPING

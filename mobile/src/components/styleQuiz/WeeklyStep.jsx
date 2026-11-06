@@ -1,50 +1,17 @@
-// Style quiz: a tag for each day of the week (all optional). Picking a
-// tag moves on to the next day (useWeekTagPicker).
+// Style quiz: a tag for each day of the week (all optional) - the days
+// down the side, each with a tag box that opens the tag list. Skip moves
+// on without saving any days.
 
-import { StyleSheet, Text } from "react-native";
-
-import { tagOptions } from "@core/constants/optionsBank.js";
-import { useWeekTagPicker } from "@core/hooks/useWeekTagPicker.js";
-
-import { colors, fontSizes, fontWeights } from "../../theme/tokens";
-import { Chip, ChipRow } from "../ui";
-import { WeekDayRow } from "../week/WeekDayRow";
+import { WeekTagList } from "../week/WeekTagList";
 import { QuizActions } from "./QuizActions";
+import { SubtitleWithSkip } from "./SubtitleWithSkip";
 
-export const WeeklyStep = ({ quiz }) => {
-  const { activeDay, setActiveDay, activeDayLabel, selectTag } =
-    useWeekTagPicker(quiz.weeklyTags, quiz.setWeeklyTag);
+export const WeeklyStep = ({ quiz }) => (
+  <>
+    <SubtitleWithSkip text="If so, you can set it here." onSkip={quiz.skipWeekly} />
 
-  return (
-    <>
-      <WeekDayRow
-        weeklyTags={quiz.weeklyTags}
-        activeDay={activeDay}
-        onDayPress={setActiveDay}
-      />
+    <WeekTagList weeklyTags={quiz.weeklyTags} onTagChange={quiz.setWeeklyTag} />
 
-      <Text style={styles.activeDay}>{activeDayLabel}</Text>
-
-      <ChipRow>
-        {tagOptions.map((tag) => (
-          <Chip
-            key={tag.name}
-            label={tag.name}
-            selected={quiz.weeklyTags[activeDay] === tag.name}
-            onPress={() => selectTag(tag.name)}
-          />
-        ))}
-      </ChipRow>
-
-      <QuizActions onBack={quiz.goBack} onNext={quiz.goToNextStep} />
-    </>
-  );
-};
-
-const styles = StyleSheet.create({
-  activeDay: {
-    fontSize: fontSizes.body,
-    fontFamily: fontWeights.semibold,
-    color: colors.main,
-  },
-});
+    <QuizActions onBack={quiz.goBack} onNext={quiz.goToNextStep} />
+  </>
+);

@@ -10,7 +10,7 @@ import {
 import {
   genderQuestionOptions,
   seasonalityQuestion,
-  temperatureQuestionOptions,
+  temperatureQuestion,
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
 import { colors, fontSizes, spacing } from "../../../../theme/tokens";
@@ -26,9 +26,7 @@ import {
   SectionTitle,
 } from "../../../../components/ui";
 import { PalettePicker } from "../../../../components/styleQuiz/PalettePicker";
-import {
-  SeasonalityScale,
-} from "../../../../components/styleQuiz/SeasonalityScale";
+import { PointScale } from "../../../../components/styleQuiz/PointScale";
 
 export default function StylePreferencesScreen() {
   const style = useStylePreferences();
@@ -52,18 +50,20 @@ export default function StylePreferencesScreen() {
         />
       ))}
 
-      <SectionTitle title="Do you generally feel too cold or too hot?" />
-      {temperatureQuestionOptions.map((option) => (
-        <ChoiceCard
-          key={option.value}
-          label={option.label}
-          selected={style.temperature === option.value}
-          onPress={() => style.chooseTemperature(option.value)}
-        />
-      ))}
+      <SectionTitle title={temperatureQuestion.title} />
+      <PointScale
+        question={temperatureQuestion}
+        smooth
+        value={style.temperature}
+        onChange={style.chooseTemperature}
+      />
 
       <SectionTitle title={seasonalityQuestion.title} />
-      <SeasonalityScale value={style.seasonality} onChange={style.chooseSeasonality} />
+      <PointScale
+        question={seasonalityQuestion}
+        value={style.seasonality}
+        onChange={style.chooseSeasonality}
+      />
 
       <SectionTitle
         title="Select all that apply"

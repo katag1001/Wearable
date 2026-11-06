@@ -55,10 +55,13 @@ export const useWeeklyPreferences = () => {
     clearMessages();
   };
 
-  const setSelectedDayTag = (tagName) => {
-    setWeeklyTags((current) => ({ ...current, [selectedDay]: tagName }));
+  // Any day's tag (null clears it) - the mobile day list.
+  const setDayTag = (dayKey, tagName) => {
+    setWeeklyTags((current) => ({ ...current, [dayKey]: tagName }));
     clearMessages();
   };
+
+  const setSelectedDayTag = (tagName) => setDayTag(selectedDay, tagName);
 
   const selectTag = (tagName) => setSelectedDayTag(tagName);
   const clearDay = () => setSelectedDayTag(null);
@@ -91,6 +94,7 @@ export const useWeeklyPreferences = () => {
     selectDay,
     selectTag,
     clearDay,
+    setDayTag,
     save,
     loading,
     saving,

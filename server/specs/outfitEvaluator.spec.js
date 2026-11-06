@@ -88,8 +88,8 @@ test("describeOutfit passes the temperature preference through to the range", ()
     item({ subtype: "Jeans", type: "bottom" }),
   ];
 
-  const result = describeOutfit(items, { isUserMade: false, temperaturePreference: "cold" });
-  const expected = computePresetTemperatureRange(items, "cold");
+  const result = describeOutfit(items, { isUserMade: false, temperaturePreference: 1 });
+  const expected = computePresetTemperatureRange(items, 1);
 
   assert.equal(result.min_temp, expected.min_temp);
   assert.equal(result.max_temp, expected.max_temp);

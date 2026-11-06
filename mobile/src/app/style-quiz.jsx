@@ -8,33 +8,33 @@ import { layeringQuestion } from "@core/constants/pairingQuestions.js";
 import {
   genderQuestionOptions,
   seasonalityQuestion,
-  temperatureQuestionOptions,
+  temperatureQuestion,
 } from "@core/constants/styleQuizOptions.js";
 import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
 
 import { useSession } from "../auth/SessionProvider";
 import { ImagesStep } from "../components/styleQuiz/ImagesStep";
 import { PairingStep } from "../components/styleQuiz/PairingStep";
+import { PointScale } from "../components/styleQuiz/PointScale";
 import { QuizActions } from "../components/styleQuiz/QuizActions";
-import { SeasonalityScale } from "../components/styleQuiz/SeasonalityScale";
 import { WeeklyStep } from "../components/styleQuiz/WeeklyStep";
 import { Button, ChoiceCard, Message, Screen } from "../components/ui";
 import { colors, fontSizes, fontWeights, spacing } from "../theme/tokens";
 
 const STEP_TITLES = {
-  // The gender question has no page title: it sits with its answers.
+  // Gender and temperature have no page title: the question sits with its
+  // answers in the middle of the screen.
   gender: {},
+  temperature: {},
   images: {
     title: "Select all that apply",
     subtitle: "Pick every image that feels like you.",
   },
-  pairing: layeringQuestion,
-  weekly: {
-    title: "What do you wear through the week?",
-    subtitle: "Pick a day, then what you usually wear that day.",
-  },
+  // The optional steps show their subtitle themselves, on one line with
+  // Skip (SubtitleWithSkip).
+  pairing: { title: layeringQuestion.title },
+  weekly: { title: "Do you have a regular schedule to dress for?" },
   seasonality: { title: seasonalityQuestion.title },
-  temperature: { title: "Do you generally feel too cold or too hot?" },
 };
 
 export default function StyleQuizScreen() {
@@ -66,7 +66,26 @@ export default function StyleQuizScreen() {
             ))}
           </View>
           <View style={styles.questionSpace} />
-          <Button label="Log out" variant="text" onPress={logout} />
+          <QuizActions
+            onNext={quiz.goToNextStep}
+            nextDisabled={!quiz.gender}
+          />
+        </>
+      )}
+
+      {quiz.step === "temperature" && (
+        <>
+          <View style={styles.questionSpace}>
+            <Text style={styles.centredQuestion}>{temperatureQuestion.title}</Text>
+          </View>
+          <PointScale
+            question={temperatureQuestion}
+            smooth
+            value={quiz.temperature}
+            onChange={quiz.setTemperature}
+          />
+          <View style={styles.questionSpace} />
+          <QuizActions onBack={quiz.goBack} onNext={quiz.goToNextStep} />
         </>
       )}
 
@@ -78,42 +97,31 @@ export default function StyleQuizScreen() {
 
       {quiz.step === "seasonality" && (
         <>
-          <SeasonalityScale value={quiz.seasonality} onChange={quiz.setSeasonality} />
-          <QuizActions onBack={quiz.goBack} onNext={quiz.goToNextStep} />
-        </>
-      )}
-
-      {quiz.step === "temperature" && (
-        <>
-          <View style={styles.answers}>
-            {temperatureQuestionOptions.map((option) => (
-              <ChoiceCard
-                key={option.value}
-                label={option.label}
-                onPress={() => quiz.finish(option.value)}
-                disabled={quiz.saving}
-              />
-            ))}
-          </View>
-          <QuizActions onBack={quiz.goBack} disabled={quiz.saving} />
+          <PointScale
+            question={seasonalityQuestion}
+            value={quiz.seasonality}
+            onChange={quiz.setSeasonality}
+          />
+          <QuizActions
+            onBack={quiz.goBack}
+            onNext={quiz.finish}
+            nextLabel="Finish"
+            disabled={quiz.saving}
+            loading={quiz.saving}
+          />
         </>
       )}
 
       <Message text={quiz.error} />
+      <Button label="Log out" variant="text" onPress={logout} />
     </Screen>
   );
 }
 
-// Pick-one answers sit in the middle of the space under the title, with
-// the step's buttons (Log out / Back) at the bottom.
 const styles = StyleSheet.create({
-  answers: {
-    flex: 1,
-    justifyContent: "center",
-    gap: spacing.md,
-  },
-  // Gender: the answers stay in the middle, with equal space above and
-  // below; the question sits in the middle of the space above.
+  // Gender and temperature: the answers stay in the middle, with equal
+  // space above and below; the question sits in the middle of the space
+  // above.
   questionSpace: {
     flex: 1,
     justifyContent: "center",

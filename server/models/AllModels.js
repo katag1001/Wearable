@@ -284,7 +284,9 @@ const preferencesSchema = new mongoose.Schema({
   gender: { type: String, enum: ["man", "woman", "unisex"], default: null },
   colour: { type: String, enum: ["max", "mid", "min"], default: null },
   pattern: { type: String, enum: ["max", "mid", "min"], default: null },
-  temperature: { type: String, enum: ["cold", "hot", "normal"], default: null },
+  // 1 (always too cold) to 5 (always too hot) - shifts every saved outfit
+  // temperature range (TEMPERATURE_PREFERENCE_SHIFT).
+  temperature: { type: Number, min: 1, max: 5, default: null },
 
   // How much the season affects what they wear: 1 (not at all) to 5 (very
   // much) - Today's seasonal points (constants/seasonality.js).

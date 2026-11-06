@@ -1,29 +1,41 @@
-// "How much does the season affect what you wear?" - a 1-5 scale, used by
-// the style quiz and Style preferences.
+// A 1-5 scale question (seasonality, temperature), used by the style quiz
+// and Style preferences. `question` gives the labels under the ends (and
+// the middle, if it has one) and an optional hint above. Numbered
+// segments by default; `smooth` shows a sliding thumb instead
+// (temperature).
 
 import { StyleSheet, Text, View } from "react-native";
 
-import {
-  seasonalityQuestion,
-  seasonalityScale,
-} from "@core/constants/styleQuizOptions.js";
+import { fivePointScale } from "@core/constants/styleQuizOptions.js";
 
 import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
-import { SegmentedControl } from "../ui";
+import { PointSlider, SegmentedControl } from "../ui";
 
-const OPTIONS = seasonalityScale.map((point) => ({ key: String(point), label: String(point) }));
+const OPTIONS = fivePointScale.map((point) => ({ key: String(point), label: String(point) }));
 
-export const SeasonalityScale = ({ value, onChange }) => (
+export const PointScale = ({ question, value, onChange, smooth = false }) => (
   <View style={styles.scale}>
-    <Text style={styles.hint}>{seasonalityQuestion.hint}</Text>
-    <SegmentedControl
-      options={OPTIONS}
-      value={String(value)}
-      onChange={(key) => onChange(Number(key))}
-    />
+    {question.hint ? <Text style={styles.hint}>{question.hint}</Text> : null}
+    {smooth ? (
+      <PointSlider
+        points={fivePointScale}
+        value={value}
+        onChange={onChange}
+        label={question.title}
+      />
+    ) : (
+      <SegmentedControl
+        options={OPTIONS}
+        value={String(value)}
+        onChange={(key) => onChange(Number(key))}
+      />
+    )}
     <View style={styles.labels}>
-      <Text style={styles.label}>{seasonalityQuestion.lowLabel}</Text>
-      <Text style={styles.label}>{seasonalityQuestion.highLabel}</Text>
+      <Text style={[styles.label, styles.low]}>{question.lowLabel}</Text>
+      {question.midLabel ? (
+        <Text style={[styles.label, styles.mid]}>{question.midLabel}</Text>
+      ) : null}
+      <Text style={[styles.label, styles.high]}>{question.highLabel}</Text>
     </View>
   </View>
 );
@@ -40,10 +52,21 @@ const styles = StyleSheet.create({
   labels: {
     flexDirection: "row",
     justifyContent: "space-between",
+    gap: spacing.sm,
   },
   label: {
+    flex: 1,
     fontFamily: fontWeights.regular,
     fontSize: fontSizes.small,
     color: colors.secondary,
+  },
+  low: {
+    textAlign: "left",
+  },
+  mid: {
+    textAlign: "center",
+  },
+  high: {
+    textAlign: "right",
   },
 });

@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 
 import { getErrorMessage } from "../api/errors.js";
 import { getPreferences, updatePreferences } from "../api/preferences.js";
-import { DEFAULT_SEASONALITY_ANSWER, styleImagesFor } from "../constants/styleQuizOptions.js";
+import {
+  DEFAULT_SEASONALITY_ANSWER,
+  DEFAULT_TEMPERATURE_ANSWER,
+  styleImagesFor,
+} from "../constants/styleQuizOptions.js";
 import { asksPairingQuestions } from "../styleQuiz/quizSteps.js";
 import { favouritePaletteOptions, toggleFavouritePalette } from "../utils/colourPalettes.js";
 import { resolveStyleQuiz } from "../utils/resolveStyleQuiz.js";
@@ -19,7 +23,7 @@ import { useFlashMessage } from "./useFlashMessage.js";
  */
 export const useStylePreferences = () => {
   const [gender, setGender] = useState(null);
-  const [temperature, setTemperature] = useState(null);
+  const [temperature, setTemperature] = useState(DEFAULT_TEMPERATURE_ANSWER);
   const [seasonality, setSeasonality] = useState(DEFAULT_SEASONALITY_ANSWER);
   const [savedColour, setSavedColour] = useState(null);
   const [favouritePalettes, setFavouritePalettes] = useState([]);
@@ -37,7 +41,7 @@ export const useStylePreferences = () => {
         const { data } = await getPreferences();
 
         setGender(data?.gender ?? null);
-        setTemperature(data?.temperature ?? null);
+        setTemperature(data?.temperature ?? DEFAULT_TEMPERATURE_ANSWER);
         setSeasonality(data?.seasonality ?? DEFAULT_SEASONALITY_ANSWER);
         setSavedColour(data?.colour ?? null);
         setFavouritePalettes(data?.favouritePalettes ?? []);

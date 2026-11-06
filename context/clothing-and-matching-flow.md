@@ -368,12 +368,19 @@ If any of `gender`, `colour`, `pattern` or `temperature` is missing, or no
 preferences exist yet (404), `StyleQuizGate` redirects every gated page to
 `/style-quiz`.
 
-The quiz has four steps, plus pairing questions for women and unisex.
-Favourite palettes aren't asked - they're set on Style Preferences (2.3):
+The quiz has five steps, plus pairing questions for women and unisex.
+Every step has Back / Next (the first has only Next, centred), and Log out
+sits at the bottom of every page. Favourite palettes aren't asked -
+they're set on Style Preferences (2.3):
 
 1. **"How do you prefer to dress?"**: More feminine → `woman`, More unisex →
-   `unisex`, More masculine → `man`. Saved as `gender`.
-2. **"Select all that apply"**: a grid of style images. Only images whose
+   `unisex`, More masculine → `man`. Saved as `gender`. Changing it
+   drops any style images already picked.
+2. **"Do you generally feel too cold or too hot?"**: a 1-5 scale, "I'm
+   always too cold" to "I'm always too hot", "Neutral" in the middle
+   (starts at 3). Saved as `temperature`; it shifts outfit temperature
+   ranges by +1 … −1 (temperature-ranges.md 1.5).
+3. **"Select all that apply"**: a grid of style images. Only images whose
    `gender` list includes the chosen gender are shown. At least one image
    must be picked. For `woman` and `unisex` a **smart-and-casual** tile
    sits at the end - a pairing answer (2.6), never counted for colour or
@@ -381,13 +388,16 @@ Favourite palettes aren't asked - they're set on Style Preferences (2.3):
    - **"Do you like to layer tops?"** (`woman` and `unisex` only,
      `LayeringStep.jsx` / mobile `PairingStep.jsx`): six pictures, tick
      any that apply, with Skip under the question. See 2.6.
-3. **"What do you generally wear throughout the week?"**
-   (`WeeklyTagStep.jsx`): a tag for each day, picked from the tag images.
-   Picking a tag moves on to the next day. Every day is optional, and only
-   the days picked are saved, so retaking the quiz never clears a day set
-   on the Weekly Preferences page. Saved as `monday` … `sunday`.
-4. **"Do you generally feel too cold or too hot?"**: `cold` / `hot` /
-   `normal`. Choosing one saves the whole quiz.
+4. **"Do you have a regular schedule to dress for?"** (mobile
+   `WeeklyStep.jsx` / `WeekTagList.jsx`, web `WeeklyTagStep.jsx`): the
+   days down the side, each with a tag box that opens every tag; a "Set
+   weekdays the same" switch copies Monday to Tuesday-Friday
+   (`useSameWeekdays`). Every day is optional, and only the days picked
+   are saved, so retaking the quiz never clears a day set on the Weekly
+   Preferences page (which uses the same list on mobile). Skip saves no
+   days. Saved as `monday` … `sunday`.
+5. **"How much does the season affect what you wear?"**: a 1-5 scale.
+   Saved as `seasonality`. Finish saves the whole quiz.
 
 ### 2.2 How the images become colour and pattern
 
@@ -473,7 +483,7 @@ the single place the server reads these:
 
 - gender missing → `unisex`
 - colour missing → `mid` palettes (`DEFAULT_COLOUR_LEVEL`)
-- temperature missing → treated as `normal`
+- temperature missing → treated as 3 (neutral, no shift)
 
 `getBaselineMatrix(gender)` falls back to the **unisex** matrix for an
 unknown gender.

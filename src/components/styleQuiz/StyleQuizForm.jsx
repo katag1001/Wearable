@@ -2,12 +2,12 @@ import { useNavigate } from "react-router-dom";
 import {
   genderQuestionOptions,
   seasonalityQuestion,
-  temperatureQuestionOptions,
+  temperatureQuestion,
 } from "@core/constants/styleQuizOptions.js";
 import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
 import WeeklyTagStep from "./WeeklyTagStep";
 import LayeringStep from "./LayeringStep";
-import SeasonalityScale from "../preferences/SeasonalityScale";
+import PointScale from "../preferences/PointScale";
 import "./styleQuizForm.css";
 
 // The quiz logic lives in useStyleQuiz (core/hooks/useStyleQuiz.js),
@@ -59,6 +59,41 @@ const StyleQuizForm = ({ onComplete }) => {
                 {option.label}
               </button>
             ))}
+          </div>
+
+          <div className="style-quiz-actions style-quiz-actions--centred">
+            <button
+              type="button"
+              className="style-quiz-finish-button"
+              onClick={goToNextStep}
+              disabled={!gender}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === "temperature" && (
+        <div className="style-quiz-step">
+          <div className="style-quiz-header">
+            <h2 className="page-title">{temperatureQuestion.title}</h2>
+          </div>
+
+          <PointScale
+            question={temperatureQuestion}
+            value={quiz.temperature}
+            onChange={quiz.setTemperature}
+          />
+
+          <div className="style-quiz-actions">
+            <button type="button" className="style-quiz-back-button" onClick={goBack}>
+              Back
+            </button>
+
+            <button type="button" className="style-quiz-finish-button" onClick={goToNextStep}>
+              Next
+            </button>
           </div>
         </div>
       )}
@@ -180,7 +215,8 @@ const StyleQuizForm = ({ onComplete }) => {
             </h2>
           </div>
 
-          <SeasonalityScale
+          <PointScale
+            question={seasonalityQuestion}
             value={quiz.seasonality}
             onChange={quiz.setSeasonality}
           />
@@ -190,6 +226,7 @@ const StyleQuizForm = ({ onComplete }) => {
               type="button"
               className="style-quiz-back-button"
               onClick={goBack}
+              disabled={saving}
             >
               Back
             </button>
@@ -197,44 +234,10 @@ const StyleQuizForm = ({ onComplete }) => {
             <button
               type="button"
               className="style-quiz-finish-button"
-              onClick={goToNextStep}
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
-
-      {step === "temperature" && (
-        <div className="style-quiz-step">
-          <div className="style-quiz-header">
-            <h2 className="page-title">
-              Do you generally feel too cold or too hot?
-            </h2>
-          </div>
-
-          <div className="style-quiz-choice-options">
-            {temperatureQuestionOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className="style-quiz-choice-card"
-                onClick={() => finish(option.value)}
-                disabled={saving}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="style-quiz-actions">
-            <button
-              type="button"
-              className="style-quiz-back-button"
-              onClick={goBack}
+              onClick={finish}
               disabled={saving}
             >
-              Back
+              {saving ? "Saving..." : "Finish"}
             </button>
           </div>
         </div>

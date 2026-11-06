@@ -1,14 +1,16 @@
 // Style quiz: "Do you like to layer tops?" - tick any that apply, or skip
 // (useStyleQuiz.finishLayering / skipLayering). The pictures sit in a
-// 2-column grid; Skip is right under the question.
+// 2-column grid.
+
+import { layeringQuestion } from "@core/constants/pairingQuestions.js";
 
 import { Grid, ImageTile } from "../ui";
 import { QuizActions } from "./QuizActions";
-import { SkipLink } from "./SkipLink";
+import { SubtitleWithSkip } from "./SubtitleWithSkip";
 
 export const PairingStep = ({ quiz }) => (
   <>
-    <SkipLink onPress={quiz.skipLayering} />
+    <SubtitleWithSkip text={layeringQuestion.subtitle} onSkip={quiz.skipLayering} />
 
     <Grid columns={2}>
       {quiz.layeringOptions.map((option) => (

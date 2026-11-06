@@ -1,6 +1,6 @@
-/* SeasonalityScale.jsx - the 1-5 "how much does the season matter" slider. */
+/* PointScale.jsx - a 1-5 slider question (seasonality, temperature). */
 
-.seasonality-scale {
+.point-scale {
   display: flex;
   flex-direction: column;
   gap: .5rem;
@@ -9,20 +9,20 @@
   margin: 0 auto;
 }
 
-.seasonality-scale-hint {
+.point-scale-hint {
   margin: 0;
   color: var(--muted-color);
   font-size: var(--description-font-size);
   text-align: center;
 }
 
-.seasonality-scale-slider {
+.point-scale-slider {
   width: 100%;
   accent-color: var(--main-color);
   cursor: pointer;
 }
 
-.seasonality-scale-labels {
+.point-scale-labels {
   display: flex;
   justify-content: space-between;
   color: var(--muted-color);

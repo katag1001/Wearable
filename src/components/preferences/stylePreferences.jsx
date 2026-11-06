@@ -1,12 +1,12 @@
 import {
   genderQuestionOptions,
   seasonalityQuestion,
-  temperatureQuestionOptions,
+  temperatureQuestion,
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
 import PairingPreferences from "./PairingPreferences";
 import PalettePicker from "./PalettePicker";
-import SeasonalityScale from "./SeasonalityScale";
+import PointScale from "./PointScale";
 import "./stylePreferences.css";
 import "../../styles/pages.css";
 
@@ -88,26 +88,14 @@ const StylePreferences = () => {
 
       <div className="style-preferences-section">
         <h3 className="style-preferences-section-title">
-          Do you generally feel too cold or too hot?
+          {temperatureQuestion.title}
         </h3>
 
-        <div className="style-preferences-choice-options">
-          {temperatureQuestionOptions.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              className={`style-preferences-choice-card ${
-                temperature === option.value
-                  ? "style-preferences-choice-card--selected"
-                  : ""
-              }`}
-              onClick={() => handleTemperatureSelect(option.value)}
-              aria-pressed={temperature === option.value}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+        <PointScale
+          question={temperatureQuestion}
+          value={temperature}
+          onChange={handleTemperatureSelect}
+        />
       </div>
 
       {/* SEASONALITY */}
@@ -117,7 +105,11 @@ const StylePreferences = () => {
           {seasonalityQuestion.title}
         </h3>
 
-        <SeasonalityScale value={seasonality} onChange={chooseSeasonality} />
+        <PointScale
+          question={seasonalityQuestion}
+          value={seasonality}
+          onChange={chooseSeasonality}
+        />
       </div>
 
       {/* STYLE IMAGES */}

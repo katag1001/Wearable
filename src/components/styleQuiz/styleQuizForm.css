@@ -432,6 +432,15 @@
   flex-shrink: 0;
 }
 
+/* The first step: Next alone, in the middle. */
+.style-quiz-actions--centred {
+  justify-content: center;
+}
+
+.style-quiz-actions--centred .style-quiz-finish-button {
+  flex: 0 1 50%;
+}
+
 .style-quiz-back-button,
 .style-quiz-finish-button {
   padding: 0.7rem 1.5rem;

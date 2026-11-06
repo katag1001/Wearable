@@ -1,35 +1,35 @@
 import React from "react";
 
-import {
-  seasonalityQuestion,
-  seasonalityScale,
-} from "@core/constants/styleQuizOptions.js";
+import { fivePointScale } from "@core/constants/styleQuizOptions.js";
 
-import "./seasonalityScale.css";
+import "./pointScale.css";
 
-// "How much does the season affect what you wear?" - a 1-5 slider, used by
-// the style quiz and the Style Preferences page.
-const SeasonalityScale = ({ value, onChange, disabled = false }) => (
-  <div className="seasonality-scale">
-    <p className="seasonality-scale-hint">{seasonalityQuestion.hint}</p>
+// A 1-5 slider question (seasonality, temperature), used by the style quiz
+// and the Style Preferences page. `question` gives the title (for screen
+// readers), the labels under the ends (and the middle, if it has one) and
+// an optional hint above.
+const PointScale = ({ question, value, onChange, disabled = false }) => (
+  <div className="point-scale">
+    {question.hint && <p className="point-scale-hint">{question.hint}</p>}
 
     <input
       type="range"
-      className="seasonality-scale-slider"
-      min={seasonalityScale[0]}
-      max={seasonalityScale[seasonalityScale.length - 1]}
+      className="point-scale-slider"
+      min={fivePointScale[0]}
+      max={fivePointScale[fivePointScale.length - 1]}
       step={1}
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(Number(e.target.value))}
-      aria-label={seasonalityQuestion.title}
+      aria-label={question.title}
     />
 
-    <div className="seasonality-scale-labels">
-      <span>{seasonalityQuestion.lowLabel}</span>
-      <span>{seasonalityQuestion.highLabel}</span>
+    <div className="point-scale-labels">
+      <span>{question.lowLabel}</span>
+      {question.midLabel && <span>{question.midLabel}</span>}
+      <span>{question.highLabel}</span>
     </div>
   </div>
 );
 
-export default SeasonalityScale;
+export default PointScale;

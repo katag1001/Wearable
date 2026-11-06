@@ -118,10 +118,12 @@ with another top it's always the layer over it, never the innermost.
 
 ### 1.5 The temperature preference
 
-The style quiz asks "Do you generally feel too cold or too hot?", saved as
-`preferences.temperature`. `TEMPERATURE_PREFERENCE_SHIFT` moves both ends of
-the range: **cold +1**, normal 0, **hot −1**. The saved `min_temp`/`max_temp`
-already include it. A missing preference counts as normal.
+The style quiz asks "Do you generally feel too cold or too hot?" on a 1-5
+scale (1 "I'm always too cold", 3 "Neutral", 5 "I'm always too hot"), saved
+as `preferences.temperature`. `TEMPERATURE_PREFERENCE_SHIFT` moves both ends
+of the range: **1 → +1**, 2 → +0.5, 3 → 0, 4 → −0.5, **5 → −1**, so ranges
+can end in .5. The saved `min_temp`/`max_temp` already include it. A
+missing preference counts as 3.
 
 ---
 
@@ -185,7 +187,7 @@ a light outer, which the 18° cap brings lower.
 ### Step 6 - Preference
 
 Both ends move by `TEMPERATURE_PREFERENCE_SHIFT`, and are kept within
-`TEMPERATURE_LIMITS`. This comes after the caps, so a "cold" user's Short
+`TEMPERATURE_LIMITS`. This comes after the caps, so an "always too cold" (1) user's Short
 t-shirt + Wide leg jeans is 18–26.
 
 ### Unknown subtypes
@@ -197,8 +199,8 @@ or bottom, a 15–25 onepiece, a 5-point outer). It's reported in
 
 ### Worked example
 
-Short t-shirt + Chunky knit jumper + Denim jacket + Wide leg jeans, "cold"
-preference, with the values above:
+Short t-shirt + Chunky knit jumper + Denim jacket + Wide leg jeans,
+temperature preference 1 ("always too cold"), with the values above:
 
 | Step | Range |
 |---|---|
@@ -207,11 +209,11 @@ preference, with the values above:
 | 3. Denim jacket, −2 (maximum capped at 25 − 2 = 23), minimum kept 7° below the maximum | 4–15 |
 | 4. One outer: minimum raised to the Denim jacket's 10 | 10–15 |
 | 5. Caps: warm jumper layer 18, long bottom 25 - 15 is already under both | 10–15 |
-| 6. "cold" +1 | **11–16** |
+| 6. Preference 1, +1 | **11–16** |
 
 With a long t-shirt instead of the short one, step 1 is 13–22 and the
 jumper only takes `WARM_OVER_LONG_POINTS` (4): 9–18, then 10–16 with the
-jacket, **11–17** with "cold".
+jacket, **11–17** with preference 1.
 
 ---
 

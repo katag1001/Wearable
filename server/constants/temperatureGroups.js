@@ -188,14 +188,15 @@ const OUTER_MIN_SPAN = 7;
 const MIN_SPAN = 3;
 
 // Shift for the user's temperature preference ("Do you generally feel too
-// cold or too hot?"), applied to both ends of the range before it's saved
-// on the match - the saved min_temp/max_temp already include it. Feeling
-// the cold means needing warmer days.
-const TEMPERATURE_PREFERENCE_SHIFT = { cold: 1, normal: 0, hot: -1 };
+// cold or too hot?", 1 = always too cold ... 5 = always too hot), applied
+// to both ends of the range before it's saved on the match - the saved
+// min_temp/max_temp already include it. Feeling the cold means needing
+// warmer days.
+const TEMPERATURE_PREFERENCE_SHIFT = { 1: 1, 2: 0.5, 3: 0, 4: -0.5, 5: -1 };
 
 // Any outfit with a bottom from the "long" group never has a maximum above
-// this. Applied with the layer caps, before the preference shift - so a
-// "cold" user's saved maximum can be this + 1.
+// this. Applied with the layer caps, before the preference shift - so an
+// "always too cold" user's saved maximum can be this + 1.
 const LONG_BOTTOM_MAX_TEMP = 25;
 
 // The same bounds as the temperature sliders.

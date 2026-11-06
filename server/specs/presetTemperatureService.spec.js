@@ -188,7 +188,7 @@ test("every skirt/dress subtype is a real bottom or onepiece", () => {
 });
 
 test("the long-bottom cap is applied before the preference shift", () => {
-  [null, "cold", "hot"].forEach((preference) => {
+  [null, 1, 2, 4, 5].forEach((preference) => {
     const [, max] = range([top("Vest"), bottom("Jeans")], preference);
     const shift = TEMPERATURE_PREFERENCE_SHIFT[preference] || 0;
     assert.equal(max, LONG_BOTTOM_MAX_TEMP + shift, `${preference}`);
@@ -219,14 +219,19 @@ test("a top over a onepiece moves it down and uses the same layer caps", () => {
 test("the temperature preference shifts both ends of the saved range", () => {
   const [min, max] = range([top("Short t-shirt"), bottom("Midi-skirt")]);
 
-  assert.deepEqual(range([top("Short t-shirt"), bottom("Midi-skirt")], "cold"), [
-    min + TEMPERATURE_PREFERENCE_SHIFT.cold,
-    max + TEMPERATURE_PREFERENCE_SHIFT.cold,
-  ]);
-  assert.deepEqual(range([top("Short t-shirt"), bottom("Midi-skirt")], "hot"), [
-    min + TEMPERATURE_PREFERENCE_SHIFT.hot,
-    max + TEMPERATURE_PREFERENCE_SHIFT.hot,
-  ]);
+  [
+    [1, 1],
+    [2, 0.5],
+    [3, 0],
+    [4, -0.5],
+    [5, -1],
+  ].forEach(([preference, shift]) => {
+    assert.deepEqual(
+      range([top("Short t-shirt"), bottom("Midi-skirt")], preference),
+      [min + shift, max + shift],
+      `${preference}`
+    );
+  });
 });
 
 test("the minimum is never above the maximum", () => {
