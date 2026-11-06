@@ -2,13 +2,11 @@
 //
 // The colour palettes (shared/colorPalettes.json - the server reads the same
 // file, server/utils/colorPalettes.js) for the browser and the mobile app:
-// the palettes at a colour level, and the favourite-palette picker on the
-// style quiz and Style Preferences.
+// the palettes at a colour level, and the favourite colour families picked
+// on the style quiz and Style Preferences.
 
 import colorPalettes from "../../shared/colorPalettes.json";
 import { colorOptions } from "../constants/optionsBank.js";
-
-const TIER_ORDER = ["classic", "common", "bold"];
 
 const hexByName = Object.fromEntries(colorOptions.map((option) => [option.name, option.value]));
 
@@ -25,21 +23,20 @@ export const palettesForLevel = (level) => {
 // The swatch colour for a colour name.
 export const colourHex = (name) => hexByName[name] || "#cccccc";
 
-// Palettes to offer as favourites: the user's level's palettes, plus any
-// palette from another level they've already picked (so it can be
-// unpicked), classic first.
-export const favouritePaletteOptions = (level, favouritePalettes = []) => {
-  const levelPalettes = palettesForLevel(level);
-  const pickedElsewhere = colorPalettes.palettes.filter(
-    (palette) => favouritePalettes.includes(palette.id) && !levelPalettes.includes(palette)
-  );
+// The colour families the user picks favourites from (style quiz and
+// Style Preferences) - the same at every colour level. Outfits in picked
+// families score higher on Today (server/utils/colorPalettes.js).
+export const colourFamilies = colorPalettes.colourFamilies;
 
-  return [...levelPalettes, ...pickedElsewhere].sort(
-    (a, b) => TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier)
-  );
+export const MAX_FAVOURITE_COLOUR_FAMILIES = 3;
+
+// Picks or unpicks a family. A pick past the max is ignored - unpick one
+// first.
+export const toggleColourFamily = (picked, id) => {
+  if (picked.includes(id)) {
+    return picked.filter((pickedId) => pickedId !== id);
+  }
+
+  return picked.length < MAX_FAVOURITE_COLOUR_FAMILIES ? [...picked, id] : picked;
 };
 
-export const toggleFavouritePalette = (favouritePalettes, id) =>
-  favouritePalettes.includes(id)
-    ? favouritePalettes.filter((favouriteId) => favouriteId !== id)
-    : [...favouritePalettes, id];

@@ -10,18 +10,21 @@ import {
   styleImagesFor,
 } from "../constants/styleQuizOptions.js";
 import { buildQuizPreferences } from "../styleQuiz/quizAnswers.js";
+import { colourFamilies, toggleColourFamily } from "../utils/colourPalettes.js";
 import { asksPairingQuestions, getQuizSteps } from "../styleQuiz/quizSteps.js";
 
 /*
  * The style quiz a new user takes: gender → temperature (1-5) → style
- * images → layering (some genders only) → weekly tags → seasonality
- * (1-5) → trends (1-5, optional), whose Finish (or Skip) saves everything. Favourite palettes aren't asked here - they're
- * set on Style Preferences. `onComplete` runs once the answers are saved.
+ * images → favourite colour families (up to 3, optional) → layering (some
+ * genders only) → weekly tags → seasonality (1-5) → trends (1-5,
+ * optional), whose Finish (or Skip) saves everything. `onComplete` runs
+ * once the answers are saved.
  */
 export const useStyleQuiz = ({ onComplete } = {}) => {
   const [step, setStep] = useState("gender");
   const [gender, setGender] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [favouriteColourFamilies, setFavouriteColourFamilies] = useState([]);
   const [likesSmartCasual, setLikesSmartCasual] = useState(false);
   const [layeredTops, setLayeredTops] = useState([]);
   const [layeringAnswered, setLayeringAnswered] = useState(false);
@@ -81,6 +84,18 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
     setLikesSmartCasual((current) => !current);
   };
 
+  /* -------------------- Favourite colours -------------------- */
+  // Up to 3 families. Skip saves none, even ones picked before skipping.
+
+  const pickColourFamily = (id) => {
+    setFavouriteColourFamilies((current) => toggleColourFamily(current, id));
+  };
+
+  const skipColours = () => {
+    setFavouriteColourFamilies([]);
+    goToNextStep();
+  };
+
   /* -------------------- Layering -------------------- */
   // Tick all that apply. Next answers every option (ticked or not);
   // Skip answers none of them.
@@ -128,6 +143,7 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
         buildQuizPreferences({
           gender,
           selectedImages,
+          favouriteColourFamilies,
           likesSmartCasual,
           layeredTops,
           layeringAnswered,
@@ -162,6 +178,11 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
     imageOptions,
     selectedImages,
     toggleImage,
+
+    colourFamilies,
+    favouriteColourFamilies,
+    toggleColourFamily: pickColourFamily,
+    skipColours,
 
     showSmartCasual,
     smartCasualOption,

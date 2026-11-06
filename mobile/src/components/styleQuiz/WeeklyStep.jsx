@@ -2,13 +2,15 @@
 // down the side, each with a tag box that opens the tag list. Skip moves
 // on without saving any days.
 
+import { weeklyQuestion } from "@core/constants/styleQuizOptions.js";
+
 import { WeekTagList } from "../week/WeekTagList";
 import { QuizActions } from "./QuizActions";
 import { SubtitleWithSkip } from "./SubtitleWithSkip";
 
 export const WeeklyStep = ({ quiz }) => (
   <>
-    <SubtitleWithSkip text="If so, you can set it here." onSkip={quiz.skipWeekly} />
+    <SubtitleWithSkip text={weeklyQuestion.subtitle} onSkip={quiz.skipWeekly} />
 
     <WeekTagList weeklyTags={quiz.weeklyTags} onTagChange={quiz.setWeeklyTag} />
 

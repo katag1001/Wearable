@@ -37,10 +37,6 @@ export default function TabStack() {
         options={withHeader({ title: "Style preferences" })}
       />
       <Stack.Screen
-        name="account/stats"
-        options={withHeader({ title: "Your favourites" })}
-      />
-      <Stack.Screen
         name="account/settings"
         options={withHeader({ title: "Settings" })}
       />

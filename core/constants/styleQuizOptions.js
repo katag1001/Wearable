@@ -153,6 +153,17 @@ export const DEFAULT_TRENDS_ANSWER = 3;
 // What Style Preferences shows when it was never answered (no effect).
 export const UNANSWERED_TRENDS = 1;
 
+// The weekly tags step - also the Weekly Preferences screen's heading.
+export const weeklyQuestion = {
+  title: "Do you have a regular schedule to dress for?",
+  subtitle: "If so, you can set it here.",
+};
+
+// Favourite colour families (core/utils/colourPalettes.js). Optional.
+export const coloursQuestion = {
+  title: "Which colours do you love?",
+};
+
 /* --------------------------------------------------------------------
    STYLE IMAGE MAPPING
 

@@ -49,10 +49,11 @@ const HOT_ABOVE = 20;
 
 // Points added on Today only (services/todayScoreService.js) - never to
 // the saved score: an outfit with a favourite item, and one whose colours
-// fit a favourite palette (Preferences.favouritePalettes). Seasonal points
+// are in the user's favourite colour families
+// (Preferences.favouriteColourFamilies). Seasonal points
 // are in constants/seasonality.js.
 const FAVOURITE_ITEM_BONUS = 7;
-const FAVOURITE_PALETTE_BONUS = 4;
+const FAVOURITE_COLOURS_BONUS = 4;
 
 // Outfits with today's tag (from the weekly preferences) come first, then
 // the rest. Each group is ordered by this weighted score (all parts on a
@@ -91,7 +92,7 @@ module.exports = {
   COLD_BELOW,
   HOT_ABOVE,
   FAVOURITE_ITEM_BONUS,
-  FAVOURITE_PALETTE_BONUS,
+  FAVOURITE_COLOURS_BONUS,
   RANKING_WEIGHTS,
   RANKING_JITTER,
   SPREAD_LOOKBACK,

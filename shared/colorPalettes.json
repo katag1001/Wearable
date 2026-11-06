@@ -2,6 +2,17 @@
   "defaultLevel": "mid",
   "maxColors": {"min": 4, "mid": 6, "max": null},
   "brightColours": ["Fuchsia", "Lime Green", "Orange", "Bright Yellow", "Turquoise", "Bright Blue", "Bright Pink"],
+  "neutralColours": ["White", "Cream", "Grey", "Black", "Silver", "Gold", "Copper"],
+  "colourFamilies": [
+    {"id": "blues", "name": "Blues", "colours": ["Navy", "Dark Blue", "Light Blue", "Bright Blue"]},
+    {"id": "greens", "name": "Greens", "colours": ["Forest Green", "Olive Green", "Green", "Lime Green"]},
+    {"id": "aquas", "name": "Aquas", "colours": ["Teal", "Turquoise"]},
+    {"id": "reds", "name": "Reds", "colours": ["Burgundy", "Dark Red", "Bright Red"]},
+    {"id": "pinks", "name": "Pinks", "colours": ["Baby Pink", "Bright Pink", "Fuchsia"]},
+    {"id": "purples", "name": "Purples", "colours": ["Purple", "Lilac"]},
+    {"id": "earth", "name": "Earth tones", "colours": ["Camel", "Tan", "Brown"]},
+    {"id": "warm-brights", "name": "Warm brights", "colours": ["Orange", "Peach", "Bright Yellow", "Butter Yellow"]}
+  ],
   "palettes": [
     {"id": "lime-green-light-blue-dark-blue", "tier": "common", "levels": ["min", "mid", "max"], "colours": ["Lime Green", "Light Blue", "Dark Blue", "White"], "seasons": ["spring", "summer"]},
     {"id": "black-red-white", "tier": "classic", "levels": ["min", "mid", "max"], "colours": ["Black", "Bright Red", "White", "Grey"], "seasons": []},

@@ -7,7 +7,6 @@ import '../styles/pages.css';
 import '../styles/userPage.css';
 import WeeklyPreferences from '../components/preferences/weeklyPreferences';
 import StylePreferences from '../components/preferences/stylePreferences';
-import Stats from '../components/stats/stats';
 import Settings from '../components/preferences/settings';
 
 const User = ({ loggedIn, logout }) => {
@@ -48,9 +47,6 @@ const User = ({ loggedIn, logout }) => {
 
       case 'style-preferences':
         return <StylePreferences />;
-
-      case 'stats':
-        return <Stats />;
 
       case 'settings':
         return <Settings />;
@@ -145,20 +141,6 @@ const User = ({ loggedIn, logout }) => {
                   }
                 >
                   Style Preferences
-                </button>
-
-                <button
-                  type="button"
-                  className={`user-sidebar__button ${
-                    activeScreen === 'stats'
-                      ? 'user-sidebar__button--active'
-                      : ''
-                  }`}
-                  onClick={() =>
-                    handleScreenChange('stats')
-                  }
-                >
-                  Stats
                 </button>
 
                 <button

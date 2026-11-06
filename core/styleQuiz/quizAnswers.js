@@ -19,6 +19,7 @@ export const buildPairingAnswers = ({ layeredTops, layeringAnswered, likesSmartC
 export const buildQuizPreferences = ({
   gender,
   selectedImages,
+  favouriteColourFamilies,
   likesSmartCasual,
   layeredTops,
   layeringAnswered,
@@ -33,6 +34,7 @@ export const buildQuizPreferences = ({
     gender,
     colour,
     pattern,
+    favouriteColourFamilies,
     seasonality,
     temperature,
     // Left out when the trends step is skipped.

@@ -265,7 +265,7 @@ const todaySchema = new mongoose.Schema({
     season: Number,
     trend: Number,
     favouriteItem: Number,
-    favouritePalette: Number,
+    favouriteColours: Number,
     total: Number,
   },
 
@@ -319,10 +319,10 @@ const preferencesSchema = new mongoose.Schema({
   // no effect.
   trends: { type: Number, min: 1, max: 5, default: null },
 
-  // Palette ids (shared/colorPalettes.json) the user likes - outfits that
-  // fit one score FAVOURITE_PALETTE_BONUS higher on Today
-  // (services/todayScoreService.js).
-  favouritePalettes: { type: [String], default: [] },
+  // Colour family ids (shared/colorPalettes.json colourFamilies, up to
+  // MAX_FAVOURITE_COLOUR_FAMILIES) the user likes - outfits in them score
+  // FAVOURITE_COLOURS_BONUS higher on Today (services/todayScoreService.js).
+  favouriteColourFamilies: { type: [String], default: [] },
 
   // Whether new item photos may be analysed by AI (Gemini): null until the
   // user answers the consent prompt shown before their first add, then

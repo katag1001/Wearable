@@ -1,10 +1,13 @@
 // Weekly preferences: a tag for each day, used to pick today's outfits.
-// The same day list as the style quiz (WeekTagList). Logic:
+// Laid out like the style quiz's weekly step (WeeklyStep) - same heading
+// and day list (WeekTagList) - with Save in place of Back / Next. Logic:
 // useWeeklyPreferences (shared with the web).
 
+import { weeklyQuestion } from "@core/constants/styleQuizOptions.js";
 import { useWeeklyPreferences } from "@core/hooks/useWeeklyPreferences.js";
 
-import { Button, Loading, Message, Screen } from "../../../../components/ui";
+import { Loading, Message, Screen } from "../../../../components/ui";
+import { QuizActions } from "../../../../components/styleQuiz/QuizActions";
 import { WeekTagList } from "../../../../components/week/WeekTagList";
 
 export default function WeeklyPreferencesScreen() {
@@ -16,7 +19,8 @@ export default function WeeklyPreferencesScreen() {
 
   return (
     <Screen
-      subtitle="Choose what you'd like to wear each day."
+      title={weeklyQuestion.title}
+      subtitle={weeklyQuestion.subtitle}
       edges={["bottom"]}
     >
       <WeekTagList weeklyTags={weekly.weeklyTags} onTagChange={weekly.setDayTag} />
@@ -24,9 +28,9 @@ export default function WeeklyPreferencesScreen() {
       <Message text={weekly.error} />
       <Message text={weekly.success} type="success" />
 
-      <Button
-        label="Save preferences"
-        onPress={weekly.save}
+      <QuizActions
+        onNext={weekly.save}
+        nextLabel="Save"
         loading={weekly.saving}
       />
     </Screen>

@@ -6,6 +6,7 @@ import {
   trendsQuestion,
 } from "@core/constants/styleQuizOptions.js";
 import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
+import ColoursStep from "./ColoursStep";
 import WeeklyTagStep from "./WeeklyTagStep";
 import LayeringStep from "./LayeringStep";
 import PointScale from "../preferences/PointScale";
@@ -186,6 +187,17 @@ const StyleQuizForm = ({ onComplete }) => {
             </button>
           </div>
         </div>
+      )}
+
+      {step === "colours" && (
+        <ColoursStep
+          families={quiz.colourFamilies}
+          selected={quiz.favouriteColourFamilies}
+          onToggle={quiz.toggleColourFamily}
+          onBack={goBack}
+          onSkip={quiz.skipColours}
+          onNext={goToNextStep}
+        />
       )}
 
       {step === "pairing" && (

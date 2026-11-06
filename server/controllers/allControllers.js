@@ -35,7 +35,7 @@ const {
 } = require("../services/matchScoreService.js");
 const { USER_MADE_SCORE } = require("../constants/scoring.js");
 const { applyPairingAnswers } = require("../services/pairingQuizService.js");
-const { cleanFavouritePalettes, getColorRules } = require("../utils/colorPalettes.js");
+const { cleanFavouriteColourFamilies, favouriteFamilyPalettes, getColorRules } = require("../utils/colorPalettes.js");
 const {
   findPage,
   parseIdList,
@@ -1237,7 +1237,7 @@ const TODAY_BUILD_CLOTHES_FIELDS = "lastWornDate type subtype fabric favourite c
 // match, its parts (breakdownOf) and trend note (trendNoteOf), plus the
 // user's temperature preference.
 const todayScorer = async (userId, season) => {
-  const [{ gender, temperature, colour, seasonality, favouritePalettes, trends: trendsLevel }, running] =
+  const [{ gender, temperature, colour, seasonality, favouriteColourFamilies, trends: trendsLevel }, running] =
     await Promise.all([
       getUserMatchingPreferences(userId),
       Trend.find({ until: { $gte: new Date() } }).sort({ added: -1 }).lean(),
@@ -1248,7 +1248,7 @@ const todayScorer = async (userId, season) => {
     season,
     seasonality,
     palettes: getColorRules(colour).palettes,
-    favouritePalettes,
+    favouriteColourPalettes: favouriteFamilyPalettes(favouriteColourFamilies),
     trends,
     trendsLevel,
   };
@@ -1541,7 +1541,7 @@ exports.updatePreferences = async (req, res) => {
       temperature,
       seasonality,
       trends,
-      favouritePalettes,
+      favouriteColourFamilies,
       pairingAnswers,
       aiAnalysis,
     } = req.body;
@@ -1582,7 +1582,7 @@ exports.updatePreferences = async (req, res) => {
           temperature,
           seasonality,
           trends,
-          favouritePalettes: cleanFavouritePalettes(favouritePalettes),
+          favouriteColourFamilies: cleanFavouriteColourFamilies(favouriteColourFamilies),
           aiAnalysis,
         },
         $setOnInsert: {

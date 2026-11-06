@@ -46,7 +46,9 @@ const {
   allPalettes,
   BRIGHT_COLOURS,
   checkPalettes,
-  cleanFavouritePalettes,
+  cleanFavouriteColourFamilies,
+  favouriteFamilyPalettes,
+  fitsFavouriteColours,
 } = require("../utils/colorPalettes.js");
 
 // The colours the user can pick (core's colorOptions reads the same file).
@@ -72,6 +74,8 @@ test("checkPalettes rejects a duplicate id, an unknown tier, level or season, an
     defaultLevel: "mid",
     maxColors: { min: 4, mid: 6, max: null },
     brightColours: [],
+    neutralColours: ["White"],
+    colourFamilies: [{ id: "blues", name: "Blues", colours: ["Navy"] }, { id: "reds", name: "Reds", colours: ["Red"] }],
     palettes: [{ id: "a", tier: "classic", levels: ["min"], colours: ["Navy"], seasons: [] }, palette],
   });
   const palette = (fields) => ({ id: "b", tier: "bold", levels: ["max"], colours: ["Red"], seasons: ["summer"], ...fields });
@@ -83,13 +87,51 @@ test("checkPalettes rejects a duplicate id, an unknown tier, level or season, an
   assert.throws(() => checkPalettes(file(palette({ colours: [] }))), /colour/);
   assert.throws(() => checkPalettes(file(palette({ seasons: ["monsoon"] }))), /seasons/);
   assert.throws(() => checkPalettes(file(palette({ seasons: undefined }))), /seasons/);
+  assert.throws(() => checkPalettes(file(palette({ colours: ["Red", "Pink"] }))), /neither a neutral nor in a colour family/);
 });
 
-test("cleanFavouritePalettes keeps only real palette ids, once each", () => {
-  assert.deepEqual(
-    cleanFavouritePalettes(["peach-cream-white", "nope", "peach-cream-white"]),
-    ["peach-cream-white"]
+test("checkPalettes rejects a colour that is in two families, or both a neutral and in a family", () => {
+  const file = (colourFamilies) => ({
+    defaultLevel: "mid",
+    maxColors: { min: 4, mid: 6, max: null },
+    brightColours: [],
+    neutralColours: ["White"],
+    colourFamilies,
+    palettes: [],
+  });
+
+  assert.throws(
+    () => checkPalettes(file([{ id: "a", name: "A", colours: ["Navy"] }, { id: "b", name: "B", colours: ["Navy"] }])),
+    /another family/
   );
-  assert.deepEqual(cleanFavouritePalettes("peach-cream-white"), []);
-  assert.equal(cleanFavouritePalettes(undefined), undefined);
+  assert.throws(() => checkPalettes(file([{ id: "a", name: "A", colours: ["White"] }])), /neutral/);
+  assert.throws(() => checkPalettes(file([{ id: "a", name: "A", colours: ["Navy"] }, { id: "a", name: "B", colours: ["Red"] }])), /id of its own/);
+});
+
+test("cleanFavouriteColourFamilies keeps only real family ids, once each, at most 3", () => {
+  assert.deepEqual(cleanFavouriteColourFamilies(["blues", "nope", "blues"]), ["blues"]);
+  assert.deepEqual(cleanFavouriteColourFamilies(["blues", "reds", "pinks", "greens"]), ["blues", "reds", "pinks"]);
+  assert.deepEqual(cleanFavouriteColourFamilies("blues"), []);
+  assert.equal(cleanFavouriteColourFamilies(undefined), undefined);
+});
+
+test("a palette is a favourite only if every family in it was picked", () => {
+  const ids = (familyIds) => favouriteFamilyPalettes(familyIds).map((palette) => palette.id);
+
+  // Light blue / dark blue / silver / white: Blues only.
+  assert.ok(ids(["blues"]).includes("light-blue-dark-blue-silver"));
+  // Navy / orange / white: Blues and Warm brights.
+  assert.ok(!ids(["blues"]).includes("navy-orange-white"));
+  assert.ok(ids(["blues", "warm-brights"]).includes("navy-orange-white"));
+  assert.deepEqual(ids([]), []);
+});
+
+test("favourite colours need at least one non-neutral colour in a favourite palette", () => {
+  const palettes = favouriteFamilyPalettes(["blues"]);
+
+  assert.ok(fitsFavouriteColours(["Light Blue", "White"], palettes));
+  assert.ok(!fitsFavouriteColours(["Light Blue", "Orange"], palettes));
+  // All neutral: fits a palette, but isn't anyone's favourite colours.
+  assert.ok(!fitsFavouriteColours(["Black", "White"], palettes));
+  assert.ok(!fitsFavouriteColours(["Light Blue"], []));
 });

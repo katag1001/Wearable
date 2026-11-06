@@ -22,7 +22,7 @@ const { DEFAULT_TRENDS_LEVEL } = require("../constants/trends.js");
 const DEFAULT_GENDER = "unisex";
 
 // Single source for every Preferences-derived matching setting (gender,
-// colour level, pattern level, temperature, favourite palettes,
+// colour level, pattern level, temperature, favourite colour families,
 // seasonality, trends) - one Preferences fetch per call, reused by
 // every caller that needs any of these, rather than each resolving its own.
 async function getUserMatchingPreferences(userId) {
@@ -32,11 +32,11 @@ async function getUserMatchingPreferences(userId) {
   const colour = preferences?.colour || null;
   const pattern = preferences?.pattern || null;
   const temperature = preferences?.temperature || null;
-  const favouritePalettes = preferences?.favouritePalettes || [];
+  const favouriteColourFamilies = preferences?.favouriteColourFamilies || [];
   const seasonality = preferences?.seasonality || DEFAULT_SEASONALITY;
   const trends = preferences?.trends || DEFAULT_TRENDS_LEVEL;
 
-  return { gender, colour, pattern, temperature, favouritePalettes, seasonality, trends };
+  return { gender, colour, pattern, temperature, favouriteColourFamilies, seasonality, trends };
 }
 
 function getBaselineMatrix(gender) {

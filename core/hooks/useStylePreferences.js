@@ -9,14 +9,14 @@ import {
   styleImagesFor,
 } from "../constants/styleQuizOptions.js";
 import { asksPairingQuestions } from "../styleQuiz/quizSteps.js";
-import { favouritePaletteOptions, toggleFavouritePalette } from "../utils/colourPalettes.js";
+import { colourFamilies, toggleColourFamily } from "../utils/colourPalettes.js";
 import { resolveStyleQuiz } from "../utils/resolveStyleQuiz.js";
 import { useFlashMessage } from "./useFlashMessage.js";
 
 /*
  * The Style Preferences screen: change the style quiz answers later.
  *
- * Gender, seasonality, trends, temperature and favourite palettes load from the saved
+ * Gender, seasonality, trends, temperature and favourite colour families load from the saved
  * preferences. The style images and pairing questions always start blank
  * (the answers aren't stored, only their effect): images update colour +
  * pattern only if any are picked, and only answered pairing questions are
@@ -27,8 +27,7 @@ export const useStylePreferences = () => {
   const [temperature, setTemperature] = useState(DEFAULT_TEMPERATURE_ANSWER);
   const [seasonality, setSeasonality] = useState(DEFAULT_SEASONALITY_ANSWER);
   const [trends, setTrends] = useState(UNANSWERED_TRENDS);
-  const [savedColour, setSavedColour] = useState(null);
-  const [favouritePalettes, setFavouritePalettes] = useState([]);
+  const [favouriteColourFamilies, setFavouriteColourFamilies] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [pairingAnswers, setPairingAnswers] = useState({});
 
@@ -46,8 +45,7 @@ export const useStylePreferences = () => {
         setTemperature(data?.temperature ?? DEFAULT_TEMPERATURE_ANSWER);
         setSeasonality(data?.seasonality ?? DEFAULT_SEASONALITY_ANSWER);
         setTrends(data?.trends ?? UNANSWERED_TRENDS);
-        setSavedColour(data?.colour ?? null);
-        setFavouritePalettes(data?.favouritePalettes ?? []);
+        setFavouriteColourFamilies(data?.favouriteColourFamilies ?? []);
       } catch (err) {
         // 404: nothing saved yet - leave everything unset.
         if (err.response?.status !== 404) {
@@ -106,15 +104,8 @@ export const useStylePreferences = () => {
     clearMessages();
   };
 
-  // Palettes are offered at the colour level the newly picked images give,
-  // or the saved level if none are picked.
-  const paletteOptions = favouritePaletteOptions(
-    selectedImages.length > 0 ? resolveStyleQuiz(selectedImages).colour : savedColour,
-    favouritePalettes
-  );
-
-  const togglePalette = (id) => {
-    setFavouritePalettes((current) => toggleFavouritePalette(current, id));
+  const pickColourFamily = (id) => {
+    setFavouriteColourFamilies((current) => toggleColourFamily(current, id));
     clearMessages();
   };
 
@@ -124,7 +115,7 @@ export const useStylePreferences = () => {
   const showPairingQuestions = asksPairingQuestions(gender);
 
   const buildChanges = () => {
-    const changes = { gender, temperature, seasonality, trends, favouritePalettes };
+    const changes = { gender, temperature, seasonality, trends, favouriteColourFamilies };
 
     if (selectedImages.length > 0) {
       Object.assign(changes, resolveStyleQuiz(selectedImages));
@@ -145,10 +136,6 @@ export const useStylePreferences = () => {
       const changes = buildChanges();
 
       await updatePreferences(changes);
-
-      if (changes.colour) {
-        setSavedColour(changes.colour);
-      }
 
       setSelectedImages([]);
       setPairingAnswers({});
@@ -172,9 +159,9 @@ export const useStylePreferences = () => {
     imageOptions,
     selectedImages,
     toggleImage,
-    paletteOptions,
-    favouritePalettes,
-    togglePalette,
+    colourFamilies,
+    favouriteColourFamilies,
+    toggleColourFamily: pickColourFamily,
     pairingAnswers,
     answerPairing,
     showPairingQuestions,

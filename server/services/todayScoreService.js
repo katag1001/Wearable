@@ -8,38 +8,30 @@
 //  - trend points for being on current trends, by how much the user
 //    follows them (services/trendService.js);
 //  - FAVOURITE_ITEM_BONUS if any of its items is a favourite;
-//  - FAVOURITE_PALETTE_BONUS if its colours fit a favourite palette.
+//  - FAVOURITE_COLOURS_BONUS if its colours are in the user's favourite
+//    colour families (utils/colorPalettes.js fitsFavouriteColours).
 // Pure - no DB access. todayScoreBreakdown gives the parts (shown on the
 // web Today page only, to see how scores are being moved).
 
 const {
   FAVOURITE_ITEM_BONUS,
-  FAVOURITE_PALETTE_BONUS,
+  FAVOURITE_COLOURS_BONUS,
 } = require("../constants/todayOutfits.js");
 const { seasonalPoints } = require("./seasonalityService.js");
 const { showsTrendNote, trendPoints, trendsOn } = require("./trendService.js");
-const { allPalettes, paletteFits } = require("../utils/colorPalettes.js");
-
-// Whether the colours fit one of the user's favourite palettes, whatever
-// levels that palette is used at.
-const fitsFavouritePalette = (colours, favouritePalettes = []) => {
-  if (!colours.length || !favouritePalettes.length) return false;
-
-  const favourites = new Set(favouritePalettes);
-
-  return allPalettes.some((palette) => favourites.has(palette.id) && paletteFits(palette, colours));
-};
+const { fitsFavouriteColours } = require("../utils/colorPalettes.js");
 
 // `match.clothes` must be populated (subtype, colors, pattern, fabric,
 // favourite).
 const itemsOf = (match) => (match.clothes || []).filter(Boolean);
 
 // `context`: { season, seasonality, palettes (the user's colour level),
-// favouritePalettes, trends (the running ones), trendsLevel }.
-// Returns { saved, season, trend, favouriteItem, favouritePalette, total }.
+// favouriteColourPalettes (favouriteFamilyPalettes of the user's favourite
+// colour families), trends (the running ones), trendsLevel }.
+// Returns { saved, season, trend, favouriteItem, favouriteColours, total }.
 function todayScoreBreakdown(
   match,
-  { season, seasonality, palettes, favouritePalettes = [], trends = [], trendsLevel }
+  { season, seasonality, palettes, favouriteColourPalettes = [], trends = [], trendsLevel }
 ) {
   const items = itemsOf(match);
   const colours = match.colors || [];
@@ -49,12 +41,12 @@ function todayScoreBreakdown(
     season: seasonalPoints({ items, colours, palettes, season, level: seasonality }).total,
     trend: trendPoints(trendsOn(items, trends).length, trendsLevel),
     favouriteItem: items.some((item) => item.favourite) ? FAVOURITE_ITEM_BONUS : 0,
-    favouritePalette: fitsFavouritePalette(colours, favouritePalettes) ? FAVOURITE_PALETTE_BONUS : 0,
+    favouriteColours: fitsFavouriteColours(colours, favouriteColourPalettes) ? FAVOURITE_COLOURS_BONUS : 0,
   };
 
   return {
     ...parts,
-    total: parts.saved + parts.season + parts.trend + parts.favouriteItem + parts.favouritePalette,
+    total: parts.saved + parts.season + parts.trend + parts.favouriteItem + parts.favouriteColours,
   };
 }
 
@@ -70,4 +62,4 @@ function trendNoteOf(match, { trends = [], trendsLevel }) {
   return trend ? { label: trend.label, plural: Boolean(trend.plural) } : null;
 }
 
-module.exports = { todayScoreOf, todayScoreBreakdown, trendNoteOf, fitsFavouritePalette };
+module.exports = { todayScoreOf, todayScoreBreakdown, trendNoteOf };

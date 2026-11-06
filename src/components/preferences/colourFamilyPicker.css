@@ -1,22 +1,29 @@
 /* ----------------------------------------------------------------
-   Favourite palette picker (PalettePicker.jsx)
+   Favourite colour family picker (ColourFamilyPicker.jsx)
 ----------------------------------------------------------------- */
 
-.palette-picker {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-
-  gap: 0.75rem;
-
+.colour-family-picker {
   width: 100%;
 
   margin-bottom: 1.5rem;
 }
 
-.palette-picker-card {
+.colour-family-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 0.75rem;
+}
+
+.colour-family-picker-card {
   position: relative;
 
-  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+
+  padding: 0.75rem 0.5rem;
 
   box-sizing: border-box;
 
@@ -24,51 +31,56 @@
   border-radius: 12px;
 
   background: var(--card-background);
+  color: var(--main-color);
 
   cursor: pointer;
 
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
 }
 
-.palette-picker-card:hover {
+.colour-family-picker-card:hover:not(:disabled) {
   background: var(--hover-background);
   border-color: var(--hover-border-color);
 
   box-shadow: var(--shadow-soft);
 }
 
-.palette-picker-card:focus-visible {
+.colour-family-picker-card:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: 2px;
 }
 
-.palette-picker-card--selected {
+.colour-family-picker-card:disabled {
+  opacity: 0.45;
+
+  cursor: default;
+}
+
+.colour-family-picker-card--selected {
   background: var(--hover-background);
   border-color: var(--main-color);
 
   box-shadow: inset 0 0 0 1px var(--main-color);
 }
 
-.palette-picker-swatches {
-  display: flex;
+.colour-family-picker-pie {
+  width: 4rem;
+  height: 4rem;
 
-  height: 2.5rem;
-
-  border-radius: 8px;
-
-  overflow: hidden;
-}
-
-.palette-picker-swatch {
-  flex: 1;
+  border-radius: 50%;
 
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 
-.palette-picker-check {
+.colour-family-picker-name {
+  font-size: 0.9rem;
+}
+
+.colour-family-picker-check {
   position: absolute;
   top: -0.5rem;
   right: -0.5rem;
@@ -89,7 +101,7 @@
 }
 
 @media (max-width: 700px) {
-  .palette-picker {
+  .colour-family-picker-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 
     gap: 0.5rem;

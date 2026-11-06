@@ -6,7 +6,7 @@ import {
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
 import PairingPreferences from "./PairingPreferences";
-import PalettePicker from "./PalettePicker";
+import ColourFamilyPicker from "./ColourFamilyPicker";
 import PointScale from "./PointScale";
 import "./stylePreferences.css";
 import "../../styles/pages.css";
@@ -26,9 +26,9 @@ const StylePreferences = () => {
     imageOptions,
     selectedImages,
     toggleImage,
-    paletteOptions,
-    favouritePalettes,
-    togglePalette,
+    colourFamilies,
+    favouriteColourFamilies,
+    toggleColourFamily,
     pairingAnswers,
     answerPairing: handlePairingAnswer,
     showPairingQuestions,
@@ -178,15 +178,10 @@ const StylePreferences = () => {
           Colours you love
         </h3>
 
-        <p className="style-preferences-section-description">
-          Outfits in these palettes are suggested first. Others are still
-          suggested, just lower down.
-        </p>
-
-        <PalettePicker
-          palettes={paletteOptions}
-          selected={favouritePalettes}
-          onToggle={togglePalette}
+        <ColourFamilyPicker
+          families={colourFamilies}
+          selected={favouriteColourFamilies}
+          onToggle={toggleColourFamily}
         />
       </div>
 

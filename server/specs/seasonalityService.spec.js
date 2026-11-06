@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const { seasonalPoints, outfitSeasonFlags, fabricSeasonsOf } = require("../services/seasonalityService.js");
 const { todayScoreOf } = require("../services/todayScoreService.js");
 const { SEASONALITY_POINTS } = require("../constants/seasonality.js");
+const { favouriteFamilyPalettes } = require("../utils/colorPalettes.js");
 
 const item = (fields) => ({ subtype: "Tee", fabric: "", ...fields });
 const palette = (id, colours, seasons) => ({ id, tier: "common", levels: ["mid"], colours, seasons });
@@ -58,13 +59,13 @@ test("colours fitting an in-season palette add the points; other seasons and neu
 
 /* -------------------- Today score -------------------- */
 
-test("the Today score adds seasonal points (once), a favourite item (+7) and a favourite palette (+4) to the saved score", () => {
+test("the Today score adds seasonal points (once), a favourite item (+7) and favourite colours (+4) to the saved score", () => {
   const match = {
     score: 80,
     colors: ["Lime Green", "White"],
     clothes: [item({ fabric: "Linen", favourite: true }), item({ fabric: "Cotton / plain woven" })],
   };
-  const context = { season: "summer", seasonality: 5, palettes: PALETTES, favouritePalettes: [] };
+  const context = { season: "summer", seasonality: 5, palettes: PALETTES, favouriteColourPalettes: [] };
 
   // In-season fabric and palette together still move it by 8.
   assert.equal(todayScoreOf(match, context), 80 + 8 + 7);
@@ -72,9 +73,9 @@ test("the Today score adds seasonal points (once), a favourite item (+7) and a f
   assert.equal(todayScoreOf(match, { ...context, season: "winter" }), 80 - 8 + 7);
 });
 
-test("a favourite palette adds 4 on Today, at any colour level", () => {
+test("favourite colours add 4 on Today, at any colour level", () => {
   const match = { score: 70, colors: ["Black", "Bright Red", "White"], clothes: [item({})] };
-  const context = { season: "summer", seasonality: 1, palettes: [], favouritePalettes: ["black-red-white"] };
+  const context = { season: "summer", seasonality: 1, palettes: [], favouriteColourPalettes: favouriteFamilyPalettes(["reds"]) };
 
   assert.equal(todayScoreOf(match, context), 74);
 });

@@ -56,7 +56,6 @@ export default function ProfileScreen() {
           label="Style preferences"
           onPress={() => router.push("/account/style")}
         />
-        <ListRow label="Stats" onPress={() => router.push("/account/stats")} />
         <ListRow
           label="Settings"
           onPress={() => router.push("/account/settings")}

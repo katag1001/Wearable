@@ -26,7 +26,7 @@ import {
   Screen,
   SectionTitle,
 } from "../../../../components/ui";
-import { PalettePicker } from "../../../../components/styleQuiz/PalettePicker";
+import { ColourFamilyPicker } from "../../../../components/styleQuiz/ColourFamilyPicker";
 import { PointScale } from "../../../../components/styleQuiz/PointScale";
 
 export default function StylePreferencesScreen() {
@@ -95,14 +95,11 @@ export default function StylePreferencesScreen() {
         ))}
       </Grid>
 
-      <SectionTitle
-        title="Colours you love"
-        description="Outfits in these palettes are suggested first. Others are still suggested, just lower down."
-      />
-      <PalettePicker
-        palettes={style.paletteOptions}
-        selected={style.favouritePalettes}
-        onToggle={style.togglePalette}
+      <SectionTitle title="Colours you love" />
+      <ColourFamilyPicker
+        families={style.colourFamilies}
+        selected={style.favouriteColourFamilies}
+        onToggle={style.toggleColourFamily}
       />
 
       {style.showPairingQuestions && (

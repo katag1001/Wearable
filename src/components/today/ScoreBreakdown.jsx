@@ -6,7 +6,7 @@ const PARTS = [
   ["season", "Season"],
   ["trend", "Trends"],
   ["favouriteItem", "Favourite item"],
-  ["favouritePalette", "Favourite palette"],
+  ["favouriteColours", "Favourite colours"],
 ];
 
 const signed = (value) => (value > 0 ? `+${value}` : `${value}`);

@@ -250,7 +250,7 @@ Whole app (2026-11-03):
   squeeze on press), `Card`, `Chip`, `ChoiceCard`, `TextField` (no border,
   lavender focus glow), `SegmentedControl` (white thumb), `Sheet` (milk,
   radius 36, grab handle, plum backdrop), `ImageTile` + `OutfitCard` +
-  `PalettePicker` + item filter (iridescent halo when selected), `FieldRow`
+  `ColourFamilyPicker` + item filter (iridescent halo when selected), `FieldRow`
   / `ListRow` (no dividers), `RangeSlider` (sky → mint → peach track),
   `StarRating` (iridescent everywhere), `EmptyState` (faint bubble),
   `Loading` (breathing bubble), `Message` (soft notes), `FavouriteHeart`

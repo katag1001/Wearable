@@ -6,14 +6,17 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { layeringQuestion } from "@core/constants/pairingQuestions.js";
 import {
+  coloursQuestion,
   genderQuestionOptions,
   seasonalityQuestion,
   temperatureQuestion,
   trendsQuestion,
+  weeklyQuestion,
 } from "@core/constants/styleQuizOptions.js";
 import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
 
 import { useSession } from "../auth/SessionProvider";
+import { ColoursStep } from "../components/styleQuiz/ColoursStep";
 import { ImagesStep } from "../components/styleQuiz/ImagesStep";
 import { PairingStep } from "../components/styleQuiz/PairingStep";
 import { PointScale } from "../components/styleQuiz/PointScale";
@@ -36,8 +39,9 @@ const STEP_TITLES = {
   },
   // The optional steps show their subtitle themselves, on one line with
   // Skip (SubtitleWithSkip).
+  colours: { title: coloursQuestion.title },
   pairing: { title: layeringQuestion.title },
-  weekly: { title: "Do you have a regular schedule to dress for?" },
+  weekly: { title: weeklyQuestion.title },
 };
 
 export default function StyleQuizScreen() {
@@ -93,6 +97,8 @@ export default function StyleQuizScreen() {
       )}
 
       {quiz.step === "images" && <ImagesStep quiz={quiz} />}
+
+      {quiz.step === "colours" && <ColoursStep quiz={quiz} />}
 
       {quiz.step === "pairing" && <PairingStep quiz={quiz} />}
 

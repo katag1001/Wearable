@@ -43,7 +43,7 @@ In short:
   Temperature never rejects an outfit - each match gets a preset range from
   its subtypes. Every candidate gets a **pair score** and a **colour score**
   (number of colours, how classic or bold its palette is, the user's
-  favourite palettes, bright colours, whether plain pieces echo the
+  bright colours, whether plain pieces echo the
   pattern's colours). If either is below 65, or any one
   pair is below 50, it's dropped. The rest get a **score (0-100)** from both,
   and only the **best** new ones are saved.
@@ -53,7 +53,8 @@ In short:
   specific items ever being matched together (7.3).
 - The **matrix** used depends on the user's gender. The **colour palettes**,
   colour cap and colour score depend on their colour level. Both come
-  from the style quiz, as do the user's favourite palettes.
+  from the style quiz, as do the user's favourite colour families
+  (which only add Today points, 7.1).
 - User-made outfits are **never rejected** and always score 95. Building
   one (+3) or favouriting (+3) adjusts the user's personal score for every
   compatible subtype pair in it; marking a mismatch (−5) adjusts just that
@@ -370,8 +371,7 @@ preferences exist yet (404), `StyleQuizGate` redirects every gated page to
 
 The quiz has five steps, plus pairing questions for women and unisex.
 Every step has Back / Next (the first has only Next, centred), and Log out
-sits at the bottom of every page. Favourite palettes aren't asked -
-they're set on Style Preferences (2.3):
+sits at the bottom of every page:
 
 1. **"How do you prefer to dress?"**: More feminine → `woman`, More unisex →
    `unisex`, More masculine → `man`. Saved as `gender`. Changing it
@@ -385,6 +385,10 @@ they're set on Style Preferences (2.3):
    must be picked. For `woman` and `unisex` a **smart-and-casual** tile
    sits at the end - a pairing answer (2.6), never counted for colour or
    pattern.
+   - **"Which colours do you love?"** (`ColoursStep.jsx`, both apps):
+     the 8 colour families as pie charts (`ColourFamilyPicker`), pick up
+     to 3, with Skip under the question (saves none). Saved as
+     `favouriteColourFamilies` (3.10).
    - **"Do you like to layer tops?"** (`woman` and `unisex` only,
      `LayeringStep.jsx` / mobile `PairingStep.jsx`): six pictures, tick
      any that apply, with Skip under the question. See 2.6.
@@ -445,10 +449,8 @@ re-calculated and sent **if at least one image is selected**. Otherwise
 they stay as they were. Like the quiz, it only shows the images for the
 gender currently chosen on the page (`styleImagesFor`).
 
-It also shows the **favourite palettes** ("Colours you love"), loaded from
-the saved preferences. The palettes offered are the newly picked images'
-colour level, or the saved level if no images are picked, plus any palette
-already picked from another level. The whole list is sent on every save.
+It also shows the **favourite colour families** ("Colours you love", up to
+3), loaded from the saved preferences. The whole list is sent on every save.
 
 For `woman` and `unisex` (the gender currently picked on the page) it
 also shows the pairing questions (2.6) under their section headings,
@@ -470,7 +472,7 @@ affects items added and outfits matched afterwards.
 |---|---|---|---|
 | `gender` | man / woman / unisex | Which subtype list the add form shows. Which matrix is used. Which layering lists are used. | `typeOptions.jsx`, `getBaselineMatrix`, `getLayeringRules` |
 | `colour` | min / mid / max | Which colour palette list is used, the colour-count cap, and the colour score (3.10) | `getColorRules`, `computeColourScore` |
-| `favouritePalettes` | palette ids | Outfits fitting one get +8 on their colour score (3.10). Unknown ids are dropped on save (`cleanFavouritePalettes`) | `computeFavouriteBonus` |
+| `favouriteColourFamilies` | up to 3 colour family ids | Outfits in them get +4 on Today (7.1). Unknown ids and any past 3 are dropped on save (`cleanFavouriteColourFamilies`) | `fitsFavouriteColours` |
 | `pattern` | min / mid / max | How strongly the pattern echo adjustment rewards/penalises colours added to a patterned item (3.10). Missing → mid. The pattern rule itself is the same for everyone (3.7). | `computePatternEchoAdjustment` |
 | `temperature` | cold / normal / hot | Shifts every new match's temperature range ±2° | `temperature-ranges.md` |
 | `pairingAnswers` (quiz only, not stored) | question key → yes / sometimes / no | Sets the starting personal adjustment of the question's pairs (2.6) | `pairingQuizService.js` |
@@ -660,8 +662,7 @@ can't change:
 in the browser and app, `core/utils/colourPalettes.js`) holds one list of
 palettes. Each is `{ id, tier, levels, colours }`:
 
-- `id`: stable name. Users' `favouritePalettes` point at it, so an id must
-  never change once it's live.
+- `id`: stable name.
 - `tier`: `classic`, `common` or `bold` - only affects the score (3.10).
 - `levels`: which colour levels use it.
 - `colours`: names from `colorOptions`.
@@ -826,9 +827,6 @@ to classic combinations, max-colour users to bold ones:
 | common | 60 | 85 | 75 |
 | bold | 30 | 65 | 90 |
 
-**Favourite bonus** (`FAVOURITE_PALETTE_BONUS`): **+8** if the colours fit
-one of the user's `favouritePalettes` - at any level, not only theirs.
-
 **Bright-colour adjustment** (`BRIGHT_COLOUR_ADJUSTMENTS`), by how many of
 the outfit's colours are in `brightColours` (Fuchsia, Lime Green, Orange,
 Bright Yellow, Turquoise, Bright Blue, Bright Pink - in
@@ -893,9 +891,20 @@ it.
 Since November 2026 a favourite **never changes a saved score**. An outfit
 with at least one favourite item gets **+7** only while Today's list is
 chosen (`FAVOURITE_ITEM_BONUS` in `server/constants/todayOutfits.js`,
-`server/services/todayScoreService.js`) - see 7.1. Favourite palettes
-work the same way (+4 on Today, `FAVOURITE_PALETTE_BONUS`), and are no
+`server/services/todayScoreService.js`) - see 7.1. Favourite colours
+work the same way (+4 on Today, `FAVOURITE_COLOURS_BONUS`), and are no
 longer part of the colour score.
+
+**Favourite colours.** The user picks up to 3 of the 8 colour families
+(`colourFamilies` in `shared/colorPalettes.json` - the same at every
+colour level). Every palette colour is either a neutral (`neutralColours`:
+white, cream, grey, black, silver, gold, copper - they go with
+everything) or in exactly one family; the server refuses to start
+otherwise. A palette is a favourite only if **every** family in it was
+picked - liking one colour in a palette isn't enough
+(`favouriteFamilyPalettes`). An outfit gets the bonus if its colours fit
+one of those palettes, at any level, and at least one of its colours
+isn't a neutral (`fitsFavouriteColours`, `server/utils/colorPalettes.js`).
 
 ---
 
@@ -972,7 +981,7 @@ Match.insertMany in chunks of 5,000, best first   (stops near the Vercel deadlin
 1. If the item's `type` isn't one of the four roles, stop.
 2. Load in parallel:
    - preferences (`getUserMatchingPreferences`) → gender, colour,
-     temperature, favourite palettes;
+     temperature, favourite colour families;
    - personal adjustments (`loadUserAdjustments`) → a `Map` of
      `"A B" → adjustment`;
    - the user's existing matches, as sorted-clothing-id keys.
@@ -1242,7 +1251,7 @@ are never saved:
 | **+ seasonality** | Any item's fabric belongs to today's season, and/or its colours fit a palette of today's season |
 | **− seasonality** | Any item's fabric belongs only to other seasons (linen + velvet in summer = 0) |
 | **+7** | Any item is a favourite |
-| **+4** | Its colours fit a favourite palette |
+| **+4** | Its colours are in the user's favourite colour families (3.10) |
 
 "Seasonality" is the user's answer to *How much does the season affect
 what you wear?* (`Preferences.seasonality`, 1–5, style quiz and Style
@@ -1253,7 +1262,7 @@ many points - an in-season fabric and palette together are still +8 at
 5, and an out-of-season fabric with an in-season palette is 0.
 
 The web Today page (only) shows how each outfit's Today score was made
-up - saved score, season, favourite item, favourite palette - from the
+up - saved score, season, favourite item, favourite colours - from the
 `scoreBreakdown` saved on each Today entry when the list is built.
 
 **4. The order** (`rankTodayGroups`) of everything in the running,
@@ -1710,7 +1719,8 @@ the backfill script, then be deleted.
 | Outfit score blend, lowest pair score, colour-count / palette tier / bright-colour / pattern echo scores, favourite bonus, single-item / user-made scores, learning steps | `server/constants/scoring.js` |
 | Allowed outfit shapes | `server/constants/outfitShapes.js` |
 | Colour palettes, their tiers and levels, colour caps, bright colours | `shared/colorPalettes.json` (loaded by `server/utils/colorPalettes.js` and `core/utils/colourPalettes.js`) |
-| Favourite palette picker | `PalettePicker.jsx` (web: `src/components/preferences/`, app: `mobile/src/components/styleQuiz/`) |
+| Colour families and neutrals | `colourFamilies` / `neutralColours` in `shared/colorPalettes.json` |
+| Favourite colours picker (pie charts) | `ColourFamilyPicker.jsx` (web: `src/components/preferences/`, app: `mobile/src/components/styleQuiz/`, with `ColourPie.jsx`) |
 | Patterned-item limit | `passesPatternCheck` in `server/services/styleColorService.js` |
 | Search limits and best-N | `MAX_POOL_SIZE_PER_ROLE`, `MAX_COMBINATIONS_EXPLORED`, `SEARCH_TIME_LIMIT_MS`, `MAX_NEW_MATCHES_PER_ITEM` in `matchService.js` |
 | Lowest pair blend / colour score an automatic outfit is saved at, lowest single pair | `MIN_AUTO_SCORE` / `MIN_PAIR_SCORE` in `server/constants/scoring.js` |
@@ -1718,7 +1728,7 @@ the backfill script, then be deleted.
 | Default gender when missing | `DEFAULT_GENDER` in `matchScoreService.js` |
 | Style quiz pairing questions / their pairs and points | `core/constants/pairingQuestions.js` / `server/constants/pairingQuestions.js` (see 2.6) |
 | Today page weights, tiers and cap | `server/constants/todayOutfits.js` |
-| Today-only points: favourite item / palette | `FAVOURITE_ITEM_BONUS` / `FAVOURITE_PALETTE_BONUS` in `server/constants/todayOutfits.js`, logic in `server/services/todayScoreService.js` (7.1) |
+| Today-only points: favourite item / colours | `FAVOURITE_ITEM_BONUS` / `FAVOURITE_COLOURS_BONUS` in `server/constants/todayOutfits.js`, logic in `server/services/todayScoreService.js` (7.1) |
 | Seasonality points, season temperature bands, season-named types | `server/constants/seasonality.js`, logic in `server/services/seasonalityService.js` (3.8, 7.1) |
 | Fabrics and their seasons | `shared/fabrics.json` |
 | Palette seasons | `seasons` in `shared/colorPalettes.json` |
