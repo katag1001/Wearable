@@ -141,8 +141,8 @@ pick it up (outfits you've interacted with keep their ranges).
   "Would you wear this with tights?" question defaults to yes.
 - `server/constants/temperatureGroups.js` - also `SKIRT_DRESS_SUBTYPES`
   for a skirt or dress (section 6 covers the rest of this file).
-- `server/constants/pairingQuestions.js` - a dress goes in `DRESSES`, and
-  the subtype in any style-quiz question about similar pieces.
+- `server/constants/pairingQuestions.js` - the subtype in any style-quiz
+  question about similar pieces (e.g. `LAYERING_DRESSES`, `SHIRTS`).
 - `server/constants/seasonality.js` - `SEASON_NAMED_SUBTYPES`, only if the
   name itself says a season (e.g. "Summer dress").
 

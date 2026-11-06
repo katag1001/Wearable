@@ -2,26 +2,24 @@ import { useState } from "react";
 
 import { updatePreferences } from "../api/preferences.js";
 import { emptyWeeklyTags } from "../constants/weekDays.js";
-import { pairingQuestions } from "../constants/pairingQuestions.js";
+import { layeringOptions, smartCasualOption } from "../constants/pairingQuestions.js";
 import { DEFAULT_SEASONALITY_ANSWER, styleImagesFor } from "../constants/styleQuizOptions.js";
 import { buildQuizPreferences } from "../styleQuiz/quizAnswers.js";
-import { getQuizSteps } from "../styleQuiz/quizSteps.js";
-import { favouritePaletteOptions, toggleFavouritePalette } from "../utils/colourPalettes.js";
-import { resolveStyleQuiz } from "../utils/resolveStyleQuiz.js";
+import { asksPairingQuestions, getQuizSteps } from "../styleQuiz/quizSteps.js";
 
 /*
- * The style quiz a new user takes: gender → style images → favourite
- * palettes → pairing questions (some genders only) → weekly tags →
- * seasonality (1-5) → temperature, which saves
- * everything. `onComplete` runs once the answers are saved.
+ * The style quiz a new user takes: gender → style images → layering
+ * (some genders only) → weekly tags → seasonality (1-5) → temperature,
+ * which saves everything. Favourite palettes aren't asked here - they're
+ * set on Style Preferences. `onComplete` runs once the answers are saved.
  */
 export const useStyleQuiz = ({ onComplete } = {}) => {
   const [step, setStep] = useState("gender");
   const [gender, setGender] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [favouritePalettes, setFavouritePalettes] = useState([]);
-  const [pairingAnswers, setPairingAnswers] = useState({});
-  const [pairingIndex, setPairingIndex] = useState(0);
+  const [likesSmartCasual, setLikesSmartCasual] = useState(false);
+  const [layeredTops, setLayeredTops] = useState([]);
+  const [layeringAnswered, setLayeringAnswered] = useState(false);
   const [weeklyTags, setWeeklyTags] = useState(emptyWeeklyTags);
   const [seasonality, setSeasonality] = useState(DEFAULT_SEASONALITY_ANSWER);
   const [saving, setSaving] = useState(false);
@@ -62,44 +60,35 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
     setError("");
   };
 
-  /* -------------------- Favourite palettes -------------------- */
-  // Optional. Offered at the colour level the style images give.
+  // The smart-and-casual tile sits with the style images for the genders
+  // asked pairing questions. It's a pairing answer, not a style image, so
+  // it never counts towards colour or pattern.
+  const showSmartCasual = asksPairingQuestions(gender);
 
-  const paletteOptions = favouritePaletteOptions(
-    resolveStyleQuiz(selectedImages).colour,
-    favouritePalettes
-  );
-
-  const togglePalette = (id) => {
-    setFavouritePalettes((current) => toggleFavouritePalette(current, id));
+  const toggleSmartCasual = () => {
+    setLikesSmartCasual((current) => !current);
   };
 
-  /* -------------------- Pairing questions -------------------- */
-  // One question at a time. Answering moves to the next question, or the
-  // next step after the last. Back goes to the previous question, or out
-  // of the step from the first.
+  /* -------------------- Layering -------------------- */
+  // Tick all that apply. Next answers every option (ticked or not);
+  // Skip answers none of them.
 
-  const pairingQuestion = pairingQuestions[pairingIndex];
-
-  const answerPairing = (value) => {
-    setPairingAnswers((current) => ({
-      ...current,
-      [pairingQuestion.key]: value,
-    }));
-
-    if (pairingIndex < pairingQuestions.length - 1) {
-      setPairingIndex(pairingIndex + 1);
-    } else {
-      goToNextStep();
-    }
+  const toggleLayering = (key) => {
+    setLayeredTops((current) =>
+      current.includes(key)
+        ? current.filter((tickedKey) => tickedKey !== key)
+        : [...current, key]
+    );
   };
 
-  const backFromPairing = () => {
-    if (pairingIndex > 0) {
-      setPairingIndex(pairingIndex - 1);
-    } else {
-      goBack();
-    }
+  const finishLayering = () => {
+    setLayeringAnswered(true);
+    goToNextStep();
+  };
+
+  const skipLayering = () => {
+    setLayeringAnswered(false);
+    goToNextStep();
   };
 
   /* -------------------- Weekly tags -------------------- */
@@ -119,8 +108,9 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
         buildQuizPreferences({
           gender,
           selectedImages,
-          favouritePalettes,
-          pairingAnswers,
+          likesSmartCasual,
+          layeredTops,
+          layeringAnswered,
           weeklyTags,
           seasonality,
           temperature,
@@ -149,14 +139,16 @@ export const useStyleQuiz = ({ onComplete } = {}) => {
     selectedImages,
     toggleImage,
 
-    paletteOptions,
-    favouritePalettes,
-    togglePalette,
+    showSmartCasual,
+    smartCasualOption,
+    likesSmartCasual,
+    toggleSmartCasual,
 
-    pairingQuestion,
-    pairingAnswer: pairingAnswers[pairingQuestion.key],
-    answerPairing,
-    backFromPairing,
+    layeringOptions,
+    layeredTops,
+    toggleLayering,
+    finishLayering,
+    skipLayering,
 
     weeklyTags,
     setWeeklyTag,

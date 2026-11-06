@@ -9,7 +9,7 @@ const {
   PAIRING_QUESTION_GENDERS,
   pairingQuestions,
 } = require("../constants/pairingQuestions.js");
-const { PAIRING_ANSWER_ADJUSTMENTS } = require("../constants/scoring.js");
+const { clampAdjustment } = require("../services/outfitScoreService.js");
 const { matchScoreBaseline } = require("../constants/matchScoreBaseline.js");
 
 const woman = matchScoreBaseline.woman;
@@ -20,6 +20,11 @@ function findAdjustment(adjustments, subtypeA, subtypeB) {
       (entry.subtypeA === subtypeA && entry.subtypeB === subtypeB) ||
       (entry.subtypeA === subtypeB && entry.subtypeB === subtypeA)
   );
+}
+
+// The pair's score once the answer is applied.
+function scoreAfter(adjustments, subtypeA, subtypeB) {
+  return woman[subtypeA][subtypeB] + findAdjustment(adjustments, subtypeA, subtypeB).adjustment;
 }
 
 test("every subtype in the pairing questions exists for every pairing gender", () => {
@@ -35,44 +40,84 @@ test("every subtype in the pairing questions exists for every pairing gender", (
   });
 });
 
-test("an answer sets every allowed pair in the question to the answer's value", () => {
-  const adjustments = pairingAdjustments({ croptopsLowRise: "sometimes" }, "woman", woman);
+test("every pair group gives points for yes and no", () => {
+  Object.entries(pairingQuestions).forEach(([key, question]) => {
+    question.pairGroups.forEach((group) => {
+      assert.equal(typeof group.yes, "number", `${key}: yes`);
+      assert.equal(typeof group.no, "number", `${key}: no`);
+    });
+  });
+});
 
-  assert.equal(adjustments.length, 3);
-  ["Croptop", "Halter/strappy top", "Tube top"].forEach((top) => {
+test("yes adds the group's points to every allowed pair", () => {
+  const adjustments = pairingAdjustments({ turtlenecksUnderShirts: "yes" }, "woman", woman);
+  const allowed = pairsForQuestion(pairingQuestions.turtlenecksUnderShirts).filter(
+    ([subtypeA, subtypeB]) => typeof woman[subtypeA]?.[subtypeB] === "number"
+  );
+
+  assert.ok(allowed.length > 0);
+  assert.equal(adjustments.length, allowed.length);
+  allowed.forEach(([subtypeA, subtypeB]) => {
     assert.equal(
-      findAdjustment(adjustments, top, "Low waist jeans").adjustment,
-      PAIRING_ANSWER_ADJUSTMENTS.sometimes
+      findAdjustment(adjustments, subtypeA, subtypeB).adjustment,
+      clampAdjustment(woman[subtypeA][subtypeB], 10)
     );
   });
 });
 
-test("a No takes the pair score down to 0", () => {
-  const adjustments = pairingAdjustments({ croptopsLowRise: "no" }, "woman", woman);
-  const entry = findAdjustment(adjustments, "Croptop", "Low waist jeans");
+test("groups in one question can move their pairs by different amounts", () => {
+  const yes = pairingAdjustments({ shirtsOverTops: "yes" }, "woman", woman);
+  const no = pairingAdjustments({ shirtsOverTops: "no" }, "woman", woman);
 
-  assert.equal(woman.Croptop["Low waist jeans"] + entry.adjustment, 0);
+  assert.equal(findAdjustment(yes, "Buttondown shirt", "Vest").adjustment, 10);
+  assert.equal(findAdjustment(yes, "Buttondown shirt", "Short t-shirt").adjustment, 5);
+  assert.equal(findAdjustment(no, "Buttondown shirt", "Vest").adjustment, -10);
+  assert.equal(findAdjustment(no, "Buttondown shirt", "Short t-shirt").adjustment, -5);
+});
+
+test("sometimes keeps every pair at its baseline", () => {
+  const adjustments = pairingAdjustments({ shirtsOverTops: "sometimes" }, "woman", woman);
+
+  assert.ok(adjustments.length > 0);
+  adjustments.forEach((entry) => assert.equal(entry.adjustment, 0));
+});
+
+test("an OFF answer takes the pair score down to 0", () => {
+  const adjustments = pairingAdjustments({ smartAndCasual: "no" }, "woman", woman);
+
+  assert.equal(scoreAfter(adjustments, "Hoodie/sweatshirt", "Tailored blazer"), 0);
+});
+
+test("t-shirt over a long-sleeve top: ticked is 70, unticked turns it off", () => {
+  const yes = pairingAdjustments({ tshirtsOverLongSleeves: "yes" }, "woman", woman);
+  const no = pairingAdjustments({ tshirtsOverLongSleeves: "no" }, "woman", woman);
+
+  assert.equal(scoreAfter(yes, "Short t-shirt", "Long-sleeve t-shirt"), 70);
+  assert.equal(scoreAfter(no, "Short t-shirt", "Long-sleeve t-shirt"), 40);
 });
 
 test("pairs the matrix doesn't allow are skipped", () => {
-  // Buttondown shirt + Long-sleeve t-shirt is null in the woman matrix.
+  // Denim shirt + Croptop is null in the woman matrix.
   const adjustments = pairingAdjustments({ shirtsOverTops: "yes" }, "woman", woman);
 
-  assert.equal(findAdjustment(adjustments, "Buttondown shirt", "Long-sleeve t-shirt"), undefined);
-  assert.ok(findAdjustment(adjustments, "Buttondown shirt", "Vest"));
+  assert.equal(findAdjustment(adjustments, "Denim shirt", "Croptop"), undefined);
+  assert.ok(findAdjustment(adjustments, "Denim shirt", "Vest"));
 });
 
 test("an adjustment is limited so the pair score stays within 0-100", () => {
-  const matrix = { Croptop: { "Low waist jeans": 95 }, "Low waist jeans": { Croptop: 95 } };
+  const matrix = {
+    "Short turtleneck": { "Buttondown shirt": 95 },
+    "Buttondown shirt": { "Short turtleneck": 95 },
+  };
 
-  const [entry] = pairingAdjustments({ croptopsLowRise: "yes" }, "woman", matrix);
+  const [entry] = pairingAdjustments({ turtlenecksUnderShirts: "yes" }, "woman", matrix);
 
   assert.equal(entry.adjustment, 5);
 });
 
 test("men, unknown questions and unknown answers give nothing", () => {
-  assert.deepEqual(pairingAdjustments({ croptopsLowRise: "no" }, "man", woman), []);
+  assert.deepEqual(pairingAdjustments({ turtlenecksUnderShirts: "no" }, "man", woman), []);
   assert.deepEqual(pairingAdjustments({ notAQuestion: "no" }, "woman", woman), []);
-  assert.deepEqual(pairingAdjustments({ croptopsLowRise: "maybe" }, "woman", woman), []);
+  assert.deepEqual(pairingAdjustments({ turtlenecksUnderShirts: "maybe" }, "woman", woman), []);
   assert.deepEqual(pairingAdjustments(undefined, "woman", woman), []);
 });

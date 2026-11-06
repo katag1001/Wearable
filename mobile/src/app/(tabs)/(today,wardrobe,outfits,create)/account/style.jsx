@@ -3,14 +3,16 @@
 
 import { StyleSheet, Text, View } from "react-native";
 
-import { pairingAnswerOptions } from "@core/constants/pairingQuestions.js";
+import {
+  pairingAnswerOptions,
+  pairingQuestions,
+} from "@core/constants/pairingQuestions.js";
 import {
   genderQuestionOptions,
   seasonalityQuestion,
   temperatureQuestionOptions,
 } from "@core/constants/styleQuizOptions.js";
 import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
-import { getPairingSections } from "@core/styleQuiz/pairingSections.js";
 import { colors, fontSizes, spacing } from "../../../../theme/tokens";
 
 import {
@@ -40,7 +42,7 @@ export default function StylePreferencesScreen() {
       subtitle="Update how you dress and the styles you like."
       edges={["bottom"]}
     >
-      <SectionTitle title="How do you usually dress?" />
+      <SectionTitle title="How do you prefer to dress?" />
       {genderQuestionOptions.map((option) => (
         <ChoiceCard
           key={option.value}
@@ -90,39 +92,38 @@ export default function StylePreferencesScreen() {
         onToggle={style.togglePalette}
       />
 
-      {style.showPairingQuestions &&
-        getPairingSections().map(({ section, questions }) => (
-          <View key={section} style={styles.pairingSection}>
-            <SectionTitle
-              title={section}
-              description="Leave a question unanswered to keep how those pairings score now."
-            />
+      {style.showPairingQuestions && (
+        <View style={styles.pairingSection}>
+          <SectionTitle
+            title="Do you like..."
+            description="Leave a question unanswered to keep how those pairings score now."
+          />
 
-            {questions.map(({ key, question }) => (
-              <View key={key} style={styles.question}>
-                <Text style={styles.questionText}>{question}</Text>
+          {pairingQuestions.map(({ key, label }) => (
+            <View key={key} style={styles.question}>
+              <Text style={styles.questionText}>{label}</Text>
 
-                <View style={styles.answers}>
-                  {pairingAnswerOptions.map((option) => {
-                    const selected = style.pairingAnswers[key] === option.value;
+              <View style={styles.answers}>
+                {pairingAnswerOptions.map((option) => {
+                  const selected = style.pairingAnswers[key] === option.value;
 
-                    return (
-                      <View key={option.value} style={styles.answer}>
-                        <ChoiceCard
-                          label={option.label}
-                          selected={selected}
-                          onPress={() =>
-                            style.answerPairing(key, selected ? null : option.value)
-                          }
-                        />
-                      </View>
-                    );
-                  })}
-                </View>
+                  return (
+                    <View key={option.value} style={styles.answer}>
+                      <ChoiceCard
+                        label={option.label}
+                        selected={selected}
+                        onPress={() =>
+                          style.answerPairing(key, selected ? null : option.value)
+                        }
+                      />
+                    </View>
+                  );
+                })}
               </View>
-            ))}
-          </View>
-        ))}
+            </View>
+          ))}
+        </View>
+      )}
 
       <Message text={style.error} />
       <Message text={style.success} type="success" />

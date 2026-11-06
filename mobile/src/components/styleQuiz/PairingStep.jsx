@@ -1,50 +1,29 @@
-// Style quiz: one Yes / Sometimes / No pairing question at a time.
-// Answering moves on by itself (useStyleQuiz.answerPairing).
+// Style quiz: "Do you like to layer tops?" - tick any that apply, or skip
+// (useStyleQuiz.finishLayering / skipLayering). The pictures sit in a
+// 2-column grid; Skip is right under the question.
 
-import { StyleSheet, Text } from "react-native";
-
-import { pairingAnswerOptions } from "@core/constants/pairingQuestions.js";
-
-import { colors, fontSizes, fontWeights } from "../../theme/tokens";
-import { ChoiceCard, Grid, ImageTile } from "../ui";
+import { Grid, ImageTile } from "../ui";
 import { QuizActions } from "./QuizActions";
+import { SkipLink } from "./SkipLink";
 
-export const PairingStep = ({ quiz }) => {
-  const { question, images } = quiz.pairingQuestion;
+export const PairingStep = ({ quiz }) => (
+  <>
+    <SkipLink onPress={quiz.skipLayering} />
 
-  return (
-    <>
-      <Text style={styles.question}>{question}</Text>
-
-      <Grid columns={3}>
-        {images.map((image, index) => (
-          <ImageTile
-            key={index}
-            source={image}
-            placeholder="Image coming soon"
-            aspectRatio={3 / 4}
-          />
-        ))}
-      </Grid>
-
-      {pairingAnswerOptions.map((option) => (
-        <ChoiceCard
-          key={option.value}
+    <Grid columns={2}>
+      {quiz.layeringOptions.map((option) => (
+        <ImageTile
+          key={option.key}
+          source={option.image}
           label={option.label}
-          selected={quiz.pairingAnswer === option.value}
-          onPress={() => quiz.answerPairing(option.value)}
+          placeholder="Image coming soon"
+          selected={quiz.layeredTops.includes(option.key)}
+          onPress={() => quiz.toggleLayering(option.key)}
+          aspectRatio={3 / 4}
         />
       ))}
+    </Grid>
 
-      <QuizActions onBack={quiz.backFromPairing} />
-    </>
-  );
-};
-
-const styles = StyleSheet.create({
-  question: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    color: colors.main,
-  },
-});
+    <QuizActions onBack={quiz.goBack} onNext={quiz.finishLayering} />
+  </>
+);

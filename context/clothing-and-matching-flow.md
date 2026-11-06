@@ -368,21 +368,19 @@ If any of `gender`, `colour`, `pattern` or `temperature` is missing, or no
 preferences exist yet (404), `StyleQuizGate` redirects every gated page to
 `/style-quiz`.
 
-The quiz has four steps, plus favourite palettes, and pairing questions for
-women and unisex:
+The quiz has four steps, plus pairing questions for women and unisex.
+Favourite palettes aren't asked - they're set on Style Preferences (2.3):
 
-1. **"How do you usually dress?"**: More feminine → `woman`, More unisex →
+1. **"How do you prefer to dress?"**: More feminine → `woman`, More unisex →
    `unisex`, More masculine → `man`. Saved as `gender`.
 2. **"Select all that apply"**: a grid of style images. Only images whose
    `gender` list includes the chosen gender are shown. At least one image
-   must be picked.
-   - **"Pick the colours you love"** (`PalettePicker.jsx`): the palettes at
-     the colour level the images give (2.2), classic first, as swatches.
-     Optional - pick any number, or skip. Saved as `favouritePalettes`
-     (palette ids). See 3.10.
-   - **Pairing questions** (`woman` and `unisex` only,
-     `PairingQuestionStep.jsx`): one Yes / Sometimes / No question per
-     screen, each with a row of images. See 2.6.
+   must be picked. For `woman` and `unisex` a **smart-and-casual** tile
+   sits at the end - a pairing answer (2.6), never counted for colour or
+   pattern.
+   - **"Do you like to layer tops?"** (`woman` and `unisex` only,
+     `LayeringStep.jsx` / mobile `PairingStep.jsx`): six pictures, tick
+     any that apply, with Skip under the question. See 2.6.
 3. **"What do you generally wear throughout the week?"**
    (`WeeklyTagStep.jsx`): a tag for each day, picked from the tag images.
    Picking a tag moves on to the next day. Every day is optional, and only
@@ -394,24 +392,24 @@ women and unisex:
 ### 2.2 How the images become colour and pattern
 
 Each image in `styleImageOptions` carries a colour and a pattern level.
-Each image is `women1`–`women10` or `men1`–`men9`
+Each image is `women1`–`women11` or `men1`–`men10`
 (`core/assets/styles`). Colour rows × pattern columns:
 
-| woman (10) | pattern min | pattern mid | pattern max |
+| woman (11) | pattern min | pattern mid | pattern max |
 |---|---|---|---|
-| colour min | women1, women2 | women3, women4 | - |
+| colour min | women1, women2, women11 | women3, women4 | - |
 | colour mid | women5 | women6, women7 | women8 |
 | colour max | women9 | - | women10 |
 
-| man (9) | pattern min | pattern mid | pattern max |
+| man (10) | pattern min | pattern mid | pattern max |
 |---|---|---|---|
 | colour min | men1, men2 | men3 | - |
-| colour mid | men4 | men5 | men6 |
+| colour mid | men4, men10 | men5 | men6 |
 | colour max | men7 | men8 | men9 |
 
-**unisex** sees 12: six from each set, picked so colour and pattern are
-both 4 / 4 / 4 - women1, women3, women5, women6, women8, women10, men1,
-men3, men6, men7, men8, men9.
+**unisex** sees 13: six from each set picked so colour and pattern were
+4 / 4 / 4, plus women11 (min/min) - women1, women3, women5, women6, women8,
+women10, women11, men1, men3, men6, men7, men8, men9.
 
 `resolveStyleQuiz(selectedKeys)` takes a **majority vote** across the
 selected images, separately for each label:
@@ -426,8 +424,8 @@ Example: a woman picks women10, women3 and women8.
 - colour: max 1, min 1, mid 1 → tie → **min**
 - pattern: max 2, mid 1 → **max**
 
-`PUT /preferences` is sent with `{ gender, colour, pattern, temperature,
-favouritePalettes }`.
+`PUT /preferences` is sent with `{ gender, colour, pattern, seasonality,
+temperature }`, plus `pairingAnswers` and any weekly days picked.
 
 ### 2.3 Changing preferences later
 
@@ -482,36 +480,52 @@ unknown gender.
 
 ### 2.6 Pairing questions
 
-Files: `src/constants/pairingQuestions.js` (text, headings, images),
+Files: `core/constants/pairingQuestions.js` (labels, images),
 `server/constants/pairingQuestions.js` (which pairs each question sets),
 `server/services/pairingQuizService.js`. The keys must match.
 
-| Key | Question | Pairs |
-|---|---|---|
-| `shirtsOverTops` | Do you like shirts over tops? | Buttondown shirt, Linen shirt × Short t-shirt, Long t-shirt, Vest, Croptop, Bodysuit, Fancy top |
-| `turtlenecksUnderShirts` | Do you like turtlenecks under shirts or blouses? | Short/Long turtleneck × Buttondown shirt, Linen shirt, Floaty blouse, Fancy blouse |
-| `topsUnderDresses` | Do you like t-shirts or turtlenecks under dresses? | Short/Long t-shirt, Short/Long turtleneck × every dress |
-| `smartAndCasual` | Do you like to mix smart and casual? | Hoodie × Blazer, Trench coat, the skirts; Blazer, Trench coat × Sweatpants, Leggings; Cargo pants × Fancy top, Fancy blouse, Blazer |
-| `croptopsLowRise` | Do you like croptops with low-rise bottoms? | Croptop × Low waist jeans |
+Each question is a list of pair groups, and each group says how many
+points **yes** and **no** add to its pairs' baseline (limited to 0-100).
+**Sometimes** changes nothing. OFF takes the pair to 0.
 
-The first three are under "A few layering questions...", the last two
-under "And a couple about mixing styles...".
+| Key | Picture | Pairs | Yes | No |
+|---|---|---|---|---|
+| `shirtsOverTops` | shirt-over-top | Buttondown, Denim, Linen shirt × Vest, Croptop | +10 | −10 |
+| | | Buttondown, Denim, Linen shirt × Short t-shirt | +5 | −5 |
+| `turtlenecksUnderShirts` | t-under-shirt | Short/Long turtleneck × Buttondown, Denim, Linen shirt, Floaty, Peasant/boho, Fancy blouse | +10 | −10 |
+| `topsUnderDresses` | t-under-dress | Short/Long turtleneck, Long-sleeve t-shirt × Winter, Work, Casual dress | +10 | −10 |
+| | | Short t-shirt × Winter, Work, Casual dress | +5 | −5 |
+| `shirtsUnderDresses` | shirt-under-dress | Buttondown, Denim, Linen shirt × Work dress | +10 | −10 |
+| `linenWithSummerDresses` | shirt-summerdress | Linen shirt × Summer dress, Strappy summer dress | +10 | −10 |
+| `tshirtsOverLongSleeves` | t-under-t | Short t-shirt × Long-sleeve t-shirt (baseline 50: yes → 70, no → 40) | +20 | −10 |
+| `smartAndCasual` | smart-casual (style images) | Hoodie × Blazer, Trench coat, the skirts; Blazer, Trench coat × Sweatpants, Leggings; Cargo pants × Fancy top, Fancy blouse, Blazer | +10 | OFF |
+
+Pairs the matrix doesn't allow (`null`) are skipped, so an answer never
+changes compatibility - e.g. Denim shirt × Croptop.
+
+The quiz turns the pictures into yes / no answers (`buildPairingAnswers`
+in `core/styleQuiz/quizAnswers.js`):
+
+- **Layering** ("Do you like to layer tops? Tick any that apply.", six
+  pictures). Next sends all six: ticked → `yes`, not ticked → `no`.
+  Skip sends none of them, so those pairs keep their baseline.
+- **Smart and casual.** Picked → `yes`. Not picked → nothing sent.
+
+Style Preferences asks all seven as Yes / Sometimes / No ("Do you
+like...").
 
 The quiz sends the answers with `PUT /preferences` as `pairingAnswers`.
 They aren't stored on preferences. Instead every pair in an answered
-question has its personal adjustment **set** (not added) to
-`PAIRING_ANSWER_ADJUSTMENTS`: **Yes +10, Sometimes −10**, limited so the
-pair score stays within 0-100, and **No takes the pair score to 0**.
-Retaking the quiz overwrites those pairs again. Pairs the matrix doesn't
-allow (`null`) are skipped, so an answer never changes compatibility.
+question has its personal adjustment **set** (not added to what's there)
+to the answer's points. Retaking the quiz overwrites those pairs again. If
+two answered questions share a pair, the lower adjustment wins.
 
-"No" goes all the way to 0, below `MIN_PAIR_SCORE` (50), so the search
-drops any outfit with that pair (4.4) and it's never suggested
-automatically. It can still be built by hand, and building or
-favouriting it lifts the pair again. The answers are applied after a gender-change wipe, so they
-survive a gender change made in the same save; a later gender change
-deletes them with every other adjustment. Men are never asked, and the
-server ignores answers for them.
+Anything that ends below `MIN_PAIR_SCORE` (50) is dropped by the search
+(4.4) and never suggested automatically. It can still be built by hand,
+and building or favouriting it lifts the pair again. The answers are
+applied after a gender-change wipe, so they survive a gender change made
+in the same save; a later gender change deletes them with every other
+adjustment. Men are never asked, and the server ignores answers for them.
 
 ---
 
@@ -1686,7 +1700,7 @@ the backfill script, then be deleted.
 | Lowest pair blend / colour score an automatic outfit is saved at, lowest single pair | `MIN_AUTO_SCORE` / `MIN_PAIR_SCORE` in `server/constants/scoring.js` |
 | Time kept for saving / save chunk size | `SAVE_RESERVE_MS`, `INSERT_CHUNK_SIZE`, `INSERT_STOP_MARGIN_MS` in `matchService.js` |
 | Default gender when missing | `DEFAULT_GENDER` in `matchScoreService.js` |
-| Style quiz pairing questions / their pairs / answer values | `src/constants/pairingQuestions.js` / `server/constants/pairingQuestions.js` / `PAIRING_ANSWER_ADJUSTMENTS` in `server/constants/scoring.js` (see 2.6) |
+| Style quiz pairing questions / their pairs and points | `core/constants/pairingQuestions.js` / `server/constants/pairingQuestions.js` (see 2.6) |
 | Today page weights, tiers and cap | `server/constants/todayOutfits.js` |
 | Today-only points: favourite item / palette | `FAVOURITE_ITEM_BONUS` / `FAVOURITE_PALETTE_BONUS` in `server/constants/todayOutfits.js`, logic in `server/services/todayScoreService.js` (7.1) |
 | Seasonality points, season temperature bands, season-named types | `server/constants/seasonality.js`, logic in `server/services/seasonalityService.js` (3.8, 7.1) |

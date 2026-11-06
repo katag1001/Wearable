@@ -62,7 +62,7 @@ const StylePreferences = () => {
 
       <div className="style-preferences-section">
         <h3 className="style-preferences-section-title">
-          How do you usually dress?
+          How do you prefer to dress?
         </h3>
 
         <div className="style-preferences-choice-options">

@@ -1,56 +1,57 @@
 /* --------------------------------------------------------------------
    PAIRING QUESTIONS (style quiz)
 
-   Yes / Sometimes / No questions about pairings people feel strongly
-   about. Shown only to the genders in `pairingQuestionGenders`, after the
-   style images. The answer sets the starting score of every subtype pair
-   in the question - which pairs, and by how much, is decided on the
-   server in server/constants/pairingQuestions.js and
-   PAIRING_ANSWER_ADJUSTMENTS in server/constants/scoring.js. The `key`s
-   must match the server's.
+   Pairings people feel strongly about, asked only of the genders in
+   `pairingQuestionGenders`. Each answer (yes / sometimes / no) moves the
+   starting score of every subtype pair in that question - which pairs,
+   and by how much, is decided on the server in
+   server/constants/pairingQuestions.js. The `key`s must match the
+   server's.
 
-   `section` is the heading shown above the question. `images` are shown
-   in a row above the answers - a null entry shows a placeholder tile.
-   To add a picture, import it at the top of this file and replace a null.
+   The quiz asks them as pictures, not Yes / Sometimes / No:
+   - layering: one "tick any that apply" step. Ticked → yes, not
+     ticked → no. Skipping the step sends nothing.
+   - smart and casual: an extra tile in the style images. Picked → yes,
+     not picked → nothing sent. It never counts towards colour or
+     pattern.
+   Style Preferences asks each one as Yes / Sometimes / No.
+
+   The pictures live in core/assets/pairing. An `image` of null shows a
+   placeholder tile.
 -------------------------------------------------------------------- */
+
+import shirtOverTop from "../assets/pairing/shirt-over-top.jpg";
+import shirtSummerDress from "../assets/pairing/shirt-summerdress.jpg";
+import shirtUnderDress from "../assets/pairing/shirt-under-dress.jpg";
+import smartCasual from "../assets/pairing/smart-casual.jpg";
+import tUnderDress from "../assets/pairing/t-under-dress.jpg";
+import tUnderShirt from "../assets/pairing/t-under-shirt.jpg";
+import tUnderT from "../assets/pairing/t-under-t.jpg";
 
 export const pairingQuestionGenders = ["woman", "unisex"];
 
-const LAYERING = "A few layering questions...";
-const MIXING = "And a couple about mixing styles...";
+export const layeringQuestion = {
+  title: "Do you like to layer tops?",
+  subtitle: "Tick any that apply.",
+};
 
-export const pairingQuestions = [
-  {
-    key: "shirtsOverTops",
-    section: LAYERING,
-    question: "Do you like shirts over tops?",
-    images: [null, null, null],
-  },
-  {
-    key: "turtlenecksUnderShirts",
-    section: LAYERING,
-    question: "Do you like turtlenecks under shirts or blouses?",
-    images: [null, null, null],
-  },
-  {
-    key: "topsUnderDresses",
-    section: LAYERING,
-    question: "Do you like t-shirts or turtlenecks under dresses?",
-    images: [null, null, null],
-  },
-  {
-    key: "smartAndCasual",
-    section: MIXING,
-    question: "Do you like to mix smart and casual?",
-    images: [null, null, null],
-  },
-  {
-    key: "croptopsLowRise",
-    section: MIXING,
-    question: "Do you like croptops with low-rise bottoms?",
-    images: [null, null, null],
-  },
+export const layeringOptions = [
+  { key: "shirtsOverTops", label: "Shirts over tops", image: shirtOverTop },
+  { key: "turtlenecksUnderShirts", label: "Turtlenecks under shirts", image: tUnderShirt },
+  { key: "topsUnderDresses", label: "Tops under dresses", image: tUnderDress },
+  { key: "shirtsUnderDresses", label: "Shirts under dresses", image: shirtUnderDress },
+  { key: "linenWithSummerDresses", label: "Linen shirts with summer dresses", image: shirtSummerDress },
+  { key: "tshirtsOverLongSleeves", label: "T-shirts over long-sleeve tops", image: tUnderT },
 ];
+
+export const smartCasualOption = {
+  key: "smartAndCasual",
+  label: "Mixing smart and casual",
+  image: smartCasual,
+};
+
+// Every question, for Style Preferences.
+export const pairingQuestions = [...layeringOptions, smartCasualOption];
 
 export const pairingAnswerOptions = [
   { label: "Yes", value: "yes" },

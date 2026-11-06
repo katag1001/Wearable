@@ -2,8 +2,8 @@
 //
 // Turns the style quiz's pairing answers (constants/pairingQuestions.js)
 // into personal score adjustments. Each answered question SETS the
-// adjustment of every pair in it to the answer's value
-// (PAIRING_ANSWER_ADJUSTMENTS), replacing any earlier answer or learning,
+// adjustment of every pair in it to the points its group gives that answer
+// (yes / no; sometimes is 0), replacing any earlier answer or learning,
 // so retaking the quiz starts those pairs again from the new answer.
 // Learning (matchScoreService.js) then carries on from there.
 //
@@ -11,7 +11,6 @@
 // answer can never make a pair match or stop matching.
 
 const { MatchScore } = require("../models/AllModels.js");
-const { PAIRING_ANSWER_ADJUSTMENTS } = require("../constants/scoring.js");
 const {
   PAIRING_QUESTION_GENDERS,
   pairingQuestions,
@@ -19,13 +18,21 @@ const {
 const { canonicalPairKey, pairKey } = require("./matrixService.js");
 const { clampAdjustment } = require("./outfitScoreService.js");
 
-// Every [subtypeA, subtypeB] pair a question covers, in canonical order.
-function pairsForQuestion(question) {
-  return question.pairGroups.flatMap(([subtypesA, subtypesB]) =>
-    subtypesA.flatMap((subtypeA) =>
-      subtypesB.map((subtypeB) => canonicalPairKey(subtypeA, subtypeB))
-    )
+// The points an answer gives a pair group. Undefined for an unknown answer.
+function answerPoints(group, answer) {
+  return answer === "sometimes" ? 0 : group[answer];
+}
+
+// Every [subtypeA, subtypeB] pair a group covers, in canonical order.
+function pairsForGroup({ pairs: [subtypesA, subtypesB] }) {
+  return subtypesA.flatMap((subtypeA) =>
+    subtypesB.map((subtypeB) => canonicalPairKey(subtypeA, subtypeB))
   );
+}
+
+// Every pair a question covers.
+function pairsForQuestion(question) {
+  return question.pairGroups.flatMap(pairsForGroup);
 }
 
 // The adjustment to store for every allowed pair in the answered
@@ -41,26 +48,29 @@ function pairingAdjustments(answers, gender, baselineMatrix) {
 
   Object.entries(answers).forEach(([questionKey, answer]) => {
     const question = pairingQuestions[questionKey];
-    const value = PAIRING_ANSWER_ADJUSTMENTS[answer];
 
-    if (!question || value === undefined) {
-      return;
-    }
+    question?.pairGroups.forEach((group) => {
+      const value = answerPoints(group, answer);
 
-    pairsForQuestion(question).forEach(([subtypeA, subtypeB]) => {
-      const baseline = baselineMatrix?.[subtypeA]?.[subtypeB];
-
-      if (typeof baseline !== "number") {
+      if (value === undefined) {
         return;
       }
 
-      const key = pairKey(subtypeA, subtypeB);
-      const adjustment = clampAdjustment(baseline, value);
-      const existing = adjustments.get(key);
+      pairsForGroup(group).forEach(([subtypeA, subtypeB]) => {
+        const baseline = baselineMatrix?.[subtypeA]?.[subtypeB];
 
-      if (!existing || adjustment < existing.adjustment) {
-        adjustments.set(key, { subtypeA, subtypeB, adjustment });
-      }
+        if (typeof baseline !== "number") {
+          return;
+        }
+
+        const key = pairKey(subtypeA, subtypeB);
+        const adjustment = clampAdjustment(baseline, value);
+        const existing = adjustments.get(key);
+
+        if (!existing || adjustment < existing.adjustment) {
+          adjustments.set(key, { subtypeA, subtypeB, adjustment });
+        }
+      });
     });
   });
 

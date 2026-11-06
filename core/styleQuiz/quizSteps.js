@@ -6,8 +6,8 @@ import { pairingQuestionGenders } from "../constants/pairingQuestions.js";
 // genders in pairingQuestionGenders.
 export const getQuizSteps = (gender) =>
   pairingQuestionGenders.includes(gender)
-    ? ["gender", "images", "palettes", "pairing", "weekly", "seasonality", "temperature"]
-    : ["gender", "images", "palettes", "weekly", "seasonality", "temperature"];
+    ? ["gender", "images", "pairing", "weekly", "seasonality", "temperature"]
+    : ["gender", "images", "weekly", "seasonality", "temperature"];
 
 export const asksPairingQuestions = (gender) =>
   pairingQuestionGenders.includes(gender);

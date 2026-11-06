@@ -6,8 +6,7 @@ import {
 } from "@core/constants/styleQuizOptions.js";
 import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
 import WeeklyTagStep from "./WeeklyTagStep";
-import PairingQuestionStep from "./PairingQuestionStep";
-import PalettePicker from "../preferences/PalettePicker";
+import LayeringStep from "./LayeringStep";
 import SeasonalityScale from "../preferences/SeasonalityScale";
 import "./styleQuizForm.css";
 
@@ -44,7 +43,7 @@ const StyleQuizForm = ({ onComplete }) => {
       {step === "gender" && (
         <div className="style-quiz-step">
           <div className="style-quiz-header">
-            <h2 className="page-title">How do you usually dress?</h2>
+            <h2 className="page-title">How do you prefer to dress?</h2>
           </div>
 
           <div className="style-quiz-choice-options">
@@ -100,6 +99,36 @@ const StyleQuizForm = ({ onComplete }) => {
                   </button>
                 );
               })}
+
+            {quiz.showSmartCasual && (
+              <button
+                type="button"
+                className={`style-quiz-image-card ${
+                  quiz.likesSmartCasual ? "style-quiz-image-card--selected" : ""
+                }`}
+                onClick={quiz.toggleSmartCasual}
+                aria-pressed={quiz.likesSmartCasual}
+                aria-label={quiz.smartCasualOption.label}
+              >
+                {quiz.smartCasualOption.image ? (
+                  <img
+                    src={quiz.smartCasualOption.image}
+                    alt=""
+                    className="style-quiz-image-card-image"
+                  />
+                ) : (
+                  <span className="style-quiz-pairing-placeholder">
+                    {quiz.smartCasualOption.label}
+                  </span>
+                )}
+
+                {quiz.likesSmartCasual && (
+                  <span className="style-quiz-image-card-check" aria-label="Selected">
+                    ✓
+                  </span>
+                )}
+              </button>
+            )}
           </div>
 
           <div className="style-quiz-actions">
@@ -123,48 +152,14 @@ const StyleQuizForm = ({ onComplete }) => {
         </div>
       )}
 
-      {step === "palettes" && (
-        <div className="style-quiz-step">
-          <div className="style-quiz-header">
-            <h2 className="page-title">Pick the colours you love</h2>
-            <p className="page-subtitle">
-              Outfits in these palettes will be suggested first. You can skip
-              this and change it later.
-            </p>
-          </div>
-
-          <PalettePicker
-            palettes={quiz.paletteOptions}
-            selected={quiz.favouritePalettes}
-            onToggle={quiz.togglePalette}
-          />
-
-          <div className="style-quiz-actions">
-            <button
-              type="button"
-              className="style-quiz-back-button"
-              onClick={goBack}
-            >
-              Back
-            </button>
-
-            <button
-              type="button"
-              className="style-quiz-finish-button"
-              onClick={goToNextStep}
-            >
-              {quiz.favouritePalettes.length ? "Next" : "Skip"}
-            </button>
-          </div>
-        </div>
-      )}
-
       {step === "pairing" && (
-        <PairingQuestionStep
-          question={quiz.pairingQuestion}
-          answer={quiz.pairingAnswer}
-          onAnswer={quiz.answerPairing}
-          onBack={quiz.backFromPairing}
+        <LayeringStep
+          options={quiz.layeringOptions}
+          ticked={quiz.layeredTops}
+          onToggle={quiz.toggleLayering}
+          onBack={goBack}
+          onSkip={quiz.skipLayering}
+          onNext={quiz.finishLayering}
         />
       )}
 

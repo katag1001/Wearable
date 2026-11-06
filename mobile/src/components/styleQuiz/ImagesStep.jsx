@@ -1,4 +1,6 @@
-// Style quiz: pick every style image that feels like you.
+// Style quiz: pick every style image that feels like you. For the genders
+// asked pairing questions, a smart-and-casual tile sits at the end - a
+// pairing answer, not a style image (useStyleQuiz).
 
 import { Grid, ImageTile } from "../ui";
 import { QuizActions } from "./QuizActions";
@@ -16,6 +18,16 @@ export const ImagesStep = ({ quiz }) => (
           aspectRatio={3 / 4}
         />
       ))}
+      {quiz.showSmartCasual ? (
+        <ImageTile
+          source={quiz.smartCasualOption.image}
+          label={quiz.smartCasualOption.label}
+          placeholder={quiz.smartCasualOption.label}
+          selected={quiz.likesSmartCasual}
+          onPress={quiz.toggleSmartCasual}
+          aspectRatio={3 / 4}
+        />
+      ) : null}
     </Grid>
 
     <QuizActions

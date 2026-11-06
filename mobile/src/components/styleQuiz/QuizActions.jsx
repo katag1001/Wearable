@@ -1,5 +1,6 @@
-// Back / Next under a quiz step. Leave out onNext for steps that move on
-// by themselves when you answer.
+// Back / Next at the bottom of a quiz step (pushed down when the step is
+// shorter than the screen). Leave out onNext for steps that move on by
+// themselves when you answer.
 
 import { StyleSheet, View } from "react-native";
 
@@ -30,7 +31,8 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
     gap: spacing.md,
-    marginTop: spacing.sm,
+    marginTop: "auto",
+    paddingTop: spacing.sm,
   },
   button: {
     flex: 1,

@@ -108,17 +108,6 @@ const LEARNING_DELTAS = {
   mismatched: -5,
 };
 
-// Style quiz pairing questions (constants/pairingQuestions.js): each answer
-// sets the personal adjustment of every pair in that question to this
-// value, replacing whatever was there. "no" takes the pair score down to
-// MIN_SCORE (the adjustment is limited at 0), which is under MIN_PAIR_SCORE,
-// so no outfit with that pair is ever suggested automatically.
-const PAIRING_ANSWER_ADJUSTMENTS = {
-  yes: 10,
-  sometimes: -10,
-  no: -MAX_SCORE,
-};
-
 // Rejecting an outfit on the Today page (at most once per outfit per day)
 // keeps it out of the top REJECTED_OUTFIT_TOP_GAP places of the Today list
 // for this many days. It never changes a score
@@ -176,7 +165,6 @@ module.exports = {
   MAX_AUTO_SCORE,
   USER_MADE_SCORE,
   LEARNING_DELTAS,
-  PAIRING_ANSWER_ADJUSTMENTS,
   REJECTION_COOLDOWN_DAYS,
   REJECTED_OUTFIT_TOP_GAP,
   TEMPERATURE_FEEDBACK_SHIFT,
