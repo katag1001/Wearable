@@ -5,6 +5,9 @@
 // applies adds its points to the shoe's score; several can apply at once
 // (e.g. a cold, snowy day). Weather never hides a shoe.
 //
+// FOOTWEAR_UNSUITABLE_RULES are firmer: a shoe they name goes below every
+// shoe that suits the weather, whatever its points.
+//
 // `when` reads today's forecast { min, max, code } - code is the WMO
 // weather code (see getWeatherEmoji in core/weather/weatherCodes.js).
 
@@ -28,6 +31,18 @@ const isRain = (code) =>
 
 export const HOT_DAY_MAX = 22;
 export const COLD_DAY_MAX = 10;
+
+const SANDALS = ["Sandals", "Heeled sandals", "Flipflops"];
+
+// Boots when today's maximum is above this, sandals when today's minimum
+// is below this.
+export const BOOTS_TOO_WARM_ABOVE = 23;
+export const SANDALS_TOO_COOL_BELOW = 15;
+
+export const FOOTWEAR_UNSUITABLE_RULES = [
+  { name: "too warm for boots", when: ({ max }) => max > BOOTS_TOO_WARM_ABOVE, footwear: BOOTS },
+  { name: "too cool for sandals", when: ({ min }) => min < SANDALS_TOO_COOL_BELOW, footwear: SANDALS },
+];
 
 export const FOOTWEAR_WEATHER_RULES = [
   {

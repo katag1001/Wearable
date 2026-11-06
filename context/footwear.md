@@ -90,9 +90,14 @@ The shoe is paired with the outfit's **bottom**, or its **one-piece** if it
 has no bottom (an outfit with both uses the bottom).
 
 1. **Unsuitable last:** every shoe today's weather doesn't penalise comes
-   before every shoe it does, and with tights, Sandals, Heeled sandals and
+   before every shoe it does. So do the firm weather rules
+   (`FOOTWEAR_UNSUITABLE_RULES`): **every boot** (ankle, knee-high, heeled,
+   snow, walking, boots) when today's **maximum is above 23°**, and
+   **Sandals, Heeled sandals and Flipflops** when today's **minimum is below
+   15°** - whatever their points. With tights, Sandals, Heeled sandals and
    Flipflops go to the bottom too - so nothing else can lift an unsuitable
-   shoe above a suitable one.
+   shoe above a suitable one. Suitable and unsuitable shoes are each ranked
+   by the steps below.
 2. **Then groups**, like Today's outfits: in today's season and has today's
    tag, then season only, then tag only, then neither.
 3. **Score** within a group: matrix baseline (0-90) + the user's learned

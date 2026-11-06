@@ -1,7 +1,7 @@
 import footwearMatrices from "../../shared/footwearMatrices.json";
 import footwearScoring from "../../shared/footwearScoring.json";
 import colorPalettes from "../../shared/colorPalettes.json";
-import { FOOTWEAR_WEATHER_RULES } from "../constants/footwearWeather.js";
+import { FOOTWEAR_UNSUITABLE_RULES, FOOTWEAR_WEATHER_RULES } from "../constants/footwearWeather.js";
 import { NOT_WITH_TIGHTS, TIGHTS_POINTS } from "../constants/footwearTights.js";
 import { palettesForLevel, resolveColourLevel } from "../utils/colourPalettes.js";
 import {
@@ -18,7 +18,9 @@ import {
  *
  * Groups come first:
  *   - unsuitable: every shoe today's weather doesn't penalise comes before
- *     every shoe it does (constants/footwearWeather.js), and with tights,
+ *     every shoe it does, or that a FOOTWEAR_UNSUITABLE_RULES rule rules
+ *     out - boots above 23°, sandals below 15° (constants/footwearWeather.js),
+ *     and with tights,
  *     open shoes go to the bottom too (constants/footwearTights.js), so
  *     nothing else can lift an unsuitable shoe above a suitable one;
  *   - then, within each, shoes with today's tag come first. With no tag
@@ -39,7 +41,7 @@ import {
 
 // Bump when the rules or numbers change, so shoe orders cached earlier in
 // the day (core/footwear/footwearCache.js) are ranked again.
-export const FOOTWEAR_RANKING_VERSION = 2;
+export const FOOTWEAR_RANKING_VERSION = 3;
 
 const DEFAULT_GENDER = "unisex";
 const MIN_SCORE = 0;
@@ -105,6 +107,13 @@ export const getWeatherPoints = (footwearSubtype, weather) => {
     .filter((rule) => rule.when(weather))
     .reduce((sum, rule) => sum + (rule.points[footwearSubtype] || 0), 0);
 };
+
+// True when a firm weather rule rules the shoe out today.
+export const isWeatherUnsuitable = (footwearSubtype, weather) =>
+  Boolean(weather) &&
+  FOOTWEAR_UNSUITABLE_RULES.some(
+    (rule) => rule.when(weather) && rule.footwear.includes(footwearSubtype)
+  );
 
 /* -------------------- Tights -------------------- */
 
@@ -212,7 +221,9 @@ export const rankFootwear = (items = [], context = {}) => {
   const scored = items.map((item, index) => {
     const weatherPoints = getWeatherPoints(item.subtype, context.weather);
     const unsuitable =
-      weatherPoints < 0 || isOpenWithTights(item.subtype, context.withTights);
+      weatherPoints < 0 ||
+      isWeatherUnsuitable(item.subtype, context.weather) ||
+      isOpenWithTights(item.subtype, context.withTights);
 
     const adjustment = context.bottomSubtype
       ? findPairing(context.pairings, context.bottomSubtype, item.subtype)
