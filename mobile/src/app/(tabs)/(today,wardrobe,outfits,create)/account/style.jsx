@@ -9,8 +9,8 @@
 // building today's list again - carries on in the background
 // (OutfitRebuildProvider). Logic: useStyleQuiz (shared with the web).
 
-import { useEffect, useRef, useState } from "react";
-import { router, useNavigation, usePreventRemove } from "expo-router";
+import { useEffect, useState } from "react";
+import { router, usePreventRemove } from "expo-router";
 import { Alert } from "react-native";
 
 import { getPreferences } from "@core/api/preferences.js";
@@ -64,44 +64,33 @@ export default function StylePreferencesScreen() {
 
 // Mounted once the saved answers are in, so the quiz starts from them.
 function StyleRetake({ saved }) {
-  const navigation = useNavigation();
   const { start } = useOutfitRebuild();
   const [finished, setFinished] = useState(false);
-  // Set as soon as the answers are saved, so going back then never asks -
-  // even before the re-render that turns the check off.
-  const answersSaved = useRef(false);
+
+  // The header's back arrow, Android's back button and swiping back.
+  // `repeat` turns the check off and leaves.
+  const allowLeaving = usePreventRemove(!finished, ({ repeat }) => {
+    Alert.alert(
+      "Leave without saving?",
+      "Your preferences aren't saved until you finish the quiz.",
+      [
+        { text: "Keep going", style: "cancel" },
+        { text: "Leave", style: "destructive", onPress: repeat },
+      ]
+    );
+  });
 
   const quiz = useStyleQuiz({
     retake: true,
     saved,
     confirmGenderChange,
     onComplete: (result) => {
-      answersSaved.current = true;
       start(result);
+      // Saved: back to Profile without asking.
+      allowLeaving();
       setFinished(true);
       router.back();
     },
-  });
-
-  // The header's back arrow, Android's back button and swiping back.
-  usePreventRemove(!finished, ({ data }) => {
-    if (answersSaved.current) {
-      navigation.dispatch(data.action);
-      return;
-    }
-
-    Alert.alert(
-      "Leave without saving?",
-      "Your preferences aren't saved until you finish the quiz.",
-      [
-        { text: "Keep going", style: "cancel" },
-        {
-          text: "Leave",
-          style: "destructive",
-          onPress: () => navigation.dispatch(data.action),
-        },
-      ]
-    );
   });
 
   return <StyleQuizSteps quiz={quiz} edges={["bottom"]} />;
