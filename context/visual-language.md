@@ -166,7 +166,7 @@ the UI - weather uses Feather icons.
 - **Today** - "Hey <first name>" ("Hello" with no name; Inter Light 26) with the person button to Profile on the right, then two matching header columns: weekday (Inter Light 20) over
   the tag on the left; weather icon + temperature (Inter Light 20) over the
   season on the right. Tag and season: Inter Light 12, uppercase, tracking
-  1.4, soft ink. The outfit photos run to the bottom of the page; the buttons float over them - broken heart and heart stacked in the bottom left corner, the shoe in the bottom right. No rating stars on Today (rated from the outfit screen; `soft/IridescentStars` kept for later). "Wear with tights" sits above the outfit. No
+  1.4, soft ink. The outfit photos run to the bottom of the page; the buttons float over them - broken heart and heart stacked in the bottom left corner, the shoe in the bottom right. No rating stars on Today (rated from the outfit screen; `soft/IridescentStars` kept for later). The tights and trend notes float over the photos in translucent soap bubbles (`today/NoteBubble`) - dragged anywhere, still otherwise, each starting in its own spot (top right, then across from it in the bottom left above the hearts, then top left) and back there on the next outfit. While one is dragged a soft X shows in the bottom middle (`today/DismissTarget`, blush when the bubble is over it); dropped there the bubble pops away for that outfit. No
   "Marked as worn" alert - the bubble celebration says it (the web keeps
   its popup; the notice carries `kind: "worn"`). Outfit straight on the white middle (no card), bubble action
   row, bubble celebration on wear.

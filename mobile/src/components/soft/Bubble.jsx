@@ -2,6 +2,8 @@
 // strokes on top of each other, so it reads blurred rather than drawn) and
 // one or two highlights where light catches it. `variant` turns the rim's
 // colours, so bubbles side by side don't catch the light the same way.
+// `part`: "body" (body and rim) or "shine" (the highlights) draws just
+// that, for something laid between them - words in a bubble.
 
 import { useId } from "react";
 import Svg, {
@@ -29,9 +31,11 @@ const RIM = [
   { width: 1.2, opacity: 0.5 },
 ];
 
-export const Bubble = ({ size, variant = 0, opacity = 1, style }) => {
+export const Bubble = ({ size, variant = 0, opacity = 1, style, part = "whole" }) => {
   const id = useId().replace(/[^a-zA-Z0-9]/g, "");
   const [x1, y1, x2, y2] = DIRECTIONS[variant % DIRECTIONS.length];
+  const body = part !== "shine";
+  const shine = part !== "body";
 
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100" style={[{ opacity }, style]}>
@@ -58,30 +62,38 @@ export const Bubble = ({ size, variant = 0, opacity = 1, style }) => {
         </RadialGradient>
       </Defs>
 
-      <Circle cx="50" cy="50" r="46" fill={`url(#body${id})`} />
+      {body ? (
+        <>
+          <Circle cx="50" cy="50" r="46" fill={`url(#body${id})`} />
 
-      {RIM.map((stroke) => (
-        <Circle
-          key={stroke.width}
-          cx="50"
-          cy="50"
-          r="46"
-          fill="none"
-          stroke={`url(#rim${id})`}
-          strokeWidth={stroke.width}
-          strokeOpacity={stroke.opacity}
-        />
-      ))}
+          {RIM.map((stroke) => (
+            <Circle
+              key={stroke.width}
+              cx="50"
+              cy="50"
+              r="46"
+              fill="none"
+              stroke={`url(#rim${id})`}
+              strokeWidth={stroke.width}
+              strokeOpacity={stroke.opacity}
+            />
+          ))}
+        </>
+      ) : null}
 
-      <Ellipse
-        cx="31"
-        cy="26"
-        rx="11"
-        ry="6.5"
-        fill={`url(#shine${id})`}
-        transform="rotate(-32 31 26)"
-      />
-      <Circle cx="71" cy="75" r="4" fill={`url(#shine${id})`} opacity={0.45} />
+      {shine ? (
+        <>
+          <Ellipse
+            cx="31"
+            cy="26"
+            rx="11"
+            ry="6.5"
+            fill={`url(#shine${id})`}
+            transform="rotate(-32 31 26)"
+          />
+          <Circle cx="71" cy="75" r="4" fill={`url(#shine${id})`} opacity={0.45} />
+        </>
+      ) : null}
     </Svg>
   );
 };

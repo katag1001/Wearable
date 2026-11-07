@@ -5,9 +5,13 @@
 // it's given and the card stretches to it (otherwise it's as tall as its
 // content).
 //
+// `cardKey`: what's on the card (e.g. the outfit's id). Given, the next
+// card only slides in once it has changed - so the card leaving never
+// slides back in for the moment before the new one is drawn.
+//
 // Built on PanResponder + Animated, so no gesture library is needed.
 
-import { useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import Feather from "@expo/vector-icons/Feather";
 import {
   Animated,
@@ -62,14 +66,19 @@ export const SwipeDeck = ({
   onPrev,
   noun,
   fill = false,
+  cardKey,
   children,
 }) => {
   const x = useRef(new Animated.Value(0)).current;
   const animating = useRef(false);
+  // With cardKey: the side the next card comes in from, until it's drawn,
+  // and a fallback in case the card doesn't change.
+  const waiting = useRef(null);
+  const fallback = useRef(null);
 
   // The pan handlers are made once, so they read the latest props here.
   const latest = useRef({});
-  latest.current = { enabled, onNext, onPrev };
+  latest.current = { enabled, onNext, onPrev, hasCardKey: cardKey !== undefined };
 
   // direction -1: off to the left, then the next card. 1: off to the
   // right, then the previous one.
@@ -84,21 +93,44 @@ export const SwipeDeck = ({
       duration: 180,
       useNativeDriver: true,
     }).start(() => {
+      // The new card comes in from the opposite side - with cardKey, once
+      // it's drawn (the layout effect below).
+      if (latest.current.hasCardKey) {
+        waiting.current = -direction;
+        fallback.current = setTimeout(() => slideIn(), 300);
+      }
+
       if (direction < 0) latest.current.onNext();
       else latest.current.onPrev();
 
-      // The new card comes in from the opposite side.
-      x.setValue(-direction * offscreen);
-      Animated.spring(x, {
-        toValue: 0,
-        speed: 18,
-        bounciness: 4,
-        useNativeDriver: true,
-      }).start(() => {
-        animating.current = false;
-      });
+      if (!latest.current.hasCardKey) slideIn(-direction);
     });
   };
+
+  // `side`: -1 from the left, 1 from the right.
+  const slideIn = (side = waiting.current) => {
+    clearTimeout(fallback.current);
+    waiting.current = null;
+    if (side == null) return;
+
+    x.setValue(side * Dimensions.get("window").width);
+    Animated.spring(x, {
+      toValue: 0,
+      speed: 18,
+      bounciness: 4,
+      useNativeDriver: true,
+    }).start(() => {
+      animating.current = false;
+    });
+  };
+
+  // Before the new card is painted, so it's first drawn off screen.
+  useLayoutEffect(() => {
+    if (waiting.current != null) slideIn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cardKey]);
+
+  useEffect(() => () => clearTimeout(fallback.current), []);
 
   const settle = () =>
     Animated.spring(x, {

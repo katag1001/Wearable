@@ -13,19 +13,46 @@
 // With another tag picked for today (useToday's pickTag) only its outfits
 // are on show, without wrapping round: past the last one is a note that
 // there are no more, and with none at all the note stands in for them.
+//
+// The tights and trend notes float over the photos in bubbles
+// (NoteBubble) the user can drag about; each starts in its own spot and is
+// back there on the next outfit. While one is dragged an X shows at the
+// bottom (DismissTarget) - dropped on it, the bubble goes for this outfit.
 // Logic: useTodayLook.
 
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
+import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { trendNoteText } from "@core/today/trendNote.js";
 
 import { handOverOutfit } from "../outfits/outfitHandoff";
-import { fonts, ink, space, textSizes, type } from "../../theme/soft";
-import { ActionButton } from "./ActionButton";
+import { space, type } from "../../theme/soft";
+import { ACTION_BUTTON_SIZE, ActionButton } from "./ActionButton";
+import { DismissTarget } from "./DismissTarget";
+import { NOTE_BUBBLE_SIZE, NoteBubble } from "./NoteBubble";
 import { OutfitImages } from "./OutfitImages";
 import { SwipeDeck } from "./SwipeDeck";
+
+// The two hearts stacked in the bottom left corner (styles.actions).
+const HEARTS_HEIGHT = ACTION_BUTTON_SIZE * 2 + space.sm * 2;
+
+// Where each bubble starts, in order: top right, then across from it in
+// the bottom left (just above the hearts), then top left. Never on top of
+// each other - on a short screen the bottom left one goes no higher than
+// under the top left one.
+const bubbleStarts = ({ width, height }) => {
+  const left = 0;
+  const right = width - NOTE_BUBBLE_SIZE;
+  const aboveHearts = height - HEARTS_HEIGHT - space.xs - NOTE_BUBBLE_SIZE;
+
+  return [
+    { x: right, y: 0 },
+    { x: left, y: Math.max(NOTE_BUBBLE_SIZE + space.xs, aboveHearts) },
+    { x: left, y: 0 },
+  ];
+};
 
 export const OutfitPicker = ({
   today,
@@ -37,6 +64,12 @@ export const OutfitPicker = ({
   const { filteredOutfits } = today;
   const outfit = worn ? today.wornOutfit : today.selectedOutfit;
   const shoe = worn ? today.wornShoe : today.selectedShoe;
+  // The picker's size, for where the bubbles start and how far they go.
+  const [bounds, setBounds] = useState(null);
+  // A bubble being dragged ({ dragging, overX }), and the bubbles dropped
+  // on the X (by key - each outfit's own).
+  const [drag, setDrag] = useState({ dragging: false, overX: false });
+  const [dismissed, setDismissed] = useState(() => new Set());
 
   const openOutfit = () => {
     // With the stars picked here, which the outfit screen saves.
@@ -88,23 +121,35 @@ export const OutfitPicker = ({
 
   const trendNote = trendNoteText(outfit.trendNote, outfit.matchId?._id ?? outfit._id);
   const shoeTrendNote = today.shoeTrendNote(shoe);
+  const outfitKey = outfit.matchId?._id ?? outfit._id;
+
+  // Tights only on today's list thanks to its tights range; trends (the
+  // outfit, or the shoe shown) for users who care a lot about trends.
+  const notes = [
+    outfit.withTights ? { key: "tights", text: "Remember some tights today!" } : null,
+    trendNote ? { key: "trend", text: trendNote } : null,
+    shoeTrendNote ? { key: `shoe-${shoe?._id}`, text: shoeTrendNote } : null,
+  ]
+    .filter(Boolean)
+    // The spot is kept when another bubble goes.
+    .map((note, slot) => ({ ...note, key: `${outfitKey}-${note.key}`, slot }))
+    .filter((note) => !dismissed.has(note.key));
+
+  const dismiss = (key) => setDismissed((last) => new Set(last).add(key));
+
+  const onLayout = ({ nativeEvent }) => {
+    const { width, height } = nativeEvent.layout;
+    setBounds((last) =>
+      last?.width === width && last?.height === height ? last : { width, height }
+    );
+  };
 
   return (
-    <View style={styles.picker}>
-      {/* Only on today's list thanks to its tights range - above the
-          outfit, so the photos can run to the bottom */}
-      {outfit.withTights ? (
-        <Text style={styles.tights}>Remember some tights today!</Text>
-      ) : null}
-
-      {/* On a current trend (the outfit, or the shoe shown), for users who
-          care a lot about trends */}
-      {trendNote ? <Text style={styles.tights}>{trendNote}</Text> : null}
-      {shoeTrendNote ? <Text style={styles.tights}>{shoeTrendNote}</Text> : null}
-
+    <View style={styles.picker} onLayout={onLayout}>
       <View style={styles.deck}>
         <SwipeDeck
           enabled={!worn && today.canMove}
+          cardKey={outfitKey}
           onNext={today.goNext}
           onPrev={today.goPrev}
           noun="outfit"
@@ -170,6 +215,24 @@ export const OutfitPicker = ({
           />
         ) : null}
       </View>
+
+      {/* Over everything, but only the bubbles take touches. */}
+      {bounds && notes.length ? (
+        <View style={styles.bubbles} pointerEvents="box-none">
+          {drag.dragging ? <DismissTarget hot={drag.overX} /> : null}
+          {notes.map((note) => (
+            <NoteBubble
+              key={note.key}
+              text={note.text}
+              start={bubbleStarts(bounds)[note.slot]}
+              bounds={bounds}
+              variant={note.slot}
+              onDragChange={setDrag}
+              onDismiss={() => dismiss(note.key)}
+            />
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 };
@@ -211,14 +274,11 @@ const styles = StyleSheet.create({
   hearts: {
     gap: space.sm,
   },
-  // In the light Inter of the header above, not a label (the tights and
-  // trend notes).
-  tights: {
-    fontFamily: fonts.light,
-    fontSize: textSizes.base,
-    lineHeight: 20,
-    color: ink.soft,
-    textAlign: "center",
+  // Above the actions (zIndex / elevation 2).
+  bubbles: {
+    ...StyleSheet.absoluteFill,
+    zIndex: 3,
+    elevation: 3,
   },
   empty: {
     ...type.body,
