@@ -1,168 +1,108 @@
-// Style preferences: change the style quiz answers.
-// Logic: useStylePreferences (shared with the web).
+// Style preferences: a retake of the style quiz - the same steps as a new
+// user's (StyleQuizSteps) apart from the weekly tags, each with a Skip
+// that keeps the saved answer. Starts from the saved answers; nothing is
+// saved until Finish. Leaving before then asks first, and so does
+// finishing with a new gender (it rebuilds every outfit and resets the
+// learned pairings).
+//
+// Finish goes back to Profile. Any outfit rebuild the change needs - and
+// building today's list again - carries on in the background
+// (OutfitRebuildProvider). Logic: useStyleQuiz (shared with the web).
 
-import { StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { router, useNavigation, usePreventRemove } from "expo-router";
+import { Alert } from "react-native";
 
-import {
-  pairingAnswerOptions,
-  pairingQuestions,
-} from "@core/constants/pairingQuestions.js";
-import {
-  genderQuestionOptions,
-  seasonalityQuestion,
-  temperatureQuestion,
-  trendsQuestion,
-} from "@core/constants/styleQuizOptions.js";
-import { useStylePreferences } from "@core/hooks/useStylePreferences.js";
-import { colors, fontSizes, spacing } from "../../../../theme/tokens";
+import { getPreferences } from "@core/api/preferences.js";
+import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
 
-import {
-  Button,
-  ChoiceCard,
-  Grid,
-  ImageTile,
-  Loading,
-  Message,
-  Screen,
-  SectionTitle,
-} from "../../../../components/ui";
-import { ColourFamilyPicker } from "../../../../components/styleQuiz/ColourFamilyPicker";
-import { PointScale } from "../../../../components/styleQuiz/PointScale";
+import { StyleQuizSteps } from "../../../../components/styleQuiz/StyleQuizSteps";
+import { Loading, Message, Screen } from "../../../../components/ui";
+import { useOutfitRebuild } from "../../../../outfitRebuild/OutfitRebuildProvider";
+
+// Resolves true to go ahead with the new gender.
+const confirmGenderChange = () =>
+  new Promise((resolve) => {
+    Alert.alert(
+      "Change how you dress?",
+      "This rebuilds all your outfits and resets what the app has learned about the pairings you like.",
+      [
+        { text: "Cancel", style: "cancel", onPress: () => resolve(false) },
+        { text: "Continue", onPress: () => resolve(true) },
+      ],
+      { cancelable: true, onDismiss: () => resolve(false) }
+    );
+  });
 
 export default function StylePreferencesScreen() {
-  const style = useStylePreferences();
+  const [saved, setSaved] = useState(null);
+  const [error, setError] = useState("");
 
-  if (style.loading) {
+  useEffect(() => {
+    getPreferences()
+      .then(({ data }) => setSaved(data))
+      .catch((err) => {
+        console.error("Failed to load preferences:", err);
+        setError("Couldn't load your preferences. Please try again.");
+      });
+  }, []);
+
+  if (error) {
+    return (
+      <Screen edges={["bottom"]}>
+        <Message text={error} />
+      </Screen>
+    );
+  }
+
+  if (!saved) {
     return <Loading text="Loading your preferences..." />;
   }
 
-  return (
-    <Screen
-      subtitle="Update how you dress and the styles you like."
-      edges={["bottom"]}
-    >
-      <SectionTitle title="How do you prefer to dress?" />
-      {genderQuestionOptions.map((option) => (
-        <ChoiceCard
-          key={option.value}
-          label={option.label}
-          selected={style.gender === option.value}
-          onPress={() => style.chooseGender(option.value)}
-        />
-      ))}
-
-      <SectionTitle title={temperatureQuestion.title} />
-      <PointScale
-        question={temperatureQuestion}
-        smooth
-        value={style.temperature}
-        onChange={style.chooseTemperature}
-      />
-
-      <SectionTitle
-        title={seasonalityQuestion.title}
-        description={seasonalityQuestion.hint}
-      />
-      <PointScale
-        question={seasonalityQuestion}
-        smooth
-        value={style.seasonality}
-        onChange={style.chooseSeasonality}
-      />
-
-      <SectionTitle title={trendsQuestion.title} />
-      <PointScale
-        question={trendsQuestion}
-        smooth
-        value={style.trends}
-        onChange={style.chooseTrends}
-      />
-
-      <SectionTitle
-        title="Select all that apply"
-        description="Pick every image that feels like you to update your colour and pattern preferences."
-      />
-      <Grid columns={2}>
-        {style.imageOptions.map((option) => (
-          <ImageTile
-            key={option.key}
-            source={option.image}
-            label={`Style ${option.key}`}
-            selected={style.selectedImages.includes(option.key)}
-            onPress={() => style.toggleImage(option.key)}
-            aspectRatio={3 / 4}
-          />
-        ))}
-      </Grid>
-
-      <SectionTitle title="Colours you love" />
-      <ColourFamilyPicker
-        families={style.colourFamilies}
-        selected={style.favouriteColourFamilies}
-        onToggle={style.toggleColourFamily}
-      />
-
-      {style.showPairingQuestions && (
-        <View style={styles.pairingSection}>
-          <SectionTitle
-            title="Do you like..."
-            description="Leave a question unanswered to keep how those pairings score now."
-          />
-
-          {pairingQuestions.map(({ key, label }) => (
-            <View key={key} style={styles.question}>
-              <Text style={styles.questionText}>{label}</Text>
-
-              <View style={styles.answers}>
-                {pairingAnswerOptions.map((option) => {
-                  const selected = style.pairingAnswers[key] === option.value;
-
-                  return (
-                    <View key={option.value} style={styles.answer}>
-                      <ChoiceCard
-                        label={option.label}
-                        selected={selected}
-                        onPress={() =>
-                          style.answerPairing(key, selected ? null : option.value)
-                        }
-                      />
-                    </View>
-                  );
-                })}
-              </View>
-            </View>
-          ))}
-        </View>
-      )}
-
-      <Message text={style.error} />
-      <Message text={style.success} type="success" />
-
-      <Button
-        label="Save preferences"
-        onPress={style.save}
-        loading={style.saving}
-      />
-    </Screen>
-  );
+  return <StyleRetake saved={saved} />;
 }
 
-const styles = StyleSheet.create({
-  pairingSection: {
-    gap: spacing.md,
-  },
-  question: {
-    gap: spacing.sm,
-  },
-  questionText: {
-    fontSize: fontSizes.body,
-    color: colors.main,
-  },
-  answers: {
-    flexDirection: "row",
-    gap: spacing.sm,
-  },
-  answer: {
-    flex: 1,
-  },
-});
+// Mounted once the saved answers are in, so the quiz starts from them.
+function StyleRetake({ saved }) {
+  const navigation = useNavigation();
+  const { start } = useOutfitRebuild();
+  const [finished, setFinished] = useState(false);
+  // Set as soon as the answers are saved, so going back then never asks -
+  // even before the re-render that turns the check off.
+  const answersSaved = useRef(false);
+
+  const quiz = useStyleQuiz({
+    retake: true,
+    saved,
+    confirmGenderChange,
+    onComplete: (result) => {
+      answersSaved.current = true;
+      start(result);
+      setFinished(true);
+      router.back();
+    },
+  });
+
+  // The header's back arrow, Android's back button and swiping back.
+  usePreventRemove(!finished, ({ data }) => {
+    if (answersSaved.current) {
+      navigation.dispatch(data.action);
+      return;
+    }
+
+    Alert.alert(
+      "Leave without saving?",
+      "Your preferences aren't saved until you finish the quiz.",
+      [
+        { text: "Keep going", style: "cancel" },
+        {
+          text: "Leave",
+          style: "destructive",
+          onPress: () => navigation.dispatch(data.action),
+        },
+      ]
+    );
+  });
+
+  return <StyleQuizSteps quiz={quiz} edges={["bottom"]} />;
+}

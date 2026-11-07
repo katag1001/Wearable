@@ -627,6 +627,12 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
     markMismatch,
     // Outfits deleted elsewhere (the mobile outfit screen's mismatch).
     dropOutfits: (matchIds) => removeFromToday(matchIds, matchIds),
+    // Fetches today's list again from the first outfit - after it's been
+    // built again on the server (core/outfitRebuild/runOutfitRebuild.js).
+    reload: () => {
+      saveRating();
+      return loadOutfits(false);
+    },
 
     notice,
     clearNotice: () => setNotice(null),

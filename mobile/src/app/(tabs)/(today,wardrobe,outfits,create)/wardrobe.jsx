@@ -35,6 +35,7 @@ import {
   takeWardrobeChanged,
 } from "../../../components/wardrobe/itemHandoff";
 import { Atmosphere, PageHeader } from "../../../components/soft";
+import { OutfitRebuildNote } from "../../../components/outfits/OutfitRebuildNote";
 import { ItemTile } from "../../../components/wardrobe/ItemTile";
 import { TypeFilter } from "../../../components/wardrobe/TypeFilter";
 
@@ -124,6 +125,7 @@ export default function WardrobeScreen() {
         </View>
 
         <Message text={wardrobe.error} />
+        <OutfitRebuildNote />
       </View>
 
       <FlatList

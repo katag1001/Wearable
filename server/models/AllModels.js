@@ -140,6 +140,12 @@ matchSchema.pre("validate", function () {
   this.clothesKey = clothesKey(this.clothes);
 });
 
+// Outfits an outfit rebuild has found but not swapped in yet
+// (services/outfitRebuildService.js) - the same fields and indexes as
+// Match, in their own collection so nothing that reads Match ever sees
+// them. Moved into Match in one go once the rebuild finishes.
+const pendingMatchSchema = matchSchema.clone();
+
 /* -------------------- CLOTHES -------------------- */
 
 const clothesSchema = new mongoose.Schema({
@@ -346,15 +352,39 @@ const preferencesSchema = new mongoose.Schema({
     builtAt: { type: Date, default: null },
   },
 
+  // The outfit rebuild a preference change started
+  // (services/outfitRebuildService.js), or null when none is running. The
+  // app carries it out a chunk at a time (POST /preferences/rebuild).
+  // `refreshTemperatures`: the temperature ranges are still to be worked
+  // out again (services/outfitTemperatureRefreshService.js).
+  // `allItems`: every outfit is rebuilt; otherwise only the ones with an
+  // item in `scopeItemIds`. `remainingItemIds`: the items still to match.
+  // `startedAt`: outfits saved before it are the ones replaced.
+  outfitRebuild: {
+    type: {
+      refreshTemperatures: { type: Boolean, default: false },
+      allItems: { type: Boolean, default: false },
+      scopeItemIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "Clothes" }],
+      remainingItemIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "Clothes" }],
+      total: { type: Number, default: 0 },
+      startedAt: { type: Date, default: null },
+    },
+    default: null,
+  },
+
 });
 
 /* -------------------- MATCH SCORE -------------------- */
 //
 // A user's personal adjustment to the score of one pair of clothing
-// subtypes. The pair's score is the gender's baseline
-// (server/constants/matchScoreBaseline.js) plus this adjustment, kept
-// between 0 and 100. Storage is sparse - a document only exists once a user
-// has built, claimed, favourited or deleted an outfit containing that pair,
+// subtypes, in two parts: `quizAdjustment`, set by the style quiz's pairing
+// answers (services/pairingQuizService.js), and `adjustment`, learned from
+// building, claiming, favouriting and mismatches. The pair's score is the
+// gender's baseline (server/constants/matchScoreBaseline.js) plus both,
+// kept between 0 and 100. Retaking the quiz only replaces the quiz part;
+// only a gender change wipes the learned part. Storage is sparse - a
+// document only exists once a user has answered a pairing question or
+// built, claimed, favourited or deleted an outfit containing that pair,
 // and never for a pair that can't be matched. subtypeA/subtypeB are always
 // stored in a canonical (alphabetical) order - see
 // matrixService.canonicalPairKey - so a pair is never split across two
@@ -372,7 +402,8 @@ const matchScoreSchema = new mongoose.Schema({
   subtypeA: { type: String, required: true },
   subtypeB: { type: String, required: true },
 
-  adjustment: { type: Number, required: true },
+  adjustment: { type: Number, default: 0 },
+  quizAdjustment: { type: Number, default: 0 },
 
 });
 
@@ -500,6 +531,7 @@ const trendSchema = new mongoose.Schema({
 module.exports = {
 User: mongoose.model("User", userSchema),
 Match: mongoose.model("Match", matchSchema),
+PendingMatch: mongoose.model("PendingMatch", pendingMatchSchema),
 Today: mongoose.model("Today", todaySchema),
 Clothes: mongoose.model("Clothes", clothesSchema),
 Footwear: mongoose.model("Footwear", footwearSchema),

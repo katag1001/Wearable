@@ -3,10 +3,12 @@
 // Reads and writes a user's personal score adjustments, and resolves which
 // baseline matrix/colour palettes a user is on. Storage is sparse: a
 // MatchScore document only exists for a subtype pair once the user has
-// built, claimed or favourited an outfit containing it, or marked it as a
-// mismatch. A pair's score is always baseline + adjustment (see
-// outfitScoreService.js), so the baseline matrix stays the single source of
-// truth.
+// answered a pairing question covering it, built, claimed or favourited an
+// outfit containing it, or marked it as a mismatch. A pair's score is
+// always baseline + quiz part + learned part (see outfitScoreService.js),
+// so the baseline matrix stays the single source of truth. This file
+// writes the learned part (`adjustment`); the quiz part
+// (`quizAdjustment`) is pairingQuizService.js's.
 //
 // Adjustments only ever change scores. They are never stored for a pair
 // that can't be matched, and compatibility never reads them.
@@ -53,8 +55,13 @@ async function loadUserAdjustments(userId) {
 
   const adjustments = new Map();
 
+  // The quiz part plus the learned part (the pair's score clamps the total
+  // to 0-100 - outfitScoreService.getPairScore).
   docs.forEach((doc) => {
-    adjustments.set(pairKey(doc.subtypeA, doc.subtypeB), doc.adjustment);
+    adjustments.set(
+      pairKey(doc.subtypeA, doc.subtypeB),
+      (doc.adjustment || 0) + (doc.quizAdjustment || 0)
+    );
   });
 
   return adjustments;
@@ -76,8 +83,9 @@ function pairsForItems(items) {
   return pairs;
 }
 
-// Adds `delta` to every compatible pair in `items`. Each new adjustment is
-// limited so baseline + adjustment stays between 0 and 100. Pairs that
+// Adds `delta` to the learned part of every compatible pair in `items`.
+// Each new learned part is limited so baseline + it stays between 0 and
+// 100. Pairs that
 // can't be matched (e.g. two bottoms in a user-built outfit) are skipped,
 // so nothing is ever stored for them.
 async function adjustScoresForOutfit(userId, items, delta, baselineMatrix) {

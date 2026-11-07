@@ -443,7 +443,20 @@ temperature }`, plus `pairingAnswers` and any weekly days picked.
 
 ### 2.3 Changing preferences later
 
-`stylePreferences.jsx` (on the user page) lets the user change gender and
+**Mobile:** Style Preferences (`account/style.jsx`) is a **retake of the
+quiz** - the same screens (`StyleQuizSteps.jsx`) minus the weekly step
+(days only change on Weekly Preferences). It starts from the saved
+answers (`useStyleQuiz({ retake: true, saved })`) and every step has a
+Skip that keeps the saved answer, so Skip and Next do the same on the
+steps that start filled in. The style pictures and layering aren't stored,
+so they start blank: skipping the pictures keeps the saved colour and
+pattern levels and smart-and-casual answer; answering them sends
+smart-and-casual as `no` when it's left unpicked (the first quiz sends
+nothing). Nothing is saved until Finish. Leaving before then asks first,
+and finishing with a new gender warns that every outfit is rebuilt and
+the learned pairings reset. What the save then does to the outfits: 2.7.
+
+**Web:** `stylePreferences.jsx` (on the user page) lets the user change gender and
 temperature, and optionally re-pick images. Colour and pattern are only
 re-calculated and sent **if at least one image is selected**. Otherwise
 they stay as they were. Like the quiz, it only shows the images for the
@@ -463,8 +476,9 @@ user's personal score adjustments are deleted (`wipeUserScores`). Scoring
 falls back to the new gender's matrix. Changing colour, pattern,
 temperature or the weekday tags never wipes them.
 
-Changing preferences doesn't touch existing clothes or matches. It only
-affects items added and outfits matched afterwards.
+Saving can rebuild existing outfits - see 2.7. The rules are on the
+server, so they apply to every save (signup quiz, retake, web page); the
+mobile app carries the rebuild out.
 
 ### 2.4 What each preference does
 
@@ -528,9 +542,12 @@ like...").
 
 The quiz sends the answers with `PUT /preferences` as `pairingAnswers`.
 They aren't stored on preferences. Instead every pair in an answered
-question has its personal adjustment **set** (not added to what's there)
-to the answer's points. Retaking the quiz overwrites those pairs again. If
-two answered questions share a pair, the lower adjustment wins.
+question has its **quiz part** (`MatchScore.quizAdjustment`, 6.2) **set**
+to the answer's points. Retaking the quiz replaces only the quiz part -
+what's been learned since is kept - and only pairs whose quiz part
+actually changes are written (and rebuilt, 2.7). Skipping the layering
+step sends nothing. If two answered questions share a pair, the lower
+adjustment wins.
 
 Anything that ends below `MIN_PAIR_SCORE` (50) is dropped by the search
 (4.4) and never suggested automatically. It can still be built by hand,
@@ -538,6 +555,49 @@ and building or favouriting it lifts the pair again. The answers are
 applied after a gender-change wipe, so they survive a gender change made
 in the same save; a later gender change deletes them with every other
 adjustment. Men are never asked, and the server ignores answers for them.
+
+### 2.7 What a preference change rebuilds
+
+Files: `server/services/preferenceChangeService.js` (the plan),
+`outfitRebuildService.js` (the rebuild), `outfitTemperatureRefreshService.js`,
+`mobile/src/outfitRebuild/OutfitRebuildProvider.jsx`,
+`core/outfitRebuild/runOutfitRebuild.js`.
+
+Every preference is compared **as matching reads it**, so a different
+answer that resolves the same (other pictures giving the same levels, an
+empty answer and the default) changes nothing:
+
+| Changed | What happens |
+|---|---|
+| Gender (alone or with anything) | Every outfit rebuilt; learned pair scores wiped (2.3) |
+| Colour level | Every outfit rebuilt |
+| Pattern level | Only outfits with a patterned item; the patterned items are matched again |
+| Pairing answers | Only pairs whose **quiz part** changes (6.2); outfits with an item of those subtypes rebuilt |
+| Temperature | Nothing rebuilt - every unprotected outfit's range and season flags worked out again in place |
+| Colour families, seasonality, trends | No outfit changes - Today's ranking only |
+| Nothing, or all skipped | Nothing |
+
+A partial rebuild covering at least `FULL_REBUILD_SHARE` (80%) of the
+wardrobe is done as a full one. Protected outfits (`matchProtection.js`)
+are never touched. After any change Today reads, today's list is built
+again (keeping today's hidden outfits and picked tag).
+
+**How the rebuild runs.** A full rebuild takes ~2 minutes for ~100 items,
+longer than a request may run (Vercel, 300 s), so `PUT /preferences` only
+records it (`Preferences.outfitRebuild`) and answers at once. The app
+then calls `POST /preferences/rebuild` again and again: each call matches
+items for ~40 s and ticks each one off. **Build first, then swap:** new
+outfits go into `PendingMatch` (Match's schema in its own collection, so
+nothing reads them); the old outfits and Today keep working. After the
+last item, one step deletes the old unprotected in-scope outfits saved
+before the rebuild started (with their Today entries), moves the new ones
+into Match (duplicates of protected ones skipped; any with a deleted item
+dropped) and builds today's list again from the weather the app sends.
+An interrupted rebuild loses nothing - the app picks it up when it next
+opens or comes to the front (`GET /preferences/rebuild`), and a repeated
+swap is harmless. Only one runs at a time: a change that needs one while
+one is running gets 409. Today, Wardrobe and Outfits show "Updating your
+outfits…" meanwhile.
 
 ---
 
@@ -1154,7 +1214,7 @@ Files: `server/services/matchScoreService.js`,
 
 | Event | Change to every compatible pair in the outfit |
 |---|---|
-| Style quiz pairing answer (2.6) | **set to** +10 / −10 / pair score 0 for that question's pairs |
+| Style quiz pairing answer (2.6) | the **quiz part** **set to** +10 / −10 / pair score 0 for that question's pairs |
 | User builds an outfit (Build Matches) | **+3** |
 | User claims an automatic outfit by rebuilding it | **+1** |
 | User favourites an outfit | **+3** |
@@ -1166,7 +1226,7 @@ Files: `server/services/matchScoreService.js`,
 | Marking as worn, editing a match's range | none |
 | Rejecting an outfit on the Today page (7.2) | none - only that match's own score drops |
 | Too hot / too cold on the Today page (7.3) | none - only that match's range moves |
-| Gender changes | **all** personal adjustments deleted |
+| Gender changes | **all** personal adjustments deleted (both parts) |
 | Automatic matching creating an outfit | none |
 
 "Every compatible pair" means every two items in the outfit that could be
@@ -1179,11 +1239,15 @@ favourite off and on again adds another 3.
 
 ### 6.2 How adjustments are stored
 
-- `MatchScore` stores one **adjustment** per user and subtype pair (names
-  in alphabetical order), only once something has changed it.
-- **Pair score = baseline + adjustment, kept between 0 and 100.**
-- The adjustment itself is **limited when it's saved**, so baseline +
-  adjustment can't go past 100 or below 0. A pair at 95 built ten times
+- `MatchScore` stores two parts per user and subtype pair (names in
+  alphabetical order), only once something has changed one: the **quiz
+  part** (`quizAdjustment`, set by pairing answers - 2.6) and the
+  **learned part** (`adjustment`, the rest of 6.1). A retake replaces the
+  quiz part only; only a gender change wipes the learned part.
+- **Pair score = baseline + quiz part + learned part, kept between 0 and
+  100.**
+- The learned part is **limited when it's saved**, so baseline + it can't
+  go past 100 or below 0. A pair at 95 built ten times
   stays at 100, and the first deletion brings it straight down to 99.75 -
   no hidden reserve builds up.
 
@@ -1193,9 +1257,10 @@ favourite off and on again adds another 3.
   scored, which decides which 100 are saved and how the Today page orders
   them. They **never** decide whether a pair can be matched.
 - **Only future matches change.** A match's score is set when it's
-  created, so changing an adjustment never changes existing matches. The
-  new pair scores are used the next time `processMatches` runs, when an
-  item is added or edited.
+  created, so learning never changes existing matches. The new pair
+  scores are used the next time `processMatches` runs, when an item is
+  added or edited. A changed pairing answer is the exception: it rebuilds
+  the outfits it affects (2.7).
 
 ---
 

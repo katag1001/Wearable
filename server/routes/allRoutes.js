@@ -86,5 +86,7 @@ router.delete("/trends/:id", admin, trendControllers.deleteTrend);
 
 router.get("/preferences", authMiddleware, allControllers.getPreferences);
 router.put("/preferences", authMiddleware, allControllers.updatePreferences);
+router.get("/preferences/rebuild", authMiddleware, allControllers.getOutfitRebuildStatus);
+router.post("/preferences/rebuild", authMiddleware, allControllers.continueOutfitRebuild);
 
 module.exports = router;

@@ -1,11 +1,11 @@
 // server/services/pairingQuizService.js
 //
 // Turns the style quiz's pairing answers (constants/pairingQuestions.js)
-// into personal score adjustments. Each answered question SETS the
-// adjustment of every pair in it to the points its group gives that answer
-// (yes / no; sometimes is 0), replacing any earlier answer or learning,
-// so retaking the quiz starts those pairs again from the new answer.
-// Learning (matchScoreService.js) then carries on from there.
+// into the quiz part of the personal pair scores (MatchScore.quizAdjustment).
+// Each answered question SETS the quiz part of every pair in it to the
+// points its group gives that answer (yes / no; sometimes is 0), replacing
+// the earlier answer. What's been learned since (MatchScore.adjustment,
+// matchScoreService.js) is kept - retaking the quiz never wipes it.
 //
 // Only scores change - pairs the matrix doesn't allow are skipped, so an
 // answer can never make a pair match or stop matching.
@@ -77,26 +77,69 @@ function pairingAdjustments(answers, gender, baselineMatrix) {
   return [...adjustments.values()];
 }
 
-async function applyPairingAnswers(userId, answers, gender, baselineMatrix) {
+// Pure: the answered pairs whose quiz part would change. `stored` maps
+// pairKey -> the quiz part saved now (a pair with none counts as 0).
+function changedQuizParts(adjustments, stored) {
+  return adjustments.filter(
+    ({ subtypeA, subtypeB, adjustment }) =>
+      (stored.get(pairKey(subtypeA, subtypeB)) || 0) !== adjustment
+  );
+}
+
+// The answered pairs whose quiz part would change, without saving
+// anything - so a preference change can be planned before it's saved
+// (services/preferenceChangeService.js). [{ subtypeA, subtypeB, adjustment }].
+async function planPairingAnswers(userId, answers, gender, baselineMatrix) {
   const adjustments = pairingAdjustments(answers, gender, baselineMatrix);
 
   if (!adjustments.length) {
+    return [];
+  }
+
+  const docs = await MatchScore.find({
+    userId,
+    $or: adjustments.map(({ subtypeA, subtypeB }) => ({ subtypeA, subtypeB })),
+  }).lean();
+
+  const stored = new Map(
+    docs.map((doc) => [pairKey(doc.subtypeA, doc.subtypeB), doc.quizAdjustment || 0])
+  );
+
+  return changedQuizParts(adjustments, stored);
+}
+
+// Saves the quiz parts planPairingAnswers found changed. The learned part
+// is left as it is.
+async function saveQuizParts(userId, changed) {
+  if (!changed.length) {
     return;
   }
 
   await MatchScore.bulkWrite(
-    adjustments.map(({ subtypeA, subtypeB, adjustment }) => ({
+    changed.map(({ subtypeA, subtypeB, adjustment }) => ({
       updateOne: {
         filter: { userId, subtypeA, subtypeB },
-        update: { $set: { adjustment } },
+        update: { $set: { quizAdjustment: adjustment }, $setOnInsert: { adjustment: 0 } },
         upsert: true,
       },
     }))
   );
 }
 
+// Plans and saves in one go. Returns the pairs that changed.
+async function applyPairingAnswers(userId, answers, gender, baselineMatrix) {
+  const changed = await planPairingAnswers(userId, answers, gender, baselineMatrix);
+
+  await saveQuizParts(userId, changed);
+
+  return changed;
+}
+
 module.exports = {
   pairsForQuestion,
   pairingAdjustments,
+  changedQuizParts,
+  planPairingAnswers,
+  saveQuizParts,
   applyPairingAnswers,
 };

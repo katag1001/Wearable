@@ -4,7 +4,9 @@ const assert = require("node:assert/strict");
 const {
   pairsForQuestion,
   pairingAdjustments,
+  changedQuizParts,
 } = require("../services/pairingQuizService.js");
+const { pairKey } = require("../services/matrixService.js");
 const {
   PAIRING_QUESTION_GENDERS,
   pairingQuestions,
@@ -120,4 +122,37 @@ test("men, unknown questions and unknown answers give nothing", () => {
   assert.deepEqual(pairingAdjustments({ notAQuestion: "no" }, "woman", woman), []);
   assert.deepEqual(pairingAdjustments({ turtlenecksUnderShirts: "maybe" }, "woman", woman), []);
   assert.deepEqual(pairingAdjustments(undefined, "woman", woman), []);
+});
+
+/* -------------------- changedQuizParts -------------------- */
+
+test("only pairs whose quiz part would change count as changed", () => {
+  const adjustments = pairingAdjustments({ linenWithSummerDresses: "yes" }, "woman", woman);
+  const [first, ...rest] = adjustments;
+
+  // The first pair already has this answer saved; the rest have another.
+  const stored = new Map([
+    [pairKey(first.subtypeA, first.subtypeB), first.adjustment],
+    ...rest.map(({ subtypeA, subtypeB }) => [pairKey(subtypeA, subtypeB), -10]),
+  ]);
+
+  assert.deepEqual(changedQuizParts(adjustments, stored), rest);
+});
+
+test("a pair with no quiz part saved counts as 0", () => {
+  const adjustments = [
+    { subtypeA: "A", subtypeB: "B", adjustment: 0 },
+    { subtypeA: "A", subtypeB: "C", adjustment: 10 },
+  ];
+
+  assert.deepEqual(changedQuizParts(adjustments, new Map()), [adjustments[1]]);
+});
+
+test("answering exactly as before changes nothing", () => {
+  const adjustments = pairingAdjustments({ shirtsOverTops: "no" }, "woman", woman);
+  const stored = new Map(
+    adjustments.map(({ subtypeA, subtypeB, adjustment }) => [pairKey(subtypeA, subtypeB), adjustment])
+  );
+
+  assert.deepEqual(changedQuizParts(adjustments, stored), []);
 });

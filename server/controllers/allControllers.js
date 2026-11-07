@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const jwt_secret = process.env.JWT_SECRET;
 
-const { User, Match, Today, Clothes, Preferences, Trend } = require("../models/AllModels.js");
+const { User, Match, PendingMatch, Today, Clothes, Preferences, Trend } = require("../models/AllModels.js");
 const { processMatches } = require("../services/matchService");
 const { waitUntil } = require("@vercel/functions");
 const { deleteAllFootwearForUser } = require("./footwearControllers.js");
@@ -34,7 +34,18 @@ const {
   wipeUserScores,
 } = require("../services/matchScoreService.js");
 const { USER_MADE_SCORE } = require("../constants/scoring.js");
-const { applyPairingAnswers } = require("../services/pairingQuizService.js");
+const { applyPairingAnswers, planPairingAnswers, saveQuizParts } = require("../services/pairingQuizService.js");
+const {
+  preferencesAfter,
+  planPreferenceChange,
+  rebuildItemsFor,
+} = require("../services/preferenceChangeService.js");
+const {
+  continueOutfitRebuild,
+  getOutfitRebuild,
+  rebuildStatus,
+  startOutfitRebuild,
+} = require("../services/outfitRebuildService.js");
 const { cleanFavouriteColourFamilies, favouriteFamilyPalettes, getColorRules } = require("../utils/colorPalettes.js");
 const {
   findPage,
@@ -232,8 +243,10 @@ exports.deleteUser = async (req, res) => {
       await destroyItemImages(item, "account deleted");
     }
 
-    // 3. Delete all matches belonging to the user
+    // 3. Delete all matches belonging to the user (and any an unfinished
+    // outfit rebuild found)
     await Match.deleteMany({ userId });
+    await PendingMatch.deleteMany({ userId });
 
     // 4. Delete all Today entries belonging to the user
     await Today.deleteMany({ userId });
@@ -1565,6 +1578,39 @@ exports.updatePreferences = async (req, res) => {
       gender !== undefined &&
       gender !== existingPreferences.gender;
 
+    // What the change does to the saved outfits
+    // (services/preferenceChangeService.js). The pairing answers' new quiz
+    // parts are worked out first, so only real changes count - with a
+    // gender change every pair starts again anyway.
+    const before = existingPreferences?.toObject() ?? null;
+    const after = preferencesAfter(before, {
+      gender,
+      colour,
+      pattern,
+      temperature,
+      seasonality,
+      trends,
+      favouriteColourFamilies: cleanFavouriteColourFamilies(favouriteColourFamilies),
+    });
+
+    const changedPairs =
+      pairingAnswers && !genderChanged
+        ? await planPairingAnswers(userId, pairingAnswers, after.gender, getBaselineMatrix(after.gender))
+        : [];
+
+    const plan = planPreferenceChange(before, after, { changedPairs });
+
+    // One rebuild at a time: the next change waits for this one to finish.
+    const needsRebuild = Boolean(plan.rebuild) || plan.temperatureChanged;
+
+    if (needsRebuild && (await getOutfitRebuild(userId))) {
+      return res.status(409).json({
+        message: "Your outfits are still updating from your last change. Try again once they're done.",
+        success: false,
+        rebuildRunning: true,
+      });
+    }
+
     const preferences = await Preferences.findOneAndUpdate(
       { userId },
       {
@@ -1603,21 +1649,44 @@ exports.updatePreferences = async (req, res) => {
       await wipeFootwearScores(userId);
     }
 
-    // Style quiz pairing answers set those pairs' adjustments. Applied after
+    // Style quiz pairing answers set those pairs' quiz parts. Applied after
     // any wipe so a gender change in the same save keeps the new answers.
-    if (pairingAnswers) {
+    if (pairingAnswers && genderChanged) {
       await applyPairingAnswers(
         userId,
         pairingAnswers,
         preferences.gender,
         getBaselineMatrix(preferences.gender)
       );
+    } else {
+      await saveQuizParts(userId, changedPairs);
     }
 
+    // Run in the background, like the rebuild (services/outfitRebuildService.js).
+    // A full rebuild gives every outfit the new range anyway.
+    let outfitRebuild = rebuildStatus(null);
+
+    if (needsRebuild) {
+      const wardrobe = await Clothes.find({ userId }).select("type subtype pattern").lean();
+      const scope = rebuildItemsFor(plan.rebuild, wardrobe);
+      const refreshTemperatures = plan.temperatureChanged && !scope.allItems;
+
+      if (scope.itemIds.length || refreshTemperatures) {
+        outfitRebuild = rebuildStatus(
+          await startOutfitRebuild(userId, { ...scope, refreshTemperatures })
+        );
+      }
+    }
+
+    // `outfitRebuild`: carry it out with POST /preferences/rebuild.
+    // `refreshToday`: something Today reads changed - the same call builds
+    // today's list again.
     return res.json({
       message: "Preferences saved successfully.",
       success: true,
       data: preferences,
+      outfitRebuild,
+      refreshToday: plan.todayChanged,
     });
   } catch (err) {
     console.error(err);
@@ -1629,7 +1698,99 @@ exports.updatePreferences = async (req, res) => {
   }
 };
 
+// The outfit rebuild a preference change started, for the app to pick up:
+// { running, remaining, total } (services/outfitRebuildService.js).
+exports.getOutfitRebuildStatus = async (req, res) => {
+  const userId = req.user?.userId;
 
+  try {
+    return res.json({ success: true, ...rebuildStatus(await getOutfitRebuild(userId)) });
+  } catch (err) {
+    console.error(err);
 
+    return res.status(500).json({
+      message: "Internal server error.",
+      success: false,
+    });
+  }
+};
 
+// Today's list built again after a preference change, keeping the outfits
+// hidden today and the tag picked for today (`tag`, else the weekly one).
+// Without today's weather it's cleared instead, and the app's next
+// /today/create builds it. Nothing to do if it hasn't been built today.
+const refreshTodayAfterChange = async (userId, body) => {
+  const todayStart = resolveTodayStart(body.today_start);
 
+  const builtToday = await Today.exists({
+    userId,
+    dateCreated: { $gte: todayStart },
+    rank: { $ne: null },
+  });
+
+  if (!builtToday) return false;
+
+  if (!isValidTodayWeather(body)) {
+    await Today.deleteMany({ userId });
+    return false;
+  }
+
+  const wanted = typeof body.tag === "string" ? body.tag.trim().toLowerCase() : "";
+  const pickedTag = OCCASION_TAGS.find((name) => name.toLowerCase() === wanted) ?? null;
+
+  await buildToday({
+    userId,
+    todayStart,
+    season_today: body.season_today,
+    day_of_week: body.day_of_week,
+    min_temp_today: body.min_temp_today,
+    max_temp_today: body.max_temp_today,
+    todayTag: pickedTag,
+    rebuild: true,
+  });
+
+  return true;
+};
+
+// Carries on the outfit rebuild for one chunk (services/outfitRebuildService.js);
+// the app calls again while `running` is true. Once it's swapped in -
+// or straight away with `refresh_today` when no rebuild is running (a
+// change only Today reads) - today's list is built again from the
+// weather sent, as for /today/create (min_temp_today, max_temp_today,
+// season_today, today_start, day_of_week), plus `tag`: the tag picked
+// for today, if any.
+// Responds { running, remaining, total, todayRebuilt }.
+exports.continueOutfitRebuild = async (req, res) => {
+  const userId = req.user?.userId;
+  const body = req.body || {};
+
+  try {
+    // Not under withUserLock: a chunk runs for up to a minute, and Today
+    // (which takes the lock) must keep loading meanwhile.
+    const step = await continueOutfitRebuild(userId);
+
+    if (step.running) {
+      return res.json({
+        success: true,
+        running: true,
+        remaining: step.remaining,
+        total: step.total,
+        todayRebuilt: false,
+      });
+    }
+
+    const todayRebuilt =
+      step.finished || body.refresh_today === true
+        ? await withUserLock(userId, () => refreshTodayAfterChange(userId, body))
+        : false;
+
+    return res.json({ success: true, ...rebuildStatus(null), todayRebuilt });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: "Internal server error.",
+      success: false,
+    });
+  }
+};

@@ -9,7 +9,7 @@
 // Logic: useWeather, useTodayLook - both shared with the web
 // homepage.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -22,6 +22,7 @@ import {
   takeEditedOutfits,
   takeRemovedOutfits,
 } from "../../../components/outfits/outfitHandoff";
+import { OutfitRebuildNote } from "../../../components/outfits/OutfitRebuildNote";
 import {
   BubbleCelebration,
   BubbleLoader,
@@ -34,6 +35,7 @@ import { OutfitFeedback } from "../../../components/today/OutfitFeedback";
 import { OutfitPicker } from "../../../components/today/OutfitPicker";
 import { ShoeChooser } from "../../../components/today/ShoeChooser";
 import { TagPicker } from "../../../components/today/TagPicker";
+import { useOutfitRebuild } from "../../../outfitRebuild/OutfitRebuildProvider";
 import { useLocation } from "../../../platform/useLocation";
 import { fonts, ink, space, textSizes } from "../../../theme/soft";
 
@@ -71,6 +73,18 @@ export default function TodayScreen() {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
   );
+
+  // Today's list built again after a preference change: show the new one.
+  const { rebuiltCount } = useOutfitRebuild();
+  const seenRebuilds = useRef(rebuiltCount);
+
+  useEffect(() => {
+    if (rebuiltCount === seenRebuilds.current) return;
+
+    seenRebuilds.current = rebuiltCount;
+    if (weather.ready) today.reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rebuiltCount]);
 
   // Errors from wearing and the broken heart. Marking worn has the bubble
   // celebration instead of an alert.
@@ -200,6 +214,7 @@ export default function TodayScreen() {
       <SoftNote text={weather.error} />
       {/* When few outfits fit the weather (shared/todayMessages.json). */}
       <SoftNote text={today.weatherNoticeText} type="success" />
+      <OutfitRebuildNote />
 
       <View style={styles.outfit}>{outfitSection()}</View>
 

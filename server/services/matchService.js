@@ -391,7 +391,11 @@ function findCandidateMatches(
   return candidates;
 }
 
-async function processMatches(newItem, allItems) {
+// `into`: the model the new outfits are saved to - PendingMatch for an
+// outfit rebuild (outfitRebuildService.js). `skipKeys`: the clothesKeys
+// of the outfits not to find again; by default every outfit already
+// saved in Match.
+async function processMatches(newItem, allItems, { into = Match, skipKeys = null } = {}) {
   if (!ROLES.includes(newItem.type)) {
     return;
   }
@@ -401,11 +405,11 @@ async function processMatches(newItem, allItems) {
   const [{ gender, colour, pattern, temperature }, adjustments, existingMatches] = await Promise.all([
     getUserMatchingPreferences(newItem.userId),
     loadUserAdjustments(newItem.userId),
-    Match.find({ userId: newItem.userId }).select("clothesKey"),
+    skipKeys ? null : Match.find({ userId: newItem.userId }).select("clothesKey"),
   ]);
 
   const context = buildMatchingContext({ gender, colour, pattern, temperature, adjustments });
-  const existingKeys = new Set(existingMatches.map((match) => match.clothesKey));
+  const existingKeys = skipKeys || new Set(existingMatches.map((match) => match.clothesKey));
 
   const budget = createBudget({
     timeLimitMs: Math.min(SEARCH_TIME_LIMIT_MS, msUntilDeadline() - SAVE_RESERVE_MS),
@@ -413,13 +417,13 @@ async function processMatches(newItem, allItems) {
 
   const newMatches = findCandidateMatches(newItem, wardrobe, context, { existingKeys, budget });
 
-  await saveMatchesBestFirst(newMatches);
+  await saveMatchesBestFirst(newMatches, into);
 }
 
 // Saves in chunks, best first, until done or the Vercel deadline is close.
 // A chunk keeps going past an outfit another run already saved (unordered
 // insert) and that duplicate is ignored; any other error is thrown.
-async function saveMatchesBestFirst(matches) {
+async function saveMatchesBestFirst(matches, model = Match) {
   for (let start = 0; start < matches.length; start += INSERT_CHUNK_SIZE) {
     if (msUntilDeadline() < INSERT_STOP_MARGIN_MS) {
       console.warn(
@@ -429,7 +433,7 @@ async function saveMatchesBestFirst(matches) {
     }
 
     try {
-      await Match.insertMany(matches.slice(start, start + INSERT_CHUNK_SIZE), { ordered: false });
+      await model.insertMany(matches.slice(start, start + INSERT_CHUNK_SIZE), { ordered: false });
     } catch (error) {
       if (!isOnlyDuplicateKeyErrors(error)) {
         throw error;

@@ -6,7 +6,7 @@
 // `itemFilter` shows only outfits with one item ("View new matches"
 // after adding clothes), waiting for them to be made if `waitForNew`.
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Feather from "@expo/vector-icons/Feather";
 import { router, useFocusEffect } from "expo-router";
 import {
@@ -34,6 +34,8 @@ import { CARD_GAP, twoColumnWidth } from "../ui/cardBox";
 import { OutfitCard } from "./OutfitCard";
 import { splitIntoColumns } from "./outfitColumns";
 import { handOverOutfit } from "./outfitHandoff";
+import { useOutfitRebuild } from "../../outfitRebuild/OutfitRebuildProvider";
+import { OutfitRebuildNote } from "./OutfitRebuildNote";
 import { takeOutfitsChanged } from "./outfitsChanged";
 import { SelectionBar } from "./SelectionBar";
 
@@ -110,6 +112,19 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
   );
+
+  // Outfits rebuilt after a preference change while this list is showing.
+  const { rebuiltCount } = useOutfitRebuild();
+  const seenRebuilds = useRef(rebuiltCount);
+
+  useEffect(() => {
+    if (rebuiltCount === seenRebuilds.current) return;
+
+    seenRebuilds.current = rebuiltCount;
+    takeOutfitsChanged();
+    refreshList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rebuiltCount]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -199,6 +214,7 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
         )}
 
         <Message text={outfits.error} />
+        <OutfitRebuildNote />
       </View>
 
       {outfits.waitingForNewMatch ? (
