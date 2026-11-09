@@ -1,30 +1,20 @@
-// A small rounded toggle: seasons, colours, types, filters. A white pill;
-// selected, it fills with the selected lilac (colors.selected) and its
-// label darkens. Nothing else changes, so it never shifts.
+// A small rounded toggle: seasons, colours, types, filters. A flat white
+// pill; selected, a flat lilac one (colors.selectedSolid), and its label
+// (light spaced capitals, as Today's season line) darkens. Nothing else
+// changes and nothing moves, so it never shifts.
 // `swatch` shows a colour dot (with a white ring) before the label.
 
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  shadows,
-  spacing,
-} from "../../theme/tokens";
-import { boxEdge } from "../../theme/soft";
+import { colors, radius, shadows, spacing } from "../../theme/tokens";
+import { type } from "../../theme/soft";
 
 export const Chip = ({ label, selected = false, onPress, swatch }) => (
   <Pressable
     onPress={onPress}
     accessibilityRole="button"
     accessibilityState={{ selected }}
-    style={({ pressed }) => [
-      styles.chip,
-      selected && styles.selected,
-      pressed && styles.pressed,
-    ]}
+    style={[styles.chip, selected && styles.selected]}
   >
     <View style={styles.content}>
       {swatch ? (
@@ -38,13 +28,13 @@ export const Chip = ({ label, selected = false, onPress, swatch }) => (
 );
 
 const styles = StyleSheet.create({
+  // Flat: no rim or shadow, so the only change when selected is the fill.
   chip: {
     borderRadius: radius.pill,
     backgroundColor: colors.chipBackground,
-    ...boxEdge,
   },
   selected: {
-    backgroundColor: colors.selected,
+    backgroundColor: colors.selectedSolid,
   },
   content: {
     flexDirection: "row",
@@ -52,9 +42,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingHorizontal: spacing.md + 2,
     paddingVertical: spacing.sm,
-  },
-  pressed: {
-    transform: [{ scale: 0.97 }],
   },
   swatch: {
     width: 14,
@@ -64,11 +51,7 @@ const styles = StyleSheet.create({
     borderColor: colors.inverse,
     boxShadow: shadows.soft,
   },
-  label: {
-    fontFamily: fontWeights.medium,
-    fontSize: fontSizes.small,
-    color: colors.secondary,
-  },
+  label: type.chipLabel,
   // Same weight as unselected, so the chip keeps its size - only the
   // colour deepens.
   selectedLabel: {

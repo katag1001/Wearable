@@ -59,6 +59,19 @@ export const fade = (hex, alpha) => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
+// A hex colour at `alpha` as it looks laid over white, as a solid colour -
+// for fills that must read flat whatever is behind them.
+export const onWhite = (hex, alpha) =>
+  `#${[1, 3, 5]
+    .map((start) => {
+      const channel = parseInt(hex.slice(start, start + 2), 16);
+
+      return Math.round(channel * alpha + 255 * (1 - alpha))
+        .toString(16)
+        .padStart(2, "0");
+    })
+    .join("")}`;
+
 // Colours by job. Components use these (or ./tokens.js, built on them)
 // rather than naming a hue, so recolouring a job happens here only.
 
@@ -146,6 +159,16 @@ export const textSizes = {
   h1: 30,
   display: 40,
   accent: 44,
+};
+
+// Light spaced capitals: Today's tag and season line, and chip labels.
+const SMALL_CAPS = {
+  fontFamily: fonts.light,
+  fontSize: textSizes.xs,
+  lineHeight: 18,
+  letterSpacing: 1.4,
+  textTransform: "uppercase",
+  color: ink.soft,
 };
 
 export const type = {
@@ -252,13 +275,13 @@ export const type = {
     lineHeight: 26,
     color: ink.main,
   },
-  todaySubline: {
-    fontFamily: fonts.light,
-    fontSize: textSizes.xs,
-    lineHeight: 18,
-    letterSpacing: 1.4,
-    textTransform: "uppercase",
-    color: ink.soft,
+  todaySubline: SMALL_CAPS,
+  // Chip labels (quick filters, choices): Today's season line, a size
+  // smaller.
+  chipLabel: {
+    ...SMALL_CAPS,
+    fontSize: textSizes.xxs,
+    lineHeight: 16,
   },
   // Today's round note bubble. Regular rather than light, so it reads
   // darker over the photos.
@@ -336,7 +359,7 @@ export const shadows = {
 };
 
 // The edge of the app's boxes - the Today tabs, the item and outfit cards,
-// the search boxes, filter buttons and quick filters, the Add item /
+// the search boxes, filter buttons, the Add item /
 // Build outfit cards, field rows and week tags: a 1px rim of light along
 // the top, no drop shadow. Spread it into a style; change it here to
 // change them all.

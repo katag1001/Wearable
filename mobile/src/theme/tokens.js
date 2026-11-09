@@ -6,6 +6,7 @@
 import {
   accent,
   fade,
+  onWhite,
   fonts,
   ink,
   radii,
@@ -40,6 +41,9 @@ export const colors = {
   lightEdge: surface.lightEdge,
   // Something chosen: choices, days, the main button and the build-outfit +.
   selected: `${accent.mid}80`,
+  // The same lilac as a solid colour (as it looks on white), for selected
+  // chips: one flat fill, nothing showing through.
+  selectedSolid: onWhite(accent.mid, 128 / 255),
   // Quiet fills: segmented tracks, placeholders, inactive controls.
   imageBackground: accent.wash,
   // Behind item photos: nothing - their backgrounds are removed, so the
