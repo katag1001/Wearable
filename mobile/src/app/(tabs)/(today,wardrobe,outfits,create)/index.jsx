@@ -6,12 +6,16 @@
 // OutfitFeedback the same way. Tapping "[tag] outfit" slides up TagPicker
 // to pick another tag for today (today only). Drawn in the soft look
 // (context/visual-language.md), the atmosphere tinted by the weather.
+// The page is two tabs: the greeting, day and weather on one pulled down
+// from the top, everything else on one pulled up from the bottom, with a
+// strip of the weather-tinted atmosphere showing between them.
 // Logic: useWeather, useTodayLook - both shared with the web
 // homepage.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTodayLook } from "@core/hooks/useTodayLook.js";
 import { useWeather } from "@core/hooks/useWeather.js";
@@ -37,13 +41,23 @@ import { ShoeChooser } from "../../../components/today/ShoeChooser";
 import { TagPicker } from "../../../components/today/TagPicker";
 import { useOutfitRebuild } from "../../../outfitRebuild/OutfitRebuildProvider";
 import { useLocation } from "../../../platform/useLocation";
-import { fonts, ink, space, textSizes } from "../../../theme/soft";
+import {
+  boxEdge,
+  fonts,
+  ink,
+  radii,
+  space,
+  surface,
+  textSizes,
+} from "../../../theme/soft";
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
 
+
 export default function TodayScreen() {
   const { firstName } = useSession();
+  const insets = useSafeAreaInsets();
   const location = useLocation();
   const weather = useWeather({
     latitude: location.latitude,
@@ -163,60 +177,70 @@ export default function TodayScreen() {
       // Fixed to the screen (no scrolling) - the outfit photos shrink to
       // fit it.
       scroll={false}
+      // The top tab runs up under the status bar, so the page handles the
+      // safe area and gutter itself.
+      edges={[]}
+      contentStyle={styles.page}
     >
-      {/* The greeting, with the way to the profile menu on the right. */}
-      <PageHeader
-        title={firstName ? `Hey ${firstName}` : "Hello"}
-        icon="user"
-        iconLabel="Profile"
-        onIconPress={() => router.push("/profile")}
-      />
+      {/* The top tab, pulled down from the top of the screen. */}
+      <View style={[styles.topTab, { paddingTop: insets.top + space.pageTop }]}>
+        {/* The greeting, with the way to the profile menu on the right. */}
+        <PageHeader
+          title={firstName ? `Hey ${firstName}` : "Hello"}
+          icon="user"
+          iconLabel="Profile"
+          onIconPress={() => router.push("/profile")}
+        />
 
-      {/* Two matching columns: weekday over tag on the left, temperature
-          over season on the right, line for line. */}
-      <View style={styles.header}>
-        <View style={styles.column}>
-          <Text style={styles.headline}>{capitalise(getTodayDayOfWeek())}</Text>
-          {/* Needs today's weather: a new tag can mean building today's
-              list again. */}
-          <Pressable
-            onPress={() => setPickingTag(true)}
-            disabled={!weather.weather || today.changingTag}
-            accessibilityRole="button"
-            accessibilityHint="Pick another tag for today's outfits"
-            hitSlop={8}
-          >
-            <Text style={styles.subline}>{tag}</Text>
-          </Pressable>
-        </View>
+        {/* Two matching columns: weekday over tag on the left, temperature
+            over season on the right, line for line. */}
+        <View style={styles.header}>
+          <View style={styles.column}>
+            <Text style={styles.headline}>{capitalise(getTodayDayOfWeek())}</Text>
+            {/* Needs today's weather: a new tag can mean building today's
+                list again. */}
+            <Pressable
+              onPress={() => setPickingTag(true)}
+              disabled={!weather.weather || today.changingTag}
+              accessibilityRole="button"
+              accessibilityHint="Pick another tag for today's outfits"
+              hitSlop={8}
+            >
+              <Text style={styles.subline}>{tag}</Text>
+            </Pressable>
+          </View>
 
-        {weather.weather ? (
-          <View style={[styles.column, styles.right]}>
-            <View style={styles.temperature}>
-              <WeatherIcon code={weather.weather.code} />
-              <Text style={styles.headline}>
-                {weather.weather.min}° – {weather.weather.max}°
+          {weather.weather ? (
+            <View style={[styles.column, styles.right]}>
+              <View style={styles.temperature}>
+                <WeatherIcon code={weather.weather.code} />
+                <Text style={styles.headline}>
+                  {weather.weather.min}° – {weather.weather.max}°
+                </Text>
+              </View>
+              <Text style={styles.subline}>
+                {weather.isFallback ? "Last known · " : ""}
+                {weather.season}
               </Text>
             </View>
-            <Text style={styles.subline}>
-              {weather.isFallback ? "Last known · " : ""}
-              {weather.season}
-            </Text>
-          </View>
-        ) : !weather.error && !location.error ? (
-          <View style={[styles.column, styles.right, styles.waiting]}>
-            <Text style={styles.subline}>Finding the weather</Text>
-          </View>
-        ) : null}
+          ) : !weather.error && !location.error ? (
+            <View style={[styles.column, styles.right, styles.waiting]}>
+              <Text style={styles.subline}>Finding the weather</Text>
+            </View>
+          ) : null}
+        </View>
       </View>
 
-      <SoftNote text={location.error} />
-      <SoftNote text={weather.error} />
-      {/* When few outfits fit the weather (shared/todayMessages.json). */}
-      <SoftNote text={today.weatherNoticeText} type="success" />
-      <OutfitRebuildNote />
+      {/* The bottom tab, pulled up to meet it. */}
+      <View style={styles.bottomTab}>
+        <SoftNote text={location.error} />
+        <SoftNote text={weather.error} />
+        {/* When few outfits fit the weather (shared/todayMessages.json). */}
+        <SoftNote text={today.weatherNoticeText} type="success" />
+        <OutfitRebuildNote />
 
-      <View style={styles.outfit}>{outfitSection()}</View>
+        <View style={styles.outfit}>{outfitSection()}</View>
+      </View>
 
       <TagPicker
         visible={pickingTag}
@@ -233,11 +257,39 @@ export default function TodayScreen() {
 }
 
 const styles = StyleSheet.create({
+  // The atmosphere shows between the tabs and in their rounded corners.
+  page: {
+    paddingHorizontal: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    gap: space.sm,
+  },
+  // Square at the top, rounded along its bottom edge.
+  topTab: {
+    paddingHorizontal: space.gutter,
+    paddingBottom: space.md,
+    gap: space.sm,
+    backgroundColor: surface.milk,
+    borderBottomLeftRadius: radii.sheet,
+    borderBottomRightRadius: radii.sheet,
+    ...boxEdge,
+  },
+  // The mirror image: rounded along its top edge.
+  bottomTab: {
+    flex: 1,
+    paddingHorizontal: space.gutter,
+    paddingTop: space.md,
+    paddingBottom: space.sm,
+    gap: space.sm,
+    backgroundColor: surface.milk,
+    borderTopLeftRadius: radii.sheet,
+    borderTopRightRadius: radii.sheet,
+    ...boxEdge,
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     gap: space.sm,
-    marginBottom: space.xs,
   },
   column: {
     gap: space.xxs,

@@ -1,7 +1,9 @@
-// The page behind a soft screen: soft colour patches around the edges,
-// blending into a wide white middle (the portfolio's bubble background,
-// much lighter), with film grain on top. `weather` (atmosphereMood) leans
-// the patches cool or warm. Fills its parent and never catches touches.
+// The page behind a soft screen: blurred patches of every bubble colour
+// (theme iridescent - blush, lavender, sky, mint, peach) scattered over the
+// whole screen, no white middle, with film grain on top. The layout is
+// picked at random once per app launch, so every page shares it.
+// `weather` (atmosphereMood) leans the patches cool or warm. Fills its
+// parent and never catches touches.
 
 import { useMemo } from "react";
 import { Image, StyleSheet, View } from "react-native";
@@ -11,21 +13,56 @@ import { atmosphereMood, mid, surface } from "../../theme/soft";
 
 const grain = require("../../../assets/textures/grain.png");
 
-// Around the edge, as in the portfolio: [hue, x, y, radius, strength],
-// x / y / radius in % of the screen. Mostly lavender, so the page reads
-// purplish. Sky sits in the opposite corners (top right, bottom left) so
-// blue and purple stay distinct instead of blending; mint, and a little
-// blush and peach, keep the rainbow without turning it red.
-const PATCHES = [
-  ["lavender", 4, 8, 50, 0.38],
-  ["sky", 98, 6, 48, 0.32],
-  ["blush", 102, 52, 40, 0.12],
-  ["lavender", 96, 94, 50, 0.34],
-  ["mint", 50, 102, 44, 0.16],
-  ["sky", 4, 92, 46, 0.28],
-  ["peach", 30, 104, 34, 0.08],
-  ["lavender", -2, 50, 40, 0.24],
-];
+const HUES = ["blush", "lavender", "sky", "mint", "peach"];
+
+// The bubble colours, a touch clearer than the theme's for the page: a
+// cooler pink than mid.blush so it reads pink rather than peachy where it
+// blends, and a brighter blue and green.
+const PATCH_COLOURS = {
+  ...mid,
+  blush: "#EFA6C6",
+  sky: "#9CBEF2",
+  mint: "#A3DAC6",
+};
+
+// A 3 x 4 grid of cells, one patch somewhere in each, so the colour covers
+// the screen evenly. The patches are small enough to leave some white
+// between them.
+const COLUMNS = 3;
+const ROWS = 4;
+
+const between = (low, high) => low + Math.random() * (high - low);
+
+const shuffle = (list) => {
+  const copy = [...list];
+
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const other = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[other]] = [copy[other], copy[index]];
+  }
+
+  return copy;
+};
+
+// [hue, x, y, radius, strength], x / y / radius in % of the screen. Every
+// hue comes round twice or more, in a random order, so no colour leads.
+const scatterPatches = () => {
+  const count = COLUMNS * ROWS;
+  const hues = shuffle(
+    Array.from({ length: count }, (_, index) => HUES[index % HUES.length])
+  );
+
+  return hues.map((hue, index) => {
+    const column = index % COLUMNS;
+    const row = Math.floor(index / COLUMNS);
+    const x = ((column + between(0.1, 0.9)) / COLUMNS) * 100;
+    const y = ((row + between(0.1, 0.9)) / ROWS) * 100;
+
+    return [hue, x, y, between(24, 36), between(0.18, 0.28)];
+  });
+};
+
+const PATCHES = scatterPatches();
 
 export const Atmosphere = ({ weather }) => {
   const mood = useMemo(() => atmosphereMood(weather), [weather]);
@@ -51,20 +88,12 @@ export const Atmosphere = ({ weather }) => {
             >
               <Stop
                 offset="0"
-                stopColor={mid[hue]}
+                stopColor={PATCH_COLOURS[hue]}
                 stopOpacity={Math.min(1, strength * mood[hue])}
               />
-              <Stop offset="0.75" stopColor={mid[hue]} stopOpacity="0" />
+              <Stop offset="1" stopColor={PATCH_COLOURS[hue]} stopOpacity="0" />
             </RadialGradient>
           ))}
-
-          {/* A wide, gradual white middle over the patches, so the colour
-              only lives at the edges and there's no visible shape. */}
-          <RadialGradient id="centre" cx="50" cy="50" r="62" gradientUnits="userSpaceOnUse">
-            <Stop offset="0" stopColor={surface.white} stopOpacity="0.95" />
-            <Stop offset="0.4" stopColor={surface.white} stopOpacity="0.8" />
-            <Stop offset="1" stopColor={surface.white} stopOpacity="0" />
-          </RadialGradient>
         </Defs>
 
         <Rect x="0" y="0" width="100" height="100" fill={surface.white} />
@@ -78,7 +107,6 @@ export const Atmosphere = ({ weather }) => {
             fill={`url(#patch${index})`}
           />
         ))}
-        <Rect x="0" y="0" width="100" height="100" fill="url(#centre)" />
       </Svg>
 
       <Image source={grain} resizeMode="repeat" style={styles.grain} />

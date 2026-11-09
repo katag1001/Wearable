@@ -12,6 +12,7 @@ import {
   shadows,
   spacing,
 } from "../../theme/tokens";
+import { boxEdge } from "../../theme/soft";
 
 export const Chip = ({ label, selected = false, onPress, swatch }) => (
   <Pressable
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
     backgroundColor: colors.cardBackground,
-    boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
+    ...boxEdge,
   },
   selected: {
     backgroundColor: colors.selected,

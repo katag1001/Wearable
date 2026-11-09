@@ -21,7 +21,7 @@ import { useAccumulatedPages } from "@core/hooks/useAccumulatedPages.js";
 import { useWardrobePage } from "@core/hooks/useWardrobePage.js";
 
 import { colors, radius, spacing } from "../../../theme/tokens";
-import { space } from "../../../theme/soft";
+import { boxEdge, space } from "../../../theme/soft";
 import { FilterSheet } from "../../../components/filters/FilterSheet";
 import {
   Button,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderCurve: "continuous",
     backgroundColor: colors.fieldBackground,
-    boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
+    ...boxEdge,
     alignItems: "center",
     justifyContent: "center",
   },

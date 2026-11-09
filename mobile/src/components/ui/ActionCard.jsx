@@ -10,10 +10,9 @@ import {
   colors,
   fontWeights,
   radius,
-  shadows,
   spacing,
 } from "../../theme/tokens";
-import { textSizes } from "../../theme/soft";
+import { boxEdge, textSizes } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
 
 export const ActionCard = ({ icon, title, text, tint, onPress }) => (
@@ -54,7 +53,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     borderCurve: "continuous",
     backgroundColor: colors.cardBackground,
-    boxShadow: `${shadows.soft}, inset 0px 1px 0px ${colors.lightEdge}`,
+    ...boxEdge,
   },
   icon: {
     width: 48,

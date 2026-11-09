@@ -4,6 +4,7 @@
 // leaves space for the favourite heart in the corner.
 
 import { colors, radius, spacing } from "../../theme/tokens";
+import { boxEdge } from "../../theme/soft";
 
 // Between the two columns, and between cards in a column.
 export const CARD_GAP = spacing.md;
@@ -28,7 +29,7 @@ export const cardBox = {
   borderRadius: radius.lg,
   borderCurve: "continuous",
   backgroundColor: colors.fieldBackground,
-  boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
+  ...boxEdge,
 };
 
 // The favourite heart's place and size on a card.

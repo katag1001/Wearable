@@ -27,7 +27,7 @@ behind a garment.
 
 | Portfolio does | App keeps | App changes |
 |---|---|---|
-| Perimeter colour patches fading to a white centre (`.bubble_background`) | The composition | Lighter and less saturated; patches only reach the edges |
+| Perimeter colour patches fading to a white centre (`.bubble_background`) | The composition | Lighter and less saturated; patches of every bubble colour scattered over the whole screen, no white centre |
 | Glass bubbles: clear body, conic iridescent rim, specular highlights | The anatomy | 2-4 per screen, placed by hand and cropped by the screen edge - no random bouncing |
 | Inter + Fira Code, tracked uppercase labels (`0.22em`) | Both, and the label style | Large type goes light (300-400) |
 | `[01] PORTFOLIO` mono eyebrow | Numbered eyebrows per tab | - |
@@ -102,11 +102,12 @@ its hue to the next, so the row reads as one sweep).
 
 ## 5. Atmosphere and bubbles
 
-- **Atmosphere** behind every screen: perimeter colour patches, white centre,
-  plus **film grain at ~3-4%** (as in example 1). Grain is the strongest
+- **Atmosphere** behind every screen: blurred patches of all five bubble
+  colours scattered over the whole screen (no white centre, no lead colour;
+  random layout per app launch), plus **film grain at ~3-4%** (as in example 1). Grain is the strongest
   "made by a person" signal.
 - **No bubbles in the background** (tried on Today, taken out 2026-11-03).
-  The edge colour blends gradually into a wide white middle - no shapes,
+  The patches blend into each other - no shapes,
   no visible edges.
 - **Bubbles** live in the UI instead: clear body, soft iridescent rim
   (several light strokes in a pink → lavender → blue → mint → peach

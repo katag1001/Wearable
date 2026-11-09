@@ -181,6 +181,14 @@ export const shadows = {
   tabIcon: "0px 4px 14px rgba(198, 182, 230, 0.35)",
 };
 
+// The edge of the app's boxes - the Today tabs, the item and outfit cards,
+// the search boxes, filter buttons and quick filters, and the Add item /
+// Build outfit cards: a 1px rim of light along the top, no drop shadow.
+// Spread it into a style; change it here to change them all.
+export const boxEdge = {
+  boxShadow: `inset 0px 1px 0px ${surface.lightEdge}`,
+};
+
 export const motion = {
   press: 200,
   panel: 320,
@@ -189,12 +197,12 @@ export const motion = {
   pressedScale: 0.97,
 };
 
-// How strongly each atmosphere patch shows. Lavender always leads, so the
-// page stays purplish; cold days lean sky, warm days a touch warmer (blush
-// and peach), never red. Mild (or no weather yet) sits in between.
+// How strongly each atmosphere patch shows. All five bubble colours count
+// the same; cold days lean sky, warm days a touch warmer (blush and peach),
+// never red. Mild (or no weather yet) sits in between.
 const MOODS = {
-  cold: { blush: 0.6, lavender: 1.1, sky: 1.25, mint: 0.9, peach: 0.5 },
-  mild: { blush: 0.9, lavender: 1, sky: 1, mint: 1, peach: 0.9 },
+  cold: { blush: 0.7, lavender: 1, sky: 1.25, mint: 0.9, peach: 0.6 },
+  mild: { blush: 1, lavender: 1, sky: 1, mint: 1, peach: 1 },
   warm: { blush: 1.2, lavender: 1, sky: 0.7, mint: 0.8, peach: 1.3 },
 };
 

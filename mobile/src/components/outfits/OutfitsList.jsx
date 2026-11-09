@@ -26,7 +26,7 @@ import { useMatchesPage } from "@core/hooks/useMatchesPage.js";
 import { seasonOptions } from "@core/constants/optionsBank.js";
 
 import { colors, radius, spacing } from "../../theme/tokens";
-import { space } from "../../theme/soft";
+import { boxEdge, space } from "../../theme/soft";
 import { FilterSheet } from "../filters/FilterSheet";
 import { PageHeader } from "../soft";
 import { Button, Chip, ChipRow, EmptyState, Message, TextField } from "../ui";
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderCurve: "continuous",
     backgroundColor: colors.fieldBackground,
-    boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
+    ...boxEdge,
     alignItems: "center",
     justifyContent: "center",
   },
