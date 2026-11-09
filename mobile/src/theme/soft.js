@@ -131,14 +131,19 @@ export const ratingRun = [
   mid.mint,
 ];
 
-// The Atmosphere's colours: the bubble colours a touch clearer - a cooler
-// pink than mid.blush so it reads pink rather than peachy where it blends,
-// and a brighter blue and green.
-export const atmosphereColours = {
-  ...mid,
-  blush: "#EFA6C6",
-  sky: "#9CBEF2",
-  mint: "#A3DAC6",
+// The Atmosphere's colours: the bubble colours as they are.
+export const atmosphereColours = mid;
+
+// The Atmosphere's mix: how many of its 12 patches each hue gets, and how
+// strongly they show. Mostly sky and lavender, so the page reads soft
+// purply-blue, with some mint through it; one faint patch each of blush
+// and peach keeps a hint of the rainbow without turning it red.
+export const atmosphereMix = {
+  sky: { patches: 4, strength: 1.1 },
+  lavender: { patches: 3, strength: 0.9 },
+  mint: { patches: 3, strength: 0.8 },
+  blush: { patches: 1, strength: 0.45 },
+  peach: { patches: 1, strength: 0.35 },
 };
 
 export const semantic = {
@@ -420,13 +425,13 @@ export const motion = {
   pressedScale: 0.97,
 };
 
-// How strongly each atmosphere patch shows. All five bubble colours count
-// the same; cold days lean sky, warm days a touch warmer (blush and peach),
-// never red. Mild (or no weather yet) sits in between.
+// How the weather leans the atmosphere patches (on top of atmosphereMix):
+// cold days lean sky, warm days a touch warmer (blush and peach), never
+// red. Mild (or no weather yet) sits in between.
 const MOODS = {
-  cold: { blush: 0.7, lavender: 1, sky: 1.25, mint: 0.9, peach: 0.6 },
+  cold: { blush: 0.8, lavender: 1, sky: 1.15, mint: 0.9, peach: 0.7 },
   mild: { blush: 1, lavender: 1, sky: 1, mint: 1, peach: 1 },
-  warm: { blush: 1.2, lavender: 1, sky: 0.7, mint: 0.8, peach: 1.3 },
+  warm: { blush: 1.15, lavender: 1, sky: 0.85, mint: 0.9, peach: 1.15 },
 };
 
 export const atmosphereMood = (weather) => {
