@@ -97,6 +97,10 @@ timesWorn: { type: Number, default: 0 },
 timesWornThisYear: { type: Number, default: 0 },
 wornYear: { type: Number, default: null },
 
+// The shoes worn with this outfit on the Today page, most recently worn
+// first - shown first next time (services/matchFootwearService.js).
+footwear: [{ type: mongoose.Schema.Types.ObjectId, ref: "Footwear" }],
+
 userMade: { type: Boolean, default: false },
 favourite: { type: Boolean, default: false },
 // True once the user has changed anything on the outfit by hand (edit page,
@@ -417,8 +421,7 @@ matchScoreSchema.index(
 
 // Kept apart from Clothes: footwear is never matched into outfits, so it has
 // no role (`type`) - just a subtype from shared/footwearByGender.json. The
-// Today page suggests shoes for the worn outfit and marks them worn
-// (FootwearScore below).
+// Today page suggests shoes for the worn outfit and marks them worn.
 const footwearSchema = new mongoose.Schema({
 name: { type: String, required: true },
 imageUrl: { type: String, default: "" },
@@ -459,39 +462,6 @@ analysis: { type: analysisSchema, default: undefined },
 
 // The Footwear tab pages through a user's footwear newest first.
 footwearSchema.index({ userId: 1, _id: -1 });
-
-
-/* -------------------- FOOTWEAR SCORE -------------------- */
-
-// A user's personal adjustment for pairing an outfit's bottom (or
-// one-piece) subtype with a footwear type, learned on the Today page
-// (server/services/footwearScoreService.js). Sparse like MatchScore: a
-// document only exists once the user has scrolled past or worn that
-// pairing. The score is the baseline (shared/footwearMatrices.json) plus
-// this adjustment.
-const footwearScoreSchema = new mongoose.Schema({
-
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-    index: true,
-  },
-
-  bottomSubtype: { type: String, required: true },
-  footwearSubtype: { type: String, required: true },
-
-  adjustment: { type: Number, default: 0 },
-
-  // Scrolling past counts at most once per pairing per day.
-  lastRejectedDate: { type: Date, default: null },
-
-});
-
-footwearScoreSchema.index(
-  { userId: 1, bottomSubtype: 1, footwearSubtype: 1 },
-  { unique: true }
-);
 
 
 /* -------------------- TRENDS -------------------- */
@@ -535,7 +505,6 @@ PendingMatch: mongoose.model("PendingMatch", pendingMatchSchema),
 Today: mongoose.model("Today", todaySchema),
 Clothes: mongoose.model("Clothes", clothesSchema),
 Footwear: mongoose.model("Footwear", footwearSchema),
-FootwearScore: mongoose.model("FootwearScore", footwearScoreSchema),
 Preferences: mongoose.model("Preferences", preferencesSchema),
 MatchScore: mongoose.model("MatchScore", matchScoreSchema),
 Trend: mongoose.model("Trend", trendSchema),

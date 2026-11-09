@@ -11,7 +11,7 @@ import { isDateToday } from "../utils/dates.js";
 //    ({ [matchId]: footwearId });
 //  - worn: the shoe marked worn today, with the snapshot needed to undo it
 //    if a different shoe or outfit is worn instead
-//    ({ footwearId, matchId, bottomSubtype, snapshot }).
+//    ({ footwearId, matchId, snapshot, previousFootwear }).
 
 const EMPTY = { orders: {}, chosen: {}, worn: null };
 

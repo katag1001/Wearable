@@ -4,7 +4,6 @@
 // server/controllers/footwearControllers.js. The paged list uses
 // core/api/lists.js.
 
-import { getTodayStartISO } from "../utils/dates.js";
 import { api } from "./client.js";
 
 /* -------------------- Items -------------------- */
@@ -30,41 +29,32 @@ export const deleteFootwear = async (id) => {
 
 /* -------------------- Today page -------------------- */
 
-// { items, pairings, gender } - all footwear, learned pairings, and the
-// gender that picks the matrix.
+// { items, gender, colourLevel, shoeTrends } - all footwear, the gender
+// that picks the matrix, and the colour level that picks the palettes.
 export const fetchTodayFootwear = async () => {
   const response = await api.get("/footwear/today");
 
   return response.data;
 };
 
-// Scrolling past a shoe. Returns { pairing }.
-export const rejectFootwearPairing = async (bottomSubtype, footwearSubtype) => {
-  const response = await api.put("/footwear/pairings/reject", {
-    bottomSubtype,
-    footwearSubtype,
-    todayStart: getTodayStartISO(),
-  });
-
-  return response.data;
-};
-
-// Returns { item, pairing }. bottomSubtype may be null (no pairing).
-export const wearFootwear = async (footwearId, bottomSubtype) => {
+// Also puts the shoe first on the outfit it's worn with. Returns { item,
+// previousFootwear } - the outfit's shoes from before, for the undo.
+export const wearFootwear = async (footwearId, matchId) => {
   const response = await api.put(`/footwear/${footwearId}/wear`, {
-    bottomSubtype,
+    matchId,
     wornDate: new Date().toISOString(),
-    todayStart: getTodayStartISO(),
   });
 
   return response.data;
 };
 
-// Undoes wearFootwear. Returns { item, pairing }.
-export const unwearFootwear = async (footwearId, bottomSubtype, snapshot) => {
+// Undoes wearFootwear, putting the outfit's shoes back as they were.
+// Returns { item }.
+export const unwearFootwear = async (footwearId, snapshot, matchId, previousFootwear) => {
   const response = await api.put(`/footwear/${footwearId}/unwear`, {
-    bottomSubtype,
     snapshot,
+    matchId,
+    previousFootwear,
   });
 
   return response.data;

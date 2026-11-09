@@ -5,37 +5,13 @@ const {
   NOT_IN_MATRIX_SCORE,
   NO_BOTTOM_SCORE,
   findFootwearMatrixProblems,
-  getFootwearBaseline,
 } = require("../constants/footwearScoreBaseline.js");
-
-const footwearMatrices = require("../../shared/footwearMatrices.json");
 
 test("shared/footwearMatrices.json passes every check", () => {
   assert.deepEqual(findFootwearMatrixProblems(), []);
 });
 
-test("getFootwearBaseline reads the gender's matrix", () => {
-  assert.equal(
-    getFootwearBaseline("woman", "Mini skirt", "Ballerinas"),
-    footwearMatrices.woman["Mini skirt"].Ballerinas
-  );
-  assert.equal(
-    getFootwearBaseline("man", "Tailored trousers", "Formal shoes"),
-    footwearMatrices.man["Tailored trousers"]["Formal shoes"]
-  );
-});
-
-test("getFootwearBaseline falls back to unisex for an unknown gender", () => {
-  assert.equal(
-    getFootwearBaseline("other", "Chinos", "Loafers"),
-    footwearMatrices.unisex.Chinos.Loafers
-  );
-});
-
-test("getFootwearBaseline gives the neutral scores", () => {
-  // A woman's shoe that isn't in the man matrix.
-  assert.equal(getFootwearBaseline("man", "Jeans", "Heels"), NOT_IN_MATRIX_SCORE);
-  assert.equal(getFootwearBaseline("woman", null, "Heels"), NO_BOTTOM_SCORE);
+test("the neutral scores", () => {
   assert.equal(NOT_IN_MATRIX_SCORE, 45);
   assert.equal(NO_BOTTOM_SCORE, 50);
 });

@@ -22,7 +22,6 @@ const {
   MATCH_FIELDS,
   WORN_SNAPSHOT_FIELDS,
 } = require("../constants/editableFields.js");
-const { wipeFootwearScores } = require("../services/footwearScoreService.js");
 const { describeOutfit } = require("../services/outfitEvaluator.js");
 const {
   getBaselineMatrix,
@@ -1645,8 +1644,6 @@ exports.updatePreferences = async (req, res) => {
 
     if (genderChanged) {
       await wipeUserScores(userId);
-      // Footwear pairings were learned against the old gender's matrix too.
-      await wipeFootwearScores(userId);
     }
 
     // Style quiz pairing answers set those pairs' quiz parts. Applied after

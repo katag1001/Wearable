@@ -4,9 +4,8 @@
 // footwear type, per gender. The hand-editable data is
 // shared/footwearMatrices.json, shaped
 //   { [gender]: { [bottom or onepiece subtype]: { [footwear type]: score } } }
-// It lives in shared/ because the Today page ranks shoes in the browser
-// (src/components/today/footwear/footwearRanking.js); the server only uses
-// it to keep learned adjustments within 0-100.
+// It lives in shared/ because the Today page ranks shoes in the app
+// (core/footwear/footwearRanking.js); the server only checks it.
 //
 // There are no nulls - every shoe is always shown, a poor pairing just
 // scores low. Two neutral scores live in shared/footwearScoring.json:
@@ -30,7 +29,6 @@ const footwearScoring = require("../../shared/footwearScoring.json");
 const { MIN_SCORE, MAX_BASELINE_SCORE } = require("./scoring.js");
 
 const GENDERS = ["man", "woman", "unisex"];
-const DEFAULT_GENDER = "unisex";
 
 const { notInMatrixScore: NOT_IN_MATRIX_SCORE, noBottomScore: NO_BOTTOM_SCORE } =
   footwearScoring;
@@ -100,20 +98,8 @@ if (problems.length) {
   );
 }
 
-// The baseline for one pairing. With no bottom or one-piece every shoe gets
-// NO_BOTTOM_SCORE; a pairing missing from the matrix gets NOT_IN_MATRIX_SCORE.
-function getFootwearBaseline(gender, bottomSubtype, footwearSubtype) {
-  if (!bottomSubtype) return NO_BOTTOM_SCORE;
-
-  const matrix = footwearMatrices[gender] || footwearMatrices[DEFAULT_GENDER];
-  const score = matrix[bottomSubtype]?.[footwearSubtype];
-
-  return Number.isInteger(score) ? score : NOT_IN_MATRIX_SCORE;
-}
-
 module.exports = {
   NOT_IN_MATRIX_SCORE,
   NO_BOTTOM_SCORE,
   findFootwearMatrixProblems,
-  getFootwearBaseline,
 };

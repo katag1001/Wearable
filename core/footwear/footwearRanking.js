@@ -16,7 +16,11 @@ import {
 /*
  * Orders every shoe for the outfit worn today.
  *
- * Groups come first:
+ * Shoes worn with this outfit before (the Match's `footwear`, most recent
+ * first - server/services/matchFootwearService.js) come before everything
+ * else, in that order, whatever the weather, tights or tag.
+ *
+ * Then groups:
  *   - unsuitable: every shoe today's weather doesn't penalise comes before
  *     every shoe it does, or that a FOOTWEAR_UNSUITABLE_RULES rule rules
  *     out - boots above 23°, sandals below 15° (constants/footwearWeather.js),
@@ -27,27 +31,23 @@ import {
  *     known, every shoe has it.
  *
  * Within a group, by score:
- *   baseline for the outfit's bottom (or one-piece) + the user's learned
- *   adjustment, kept within 0-100 (shared/footwearMatrices.json, rules in
- *   server/constants/footwearScoreBaseline.js, neutral scores in
- *   shared/footwearScoring.json)
+ *   baseline for the outfit's bottom (or one-piece) (shared/
+ *   footwearMatrices.json, checked by server/constants/
+ *   footwearScoreBaseline.js, neutral scores in shared/footwearScoring.json)
  *   + weather points + tights points + colour points + pattern points
  *   (constants/footwearColour.js, with the outfit palettes in
  *   shared/colorPalettes.json).
  *
  * Freshness (how recently a shoe was worn) deliberately plays no part -
- * people rewear the same shoes.
+ * people rewear the same shoes - and nothing is learned from which shoes
+ * are worn or skipped.
  */
 
 // Bump when the rules or numbers change, so shoe orders cached earlier in
 // the day (core/footwear/footwearCache.js) are ranked again.
-export const FOOTWEAR_RANKING_VERSION = 3;
+export const FOOTWEAR_RANKING_VERSION = 4;
 
 const DEFAULT_GENDER = "unisex";
-const MIN_SCORE = 0;
-const MAX_SCORE = 100;
-
-const clamp = (value) => Math.min(MAX_SCORE, Math.max(MIN_SCORE, value));
 
 /* -------------------- Outfit -------------------- */
 
@@ -81,13 +81,6 @@ const isShoePatterned = (item) =>
   hasPatternedStyle(item.styles) || (item.colors || []).length > 1;
 
 /* -------------------- Pairing -------------------- */
-
-export const findPairing = (pairings = [], bottomSubtype, footwearSubtype) =>
-  pairings.find(
-    (pairing) =>
-      pairing.bottomSubtype === bottomSubtype &&
-      pairing.footwearSubtype === footwearSubtype
-  ) || null;
 
 export const getBaselineScore = (gender, bottomSubtype, footwearSubtype) => {
   if (!bottomSubtype) return footwearScoring.noBottomScore;
@@ -212,11 +205,20 @@ const tagGroup = (item, todayTag) => (hasTag(item, todayTag) ? 0 : 1);
 
 /* -------------------- Ranking -------------------- */
 
-// context: { gender, bottomSubtype, pairings, weather, todayTag,
-// withTights, outfitColors, outerColors, outfitPatterned, colourLevel }.
+// context: { gender, bottomSubtype, weather, todayTag,
+// withTights, outfitColors, outerColors, outfitPatterned, colourLevel,
+// rememberedIds }.
 // Returns a new array; ties keep their original order (newest first).
 export const rankFootwear = (items = [], context = {}) => {
   const level = resolveColourLevel(context.colourLevel);
+  const rememberedIds = (context.rememberedIds || []).map(String);
+
+  // A remembered shoe's place in the list; every other shoe after them.
+  const rememberedRank = (item) => {
+    const place = rememberedIds.indexOf(String(item._id));
+
+    return place === -1 ? rememberedIds.length : place;
+  };
 
   const scored = items.map((item, index) => {
     const weatherPoints = getWeatherPoints(item.subtype, context.weather);
@@ -225,14 +227,10 @@ export const rankFootwear = (items = [], context = {}) => {
       isWeatherUnsuitable(item.subtype, context.weather) ||
       isOpenWithTights(item.subtype, context.withTights);
 
-    const adjustment = context.bottomSubtype
-      ? findPairing(context.pairings, context.bottomSubtype, item.subtype)
-          ?.adjustment || 0
-      : 0;
-
     return {
       item,
       index,
+      remembered: rememberedRank(item),
       group:
         (unsuitable ? 2 : 0) +
         tagGroup(item, context.todayTag),
@@ -243,10 +241,7 @@ export const rankFootwear = (items = [], context = {}) => {
         context.outerColors
       ),
       score:
-        clamp(
-          getBaselineScore(context.gender, context.bottomSubtype, item.subtype) +
-            adjustment
-        ) +
+        getBaselineScore(context.gender, context.bottomSubtype, item.subtype) +
         weatherPoints +
         getTightsPoints(item.subtype, context.withTights) +
         getPatternPoints(item, context.outfitPatterned, level),
@@ -267,6 +262,7 @@ export const rankFootwear = (items = [], context = {}) => {
     }))
     .sort(
       (a, b) =>
+        a.remembered - b.remembered ||
         a.group - b.group ||
         b.score - a.score ||
         a.index - b.index

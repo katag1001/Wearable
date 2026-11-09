@@ -36,7 +36,6 @@ router.get("/footwear/", authMiddleware, footwearControllers.getAllFootwear);
 // Must stay above /footwear/:id or "options" / "today" are read as item ids.
 router.get("/footwear/options", authMiddleware, footwearControllers.getFootwearFilterOptions);
 router.get("/footwear/today", authMiddleware, footwearControllers.getTodayFootwear);
-router.put("/footwear/pairings/reject", authMiddleware, footwearControllers.rejectFootwearPairing);
 router.put("/footwear/:id/wear", authMiddleware, footwearControllers.wearFootwear);
 router.put("/footwear/:id/unwear", authMiddleware, footwearControllers.unwearFootwear);
 router.get("/footwear/:id", authMiddleware, footwearControllers.getFootwearById);

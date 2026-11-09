@@ -67,8 +67,8 @@ clothes, which `GET /today/get` populates with their `subtype`.
 | File | Role |
 |---|---|
 | `core/hooks/useTodayLook.js` | Outfits (`useToday`) + their shoes; wearing the whole look |
-| `core/hooks/useTodayFootwear.js` | Each outfit's order and shoe, choosing, wear / undo / reject |
-| `core/hooks/useShoeChooser.js` | Change shoes: one shoe at a time, next rejects |
+| `core/hooks/useTodayFootwear.js` | Each outfit's order and shoe, choosing, wear / undo |
+| `core/hooks/useShoeChooser.js` | Change shoes: one shoe at a time |
 | `src/components/today/footwear/shoeChooserModal.jsx` | Web Change shoes popup |
 | `mobile/src/components/today/ShoeChooser.jsx` | Mobile Change shoes panel |
 | `core/footwear/footwearRanking.js` | Pure ranking rules |
@@ -81,14 +81,15 @@ clothes, which `GET /today/get` populates with their `subtype`.
 | `shared/footwearMatrices.json` | Baseline pairing scores per gender (hand-edit) |
 | `shared/footwearByGender.json` | Footwear types per gender (the matrix columns) |
 | `shared/footwearScoring.json` | Neutral scores |
-| `server/constants/footwearScoreBaseline.js` | Checks the matrices on server start; baseline lookup |
-| `server/services/footwearScoreService.js` | Learning rules + storage (`FootwearScore`) |
+| `server/constants/footwearScoreBaseline.js` | Checks the matrices on server start |
 
 ### Order
 
 The shoe is paired with the outfit's **bottom**, or its **one-piece** if it
 has no bottom (an outfit with both uses the bottom).
 
+0. **Remembered shoes** (worn with this outfit before) first, most recent
+   first - see Remembered shoes below.
 1. **Unsuitable last:** every shoe today's weather doesn't penalise comes
    before every shoe it does. So do the firm weather rules
    (`FOOTWEAR_UNSUITABLE_RULES`): **every boot** (ankle, knee-high, heeled,
@@ -100,8 +101,7 @@ has no bottom (an outfit with both uses the bottom).
    by the steps below.
 2. **Then groups**, like Today's outfits: in today's season and has today's
    tag, then season only, then tag only, then neither.
-3. **Score** within a group: matrix baseline (0-90) + the user's learned
-   adjustment, kept within 0-100, + weather points + tights points +
+3. **Score** within a group: matrix baseline (0-90) + weather points + tights points +
    colour points + pattern points. Freshness plays no part - people rewear
    the same shoes.
 
@@ -181,32 +181,32 @@ tights or outer colours change, or if `FOOTWEAR_RANKING_VERSION` in
 `footwearRanking.js` has been bumped - bump it when changing the rules or
 numbers so today's cached orders pick them up.
 
-### Learning
+### Remembered shoes (no learning)
 
-Stored per user per bottom + shoe-type pairing in `FootwearScore`
-(`FOOTWEAR_LEARNING_DELTAS` in `server/constants/scoring.js`):
+Wearing a shoe (Mark as worn, or Change shoes on the worn outfit) marks it
+worn (`lastWornDate`, `timesWorn`, `timesWornThisYear`, `wornYear`) and
+moves it to the front of the outfit's `Match.footwear` list (most recently
+worn first, never listed twice - `server/services/matchFootwearService.js`).
+Next time, the outfit's remembered shoes come **before everything else** in
+the order, in list order - above the weather, tights and tag groups.
 
-- **Scrolling right past a shoe** in Change shoes: −0.1, at most once per
-  pairing per day. Never for the shoe worn today.
-- **Wearing it** (Mark as worn, or Change shoes on the worn outfit): +1,
-  marks the shoe worn (`lastWornDate`, `timesWorn`, `timesWornThisYear`,
-  `wornYear`) and takes back a rejection of that pairing from the same
-  day.
-- **Wearing a different shoe, or a different outfit, the same day:** the
-  previous shoe's worn values are restored exactly and its +1 taken back.
+Wearing a different shoe, or a different outfit, the same day restores the
+previous shoe's worn values exactly and puts the outfit's list back as it
+was (the wear request returns it; the app keeps it with the worn snapshot).
+Deleting a shoe takes it off every outfit. Worn outfits are protected from
+rematching, so the list survives rebuilds.
 
-Nothing is learned for an outfit with no bottom or one-piece. Footwear
-scores are wiped when the user changes gender (like outfit scores) and when
-the account is deleted.
+Nothing is learned per shoe type: per-pairing learning was removed
+2026-11-09 (the user picks shoes often, so it mostly fed back the app's own
+suggestions).
 
 ### Endpoints
 
 | Route | |
 |---|---|
-| `GET /footwear/today` | `{ items, pairings, gender, colourLevel }` in one request |
-| `PUT /footwear/pairings/reject` | `{ bottomSubtype, footwearSubtype, todayStart }` |
-| `PUT /footwear/:id/wear` | `{ bottomSubtype, wornDate, todayStart }` → `{ item, pairing }` |
-| `PUT /footwear/:id/unwear` | `{ bottomSubtype, snapshot }` → `{ item, pairing }` |
+| `GET /footwear/today` | `{ items, gender, colourLevel, shoeTrends }` in one request |
+| `PUT /footwear/:id/wear` | `{ matchId, wornDate }` → `{ item, previousFootwear }` |
+| `PUT /footwear/:id/unwear` | `{ snapshot, matchId, previousFootwear }` → `{ item }` |
 
 ### Changing the footwear types
 
@@ -215,12 +215,9 @@ be every woman and man type), then give it an entry in `FOOTWEAR_DEFAULTS`
 (`src/constants/footwearOptions.jsx`), a column in every row of
 `shared/footwearMatrices.json`, and any weather points
 (`src/constants/footwearWeather.js`). The server refuses to start if the
-matrices and lists disagree. Saved footwear and `FootwearScore` pairings
-store the type name, so a rename or removal needs a one-off script in
-`server/scripts/` (delete it once run): update `Footwear.subtype`, and
-move each `FootwearScore.footwearSubtype` to the new name - dropping the
-old document instead if the user already has a pairing under the new name,
-since pairings are unique per user + bottom + footwear type.
+matrices and lists disagree. Saved footwear stores the type name, so a
+rename or removal needs a one-off script in `server/scripts/` (delete it
+once run) that updates `Footwear.subtype`.
 
 When "Trainers" was split into "Smart trainers" and "Casual trainers",
 anything still saved as "Trainers" was meant to move to "Casual trainers".

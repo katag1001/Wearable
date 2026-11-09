@@ -136,18 +136,8 @@ const UNFAVOURITED_OUTFIT_SCORE = 85;
 // max_temp this many degrees (services/temperatureFeedbackService.js).
 const TEMPERATURE_FEEDBACK_SHIFT = 1;
 
-// Footwear on the Today page (server/services/footwearScoreService.js):
-// the change to an outfit-bottom + shoe pairing's personal adjustment.
-// Scrolling past a shoe counts at most once per pairing per day; wearing it
-// takes back a rejection from the same day.
-const FOOTWEAR_LEARNING_DELTAS = {
-  rejected: -0.1,
-  worn: 1,
-};
-
 module.exports = {
   MIN_SCORE,
-  FOOTWEAR_LEARNING_DELTAS,
   MAX_SCORE,
   MAX_BASELINE_SCORE,
   AVERAGE_PAIR_WEIGHT,

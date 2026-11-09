@@ -13,15 +13,14 @@ const {
 } = require("../services/imageService.js");
 const { pickFields } = require("../services/requestFields.js");
 const { FOOTWEAR_FIELDS } = require("../constants/editableFields.js");
-const {
-  rejectFootwearPairing,
-  wearFootwearPairing,
-  unwearFootwearPairing,
-  loadFootwearPairings,
-  wipeFootwearScores,
-} = require("../services/footwearScoreService.js");
+// Checks shared/footwearMatrices.json when the server starts.
+require("../constants/footwearScoreBaseline.js");
 const { getUserMatchingPreferences } = require("../services/matchScoreService.js");
-const { resolveTodayStart } = require("../services/matchRejectionService.js");
+const {
+  rememberShoe,
+  restoreShoes,
+  forgetShoe,
+} = require("../services/matchFootwearService.js");
 const {
   parseFootwearQuery,
   buildFootwearFilter,
@@ -32,7 +31,8 @@ const {
  * Footwear is its own collection, separate from Clothes. Nothing here
  * touches outfits: adding, editing or deleting footwear never creates,
  * re-checks or removes matches. The Today page's shoe box ranks footwear
- * against the worn outfit and learns from it (footwearScoreService.js).
+ * against the worn outfit (core/footwear/footwearRanking.js), and the shoes
+ * worn with an outfit are remembered on it (matchFootwearService.js).
  */
 
 // Only FOOTWEAR_FIELDS come from the form (constants/editableFields.js).
@@ -210,6 +210,7 @@ exports.deleteFootwear = async (req, res) => {
     await destroyItemImages(item, "item deleted");
 
     await Footwear.deleteOne({ _id: id, userId });
+    await forgetShoe(userId, item._id);
 
     return res.json({ message: "Footwear and image deleted successfully" });
   } catch (error) {
@@ -221,15 +222,8 @@ exports.deleteFootwear = async (req, res) => {
 
 /* -------------------- TODAY PAGE -------------------- */
 
-// A subtype name from a request body, or null if missing / not a string.
-const parseSubtype = (value) =>
-  typeof value === "string" && value.trim() && value.length <= 100
-    ? value.trim()
-    : null;
-
 // Everything the Today page's shoe box needs in one request: all the
-// user's footwear, their learned pairings, their gender (which picks
-// the matrix) and colour level (which picks the palettes). The box ranks
+// user's footwear, their gender (which picks the matrix) and colour level (which picks the palettes). The box ranks
 // the shoes itself. Plus the running shoe trends, for users who care a lot
 // about trends - the page notes a trendy shoe (core/today/trendNote.js).
 exports.getTodayFootwear = async (req, res) => {
@@ -240,9 +234,8 @@ exports.getTodayFootwear = async (req, res) => {
   }
 
   try {
-    const [items, pairings, { gender, colour, trends: trendsLevel }, running] = await Promise.all([
+    const [items, { gender, colour, trends: trendsLevel }, running] = await Promise.all([
       Footwear.find({ userId }).sort({ _id: -1 }).lean(),
-      loadFootwearPairings(userId),
       getUserMatchingPreferences(userId),
       Trend.find({ until: { $gte: new Date() } }).sort({ added: -1 }).lean(),
     ]);
@@ -258,48 +251,17 @@ exports.getTodayFootwear = async (req, res) => {
           }))
       : [];
 
-    return res.json({ items, pairings, gender, colourLevel: colour, shoeTrends });
+    return res.json({ items, gender, colourLevel: colour, shoeTrends });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
-// Scrolling past a shoe - counts at most once per pairing per day.
-exports.rejectFootwearPairing = async (req, res) => {
-  const userId = req.user?.userId;
-  const bottomSubtype = parseSubtype(req.body?.bottomSubtype);
-  const footwearSubtype = parseSubtype(req.body?.footwearSubtype);
-
-  if (!userId) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  if (!bottomSubtype || !footwearSubtype) {
-    return res.status(400).json({ error: "Missing bottomSubtype or footwearSubtype" });
-  }
-
-  try {
-    const { gender } = await getUserMatchingPreferences(userId);
-
-    const pairing = await rejectFootwearPairing(
-      userId,
-      gender,
-      bottomSubtype,
-      footwearSubtype,
-      resolveTodayStart(req.body?.todayStart)
-    );
-
-    return res.json({ pairing });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
-
-// Marks a shoe worn today, with the outfit's bottom (or one-piece) subtype
-// if it has one. Returns the updated shoe and pairing.
+// Marks a shoe worn today, and puts it first on the outfit it was worn with
+// (`matchId`, if given). Returns the updated shoe and the outfit's shoes
+// from before (null without an outfit), for unwearFootwear.
 exports.wearFootwear = async (req, res) => {
   const userId = req.user?.userId;
-  const bottomSubtype = parseSubtype(req.body?.bottomSubtype);
   const wornDate = new Date(req.body?.wornDate || Date.now());
 
   if (!userId) {
@@ -327,32 +289,19 @@ exports.wearFootwear = async (req, res) => {
 
     await item.save();
 
-    let pairing = null;
+    const previousFootwear = await rememberShoe(userId, req.body?.matchId, item._id);
 
-    if (bottomSubtype) {
-      const { gender } = await getUserMatchingPreferences(userId);
-
-      pairing = await wearFootwearPairing(
-        userId,
-        gender,
-        bottomSubtype,
-        item.subtype,
-        resolveTodayStart(req.body?.todayStart)
-      );
-    }
-
-    return res.json({ item, pairing });
+    return res.json({ item, previousFootwear });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
 // Undoes wearFootwear when a different shoe or outfit is worn instead the
-// same day: restores the shoe's exact previous worn values and takes the
-// pairing's worn delta back off.
+// same day: restores the shoe's exact previous worn values, and the
+// outfit's shoes (`matchId` + `previousFootwear`, from wearFootwear).
 exports.unwearFootwear = async (req, res) => {
   const userId = req.user?.userId;
-  const bottomSubtype = parseSubtype(req.body?.bottomSubtype);
   const snapshot = req.body?.snapshot || {};
 
   if (!userId) {
@@ -377,20 +326,9 @@ exports.unwearFootwear = async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    let pairing = null;
+    await restoreShoes(userId, req.body?.matchId, req.body?.previousFootwear);
 
-    if (bottomSubtype) {
-      const { gender } = await getUserMatchingPreferences(userId);
-
-      pairing = await unwearFootwearPairing(
-        userId,
-        gender,
-        bottomSubtype,
-        item.subtype
-      );
-    }
-
-    return res.json({ item, pairing });
+    return res.json({ item });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -398,8 +336,8 @@ exports.unwearFootwear = async (req, res) => {
 
 /* -------------------- ACCOUNT -------------------- */
 
-// Used when a user deletes their account: removes their footwear, its
-// images and their learned footwear pairings. Image failures are logged
+// Used when a user deletes their account: removes their footwear and its
+// images. Image failures are logged
 // and skipped so the account still goes.
 exports.deleteAllFootwearForUser = async (userId) => {
   const items = await Footwear.find({ userId }).select(ITEM_IMAGE_FIELDS.join(" "));
@@ -409,5 +347,4 @@ exports.deleteAllFootwearForUser = async (userId) => {
   }
 
   await Footwear.deleteMany({ userId });
-  await wipeFootwearScores(userId);
 };
