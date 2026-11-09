@@ -144,7 +144,7 @@ Fonts come from `@expo-google-fonts/*`, loaded in `mobile/src/app/_layout.jsx`.
 | Pressed state | Opacity 0.5-0.7 | Scale 0.97, 200ms ease-out |
 | Card | Hairline border | White ~65%, radius 28, `soft` shadow, light top edge |
 | ImageTile | Black 2px border + black tick when selected | Pearl. Selected: **iridescent halo** (2px gradient ring, 3px gap), tick in a small pearl bubble |
-| Chip | Bordered, black when selected | Pearl; selected = filled with the atmosphere blend (`AtmosphereFill`) + ink semibold. Seasons use their hue. Swatches get a white ring. |
+| Chip | Bordered, black when selected | Pearl; white; selected = filled with the selected lilac (`colors.selected`), label darkens to ink (same weight, so it never shifts). Seasons use their hue. Swatches get a white ring. |
 | SegmentedControl | Black thumb | Lavender-wash track, white pill thumb with `soft` shadow, slides |
 | TextField | Hairline border | White ~70% fill, no border, mono eyebrow label; focus = soft lavender glow |
 | Sheet | Black 42% backdrop | Plum 18% backdrop + light blur; frosted milk panel radius 36; grab handle |

@@ -93,9 +93,8 @@ export const choiceTints = {
 // The full iridescent run - selection halo, temperature track, bubbles.
 export const iridescent = [mid.blush, mid.lavender, mid.sky, mid.mint, mid.peach];
 
-// The rating stars' and favourite heart's colours: each star runs from one
-// to the next (the heart matches the first star), with mint between the
-// others so every star carries some green.
+// The rating stars' colours: each star runs from one to the next, with
+// mint between the others so every star carries some green.
 export const ratingRun = [
   mid.blush,
   mid.mint,
@@ -113,13 +112,6 @@ export const atmosphereColours = {
   blush: "#EFA6C6",
   sky: "#9CBEF2",
   mint: "#A3DAC6",
-};
-
-// Things "filled in" with the atmosphere (soft/AtmosphereFill): a selected
-// chip. The colours in order along the blend, and how strongly they show.
-export const atmosphereBlend = {
-  hues: ["blush", "lavender", "sky", "mint", "mint"],
-  opacity: 0.45,
 };
 
 export const semantic = {

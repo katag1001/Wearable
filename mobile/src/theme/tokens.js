@@ -29,6 +29,8 @@ export const colors = {
   pageBackground: surface.milk,
   // Raised surfaces: translucent white over the atmosphere, no border.
   cardBackground: "rgba(255, 255, 255, 0.7)",
+  // Chips: solid white, so a selected chip's fill is the only change.
+  chipBackground: surface.white,
   // Text fields, the filter buttons beside them and the outfit cards.
   fieldBackground: "rgba(255, 255, 255, 0.78)",
   // Edges are made of light, never ink: a faint accent-grey line where

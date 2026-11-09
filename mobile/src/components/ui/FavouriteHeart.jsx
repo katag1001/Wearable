@@ -1,14 +1,13 @@
 // The favourite heart on outfit cards, wardrobe items and the outfit
 // screen: just the icon, no circle - drawn like the rating stars
-// (soft/IridescentStars), matching the first star: filled with a blush →
-// mint blend when favourited, a soft outline otherwise. Position it with
-// `style`.
+// (soft/IridescentStars) but in one colour: filled with the selected lilac
+// (colors.selected, as selected chips) when favourited, a soft outline
+// otherwise. Position it with `style`.
 
-import { useId } from "react";
 import { Pressable } from "react-native";
-import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
+import Svg, { Path } from "react-native-svg";
 
-import { ink, ratingRun } from "../../theme/soft";
+import { colors } from "../../theme/tokens";
 
 // Ionicons' filled heart shape.
 const HEART =
@@ -19,33 +18,23 @@ const HEART =
 const FILLED_STROKE = 26;
 const OUTLINE_STROKE = 30;
 
-export const FavouriteHeart = ({ favourite, onPress, size = 20, style }) => {
-  const gradient = `heart${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
-
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={favourite ? "Remove from favourites" : "Add to favourites"}
-      accessibilityState={{ selected: !!favourite }}
-      hitSlop={10}
-      style={style}
-    >
-      <Svg width={size} height={size} viewBox="0 0 512 512">
-        <Defs>
-          <LinearGradient id={gradient} x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0" stopColor={ratingRun[0]} />
-            <Stop offset="1" stopColor={ratingRun[1]} />
-          </LinearGradient>
-        </Defs>
-        <Path
-          d={HEART}
-          fill={favourite ? `url(#${gradient})` : "none"}
-          stroke={favourite ? `url(#${gradient})` : ink.muted}
-          strokeWidth={favourite ? FILLED_STROKE : OUTLINE_STROKE}
-          strokeLinejoin="round"
-        />
-      </Svg>
-    </Pressable>
-  );
-};
+export const FavouriteHeart = ({ favourite, onPress, size = 20, style }) => (
+  <Pressable
+    onPress={onPress}
+    accessibilityRole="button"
+    accessibilityLabel={favourite ? "Remove from favourites" : "Add to favourites"}
+    accessibilityState={{ selected: !!favourite }}
+    hitSlop={10}
+    style={style}
+  >
+    <Svg width={size} height={size} viewBox="0 0 512 512">
+      <Path
+        d={HEART}
+        fill={favourite ? colors.selected : "none"}
+        stroke={favourite ? colors.selected : colors.muted}
+        strokeWidth={favourite ? FILLED_STROKE : OUTLINE_STROKE}
+        strokeLinejoin="round"
+      />
+    </Svg>
+  </Pressable>
+);

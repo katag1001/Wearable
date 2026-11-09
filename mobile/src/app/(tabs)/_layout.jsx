@@ -10,7 +10,7 @@
 import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { tabIcon } from "../../components/soft";
+import { TabButton, tabIcon } from "../../components/soft";
 import { OutfitRebuildProvider } from "../../outfitRebuild/OutfitRebuildProvider";
 import { ink, shadows, surface, type } from "../../theme/soft";
 
@@ -26,6 +26,8 @@ export default function TabsLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
+          // No dark ripple circle on tap.
+          tabBarButton: (props) => <TabButton {...props} />,
           tabBarActiveTintColor: ink.main,
           tabBarInactiveTintColor: ink.muted,
           tabBarStyle: {
