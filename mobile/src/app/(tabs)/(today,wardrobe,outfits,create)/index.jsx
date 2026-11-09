@@ -41,15 +41,7 @@ import { ShoeChooser } from "../../../components/today/ShoeChooser";
 import { TagPicker } from "../../../components/today/TagPicker";
 import { useOutfitRebuild } from "../../../outfitRebuild/OutfitRebuildProvider";
 import { useLocation } from "../../../platform/useLocation";
-import {
-  boxEdge,
-  fonts,
-  ink,
-  radii,
-  space,
-  surface,
-  textSizes,
-} from "../../../theme/soft";
+import { boxEdge, radii, space, surface, type } from "../../../theme/soft";
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -302,22 +294,10 @@ const styles = StyleSheet.create({
   waiting: {
     justifyContent: "flex-end",
   },
-  headline: {
-    fontFamily: fonts.light,
-    fontSize: textSizes.h5,
-    lineHeight: 26,
-    color: ink.main,
-  },
+  headline: type.todayHeadline,
   // The tag and season: the same light Inter as the line above, smaller,
   // in spaced capitals.
-  subline: {
-    fontFamily: fonts.light,
-    fontSize: textSizes.xs,
-    lineHeight: 18,
-    letterSpacing: 1.4,
-    textTransform: "uppercase",
-    color: ink.soft,
-  },
+  subline: type.todaySubline,
   temperature: {
     flexDirection: "row",
     alignItems: "center",

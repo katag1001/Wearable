@@ -3,7 +3,17 @@
 // Screens use these; ./soft.js has the fuller set (washes, mids, type
 // styles, shadows, motion) for the parts that need it.
 
-import { fonts, ink, mid, radii, semantic, shadows, surface, textSizes, wash } from "./soft";
+import {
+  accent,
+  fade,
+  fonts,
+  ink,
+  radii,
+  semantic,
+  shadows,
+  surface,
+  textSizes,
+} from "./soft";
 
 export { fonts, shadows, textSizes };
 
@@ -21,16 +31,15 @@ export const colors = {
   cardBackground: "rgba(255, 255, 255, 0.7)",
   // Text fields, the filter buttons beside them and the outfit cards.
   fieldBackground: "rgba(255, 255, 255, 0.78)",
-  // Edges are made of light, never ink: a faint lavender-grey line where
+  // Edges are made of light, never ink: a faint accent-grey line where
   // one is truly needed, and a light rim for raised things.
-  border: "rgba(142, 123, 184, 0.14)",
-  hoverBorder: "rgba(142, 123, 184, 0.28)",
+  border: fade(accent.deep, 0.14),
+  hoverBorder: fade(accent.deep, 0.28),
   lightEdge: surface.lightEdge,
-  // Something chosen: selected chips, choices and days - and a favourite
-  // heart.
-  selected: `${mid.lavender}80`,
+  // Something chosen: choices, days, the main button and the build-outfit +.
+  selected: `${accent.mid}80`,
   // Quiet fills: segmented tracks, placeholders, inactive controls.
-  imageBackground: wash.lavender,
+  imageBackground: accent.wash,
   // Behind item photos: nothing - their backgrounds are removed, so the
   // clothes sit straight on the page.
   itemBackground: "transparent",

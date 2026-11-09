@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   save: {
     width: 42,
     height: 42,
-    borderRadius: 21,
+    borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.selected,

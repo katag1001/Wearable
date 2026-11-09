@@ -4,7 +4,8 @@
 
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
+import { type } from "../../theme/soft";
 
 export const SubtitleWithSkip = ({ text, onSkip }) => (
   <View style={styles.row}>
@@ -25,12 +26,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     marginBottom: spacing.sm,
   },
-  subtitle: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    lineHeight: 22,
-    color: colors.secondary,
-  },
+  subtitle: type.body,
   skip: {
     alignSelf: "flex-end",
     color: colors.muted,

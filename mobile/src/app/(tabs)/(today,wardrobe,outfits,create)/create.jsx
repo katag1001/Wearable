@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
 import { spacing } from "../../../theme/tokens";
-import { wash } from "../../../theme/soft";
+import { choiceTints } from "../../../theme/soft";
 import { ActionCard, ActionCards, Screen } from "../../../components/ui";
 
 export default function CreateScreen() {
@@ -18,14 +18,14 @@ export default function CreateScreen() {
             icon="camera"
             title="Add item"
             text="Photograph a piece of clothing or footwear"
-            tint={wash.lavender}
+            tint={choiceTints.addItem}
             onPress={() => router.push("/item/add")}
           />
           <ActionCard
             icon="layers"
             title="Build outfit"
             text="Put an outfit together from your wardrobe"
-            tint={wash.blush}
+            tint={choiceTints.buildOutfit}
             onPress={() => router.push("/build-outfit")}
           />
         </ActionCards>

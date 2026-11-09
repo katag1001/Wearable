@@ -11,7 +11,6 @@ import {
   shadows,
   spacing,
 } from "../../theme/tokens";
-import { mid } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
 
 export const ChoiceCard = ({ label, selected = false, onPress, disabled }) => (
@@ -37,11 +36,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.cardBackground,
-    boxShadow: `${shadows.soft}, inset 0px 1px 0px ${colors.lightEdge}`,
+    boxShadow: shadows.raised,
   },
   selected: {
     backgroundColor: colors.selected,
-    boxShadow: `0px 10px 28px ${mid.lavender}66, inset 0px 1px 0px ${colors.lightEdge}`,
+    boxShadow: shadows.chosen,
   },
   dimmed: {
     opacity: 0.6,

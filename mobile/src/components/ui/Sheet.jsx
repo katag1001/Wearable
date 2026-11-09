@@ -14,14 +14,8 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import {
-  colors,
-  fontWeights,
-  radius,
-  shadows,
-  spacing,
-} from "../../theme/tokens";
-import { textSizes } from "../../theme/soft";
+import { colors, radius, shadows, spacing } from "../../theme/tokens";
+import { type } from "../../theme/soft";
 
 export const Sheet = ({ visible, title, onClose, footer, children }) => {
   const insets = useSafeAreaInsets();
@@ -99,12 +93,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     paddingBottom: spacing.md,
   },
-  title: {
-    fontFamily: fontWeights.light,
-    fontSize: textSizes.h3,
-    lineHeight: 30,
-    color: colors.main,
-  },
+  title: type.sheetTitle,
   content: {
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.md,

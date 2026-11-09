@@ -15,7 +15,7 @@ import {
   shadows,
   spacing,
 } from "../../theme/tokens";
-import { mid } from "../../theme/soft";
+import { temperatureRun } from "../../theme/soft";
 
 const THUMB = 28;
 
@@ -104,9 +104,9 @@ export const RangeSlider = ({
           <Svg width="100%" height="100%">
             <Defs>
               <LinearGradient id="rangeTrack" x1="0" y1="0" x2="1" y2="0">
-                <Stop offset="0" stopColor={mid.sky} />
-                <Stop offset="0.5" stopColor={mid.mint} />
-                <Stop offset="1" stopColor={mid.peach} />
+                <Stop offset="0" stopColor={temperatureRun[0]} />
+                <Stop offset="0.5" stopColor={temperatureRun[1]} />
+                <Stop offset="1" stopColor={temperatureRun[2]} />
               </LinearGradient>
             </Defs>
             <Rect width="100%" height="100%" rx={3} fill="url(#rangeTrack)" />
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     height: THUMB,
     borderRadius: THUMB / 2,
     backgroundColor: colors.inverse,
-    boxShadow: `${shadows.lifted}, inset 0px -1px 0px ${mid.lavender}55`,
+    boxShadow: shadows.thumb,
   },
   values: {
     flexDirection: "row",

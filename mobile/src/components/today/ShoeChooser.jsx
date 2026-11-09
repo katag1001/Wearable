@@ -18,7 +18,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useShoeChooser } from "@core/hooks/useShoeChooser.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import { colors, fontWeights, spacing, textSizes } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
+import { type } from "../../theme/soft";
 import { Atmosphere } from "../soft";
 import { Loading } from "../ui";
 import { ActionButton, ActionRow } from "./ActionButton";
@@ -162,12 +163,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  title: {
-    fontSize: textSizes.h3,
-    lineHeight: 30,
-    fontFamily: fontWeights.light,
-    color: colors.main,
-  },
+  title: type.sheetTitle,
   photo: {
     flex: 1,
     pointerEvents: "none",

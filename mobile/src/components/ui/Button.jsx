@@ -7,14 +7,8 @@
 
 import { ActivityIndicator, StyleSheet, Text } from "react-native";
 
-import {
-  colors,
-  fontWeights,
-  radius,
-  shadows,
-  spacing,
-} from "../../theme/tokens";
-import { textSizes } from "../../theme/soft";
+import { colors, radius, shadows, spacing } from "../../theme/tokens";
+import { type } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
 
 export const Button = ({
@@ -55,11 +49,11 @@ const styles = StyleSheet.create({
   },
   soft: {
     backgroundColor: colors.selected,
-    boxShadow: `${shadows.soft}, inset 0px 1px 0px ${colors.lightEdge}`,
+    boxShadow: shadows.raised,
   },
   secondary: {
     backgroundColor: colors.cardBackground,
-    boxShadow: `${shadows.soft}, inset 0px 1px 0px ${colors.lightEdge}`,
+    boxShadow: shadows.raised,
   },
   text: {
     minHeight: 40,
@@ -67,11 +61,9 @@ const styles = StyleSheet.create({
   dimmed: {
     opacity: 0.5,
   },
+  // Each variant sets its own colour below.
   label: {
-    fontFamily: fontWeights.semibold,
-    fontSize: textSizes.sm,
-    letterSpacing: 1.6,
-    textTransform: "uppercase",
+    ...type.label,
     textAlign: "center",
   },
   secondaryLabel: {

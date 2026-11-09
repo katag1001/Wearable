@@ -18,7 +18,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { useMatchCard } from "@core/hooks/useMatchCard.js";
 
 import { colors, radius, shadows, spacing } from "../../theme/tokens";
-import { mid } from "../../theme/soft";
+import { accent } from "../../theme/soft";
 import { SelectionHalo } from "../soft";
 import { OutfitImages, outfitImagesHeight } from "../today/OutfitImages";
 import { FavouriteHeart } from "../ui";
@@ -122,12 +122,12 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: radius.pill,
     backgroundColor: colors.inverse,
-    boxShadow: `${shadows.soft}, inset 0px 0px 0px 1.5px ${colors.hoverBorder}`,
+    boxShadow: shadows.tick,
     alignItems: "center",
     justifyContent: "center",
   },
   tickOn: {
-    backgroundColor: mid.lavender,
+    backgroundColor: accent.mid,
     boxShadow: shadows.soft,
   },
 });

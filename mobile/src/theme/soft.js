@@ -49,6 +49,47 @@ export const deep = {
   lavender: "#8E7BB8",
 };
 
+// A hex colour at `alpha` (0-1) as rgba, so faded versions of a colour
+// still come from the one place it's defined.
+export const fade = (hex, alpha) => {
+  const [r, g, b] = [1, 3, 5].map((start) =>
+    parseInt(hex.slice(start, start + 2), 16)
+  );
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+// Colours by job. Components use these (or ./tokens.js, built on them)
+// rather than naming a hue, so recolouring a job happens here only.
+
+// The app's own colour (lavender): what's selected or focused, the main
+// button, the active tab, switch tracks, slider thumbs, quiet placeholder
+// fills and faint lines.
+export const accent = {
+  wash: wash.lavender,
+  mid: mid.lavender,
+  deep: deep.lavender,
+};
+
+// Loved / worn (blush): the wear heart, and Today's round buttons when
+// they light up.
+export const loved = {
+  wash: wash.blush,
+  mid: mid.blush,
+  deep: deep.blush,
+};
+
+// The temperature sliders' track, cold to warm.
+export const temperatureRun = [mid.sky, mid.mint, mid.peach];
+
+// The icon circles on the big choice cards (ui/ActionCard).
+export const choiceTints = {
+  addItem: accent.wash,
+  buildOutfit: loved.wash,
+  takePhoto: accent.wash,
+  choosePhoto: wash.sky,
+};
+
 // The full iridescent run - selection halo, temperature track, bubbles.
 export const iridescent = [mid.blush, mid.lavender, mid.sky, mid.mint, mid.peach];
 
@@ -171,6 +212,79 @@ export const type = {
     lineHeight: 16,
     color: ink.soft,
   },
+  // The title of a stacked screen (ui/Screen) and a style quiz question.
+  screenTitle: {
+    fontFamily: fonts.light,
+    fontSize: textSizes.h1,
+    lineHeight: 36,
+    letterSpacing: -0.3,
+    color: ink.main,
+  },
+  // Sheets and Today's full-page choosers (shoes, feedback).
+  sheetTitle: {
+    fontFamily: fonts.light,
+    fontSize: textSizes.h3,
+    lineHeight: 30,
+    color: ink.main,
+  },
+  // The big choice cards and empty states.
+  cardTitle: {
+    fontFamily: fonts.light,
+    fontSize: textSizes.h4,
+    lineHeight: 28,
+    color: ink.main,
+  },
+  cardText: {
+    fontFamily: fonts.regular,
+    fontSize: textSizes.md,
+    lineHeight: 20,
+    color: ink.soft,
+  },
+  // ui/SectionTitle and the line under it.
+  sectionTitle: {
+    fontFamily: fonts.regular,
+    fontSize: textSizes.h5,
+    lineHeight: 26,
+    color: ink.main,
+  },
+  sectionText: {
+    fontFamily: fonts.regular,
+    fontSize: textSizes.sm,
+    lineHeight: 19,
+    color: ink.soft,
+  },
+  // Today: the weekday and temperature, and the tag and season under them.
+  todayHeadline: {
+    fontFamily: fonts.light,
+    fontSize: textSizes.h5,
+    lineHeight: 26,
+    color: ink.main,
+  },
+  todaySubline: {
+    fontFamily: fonts.light,
+    fontSize: textSizes.xs,
+    lineHeight: 18,
+    letterSpacing: 1.4,
+    textTransform: "uppercase",
+    color: ink.soft,
+  },
+  // Today's round note bubble. Regular rather than light, so it reads
+  // darker over the photos.
+  note: {
+    fontFamily: fonts.regular,
+    fontSize: textSizes.sm,
+    lineHeight: 17,
+    color: ink.main,
+  },
+  // The tab bar's labels (their colour comes from the tab bar's tint).
+  // Inter sits taller than the system font the bar is sized for; a fixed
+  // line lifts it clear.
+  tabLabel: {
+    fontFamily: fonts.medium,
+    fontSize: textSizes.xxs,
+    letterSpacing: 0.3,
+    lineHeight: 14,
+  },
 };
 
 // The portfolio's scale, plus the page's side margin.
@@ -199,23 +313,43 @@ export const radii = {
 // Squircle corners on iOS (ignored on Android).
 export const continuous = { borderCurve: "continuous" };
 
+const SOFT = "0px 8px 24px rgba(46, 40, 56, 0.06)";
+const LIFTED = "0px 16px 40px rgba(46, 40, 56, 0.08)";
+// The 1px rim of light along the top of a raised surface.
+const LIGHT_RIM = `inset 0px 1px 0px ${surface.lightEdge}`;
+const TAB_ICON = `0px 4px 14px ${fade(accent.mid, 0.35)}`;
+
 export const shadows = {
-  soft: "0px 8px 24px rgba(46, 40, 56, 0.06)",
-  lifted: "0px 16px 40px rgba(46, 40, 56, 0.08)",
-  glow: "0px 10px 30px rgba(233, 184, 203, 0.38)",
+  soft: SOFT,
+  lifted: LIFTED,
+  glow: `0px 10px 30px ${fade(loved.mid, 0.38)}`,
   // Cast upwards, by the tab bar and pull-up panels.
   tabBar: "0px -6px 24px rgba(46, 40, 56, 0.04)",
   panel: "0px -10px 30px rgba(46, 40, 56, 0.07)",
-  // The lavender glow under the active tab icon.
-  tabIcon: "0px 4px 14px rgba(198, 182, 230, 0.35)",
+  // The accent glow under the active tab icon.
+  tabIcon: TAB_ICON,
+  // Raised and lit along the top: buttons, cards, choice cards.
+  raised: `${SOFT}, ${LIGHT_RIM}`,
+  // A chosen choice card: an accent glow under the light rim.
+  chosen: `0px 10px 28px ${accent.mid}66, ${LIGHT_RIM}`,
+  // A text field while typing in it.
+  focus: `0px 0px 0px 3px ${accent.mid}66, 0px 8px 22px ${accent.mid}40`,
+  // A slider's thumb: lifted, with an accent line along its bottom.
+  thumb: `${LIFTED}, inset 0px -1px 0px ${accent.mid}55`,
+  // The active tab's bubble: the glow, the light rim and a sky line along
+  // its bottom.
+  tabBubble: `${TAB_ICON}, ${LIGHT_RIM}, inset 0px -1px 0px ${mid.sky}55`,
+  // The round select tick on an outfit card: soft, with a faint accent ring.
+  tick: `${SOFT}, inset 0px 0px 0px 1.5px ${fade(accent.deep, 0.28)}`,
 };
 
 // The edge of the app's boxes - the Today tabs, the item and outfit cards,
-// the search boxes, filter buttons and quick filters, and the Add item /
-// Build outfit cards: a 1px rim of light along the top, no drop shadow.
-// Spread it into a style; change it here to change them all.
+// the search boxes, filter buttons and quick filters, the Add item /
+// Build outfit cards, field rows and week tags: a 1px rim of light along
+// the top, no drop shadow. Spread it into a style; change it here to
+// change them all.
 export const boxEdge = {
-  boxShadow: `inset 0px 1px 0px ${surface.lightEdge}`,
+  boxShadow: LIGHT_RIM,
 };
 
 export const motion = {

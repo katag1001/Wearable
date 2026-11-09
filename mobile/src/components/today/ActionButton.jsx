@@ -9,7 +9,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import { PressableScale } from "../soft";
-import { deep, ink, shadows, space, surface, wash } from "../../theme/soft";
+import { ink, loved, shadows, space, surface } from "../../theme/soft";
 
 export const ACTION_BUTTON_SIZE = 60;
 const SIZE = ACTION_BUTTON_SIZE;
@@ -25,7 +25,7 @@ export const ActionButton = ({
   iconSet: Icon = Feather,
 }) => {
   const size = small ? SMALL_SIZE : SIZE;
-  const iconColor = active ? deep.blush : ink.soft;
+  const iconColor = active ? loved.deep : ink.soft;
 
   return (
     <PressableScale
@@ -67,6 +67,6 @@ const styles = StyleSheet.create({
     boxShadow: shadows.soft,
   },
   active: {
-    backgroundColor: wash.blush,
+    backgroundColor: loved.wash,
   },
 });

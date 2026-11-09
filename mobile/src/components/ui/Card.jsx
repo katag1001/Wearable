@@ -17,6 +17,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.sm,
     backgroundColor: colors.cardBackground,
-    boxShadow: `${shadows.soft}, inset 0px 1px 0px ${colors.lightEdge}`,
+    boxShadow: shadows.raised,
   },
 });

@@ -6,13 +6,8 @@
 import Feather from "@expo/vector-icons/Feather";
 import { StyleSheet, Text, View } from "react-native";
 
-import {
-  colors,
-  fontWeights,
-  radius,
-  spacing,
-} from "../../theme/tokens";
-import { boxEdge, textSizes } from "../../theme/soft";
+import { colors, radius, spacing } from "../../theme/tokens";
+import { boxEdge, type } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
 
 export const ActionCard = ({ icon, title, text, tint, onPress }) => (
@@ -58,7 +53,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -66,16 +61,6 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.xs,
   },
-  title: {
-    fontFamily: fontWeights.light,
-    fontSize: textSizes.h4,
-    lineHeight: 28,
-    color: colors.main,
-  },
-  description: {
-    fontFamily: fontWeights.regular,
-    fontSize: textSizes.md,
-    lineHeight: 20,
-    color: colors.secondary,
-  },
+  title: type.cardTitle,
+  description: type.cardText,
 });

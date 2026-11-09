@@ -18,7 +18,7 @@ import {
   radius,
   spacing,
 } from "../../theme/tokens";
-import { mid } from "../../theme/soft";
+import { accent, boxEdge } from "../../theme/soft";
 import { Button, Chip, ChipRow, Sheet } from "../ui";
 
 export const WeekTagList = ({ weeklyTags, onTagChange }) => {
@@ -43,7 +43,7 @@ export const WeekTagList = ({ weeklyTags, onTagChange }) => {
         <Switch
           value={sameWeekdays}
           onValueChange={toggleSameWeekdays}
-          trackColor={{ false: colors.imageBackground, true: mid.lavender }}
+          trackColor={{ false: colors.imageBackground, true: accent.mid }}
           thumbColor={colors.inverse}
           ios_backgroundColor={colors.imageBackground}
           accessibilityLabel="Set Monday to Friday the same"
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     borderCurve: "continuous",
     paddingHorizontal: spacing.md,
     backgroundColor: colors.cardBackground,
-    boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
+    ...boxEdge,
     justifyContent: "center",
   },
   dayBox: {

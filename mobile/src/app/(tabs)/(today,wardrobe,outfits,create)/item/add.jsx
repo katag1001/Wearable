@@ -26,7 +26,7 @@ import {
   fontWeights,
   spacing,
 } from "../../../../theme/tokens";
-import { wash } from "../../../../theme/soft";
+import { choiceTints } from "../../../../theme/soft";
 import { pickImage } from "../../../../platform/imagePicker";
 import { BubbleCelebration } from "../../../../components/soft";
 import {
@@ -223,14 +223,14 @@ export default function AddItemScreen() {
                 icon="camera"
                 title="Take photo"
                 text="Use your camera"
-                tint={wash.lavender}
+                tint={choiceTints.takePhoto}
                 onPress={() => choose("camera")}
               />
               <ActionCard
                 icon="image"
                 title="Choose photo"
                 text="Pick one from your photos"
-                tint={wash.sky}
+                tint={choiceTints.choosePhoto}
                 onPress={() => choose("library")}
               />
             </ActionCards>

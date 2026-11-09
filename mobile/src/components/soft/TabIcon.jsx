@@ -6,7 +6,7 @@
 import Feather from "@expo/vector-icons/Feather";
 import { StyleSheet, View } from "react-native";
 
-import { mid, radii, shadows, surface, wash } from "../../theme/soft";
+import { accent, radii, shadows } from "../../theme/soft";
 
 export const TabIcon = ({ icon, focused, color }) => (
   <View style={[styles.pill, focused && styles.active]}>
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   active: {
-    backgroundColor: wash.lavender,
-    boxShadow: `${shadows.tabIcon}, inset 0px 1px 0px ${surface.lightEdge}, inset 0px -1px 0px ${mid.sky}55`,
+    backgroundColor: accent.wash,
+    boxShadow: shadows.tabBubble,
   },
 });

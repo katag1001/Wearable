@@ -14,7 +14,7 @@
 import { useEffect, useRef } from "react";
 import { Animated, Easing, PanResponder, StyleSheet, Text, View } from "react-native";
 
-import { fonts, ink, surface, textSizes } from "../../theme/soft";
+import { surface, type } from "../../theme/soft";
 import { Bubble } from "../soft/Bubble";
 import { DISMISS_REACH, dismissCentre } from "./DismissTarget";
 
@@ -163,14 +163,10 @@ const styles = StyleSheet.create({
     borderRadius: BODY / 2,
     backgroundColor: surface.veil,
   },
-  // Inside the square that fits in the circle. Regular rather than light,
-  // so it reads darker over the photos.
+  // Inside the square that fits in the circle.
   text: {
     width: NOTE_BUBBLE_SIZE * 0.68,
-    fontFamily: fonts.regular,
-    fontSize: textSizes.sm,
-    lineHeight: 17,
-    color: ink.main,
+    ...type.note,
     textAlign: "center",
   },
 });

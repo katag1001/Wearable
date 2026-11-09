@@ -23,7 +23,8 @@ import {
   TOO_HOT,
 } from "@core/today/outfitFeedback.js";
 
-import { colors, fontWeights, spacing, textSizes } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
+import { type } from "../../theme/soft";
 import { MismatchPicker } from "../outfits/MismatchPicker";
 import { Atmosphere } from "../soft";
 import { Button } from "../ui";
@@ -162,12 +163,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  title: {
-    fontSize: textSizes.h3,
-    lineHeight: 30,
-    fontFamily: fontWeights.light,
-    color: colors.main,
-  },
+  title: type.sheetTitle,
   options: {
     flex: 1,
     justifyContent: "center",

@@ -12,7 +12,7 @@ import {
   radius,
   spacing,
 } from "../../theme/tokens";
-import { boxEdge, mid, type } from "../../theme/soft";
+import { boxEdge, shadows, type } from "../../theme/soft";
 
 export const TextField = ({ label, style, onFocus, onBlur, ...inputProps }) => {
   const [focused, setFocused] = useState(false);
@@ -57,6 +57,6 @@ const styles = StyleSheet.create({
     ...boxEdge,
   },
   focused: {
-    boxShadow: `0px 0px 0px 3px ${mid.lavender}66, 0px 8px 22px ${mid.lavender}40`,
+    boxShadow: shadows.focus,
   },
 });

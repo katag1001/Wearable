@@ -39,6 +39,7 @@ import { ratingDeletesOutfit } from "@core/matches/rating.js";
 import {
   colors,
   fontWeights,
+  radius,
   shadows,
   spacing,
 } from "../../../theme/tokens";
@@ -377,7 +378,7 @@ const styles = StyleSheet.create({
   wornHeart: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.cardBackground,

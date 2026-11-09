@@ -14,7 +14,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
+import { type } from "../../theme/soft";
 import { Atmosphere } from "../soft/Atmosphere";
 import { useHeaderSpace } from "../soft/useHeaderSpace";
 
@@ -86,18 +87,9 @@ const styles = StyleSheet.create({
   centered: {
     justifyContent: "center",
   },
-  title: {
-    fontFamily: fontWeights.light,
-    fontSize: fontSizes.title,
-    lineHeight: 36,
-    letterSpacing: -0.3,
-    color: colors.main,
-  },
+  title: type.screenTitle,
   subtitle: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    lineHeight: 22,
-    color: colors.secondary,
+    ...type.body,
     marginBottom: spacing.sm,
   },
 });

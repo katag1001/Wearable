@@ -14,7 +14,7 @@ import {
   shadows,
   spacing,
 } from "../../theme/tokens";
-import { textSizes, type } from "../../theme/soft";
+import { boxEdge, textSizes, type } from "../../theme/soft";
 
 export const FieldRow = ({
   label,
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
     backgroundColor: colors.cardBackground,
-    boxShadow: `inset 0px 1px 0px ${colors.lightEdge}`,
+    ...boxEdge,
   },
   pressed: {
     transform: [{ scale: 0.97 }],

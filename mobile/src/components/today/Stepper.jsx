@@ -5,7 +5,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, shadows, spacing } from "../../theme/tokens";
-import { type } from "../../theme/soft";
+import { radii, type } from "../../theme/soft";
 
 const Arrow = ({ name, label, onPress }) => (
   <Pressable
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   },
   arrow: {
     padding: spacing.sm,
-    borderRadius: 999,
+    borderRadius: radii.pill,
     backgroundColor: colors.cardBackground,
     boxShadow: shadows.soft,
   },

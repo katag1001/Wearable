@@ -3,7 +3,8 @@
 
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, fontSizes, fontWeights, spacing, textSizes } from "../../theme/tokens";
+import { spacing } from "../../theme/tokens";
+import { type } from "../../theme/soft";
 import { Bubble } from "../soft/Bubble";
 
 export const EmptyState = ({ title, text, children }) => (
@@ -24,17 +25,11 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
   },
   title: {
-    fontFamily: fontWeights.light,
-    fontSize: textSizes.h4,
-    lineHeight: 28,
-    color: colors.main,
+    ...type.cardTitle,
     textAlign: "center",
   },
   text: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    lineHeight: 22,
-    color: colors.secondary,
+    ...type.body,
     textAlign: "center",
   },
 });

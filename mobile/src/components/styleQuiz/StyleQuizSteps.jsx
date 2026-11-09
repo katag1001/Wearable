@@ -17,7 +17,8 @@ import {
   weeklyQuestion,
 } from "@core/constants/styleQuizOptions.js";
 
-import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
+import { spacing } from "../../theme/tokens";
+import { type } from "../../theme/soft";
 import { ChoiceCard, Message, Screen } from "../ui";
 import { ColoursStep } from "./ColoursStep";
 import { ImagesStep } from "./ImagesStep";
@@ -164,19 +165,12 @@ const styles = StyleSheet.create({
   // Under a centred question, like Screen's subtitle.
   centredHint: {
     marginTop: spacing.sm,
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    lineHeight: 22,
-    color: colors.secondary,
+    ...type.body,
     textAlign: "center",
   },
   // Matches Screen's title, centred.
   centredQuestion: {
-    fontFamily: fontWeights.light,
-    fontSize: fontSizes.title,
-    lineHeight: 36,
-    letterSpacing: -0.3,
-    color: colors.main,
+    ...type.screenTitle,
     textAlign: "center",
   },
 });

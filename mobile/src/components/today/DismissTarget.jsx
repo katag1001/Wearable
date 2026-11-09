@@ -7,7 +7,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { useEffect, useRef } from "react";
 import { Animated, StyleSheet } from "react-native";
 
-import { deep, ink, motion, shadows, space, surface, wash } from "../../theme/soft";
+import { ink, loved, motion, shadows, space, surface } from "../../theme/soft";
 
 export const DISMISS_SIZE = 52;
 
@@ -56,7 +56,7 @@ export const DismissTarget = ({ hot }) => {
         },
       ]}
     >
-      <Feather name="x" size={24} color={hot ? deep.blush : ink.soft} />
+      <Feather name="x" size={24} color={hot ? loved.deep : ink.soft} />
     </Animated.View>
   );
 };
@@ -76,6 +76,6 @@ const styles = StyleSheet.create({
     boxShadow: shadows.soft,
   },
   hot: {
-    backgroundColor: wash.blush,
+    backgroundColor: loved.wash,
   },
 });

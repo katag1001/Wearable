@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { tabIcon } from "../../components/soft";
 import { OutfitRebuildProvider } from "../../outfitRebuild/OutfitRebuildProvider";
-import { fonts, ink, shadows, surface, textSizes } from "../../theme/soft";
+import { ink, shadows, surface, type } from "../../theme/soft";
 
 // Taller than the default bar (49), so the icon pill and the Inter labels
 // have room. The phone's bottom inset is added on top.
@@ -37,12 +37,8 @@ export default function TabsLayout() {
             boxShadow: shadows.tabBar,
           },
           tabBarLabelStyle: {
-            fontFamily: fonts.medium,
-            fontSize: textSizes.xxs,
-            letterSpacing: 0.3,
-            // Inter sits taller than the system font the bar is sized for;
-            // a fixed line and a little space below lift it clear.
-            lineHeight: 14,
+            ...type.tabLabel,
+            // A little space below lifts it clear of the bar's edge.
             marginBottom: 3,
           },
         }}
