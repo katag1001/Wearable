@@ -1,41 +1,83 @@
 # Visual language - mobile app
 
-The look for the LovedWornSeen mobile app. Based on the reference images
+The look for the LovedWornSeen mobile app. **The Today screen (the
+homepage) is the model**: every other screen borrows its composition, type
+and boxes. Background ideas come from the reference images
 (`context/example-1.jpg` … `example-6.jpg`) and the portfolio
-(`../../portfolio/portfolio_v2` - read-only, never edit it), but with far more
+(`../../portfolio/portfolio_v2` - read-only, never edit it), with far more
 subtle colour.
 
-Status (2026-11-03): agreed, trialled on Today, then **applied to the whole
-mobile app** (see "Built so far"). Now being tweaked screen by screen.
+Status (2026-11-09): rewritten around Today. Values live in
+`mobile/src/theme/soft.js`; components use its roles, never hues or
+literals.
 
 ## 1. The idea
 
-**Soft light falling on soap film.** A pale, grainy atmosphere with iridescent
-colour at its edges; calm editorial type on top; the clothes in a clear,
-neutral middle.
+**Milk panels floating on soft colour.** A pale, grainy, iridescent
+atmosphere, and on top of it a few large milk panels with deeply rounded
+corners. The colour shows only in the gaps between the panels and round
+their corners. Inside the panels everything is calm: light type, plain
+icons and translucent white boxes.
 
-**The clothes are the colour.** Item photos have their backgrounds removed
-and the palettes are the colour gate, so the UI must never tint what's right
-behind a garment.
+**The clothes are the colour.** Item photos have their backgrounds removed.
+The UI never tints what's right behind a garment, so outfits sit straight on
+the milk panel.
 
-- Colour lives in the **atmosphere** - page edges, bubbles, selection,
-  celebration.
-- Content lives on **pearl** - item photos, palette swatches and style-quiz
-  images sit on a hue-free warm white.
+## 2. The homepage, piece by piece
 
-## 2. From the portfolio - kept / changed
+This is what Today does. Other screens copy it.
 
-| Portfolio does | App keeps | App changes |
-|---|---|---|
-| Perimeter colour patches fading to a white centre (`.bubble_background`) | The composition | Lighter and less saturated; patches of every bubble colour scattered over the whole screen, no white centre |
-| Glass bubbles: clear body, conic iridescent rim, specular highlights | The anatomy | 2-4 per screen, placed by hand and cropped by the screen edge - no random bouncing |
-| Inter + Fira Code, tracked uppercase labels (`0.22em`) | Both, and the label style | Large type goes light (300-400) |
-| `[01] PORTFOLIO` mono eyebrow | Numbered eyebrows per tab | - |
-| `→` links that slide on hover | Arrow links that slide on press | No gradient text (reads as AI, needs MaskedView) |
-| Iridescent fill on hover | On press of secondary actions, and selection | Never a resting button fill |
-| Spacing 4/8/12/18/28/48/72 | Same scale | - |
-| 1px hairline dividers | - | Gone - separation by tone, light and space |
-| Dark theme | Later ("Dusk") | Light-only first (`app.json` is `light`) |
+### Panels (Today's "tabs")
+
+- The page is made of **two milk panels** (`surface.milk`) with the
+  atmosphere between them. The gap is `space.sm`.
+- **Top panel**: runs up under the status bar, square at the top,
+  `radii.sheet` (36) on its bottom corners. It holds the page title and the
+  page's facts (day, weather).
+- **Bottom panel**: the mirror image, rounded along its top and filling the
+  rest of the screen. It holds the content (the outfit).
+- Panels run edge to edge with no side margin. Their content keeps the
+  `space.gutter` (24) side padding.
+- Edge: `boxEdge`, a 1px rim of light along the top. No border, no drop
+  shadow.
+
+### Type, in pairs
+
+Today's header is two matching columns, each a **headline over a
+subline**:
+
+- Page title: `type.pageTitle`, Inter Light 26 ("Hey Katy").
+- Headline: `type.todayHeadline`, Inter Light 20 (weekday, temperature).
+- Subline: `type.todaySubline`, Inter Light 12, uppercase, tracking 1.4,
+  soft ink (tag, season). A tappable subline is just text, with no
+  underline or button.
+
+The pairs line up line for line: left column left-aligned, right column
+right-aligned. Large type is always light, never bold.
+
+### Boxes
+
+The note banner (`today/NoteBanner`) is the house box:
+
+- `surface.veil` (translucent white), `radii.tile` (20), `shadows.raised`
+  (a soft shadow plus the light top rim), no border.
+- Each line opens with a **small dot** (7px) in the hue for its job and
+  holds one line of text (`type.note`). A small muted icon (an X, an arrow)
+  can close it.
+- Boxes sit inside a panel, never straight on the atmosphere.
+
+### Buttons and icons
+
+- **Icon buttons in a header are plain icons**: Feather 24, `ink.soft`, no
+  circle. They dim to 0.5 opacity when pressed (the profile person on
+  Today).
+- **Action buttons** (heart, broken heart, shoe): plain translucent white
+  circles (`surface.veil` + `shadows.soft`), soft-ink icon, no rim. Active =
+  blush wash. They float over the content.
+- Press: scale 0.97 over 200ms (`PressableScale`), except plain header icons
+  (opacity).
+- Main text buttons: lavender (`colors.selected`) pill with an ink
+  uppercase tracked label. **No dark-filled buttons.**
 
 ## 3. Colour
 
@@ -43,230 +85,163 @@ behind a garment.
 
 | Token | Value | Use |
 |---|---|---|
-| `ink` | `#3B3545` | Titles, primary button fill, icons |
-| `inkSoft` | `#6A6374` | Body text |
-| `inkMuted` | `#A29BAA` | Hints, placeholders, inactive |
-| `milk` | `#FCFAFB` | Page base |
-| `pearl` | `#FAF8F6` | **Behind clothes and swatches only** - no hue bias |
-| `white` | `#FFFFFF` | Light edges, highlights, text on ink |
+| `ink.main` | `#3B3545` | Titles, icons |
+| `ink.soft` | `#6A6374` | Body text, sublines, header icons |
+| `ink.muted` | `#A29BAA` | Hints, placeholders, small arrows and X's |
+| `surface.milk` | `#FCFAFB` | Panels, page base |
+| `surface.pearl` | `#FAF8F6` | Behind palette swatches only |
+| `surface.veil` | white 62% | Boxes and round buttons |
+| `surface.white` | `#FFFFFF` | Light edges, highlights |
 
-### Atmosphere tints (chroma ≤ ~4%)
+### Hues - washes and mids
 
-| Hue | Wash | Mid (rims, small accents only) |
-|---|---|---|
-| Blush | `#FBEFF3` | `#E9B8CB` |
-| Lavender | `#F3EFFA` | `#C6B6E6` |
-| Sky | `#ECF1FA` | `#AFC3E6` |
-| Mint | `#EEF6F3` | `#B5D6CA` |
-| Peach | `#FBF1EB` | `#EDC6B2` |
+| Hue | Wash (fills) | Mid (dots, rims, small accents) | Job |
+|---|---|---|---|
+| Blush | `#FBEFF3` | `#E9B8CB` | **Loved** - favourite, worn, celebration |
+| Lavender | `#F3EFFA` | `#C6B6E6` | **The app** (`accent`) - focus, selection |
+| Sky | `#ECF1FA` | `#AFC3E6` | **Cold** - winter, tights |
+| Mint | `#EEF6F3` | `#B5D6CA` | **Fresh / done** - success, spring |
+| Peach | `#FBF1EB` | `#EDC6B2` | **Warm** - summer |
 
-Deeper siblings for icon-sized accents that need contrast on the pale page
-(filled stars, the wear heart): blush `#C27C97`, lavender `#8E7BB8`.
+Deeper siblings for icon-sized accents: blush `#C27C97`, lavender
+`#8E7BB8`.
 
-### Every hue has a job
-
-- **Blush = Loved** - favourite heart, worn today, celebration
-- **Lavender = the app** - focus, selection, default atmosphere
-- **Sky = cold** - winter, cool temperature bands
-- **Mint = fresh / done** - success, spring
-- **Peach = warm** - summer, warm temperature bands
-
-The full five-hue iridescent gradient appears in only a few places: the
-**selection halo**, the **temperature slider** (sky → mint → peach), the
-**bubble celebration** and the **filled rating stars** (each star runs from
-its hue to the next, so the row reads as one sweep).
+The full five-hue iridescent run appears only in the selection halo, the
+temperature slider (sky → mint → peach), the bubble celebration and the
+rating stars.
 
 ### Semantic
 
-- Error: rose-clay `#9A4E5C` on blush wash
-- Success: sage `#52705F` on mint wash
-- No borders on either
+- Error: rose-clay `#9A4E5C`, on the blush wash when it needs a fill.
+- Success: sage `#52705F` on the mint wash.
+- No borders on either.
 
-## 4. Surfaces, edges, depth
+## 4. Atmosphere and bubbles
 
-**Edges are made of light, never of ink.**
+- **Atmosphere** behind every screen: blurred patches of all five hues
+  scattered over the whole screen (random per launch), plus film grain at
+  ~3-4%. On Today it leans sky/lavender on cold days and peach/blush on warm
+  ones.
+- With panels on top, the atmosphere shows as **strips and corners**. That
+  is enough colour; nothing inside a panel needs to be tinted.
+- No bubbles in the background. Bubbles live in the UI: the loader
+  (breathing bubble) and the celebration (rising bubbles that pop).
 
-- No dark borders anywhere.
-- Separation comes from:
-  1. tonal fill (translucent white over the atmosphere);
-  2. very diffuse plum-tinted shadows (`boxShadow`, RN 0.76+);
-  3. where an edge is needed, a 1px **white** top highlight at ~70%.
-- Shadows:
-  - `soft` - `0 8px 24px rgba(46,40,56,0.06)`
-  - `lifted` - `0 16px 40px rgba(46,40,56,0.08)`
-  - `glow` - `0 10px 30px rgba(233,184,203,0.28)`
-- Real blur only on the tab bar and sheets (`expo-blur`). Glass on every
-  card is the biggest AI-template tell, and slow on Android.
-- Radii: inputs 14 · tiles 20 · cards 28 · sheets 36 · buttons/chips pill.
-  `borderCurve: "continuous"` on iOS (squircle corners).
+## 5. Surfaces, edges, depth
 
-## 5. Atmosphere and bubbles
+- **Edges are made of light, never ink.** No dark borders or hairline
+  dividers anywhere. Things are separated by panels, boxes and space.
+- Shadows: `soft` `0 8px 24px rgba(46,40,56,0.06)`, `lifted`
+  `0 16px 40px rgba(46,40,56,0.08)`, `raised` = soft + light top rim.
+- Radii: inputs 14 · boxes/tiles 20 · cards 28 · panels/sheets 36 ·
+  buttons/chips pill. `borderCurve: "continuous"` on iOS.
 
-- **Atmosphere** behind every screen: blurred patches of all five bubble
-  colours scattered over the whole screen (no white centre, no lead colour;
-  random layout per app launch), plus **film grain at ~3-4%** (as in example 1). Grain is the strongest
-  "made by a person" signal.
-- **No bubbles in the background** (tried on Today, taken out 2026-11-03).
-  The patches blend into each other - no shapes,
-  no visible edges.
-- **Bubbles** live in the UI instead: clear body, soft iridescent rim
-  (several light strokes in a pink → lavender → blue → mint → peach
-  gradient), one or two highlights - the action buttons, the loader and the
-  celebration.
-- **No boxes around content**: the outfit sits straight on the white
-  middle, with no card or tile behind the (background-removed) photos.
-- **Weather-tinted Today**: patches lean sky/lavender on cold days and
-  peach/blush on warm ones - felt more than noticed.
+## 6. Type roles (`type.*` in soft.js)
 
-## 6. Typography
-
-| Role | Font | Size / line | Notes |
+| Role | Font | Size / line | Use |
 |---|---|---|---|
-| Display | Inter Light 300 | 40/44, tracking −0.5 | Screen titles |
-| Title | Inter Regular 400 | 26/32 | Sheet and section heads |
-| Eyebrow | Fira Code 500 | 11, tracking 2.4, UPPERCASE | `01 — TODAY`, counters `02 / 07`, metadata |
-| Body | Inter Regular 400 | 15/22, `inkSoft` | |
-| UI label | Inter SemiBold 600 | 13, tracking 1.6, UPPERCASE | Buttons, arrow links |
-| Small | Inter Medium 500 | 12/16 | Chips, tab labels |
-| Accent | Instrument Serif Italic | display size | Tried for the weekday on Today and dropped (2026-11-03) - too big, off-theme. Not in use. |
+| `pageTitle` | Inter Light | 26/32 | Top line of a page ("Hey Katy", "Wardrobe") |
+| `screenTitle` | Inter Light | 30/36 | Stacked screen titles, quiz questions |
+| `sheetTitle` | Inter Light | 24/30 | Sheets, full-page choosers |
+| `cardTitle` | Inter Light | 22/28 | Big choice cards, empty states |
+| `todayHeadline` | Inter Light | 20/26 | Headline in a headline/subline pair |
+| `todaySubline` | Inter Light | 12/18, caps, 1.4 | Subline in a pair |
+| `menuTitle` | Inter Light | 20/26 | Profile title (smaller than a tab page) |
+| `menuLabel` | Inter Light | 16/22 | Menu box names |
+| `menuText` | Inter Light | 11/16, caps, 1.2 | Menu box lines, Log out / Delete account |
+| `chipLabel` | Inter Light | 11/16, caps | Chips |
+| `note` | Inter Regular | 13/17 | Lines in a box |
+| `body` | Inter Regular | 15/22, `ink.soft` | Paragraphs |
+| `label` | Inter SemiBold | 13, caps, 1.6 | Button labels |
+| `eyebrow` | Inter Light | 11, caps, 2.4 | Field labels, step counts |
 
-Left-aligned, editorial, generous space above titles, numbers in mono.
-Fonts come from `@expo-google-fonts/*`, loaded in `mobile/src/app/_layout.jsx`.
+Left-aligned and editorial, with generous space above titles. No emoji;
+icons are Feather. (Fira Code is not loaded. Instrument Serif Italic is
+loaded but not used.)
 
-## 7. Components - from / to
+## 7. Screen notes
 
-| Component | Was | Becomes |
-|---|---|---|
-| Screen | White, plain title | Atmosphere behind, mono eyebrow, light display title |
-| Button primary | Black fill | **No big dark buttons** (2026-11-03). The main action is the default `soft` variant: a pill in the selected lavender (`colors.selected`) with an ink uppercase tracked label, `soft` shadow and light top edge. The old plum-ink `primary` has been removed. |
-| Button secondary | Hairline outline | Pearl pill: translucent white, white top edge, no border. Press blooms a faint iridescent wash. |
-| Button text | Grey text | Uppercase tracked label + `→` that slides 4px on press |
-| Pressed state | Opacity 0.5-0.7 | Scale 0.97, 200ms ease-out |
-| Card | Hairline border | White ~65%, radius 28, `soft` shadow, light top edge |
-| ImageTile | Black 2px border + black tick when selected | Pearl. Selected: **iridescent halo** (2px gradient ring, 3px gap), tick in a small pearl bubble |
-| Chip | Bordered, black when selected | Pearl; white; selected = filled with the selected lilac (`colors.selected`), label darkens to ink (same weight, so it never shifts). Seasons use their hue. Swatches get a white ring. |
-| SegmentedControl | Black thumb | Lavender-wash track, white pill thumb with `soft` shadow, slides |
-| TextField | Hairline border | White ~70% fill, no border, mono eyebrow label; focus = soft lavender glow |
-| Sheet | Black 42% backdrop | Plum 18% backdrop + light blur; frosted milk panel radius 36; grab handle |
-| Tab bar | Grey top border | **Built:** milk bar, no border, faint shadow above; soft-ink icons (muted when inactive), Inter Medium 11 labels; active tab on a lavender-wash pill with a light top edge, fading in. (Blur still to try, needs `expo-blur`.) |
-| ActionButton (heart, bin, shoe) | Grey disc / black active | **Plain circle**: translucent white fill + faint `soft` shadow, soft-ink icon - no rim or highlight (the full bubble version was too much, 2026-11-03). Active = blush wash. |
-| Stepper | Bordered circles | Small pearl bubble arrows, mono `02 / 07` |
-| Confetti | Six hard colours incl. `#111` | **Rising soap bubbles** that drift, wobble and pop |
-| Loading | ActivityIndicator | A single **breathing bubble** (0.96 ↔ 1.04 over 2.4s) |
-| EmptyState / Message | Plain / bordered | Faint bubble + serif-italic line; soft tinted notes, no border |
-| RangeSlider (temperature) | Neutral | Track sky → mint → peach, pearl bubble thumb |
-| Heart / stars | Black | Stars: iridescent fill when on, `inkMuted` outline when off. Action icons (heart, broken heart, shoe) all the same soft ink, same icon set |
+- **Today** (the model): top panel has "Hey <first name>" ("Hello" with no
+  name) with the person icon to Profile on the right, then the two columns
+  (weekday over tag, weather icon + temperature over season). The bottom
+  panel holds any notices, then the outfit straight on the milk, running to
+  the bottom. The note banner (tights = sky dot, trends = lavender dot) runs
+  along the top of the outfit and slides with it. Broken heart and heart
+  are stacked bottom left, the shoe bottom right. Wearing changes only the
+  buttons, and bubbles rise over the page. No "Marked as worn" alert.
+- **Profile**: built like Today. The top panel has a plain back arrow and
+  "Profile" (`menuTitle`, 20 - smaller than a tab page). The bottom panel
+  holds the menu, in smaller type than Today: one house box
+  per item, each with a hue dot, a name (`menuLabel`, 16) over a
+  one-line description (`menuText`, 11 caps) and a muted arrow. Weekly
+  preferences = sky, Style preferences = blush, Settings = lavender. Log
+  out and Delete account sit at the foot of the bottom panel as two `menuText`
+  sublines in a pair: Log out left, Delete account right in rose-clay.
+  Both confirm first. No email shown.
+- **Wardrobe / Outfits**: Wardrobe is a two-up grid of item photos, no
+  names. Outfits is two Pinterest-style columns, tops over bottoms, in soft
+  white boxes (`colors.fieldBackground`). Filters are in the frosted sheet.
+  Select mode shows iridescent halos and a floating selection bar.
+- **Item add / edit / AI review**: photo large, fields below as soft
+  pills.
+- **Style quiz / palettes**: swatches on pure pearl, no tint. Progress is
+  a row of small bubbles filling with lavender.
+- **Auth**: the most atmospheric screen, with fields as floating white
+  pills.
 
-Icons: Feather (thin, even stroke), sizes 20/24, colour `ink`. No emoji in
-the UI - weather uses Feather icons.
+## 8. Components (`mobile/src/components/ui`, `soft`)
 
-## 8. Screen notes
-
-- **Auth** - the most atmospheric screen: hero bubbles, light display
-  wordmark, fields as floating white pills.
-- **Today** - "Hey <first name>" ("Hello" with no name; Inter Light 26) with the person button to Profile on the right, then two matching header columns: weekday (Inter Light 20) over
-  the tag on the left; weather icon + temperature (Inter Light 20) over the
-  season on the right. Tag and season: Inter Light 12, uppercase, tracking
-  1.4, soft ink. The outfit photos run to the bottom of the page; the buttons float over them - broken heart and heart stacked in the bottom left corner, the shoe in the bottom right. No rating stars on Today (rated from the outfit screen; `soft/IridescentStars` kept for later). The tights and trend notes sit in a soft banner along the top of the outfit card (`today/NoteBanner`, 2026-11-09 - replaced the draggable soap bubbles): translucent white (`surface.veil`), radius 20, `raised` shadow with its light top edge, no border. One line per note in `type.note`, led by a small dot in the note's hue (`noteTints`: tights sky, trends lavender) and closed by its own soft X, which hides that note for the outfit. It slides with the outfit and fades in with each new one. No
-  "Marked as worn" alert - the bubble celebration says it (the web keeps
-  its popup; the notice carries `kind: "worn"`). Outfit straight on the white middle (no card), bubble action
-  row, bubble celebration on wear.
-- **Wardrobe / Outfits** - Wardrobe: a two-up grid of item photos with room around each, no names. Outfits (2026-11-03): two Pinterest-style columns that stack independently; each outfit sits tops-over-bottoms (as on Today) in a soft white box (the search box fill, `colors.fieldBackground`, no border), items small and centred. Each card goes into the shorter column, in score order, its height worked out before it draws (`outfits/outfitColumns.js`, `outfitCardHeight`).
-  Filters in the frosted sheet; select mode shows halos and a floating pearl
-  selection bar.
-- **Item add / edit / AI review** - photo large on pearl, fields below as
-  soft pills; pearl shimmer while analysing.
-- **Style quiz / palettes** - swatches and images on **pure pearl, no
-  tint**. Step progress is a row of small bubbles filling with lavender.
-- **Profile / account** - editorial rows, no dividers: mono index (`01`),
-  label, `→`. Pressed row nudges right 6px.
-- **Splash / icon** - milk with a single iridescent bubble.
+| Component | Looks like |
+|---|---|
+| `SoftScreen` / `Screen` | Atmosphere behind, milk base, gutter 24 |
+| `PageHeader` | `pageTitle` + optional plain icon on the right |
+| `NoteBanner` | The house box: veil, radius 20, raised, dots |
+| `ActionButton` | Plain veil circle, soft shadow; active = blush wash |
+| `ActionCard` | Big choice: tinted icon circle, `cardTitle`, text, arrow, on a white box |
+| `Button` | Lavender pill (main), translucent white pill (secondary), text + `→` |
+| `Chip` | White pill; selected = solid lilac, label to ink |
+| `TextField` | White ~70%, no border, lavender focus glow |
+| `SegmentedControl` | Lavender-wash track, white thumb |
+| `Sheet` | Milk, radius 36, grab handle, plum backdrop |
+| Tab bar | Milk, no border, faint shadow above; active tab on a lavender pill |
+| `ImageTile` | Selected = iridescent halo + tick in a pearl bubble |
+| `RangeSlider` | Sky → mint → peach track, pearl thumb |
+| `Loading` / `BubbleLoader` | One breathing bubble |
+| `SoftNote` / `Message` | Soft tinted note, no border |
 
 ## 9. Motion
 
-- Easing: gentle ease-out everywhere (`Easing.out(Easing.cubic)`).
-- Durations: 200ms press · 320ms sheets/thumbs · 450ms screen fades.
-- No hard springs or overshoot, except the bubble pop.
-- At most one ambient motion per screen (the atmosphere drift).
-  Respect Reduce Motion.
+- Gentle ease-out everywhere (`Easing.out(Easing.cubic)`): 200ms press ·
+  320ms panels, sheets and boxes fading in · 450ms screens.
+- No springs or overshoot, except the bubble pop. At most one ambient
+  motion per screen. Respect Reduce Motion.
 
 ## 10. Not AI-looking - checklist
 
-**Don't:** big dark (ink-filled) buttons · purple-to-blue gradient buttons · gradient text · glass on every
-surface · neon glows · emoji in the UI · centred hero + three cards · one
-radius everywhere · random particle fields · pure black or flat grey.
+**Don't:** dark-filled buttons · gradient buttons or text · glass on every
+surface · neon glows · emoji · centred hero + three cards · hairline
+dividers · pure black or flat grey · colour inside the panels for its own
+sake.
 
-**Do:** film grain · hand-placed, edge-cropped bubbles · mono numerals and
-tracked eyebrows · light, large type with deliberate asymmetry · hues with
-meaning · squircle corners · restraint, iridescence kept for moments that
-matter.
-
-## 11. Build order
-
-1. **Foundations** - tokens (colour / type / space / radius / shadow /
-   motion), fonts, `Atmosphere` with grain and bubbles. New deps:
-   `react-native-svg`, `@expo-google-fonts/*` (later `expo-blur`).
-2. **Primitives** - everything in `mobile/src/components/ui/`; most screens
-   restyle through these.
-3. **Signature moments** - Today, selection halo, bubble celebration,
-   temperature slider, breathing loader.
-4. **Sweep** - remaining `borderWidth` uses, weather emoji, splash and icon.
-5. **Later** - "Dusk" dark theme from the portfolio's dark tokens, muted the
-   same way.
+**Do:** film grain · milk panels with colour in the gaps · light, large
+type · headline/subline pairs · small hue dots that mean something ·
+plain icons · squircle corners · iridescence only for moments that matter.
 
 ## Built so far
 
-Theme (mobile only):
-
-- `mobile/src/theme/soft.js` - the tokens above (colours, fonts, type,
-  spacing, radii, shadows, motion) and `atmosphereMood(weather)`.
-- `mobile/src/theme/tokens.js` - the app's everyday names (`colors`,
-  `fontSizes`, `fontWeights`, `spacing`, `radius`, `shadows`) mapped onto
-  soft.js. Replaces `core/theme/tokens.js` (removed; the web never used
-  it). `fontWeights` are Inter family names, used as `fontFamily`
-  (custom fonts ignore `fontWeight` on Android); every text style sets one.
-- `mobile/src/components/soft/` - `Atmosphere` (SVG edge patches + white
-  middle + grain), `Bubble` (SVG), `SoftScreen`, `BubbleLoader`,
-  `SoftNote`, `BubbleCelebration`, `WeatherIcon`, `PressableScale`,
-  `IridescentStars`, `SelectionHalo` (iridescent ring for selected tiles),
-  `TabIcon`, `softHeader` (stack header options).
-- `mobile/assets/textures/grain.png` - the grain tile (256px, generated
-  noise; strength set by its opacity in `Atmosphere`).
-- Fonts (`@expo-google-fonts/inter`, `fira-code`, `instrument-serif`) loaded
-  in `mobile/src/app/_layout.jsx`; `react-native-svg` added.
-
-Today: `app/(tabs)/(today,wardrobe,outfits,create)/index.jsx` (two-column
-header, weather icon), `components/today/OutfitPicker` (outfit straight on
-the page, buttons floating over it; wearing it changes nothing but the
-buttons - Change outfit replaces the hearts, swiping and arrows go - with
-the bubbles over the same screen), `ActionButton` (plain white circles),
-`SwipeDeck` (arrow colour). `OutfitImages` has an optional `imageStyle`.
-
-Tab bar: `app/(tabs)/_layout.jsx` + `soft/TabIcon` - Today / Wardrobe / Outfits / + (the + page, `app/(tabs)/create.jsx`, offers Add item and Build outfit as two soft cards). Profile moved to the person button on Today.
-
-Whole app (2026-11-03):
-
-- **The `ui/` kit**, which most screens are built from: `Screen`
-  (Atmosphere behind), `Button` (ink / white pills, uppercase labels,
-  squeeze on press), `Card`, `Chip`, `ChoiceCard`, `TextField` (no border,
-  lavender focus glow), `SegmentedControl` (white thumb), `Sheet` (milk,
-  radius 36, grab handle, plum backdrop), `ImageTile` + `OutfitCard` +
-  `ColourFamilyPicker` + item filter (iridescent halo when selected), `FieldRow`
-  / `ListRow` (no dividers), `RangeSlider` (sky → mint → peach track),
-  `StarRating` (iridescent everywhere), `EmptyState` (faint bubble),
-  `Loading` (breathing bubble), `Message` (soft notes), `FavouriteHeart`
-  (blush).
-- **Screens with their own pages** get the Atmosphere: Wardrobe, Outfits,
-  Build outfit, Change shoes, "Not this outfit". Wardrobe / Outfits titles
-  are Inter Light; their add / filter buttons are white circles.
-- **Headers**: `softHeader` - transparent, so the page background runs up
-  behind the back arrow (pages start below it via `useHeaderSpace`); just
-  the arrow, no back title. Set in each tab's stack
-  (`app/(tabs)/(today,wardrobe,outfits,create)/_layout.jsx`).
-- **Tab bar on every page** (2026-11-03): every signed-in page lives inside
-  the tabs, one stack per tab.
-- `today/Confetti` removed; adding an item plays `BubbleCelebration`.
+- `mobile/src/theme/soft.js` holds every colour, type role, space, radius,
+  shadow, motion and `atmosphereMood(weather)`. `theme/tokens.js` maps the
+  everyday names (`colors`, `spacing`, `radius`...) onto it.
+- `components/soft/`: `Atmosphere`, `Bubble`, `SoftScreen`, `PageHeader`,
+  `BubbleLoader`, `SoftNote`, `BubbleCelebration`, `WeatherIcon`,
+  `PressableScale`, `IridescentStars`, `SelectionHalo`, `TabIcon`,
+  `PullUpPanel`, `softHeader` (transparent stack header; pages start below
+  it via `useHeaderSpace`).
+- `components/today/`: `OutfitPicker`, `ActionButton`, `NoteBanner`,
+  `SwipeDeck`, `ShoeChooser`, `OutfitFeedback`, `TagPicker`.
+- `components/ui/`: the kit most screens build from (see section 8).
+- Fonts: `@expo-google-fonts/inter` and `instrument-serif`, loaded in
+  `mobile/src/app/_layout.jsx`. Grain tile in `mobile/assets/textures/`.
+- Every signed-in page lives inside the tabs, one stack per tab. The +
+  tab offers Add item and Build outfit as two `ActionCard`s.
 - Splash and Android icon background: milk `#FCFAFB`.
-- **No backgrounds behind items or outfits** (2026-11-03): `itemBackground` is transparent, so item photos and outfit cards sit straight on the page, like Today. Only palette tiles keep pearl, so their colours read true.
-- Still black-and-white in places? Only where a screen hard-codes something
-  the sweep missed - fix as found.

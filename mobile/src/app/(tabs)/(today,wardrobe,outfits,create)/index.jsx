@@ -15,7 +15,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTodayLook } from "@core/hooks/useTodayLook.js";
 import { useWeather } from "@core/hooks/useWeather.js";
@@ -28,11 +27,14 @@ import {
 } from "../../../components/outfits/outfitHandoff";
 import { OutfitRebuildNote } from "../../../components/outfits/OutfitRebuildNote";
 import {
+  BottomPanel,
   BubbleCelebration,
   BubbleLoader,
   PageHeader,
+  panelPage,
   SoftNote,
   SoftScreen,
+  TopPanel,
   WeatherIcon,
 } from "../../../components/soft";
 import { OutfitFeedback } from "../../../components/today/OutfitFeedback";
@@ -41,7 +43,7 @@ import { ShoeChooser } from "../../../components/today/ShoeChooser";
 import { TagPicker } from "../../../components/today/TagPicker";
 import { useOutfitRebuild } from "../../../outfitRebuild/OutfitRebuildProvider";
 import { useLocation } from "../../../platform/useLocation";
-import { boxEdge, radii, space, surface, type } from "../../../theme/soft";
+import { space, type } from "../../../theme/soft";
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -49,7 +51,6 @@ const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
 export default function TodayScreen() {
   const { firstName } = useSession();
-  const insets = useSafeAreaInsets();
   const location = useLocation();
   const weather = useWeather({
     latitude: location.latitude,
@@ -172,10 +173,10 @@ export default function TodayScreen() {
       // The top tab runs up under the status bar, so the page handles the
       // safe area and gutter itself.
       edges={[]}
-      contentStyle={styles.page}
+      contentStyle={panelPage}
     >
       {/* The top tab, pulled down from the top of the screen. */}
-      <View style={[styles.topTab, { paddingTop: insets.top + space.pageTop }]}>
+      <TopPanel>
         {/* The greeting, with the way to the profile menu on the right. */}
         <PageHeader
           title={firstName ? `Hey ${firstName}` : "Hello"}
@@ -221,10 +222,10 @@ export default function TodayScreen() {
             </View>
           ) : null}
         </View>
-      </View>
+      </TopPanel>
 
       {/* The bottom tab, pulled up to meet it. */}
-      <View style={styles.bottomTab}>
+      <BottomPanel>
         <SoftNote text={location.error} />
         <SoftNote text={weather.error} />
         {/* When few outfits fit the weather (shared/todayMessages.json). */}
@@ -232,7 +233,7 @@ export default function TodayScreen() {
         <OutfitRebuildNote />
 
         <View style={styles.outfit}>{outfitSection()}</View>
-      </View>
+      </BottomPanel>
 
       <TagPicker
         visible={pickingTag}
@@ -249,35 +250,6 @@ export default function TodayScreen() {
 }
 
 const styles = StyleSheet.create({
-  // The atmosphere shows between the tabs and in their rounded corners.
-  page: {
-    paddingHorizontal: 0,
-    paddingTop: 0,
-    paddingBottom: 0,
-    gap: space.sm,
-  },
-  // Square at the top, rounded along its bottom edge.
-  topTab: {
-    paddingHorizontal: space.gutter,
-    paddingBottom: space.md,
-    gap: space.sm,
-    backgroundColor: surface.milk,
-    borderBottomLeftRadius: radii.sheet,
-    borderBottomRightRadius: radii.sheet,
-    ...boxEdge,
-  },
-  // The mirror image: rounded along its top edge.
-  bottomTab: {
-    flex: 1,
-    paddingHorizontal: space.gutter,
-    paddingTop: space.md,
-    paddingBottom: space.sm,
-    gap: space.sm,
-    backgroundColor: surface.milk,
-    borderTopLeftRadius: radii.sheet,
-    borderTopRightRadius: radii.sheet,
-    ...boxEdge,
-  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",

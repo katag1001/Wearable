@@ -1,18 +1,27 @@
-// Profile: the web's /user sidebar as a list, opened from the person
-// button on Today. Each preferences screen opens on top (src/app/account/),
-// and both actions confirm first.
+// Profile: the web's /user sidebar as a menu, opened from the person
+// button on Today and built like it (context/visual-language.md): the top
+// panel has a back arrow and the title, the bottom panel one box per
+// preferences screen (src/app/account/), then Log out and Delete account
+// along its foot. Both actions confirm first.
 
 import { router } from "expo-router";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useDeleteAccount } from "@core/hooks/useDeleteAccount.js";
 
-import { colors, fontSizes, fontWeights, spacing } from "../../../theme/tokens";
 import { useSession } from "../../../auth/SessionProvider";
-import { ListRow, Loading, Screen } from "../../../components/ui";
+import {
+  BottomPanel,
+  PageHeader,
+  panelPage,
+  SoftScreen,
+  TopPanel,
+} from "../../../components/soft";
+import { ListRow, Loading } from "../../../components/ui";
+import { menuTints, semantic, space, type } from "../../../theme/soft";
 
 export default function ProfileScreen() {
-  const { userEmail, logout } = useSession();
+  const { logout } = useSession();
   const { deleting, deleteAccount } = useDeleteAccount({ onDeleted: logout });
 
   const confirmLogout = () =>
@@ -44,44 +53,73 @@ export default function ProfileScreen() {
   }
 
   return (
-    <Screen edges={["bottom"]}>
-      <Text style={styles.email}>{userEmail}</Text>
+    <SoftScreen scroll={false} edges={[]} contentStyle={panelPage}>
+      <TopPanel>
+        <PageHeader title="Profile" onBack={() => router.back()} small />
+      </TopPanel>
 
-      <View>
-        <ListRow
-          label="Weekly preferences"
-          onPress={() => router.push("/account/weekly")}
-        />
-        <ListRow
-          label="Style preferences"
-          onPress={() => router.push("/account/style")}
-        />
-        <ListRow
-          label="Settings"
-          onPress={() => router.push("/account/settings")}
-        />
-      </View>
+      <BottomPanel>
+        <View style={styles.menu}>
+          <ListRow
+            label="Weekly preferences"
+            text="A tag for each day"
+            tint={menuTints.weekly}
+            onPress={() => router.push("/account/weekly")}
+          />
+          <ListRow
+            label="Style preferences"
+            text="Retake the style quiz"
+            tint={menuTints.style}
+            onPress={() => router.push("/account/style")}
+          />
+          <ListRow
+            label="Settings"
+            text="AI photo analysis"
+            tint={menuTints.settings}
+            onPress={() => router.push("/account/settings")}
+          />
+        </View>
 
-      <View style={styles.actions}>
-        <ListRow label="Log out" onPress={confirmLogout} chevron={false} />
-        <ListRow
-          label="Delete account"
-          onPress={confirmDelete}
-          destructive
-          chevron={false}
-        />
-      </View>
-    </Screen>
+        {/* Like Today's tag and season: two sublines, one each side. */}
+        <View style={styles.actions}>
+          <Pressable
+            onPress={confirmLogout}
+            accessibilityRole="button"
+            hitSlop={12}
+            style={({ pressed }) => pressed && styles.pressed}
+          >
+            <Text style={styles.action}>Log out</Text>
+          </Pressable>
+          <Pressable
+            onPress={confirmDelete}
+            accessibilityRole="button"
+            hitSlop={12}
+            style={({ pressed }) => pressed && styles.pressed}
+          >
+            <Text style={[styles.action, styles.destructive]}>Delete account</Text>
+          </Pressable>
+        </View>
+      </BottomPanel>
+    </SoftScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  email: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    color: colors.secondary,
+  menu: {
+    flex: 1,
+    paddingTop: space.xs,
+    gap: space.sm,
   },
   actions: {
-    marginTop: spacing.xl,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: space.sm,
+  },
+  action: type.menuText,
+  destructive: {
+    color: semantic.error,
+  },
+  pressed: {
+    opacity: 0.5,
   },
 });

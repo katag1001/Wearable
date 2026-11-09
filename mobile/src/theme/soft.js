@@ -110,6 +110,13 @@ export const noteTints = {
   trend: accent.mid,
 };
 
+// The dots on Profile's menu boxes (ui/ListRow).
+export const menuTints = {
+  weekly: mid.sky,
+  style: loved.mid,
+  settings: accent.mid,
+};
+
 // The full iridescent run - selection halo, temperature track, bubbles.
 export const iridescent = [mid.blush, mid.lavender, mid.sky, mid.mint, mid.peach];
 
@@ -261,6 +268,26 @@ export const type = {
     fontSize: textSizes.md,
     lineHeight: 20,
     color: ink.soft,
+  },
+  // Profile: its title (smaller than a tab page's), and each menu box's
+  // name and the small-caps line under it.
+  menuTitle: {
+    fontFamily: fonts.light,
+    fontSize: textSizes.h5,
+    lineHeight: 26,
+    color: ink.main,
+  },
+  menuLabel: {
+    fontFamily: fonts.light,
+    fontSize: textSizes.lg,
+    lineHeight: 22,
+    color: ink.main,
+  },
+  menuText: {
+    ...SMALL_CAPS,
+    fontSize: textSizes.xxs,
+    lineHeight: 16,
+    letterSpacing: 1.2,
   },
   // ui/SectionTitle and the line under it.
   sectionTitle: {

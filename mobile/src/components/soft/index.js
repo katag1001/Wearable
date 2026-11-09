@@ -10,6 +10,7 @@ export { softHeader } from "./headerOptions";
 export { useHeaderSpace } from "./useHeaderSpace";
 export { LoopingRow } from "./LoopingRow";
 export { PageHeader } from "./PageHeader";
+export { BottomPanel, panelPage, TopPanel } from "./Panels";
 export { PressableScale } from "./PressableScale";
 export {
   PULL_UP_PEEK,

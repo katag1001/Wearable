@@ -27,7 +27,9 @@ const withHeader = (options = {}) => ({
 export default function TabStack() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="profile" options={withHeader({ title: "Profile" })} />
+      {/* No stack header: Profile draws its own back arrow in its top
+          panel, like Today. */}
+      <Stack.Screen name="profile" />
       <Stack.Screen
         name="account/weekly"
         options={withHeader({ title: "Weekly preferences" })}

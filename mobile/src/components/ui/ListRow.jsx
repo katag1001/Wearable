@@ -1,44 +1,56 @@
-// A full-width tappable row with an arrow, for menus like the Profile
-// tab. No dividers - rows are spaced; a pressed row nudges right.
-// `destructive` shows it in the error colour (Delete account).
+// A menu item as the house box (context/visual-language.md, like Today's
+// note banner): translucent white, a light top rim, no border. A small dot
+// in `tint`, then a light name over a small-caps line (`text`), and
+// a muted arrow. Squeezes when pressed.
 
 import Feather from "@expo/vector-icons/Feather";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
-import { colors, fontWeights, spacing, textSizes } from "../../theme/tokens";
+import { continuous, ink, radii, shadows, space, surface, type } from "../../theme/soft";
+import { PressableScale } from "../soft/PressableScale";
 
-export const ListRow = ({ label, onPress, destructive = false, chevron = true }) => (
-  <Pressable
+const DOT = 7;
+
+export const ListRow = ({ label, text, tint, onPress }) => (
+  <PressableScale
     onPress={onPress}
     accessibilityRole="button"
-    style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+    accessibilityLabel={label}
+    accessibilityHint={text}
+    style={styles.box}
   >
-    <Text style={[styles.label, destructive && styles.destructive]}>
-      {label}
-    </Text>
-    {chevron ? (
-      <Feather name="arrow-right" size={18} color={colors.muted} />
-    ) : null}
-  </Pressable>
+    {tint ? <View style={[styles.dot, { backgroundColor: tint }]} /> : null}
+
+    <View style={styles.words}>
+      <Text style={styles.label}>{label}</Text>
+      {text ? <Text style={styles.text}>{text}</Text> : null}
+    </View>
+
+    <Feather name="arrow-right" size={18} color={ink.muted} />
+  </PressableScale>
 );
 
 const styles = StyleSheet.create({
-  row: {
-    minHeight: 56,
+  box: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: spacing.md,
+    gap: space.sm,
+    paddingVertical: space.md,
+    paddingHorizontal: space.md,
+    borderRadius: radii.tile,
+    ...continuous,
+    backgroundColor: surface.veil,
+    boxShadow: shadows.raised,
   },
-  pressed: {
-    transform: [{ translateX: 6 }],
+  dot: {
+    width: DOT,
+    height: DOT,
+    borderRadius: DOT / 2,
   },
-  label: {
-    fontFamily: fontWeights.regular,
-    fontSize: textSizes.xl,
-    color: colors.main,
+  words: {
+    flex: 1,
+    gap: space.xxs,
   },
-  destructive: {
-    color: colors.error,
-  },
+  label: type.menuLabel,
+  text: type.menuText,
 });
