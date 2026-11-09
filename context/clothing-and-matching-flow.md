@@ -819,6 +819,13 @@ never matches automatically. The saved outfit gets exactly the tags every
 item has (`computeMatchTags`). For example, `Work, Everyday` + `Everyday`
 matches with tags `Everyday`, while `Work` + `Party` doesn't match.
 
+Outers only count if their subtype is in `TAGGED_OUTERS`
+(`server/constants/outerTags.js`: blazers, shacket, fleece, denim and
+leather jacket, poncho). These count exactly like a top. Every other outer
+(`UNTAGGED_OUTERS`, coats and most jackets) goes over whatever is
+underneath, so its tags are ignored. To switch a subtype, move it to the
+other list and run `rematchAll.js`.
+
 ### 3.9 Temperature rule
 
 `computePresetTemperatureRange` (`server/services/presetTemperatureService.js`)
