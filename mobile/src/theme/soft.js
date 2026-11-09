@@ -103,6 +103,13 @@ export const choiceTints = {
   choosePhoto: wash.sky,
 };
 
+// The dots on Today's note banner (today/NoteBanner): tights are for the
+// cold (sky), trends are the app's own (accent).
+export const noteTints = {
+  tights: mid.sky,
+  trend: accent.mid,
+};
+
 // The full iridescent run - selection halo, temperature track, bubbles.
 export const iridescent = [mid.blush, mid.lavender, mid.sky, mid.mint, mid.peach];
 
@@ -283,8 +290,8 @@ export const type = {
     fontSize: textSizes.xxs,
     lineHeight: 16,
   },
-  // Today's round note bubble. Regular rather than light, so it reads
-  // darker over the photos.
+  // Today's note banner. Regular rather than light, so it reads clearly
+  // on the translucent white.
   note: {
     fontFamily: fonts.regular,
     fontSize: textSizes.sm,

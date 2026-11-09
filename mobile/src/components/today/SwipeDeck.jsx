@@ -9,6 +9,9 @@
 // card only slides in once it has changed - so the card leaving never
 // slides back in for the moment before the new one is drawn.
 //
+// `header`: shown across the top of the deck (over the arrows too), sliding
+// sideways with the card - e.g. Today's note banner.
+//
 // Built on PanResponder + Animated, so no gesture library is needed.
 
 import { useEffect, useLayoutEffect, useRef } from "react";
@@ -37,6 +40,7 @@ const MAX_TILT = 10; // degrees, at a full screen width of drag
 // squeezed width, so nothing hangs over the edge.
 const ARROW_SIZE = 36;
 const ARROW_SQUEEZE = 0.75;
+const ARROW_SLOT = Math.ceil(ARROW_SIZE * ARROW_SQUEEZE);
 
 const Arrow = ({ name, label, onPress, hidden }) => (
   <Pressable
@@ -67,6 +71,7 @@ export const SwipeDeck = ({
   noun,
   fill = false,
   cardKey,
+  header,
   children,
 }) => {
   const x = useRef(new Animated.Value(0)).current;
@@ -171,7 +176,7 @@ export const SwipeDeck = ({
     outputRange: [`-${MAX_TILT}deg`, "0deg", `${MAX_TILT}deg`],
   });
 
-  return (
+  const deck = (
     <View style={[styles.deck, fill && styles.fill]}>
       <Arrow
         name="chevron-left"
@@ -195,6 +200,20 @@ export const SwipeDeck = ({
       />
     </View>
   );
+
+  if (!header) return deck;
+
+  // The header across the top, arrows and all, sliding with the card (no
+  // tilt). Its own box is the full width, so on Android its edges still
+  // take taps - they'd be lost hanging out of the card.
+  return (
+    <View style={fill && styles.fill}>
+      <Animated.View style={{ transform: [{ translateX: x }] }} {...pan.panHandlers}>
+        {header}
+      </Animated.View>
+      {deck}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -212,7 +231,7 @@ const styles = StyleSheet.create({
   },
   // Above the card, so a dragged card slides underneath them.
   arrow: {
-    width: Math.ceil(ARROW_SIZE * ARROW_SQUEEZE),
+    width: ARROW_SLOT,
     alignItems: "center",
     justifyContent: "center",
     zIndex: 1,
