@@ -3,18 +3,19 @@
 // the middle, if it has one). Any hint is shown with the question by the
 // screen using it. Numbered
 // segments by default; `smooth` shows a sliding thumb instead
-// (temperature, seasonality).
+// (temperature, seasonality), on a rail graded through `run` (temperature
+// by default - ui/PointSlider).
 
 import { StyleSheet, Text, View } from "react-native";
 
 import { fivePointScale } from "@core/constants/styleQuizOptions.js";
 
-import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
+import { space, type } from "../../theme/soft";
 import { PointSlider, SegmentedControl } from "../ui";
 
 const OPTIONS = fivePointScale.map((point) => ({ key: String(point), label: String(point) }));
 
-export const PointScale = ({ question, value, onChange, smooth = false }) => (
+export const PointScale = ({ question, value, onChange, smooth = false, run }) => (
   <View style={styles.scale}>
     {smooth ? (
       <PointSlider
@@ -22,6 +23,7 @@ export const PointScale = ({ question, value, onChange, smooth = false }) => (
         value={value}
         onChange={onChange}
         label={question.title}
+        run={run}
       />
     ) : (
       <SegmentedControl
@@ -42,18 +44,16 @@ export const PointScale = ({ question, value, onChange, smooth = false }) => (
 
 const styles = StyleSheet.create({
   scale: {
-    gap: spacing.sm,
+    gap: space.xs,
   },
   labels: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: spacing.sm,
+    gap: space.xs,
   },
   label: {
+    ...type.caption,
     flex: 1,
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.small,
-    color: colors.secondary,
   },
   low: {
     textAlign: "left",

@@ -13,7 +13,7 @@ import { useAnalysedItemReview } from "@core/hooks/useAnalysedItemReview.js";
 import { useWardrobeItemForm } from "@core/hooks/useWardrobeItemForm.js";
 import { WARDROBE_KINDS } from "@core/wardrobe/itemKinds.js";
 
-import { spacing } from "../../theme/tokens";
+import { space } from "../../theme/soft";
 import { Button, FieldRow, ImageTile, Message, TextField } from "../ui";
 import {
   ColoursField,
@@ -110,7 +110,7 @@ export const AnalysedItemReview = ({
 
 const styles = StyleSheet.create({
   actions: {
-    gap: spacing.sm,
-    marginTop: spacing.sm,
+    gap: space.xs,
+    marginTop: space.xs,
   },
 });

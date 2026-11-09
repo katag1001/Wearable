@@ -1,18 +1,12 @@
-// A labelled text input: a small spaced-capitals label over a soft white
-// field with no border, glowing lavender while focused. Any TextInput prop
+// A labelled text input: a small spaced-capitals label over a field in the
+// house white with no border, glowing lavender while focused. Any TextInput prop
 // (secureTextEntry, keyboardType, autoComplete...) passes straight through.
 
 import { useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  spacing,
-} from "../../theme/tokens";
-import { boxEdge, shadows, type } from "../../theme/soft";
+import { colors } from "../../theme/tokens";
+import { boxEdge, radii, shadows, space, surface, type } from "../../theme/soft";
 
 export const TextField = ({ label, style, onFocus, onBlur, ...inputProps }) => {
   const [focused, setFocused] = useState(false);
@@ -40,20 +34,18 @@ export const TextField = ({ label, style, onFocus, onBlur, ...inputProps }) => {
 
 const styles = StyleSheet.create({
   field: {
-    gap: spacing.sm,
+    gap: space.xs,
   },
   label: {
     ...type.eyebrow,
   },
   input: {
-    borderRadius: radius.md,
+    borderRadius: radii.input,
     borderCurve: "continuous",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md + 2,
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    color: colors.main,
-    backgroundColor: colors.fieldBackground,
+    paddingHorizontal: space.md,
+    paddingVertical: space.sm + 2,
+    ...type.input,
+    backgroundColor: surface.veil,
     ...boxEdge,
   },
   focused: {

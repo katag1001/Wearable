@@ -1,45 +1,26 @@
-// The top line of a tab page - "Hey Katy", "Wardrobe (24)", "Outfits" - in
-// the same type and size everywhere, with an optional plain icon button
-// on the right (no circle). Place it first in the page, inside the page's
-// gutter. `count` shows after the title, smaller. `onBack` adds a plain
-// back arrow before the title (pages opened on top, like Profile).
-// `small` sets a smaller title and icons (Profile).
+// The top line of a page - "Hey Katy", "Wardrobe (24)", "Add" - in the
+// same type and size on every tab page, with an optional plain icon
+// button on the right (soft/IconButton, no circle). Place it first in the
+// page, inside the page's gutter. `count` shows after the title, in the
+// same light type, muted. `onBack` adds the plain back arrow before the
+// title (soft/BackButton). `small` sets the smaller title of a page opened
+// from another (Profile, Settings, Add item...); the icons stay the same
+// size everywhere.
 
-import Feather from "@expo/vector-icons/Feather";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { ink, space, type } from "../../theme/soft";
+import { BackButton } from "./BackButton";
+import { IconButton } from "./IconButton";
 
 export const PageHeader = ({ title, count, icon, iconLabel, onIconPress, onBack, small = false }) => (
   <View style={styles.row}>
-    {onBack ? (
-      <Pressable
-        onPress={onBack}
-        accessibilityRole="button"
-        accessibilityLabel="Back"
-        hitSlop={12}
-        style={({ pressed }) => pressed && styles.pressed}
-      >
-        <Feather name="arrow-left" size={small ? 20 : 24} color={ink.soft} />
-      </Pressable>
-    ) : null}
-
+    {onBack ? <BackButton onPress={onBack} /> : null}
     <Text style={[styles.title, small && styles.smallTitle]} numberOfLines={1}>
       {title}
       {count ? <Text style={styles.count}> ({count})</Text> : null}
     </Text>
-
-    {icon ? (
-      <Pressable
-        onPress={onIconPress}
-        accessibilityRole="button"
-        accessibilityLabel={iconLabel}
-        hitSlop={12}
-        style={({ pressed }) => pressed && styles.pressed}
-      >
-        <Feather name={icon} size={small ? 20 : 24} color={ink.soft} />
-      </Pressable>
-    ) : null}
+    {icon ? <IconButton icon={icon} label={iconLabel} onPress={onIconPress} /> : null}
   </View>
 );
 
@@ -56,9 +37,6 @@ const styles = StyleSheet.create({
   },
   smallTitle: type.menuTitle,
   count: {
-    ...type.body,
-  },
-  pressed: {
-    opacity: 0.5,
+    color: ink.muted,
   },
 });

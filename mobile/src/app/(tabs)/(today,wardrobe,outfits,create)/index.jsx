@@ -14,7 +14,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { useTodayLook } from "@core/hooks/useTodayLook.js";
 import { useWeather } from "@core/hooks/useWeather.js";
@@ -32,6 +32,7 @@ import {
   BubbleLoader,
   PageHeader,
   panelPage,
+  PressableScale,
   SoftNote,
   SoftScreen,
   TopPanel,
@@ -44,6 +45,7 @@ import { TagPicker } from "../../../components/today/TagPicker";
 import { useOutfitRebuild } from "../../../outfitRebuild/OutfitRebuildProvider";
 import { useLocation } from "../../../platform/useLocation";
 import { space, type } from "../../../theme/soft";
+import { showDialog } from "../../../components/soft/Dialog";
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -99,7 +101,7 @@ export default function TodayScreen() {
     if (today.notice?.kind === "worn") {
       today.clearNotice();
     } else if (today.notice) {
-      Alert.alert(today.notice.title, today.notice.message, [
+      showDialog(today.notice.title, today.notice.message, [
         { text: "OK", onPress: today.clearNotice },
       ]);
     }
@@ -192,7 +194,7 @@ export default function TodayScreen() {
             <Text style={styles.headline}>{capitalise(getTodayDayOfWeek())}</Text>
             {/* Needs today's weather: a new tag can mean building today's
                 list again. */}
-            <Pressable
+            <PressableScale
               onPress={() => setPickingTag(true)}
               disabled={!weather.weather || today.changingTag}
               accessibilityRole="button"
@@ -200,7 +202,7 @@ export default function TodayScreen() {
               hitSlop={8}
             >
               <Text style={styles.subline}>{tag}</Text>
-            </Pressable>
+            </PressableScale>
           </View>
 
           {weather.weather ? (
@@ -229,7 +231,7 @@ export default function TodayScreen() {
         <SoftNote text={location.error} />
         <SoftNote text={weather.error} />
         {/* When few outfits fit the weather (shared/todayMessages.json). */}
-        <SoftNote text={today.weatherNoticeText} type="success" />
+        <SoftNote text={today.weatherNoticeText} type="info" />
         <OutfitRebuildNote />
 
         <View style={styles.outfit}>{outfitSection()}</View>

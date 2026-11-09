@@ -3,7 +3,7 @@
 
 import { ScrollView, StyleSheet, View } from "react-native";
 
-import { spacing } from "../../theme/tokens";
+import { space } from "../../theme/soft";
 
 export const ChipRow = ({ scroll = false, children }) =>
   scroll ? (
@@ -22,7 +22,7 @@ export const ChipRow = ({ scroll = false, children }) =>
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
-    gap: spacing.sm,
+    gap: space.xs,
   },
   wrap: {
     flexWrap: "wrap",

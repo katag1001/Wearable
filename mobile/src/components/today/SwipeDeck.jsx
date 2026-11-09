@@ -25,8 +25,7 @@ import {
   View,
 } from "react-native";
 
-import { spacing } from "../../theme/tokens";
-import { ink } from "../../theme/soft";
+import { ink, motion, space } from "../../theme/soft";
 
 // How far (px) or fast (px/ms) a drag must go to count as a swipe.
 const SWIPE_DISTANCE = 90;
@@ -119,10 +118,10 @@ export const SwipeDeck = ({
     if (side == null) return;
 
     x.setValue(side * Dimensions.get("window").width);
-    Animated.spring(x, {
+    Animated.timing(x, {
       toValue: 0,
-      speed: 18,
-      bounciness: 4,
+      duration: motion.panel,
+      easing: motion.easing,
       useNativeDriver: true,
     }).start(() => {
       animating.current = false;
@@ -138,9 +137,10 @@ export const SwipeDeck = ({
   useEffect(() => () => clearTimeout(fallback.current), []);
 
   const settle = () =>
-    Animated.spring(x, {
+    Animated.timing(x, {
       toValue: 0,
-      bounciness: 6,
+      duration: motion.press,
+      easing: motion.easing,
       useNativeDriver: true,
     }).start();
 
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   deck: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xs,
+    gap: space.xxs,
   },
   fill: {
     flex: 1,

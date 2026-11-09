@@ -22,12 +22,13 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { trendNoteText } from "@core/today/trendNote.js";
 
 import { handOverOutfit } from "../outfits/outfitHandoff";
-import { space, type } from "../../theme/soft";
+import { space } from "../../theme/soft";
+import { EmptyState } from "../ui/EmptyState";
 import { ActionButton } from "./ActionButton";
 import { NoteBanner } from "./NoteBanner";
 import { OutfitImages } from "./OutfitImages";
@@ -63,11 +64,7 @@ export const OutfitPicker = ({
     const tagWords = today.pickedTag.toLowerCase();
 
     if (!filteredOutfits.length) {
-      return (
-        <Text style={styles.empty}>
-          No {tagWords} outfits that fit today's weather
-        </Text>
-      );
+      return <EmptyState title={`No ${tagWords} outfits that fit today's weather`} />;
     }
 
     // Still a card, so swiping back reaches the last outfit.
@@ -80,18 +77,14 @@ export const OutfitPicker = ({
           noun="outfit"
           fill
         >
-          <View style={styles.endCard}>
-            <Text style={styles.empty}>
-              No more {tagWords} outfits that fit today's weather
-            </Text>
-          </View>
+          <EmptyState title={`No more ${tagWords} outfits that fit today's weather`} />
         </SwipeDeck>
       </View>
     );
   }
 
   if (!outfit) {
-    return <Text style={styles.empty}>No outfits saved for today.</Text>;
+    return <EmptyState title="No outfits saved for today" />;
   }
 
   const trendNote = trendNoteText(outfit.trendNote);
@@ -101,7 +94,7 @@ export const OutfitPicker = ({
   // Tights only on today's list thanks to its tights range; trends (the
   // outfit, or the shoe shown) for users who care a lot about trends.
   const notes = [
-    outfit.withTights ? { key: "tights", kind: "tights", text: "Remember some tights today. It's a bit chilly out 🥶." } : null,
+    outfit.withTights ? { key: "tights", kind: "tights", text: "Remember some tights today. It's a bit chilly out." } : null,
     trendNote ? { key: "trend", kind: "trend", text: trendNote } : null,
     shoeTrendNote ? { key: `shoe-${shoe?._id}`, kind: "trend", text: shoeTrendNote } : null,
   ]
@@ -154,8 +147,7 @@ export const OutfitPicker = ({
         {worn ? (
           // Just the circle: the swap icon says it.
           <ActionButton
-            icon="swap-horizontal"
-            iconSet={MaterialCommunityIcons}
+            icon="repeat"
             label="Change outfit"
             onPress={today.showOutfitPicker}
           />
@@ -204,10 +196,6 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
   },
-  endCard: {
-    flex: 1,
-    justifyContent: "center",
-  },
   // The photos have their backgrounds removed; no tile behind them.
   photo: {
     backgroundColor: "transparent",
@@ -227,10 +215,5 @@ const styles = StyleSheet.create({
   },
   hearts: {
     gap: space.sm,
-  },
-  empty: {
-    ...type.body,
-    textAlign: "center",
-    paddingVertical: space.lg,
   },
 });

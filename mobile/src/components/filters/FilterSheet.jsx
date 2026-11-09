@@ -68,7 +68,9 @@ export const FilterSheet = ({
     >
       {showItemFilter && (
         <Button
-          label={byItem ? "‹ Other filters" : "Filter by item ›"}
+          label={byItem ? "Other filters" : "Filter by item"}
+          icon={byItem ? "chevron-left" : "chevron-right"}
+          iconPosition={byItem ? "start" : "end"}
           variant="secondary"
           onPress={() => panel.setView(byItem ? "main" : "items")}
         />
@@ -90,7 +92,7 @@ export const FilterSheet = ({
 
           {showSeasons && (
             <>
-              <SectionTitle title="Season" />
+              <SectionTitle title="Season" field />
               <ChipRow>
                 {panel.seasons.map((season) => (
                   <Chip
@@ -106,7 +108,7 @@ export const FilterSheet = ({
 
           {showTemperature && (
             <>
-              <SectionTitle title="Temperature" />
+              <SectionTitle title="Temperature" field />
               <RangeSlider
                 min={FILTER_TEMPERATURE_RANGE.min}
                 max={FILTER_TEMPERATURE_RANGE.max}
@@ -119,7 +121,7 @@ export const FilterSheet = ({
 
           {showColors && (
             <>
-              <SectionTitle title="Colours" />
+              <SectionTitle title="Colours" field />
               <ChipRow>
                 {panel.colors.map((color) => (
                   <Chip
@@ -136,7 +138,7 @@ export const FilterSheet = ({
 
           {showPatterns && (
             <>
-              <SectionTitle title="Pattern" />
+              <SectionTitle title="Pattern" field />
               <ChipRow>
                 {panel.patterns.map((pattern) => (
                   <Chip
@@ -152,7 +154,7 @@ export const FilterSheet = ({
 
           {showTags && (
             <>
-              <SectionTitle title="Tags" />
+              <SectionTitle title="Tags" field />
               <ChipRow>
                 {panel.tags.map((tag) => (
                   <Chip

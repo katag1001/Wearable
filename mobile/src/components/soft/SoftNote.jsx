@@ -1,36 +1,27 @@
-// An inline notice on a soft tint, no border: "error" (rose-clay on blush)
-// or "success" (sage on mint). Renders nothing without text. The soft
-// ui/Message.
+// A one-line note, as the house box with a dot like Today's note banner:
+// "error" (a rose-clay dot and line), "success" (a mint dot - something
+// done) or "info" (the app's lavender dot - news, e.g. "Updating your
+// outfits…"). Renders nothing without text.
 
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, View } from "react-native";
 
-import { continuous, radii, semantic, space, type } from "../../theme/soft";
+import { houseBox, space } from "../../theme/soft";
+import { NoteRow } from "./NoteRow";
 
 export const SoftNote = ({ text, type: kind = "error" }) => {
   if (!text) return null;
 
   return (
-    <Text style={[styles.note, styles[kind]]} accessibilityLiveRegion="polite">
-      {text}
-    </Text>
+    <View style={styles.note} accessibilityLiveRegion="polite">
+      <NoteRow kind={kind} text={text} />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   note: {
-    ...type.small,
-    ...continuous,
-    borderRadius: radii.tile,
-    paddingHorizontal: space.md,
     paddingVertical: space.sm,
-    overflow: "hidden",
-  },
-  error: {
-    backgroundColor: semantic.errorWash,
-    color: semantic.error,
-  },
-  success: {
-    backgroundColor: semantic.successWash,
-    color: semantic.success,
+    paddingHorizontal: space.md,
+    ...houseBox,
   },
 });

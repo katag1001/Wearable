@@ -4,9 +4,9 @@
 import { Children } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { spacing } from "../../theme/tokens";
+import { space } from "../../theme/soft";
 
-export const Grid = ({ columns = 2, gap = spacing.md, children }) => (
+export const Grid = ({ columns = 2, gap = space.sm, children }) => (
   <View style={[styles.grid, { marginHorizontal: -gap / 2 }]}>
     {Children.map(children, (child) =>
       child ? (

@@ -7,7 +7,7 @@
 
 import { StyleSheet, View } from "react-native";
 
-import { spacing } from "../../theme/tokens";
+import { space } from "../../theme/soft";
 import { Button, Message, TextField } from "../ui";
 import { ItemDetailsPage } from "./ItemDetailsPage";
 import { PhotoPicker } from "./PhotoPicker";
@@ -69,8 +69,8 @@ export const ItemForm = ({
 const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
-    gap: spacing.md,
-    marginTop: spacing.sm,
+    gap: space.sm,
+    marginTop: space.xs,
   },
   action: {
     flex: 1,

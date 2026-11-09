@@ -1,20 +1,22 @@
 // A one-thumb slider over a few fixed points (the 1-5 scales).
-// The thumb follows the finger smoothly and springs to the nearest point
-// on release; tapping the track jumps there. The track is graded cold to
-// warm (sky → mint → peach) with a small mark at each point, and the thumb
-// is a white bubble like RangeSlider's. Screen readers step point by point.
+// The thumb follows the finger smoothly and eases to the nearest point on
+// release; tapping the track jumps there. The rail (ui/SliderRail) is
+// graded through `run` - temperatureRun (cold to warm) by default, scaleRun
+// for scales where cold and warm mean nothing - with a small mark at each
+// point, and the thumb is a white bubble like RangeSlider's. Screen
+// readers step point by point.
 
 import { useEffect, useRef, useState } from "react";
 import { Animated, PanResponder, StyleSheet, View } from "react-native";
-import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 
-import { colors, radius, shadows } from "../../theme/tokens";
-import { temperatureRun } from "../../theme/soft";
+import { colors } from "../../theme/tokens";
+import { motion, shadows, temperatureRun } from "../../theme/soft";
+import { SliderRail } from "./SliderRail";
 
 const THUMB = 28;
 const MARK = 6;
 
-export const PointSlider = ({ points, value, onChange, label }) => {
+export const PointSlider = ({ points, value, onChange, label, run = temperatureRun }) => {
   const [trackWidth, setTrackWidth] = useState(0);
   const thumbX = useRef(new Animated.Value(0)).current;
   const dragging = useRef(false);
@@ -38,7 +40,12 @@ export const PointSlider = ({ points, value, onChange, label }) => {
     const point = nearestPoint(x);
 
     dragging.current = false;
-    Animated.spring(thumbX, { toValue: toX(point), useNativeDriver: true, bounciness: 4 }).start();
+    Animated.timing(thumbX, {
+      toValue: toX(point),
+      duration: motion.press,
+      easing: motion.easing,
+      useNativeDriver: true,
+    }).start();
 
     if (point !== latest.current.value) {
       latest.current.onChange(point);
@@ -91,18 +98,7 @@ export const PointSlider = ({ points, value, onChange, label }) => {
         onLayout={(event) => setTrackWidth(event.nativeEvent.layout.width)}
         style={styles.track}
       >
-        <View style={styles.rail} pointerEvents="none">
-          <Svg width="100%" height="100%">
-            <Defs>
-              <LinearGradient id="pointTrack" x1="0" y1="0" x2="1" y2="0">
-                <Stop offset="0" stopColor={temperatureRun[0]} />
-                <Stop offset="0.5" stopColor={temperatureRun[1]} />
-                <Stop offset="1" stopColor={temperatureRun[2]} />
-              </LinearGradient>
-            </Defs>
-            <Rect width="100%" height="100%" rx={3} fill="url(#pointTrack)" />
-          </Svg>
-        </View>
+        <SliderRail run={run} />
 
         {trackWidth
           ? points.map((point) => (
@@ -133,11 +129,6 @@ const styles = StyleSheet.create({
   track: {
     height: THUMB + 8,
     justifyContent: "center",
-  },
-  rail: {
-    height: 6,
-    borderRadius: radius.pill,
-    overflow: "hidden",
   },
   mark: {
     position: "absolute",

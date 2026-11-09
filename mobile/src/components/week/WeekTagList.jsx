@@ -1,25 +1,22 @@
-// The seven days down the side, each with a box showing its tag. Tapping
+// The seven days down the side, each with a box showing its tag - house
+// boxes with light names, like Profile's menu boxes; a day with no tag
+// shows "Choose a tag" muted. Tapping
 // a tag box opens a sheet with every tag, grouped; picking one sets it
 // for that day and closes the sheet. The day's tag can be cleared there.
 // A switch above the days sets Mon-Fri the same (useSameWeekdays).
 
 import Feather from "@expo/vector-icons/Feather";
 import { useState } from "react";
-import { Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import { StyleSheet, Switch, Text, View } from "react-native";
 
 import { tagGroups } from "@core/constants/optionsBank.js";
 import { weekDays } from "@core/constants/weekDays.js";
 import { useSameWeekdays } from "@core/hooks/useSameWeekdays.js";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  spacing,
-} from "../../theme/tokens";
-import { accent, boxEdge } from "../../theme/soft";
-import { Button, Chip, ChipRow, Sheet } from "../ui";
+import { colors } from "../../theme/tokens";
+import { accent, houseBox, iconSizes, space, type } from "../../theme/soft";
+import { PressableScale } from "../soft/PressableScale";
+import { Button, Chip, ChipRow, SectionTitle, Sheet } from "../ui";
 
 export const WeekTagList = ({ weeklyTags, onTagChange }) => {
   const [openDay, setOpenDay] = useState(null);
@@ -59,16 +56,11 @@ export const WeekTagList = ({ weeklyTags, onTagChange }) => {
               <Text style={styles.dayName}>{day.label}</Text>
             </View>
 
-            <Pressable
+            <PressableScale
               onPress={() => setOpenDay(day.key)}
               accessibilityRole="button"
               accessibilityLabel={`${day.label}: ${tagName || "no tag"}`}
-              style={({ pressed }) => [
-                styles.box,
-                styles.tagBox,
-                tagName && styles.tagBoxSet,
-                pressed && styles.pressed,
-              ]}
+              style={[styles.box, styles.tagBox]}
             >
               <Text
                 style={[styles.tagName, !tagName && styles.placeholder]}
@@ -76,8 +68,8 @@ export const WeekTagList = ({ weeklyTags, onTagChange }) => {
               >
                 {tagName || "Choose a tag"}
               </Text>
-              <Feather name="chevron-down" size={18} color={colors.muted} />
-            </Pressable>
+              <Feather name="chevron-down" size={iconSizes.small} color={colors.muted} />
+            </PressableScale>
           </View>
         );
       })}
@@ -98,7 +90,7 @@ export const WeekTagList = ({ weeklyTags, onTagChange }) => {
       >
         {tagGroups.map(({ group, tags }) => (
           <View key={group} style={styles.group}>
-            <Text style={styles.groupName}>{group}</Text>
+            <SectionTitle description={group} />
             <ChipRow>
               {tags.map((name) => (
                 <Chip
@@ -118,20 +110,17 @@ export const WeekTagList = ({ weeklyTags, onTagChange }) => {
 
 const styles = StyleSheet.create({
   list: {
-    gap: spacing.sm,
+    gap: space.xs,
   },
   row: {
     flexDirection: "row",
-    gap: spacing.sm,
+    gap: space.xs,
   },
   box: {
     minHeight: 50,
-    borderRadius: radius.md,
-    borderCurve: "continuous",
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.cardBackground,
-    ...boxEdge,
+    paddingHorizontal: space.sm,
     justifyContent: "center",
+    ...houseBox,
   },
   dayBox: {
     width: 116,
@@ -141,24 +130,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: spacing.sm,
+    gap: space.xs,
   },
-  tagBoxSet: {
-    backgroundColor: colors.selected,
-  },
-  pressed: {
-    opacity: 0.8,
-  },
-  dayName: {
-    fontFamily: fontWeights.medium,
-    fontSize: fontSizes.body,
-    color: colors.main,
-  },
+  dayName: type.menuLabel,
   tagName: {
+    ...type.menuLabel,
     flex: 1,
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    color: colors.main,
   },
   placeholder: {
     color: colors.muted,
@@ -167,19 +144,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: spacing.xs,
+    marginBottom: space.xxs,
   },
-  sameLabel: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    color: colors.main,
-  },
+  sameLabel: type.menuLabel,
   group: {
-    gap: spacing.sm,
-  },
-  groupName: {
-    fontFamily: fontWeights.semibold,
-    fontSize: fontSizes.small,
-    color: colors.secondary,
+    gap: space.xs,
   },
 });

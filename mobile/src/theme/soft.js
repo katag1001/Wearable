@@ -92,8 +92,22 @@ export const loved = {
   deep: deep.blush,
 };
 
-// The 1-5 point sliders' track (ui/PointSlider), cold to warm.
+// The hearts: a favourite's filled heart (ui/FavouriteHeart), and the
+// round wear button once the outfit is worn (today/ActionButton's
+// `active`) - filled in the blush mid with a white heart.
+export const hearts = {
+  favourite: mid.blush,
+  worn: mid.blush,
+  wornIcon: surface.white,
+};
+
+// Every temperature slider's track (ui/PointSlider, ui/RangeSlider), cold
+// to warm.
 export const temperatureRun = [mid.sky, mid.mint, mid.peach];
+
+// The other 1-5 scales' track (seasonality, trends): the app's own colour,
+// flat - cold and warm mean nothing there.
+export const scaleRun = [accent.mid, accent.mid, accent.mid];
 
 // The icon circles on the big choice cards (ui/ActionCard).
 export const choiceTints = {
@@ -103,11 +117,15 @@ export const choiceTints = {
   choosePhoto: wash.sky,
 };
 
-// The dots on Today's note banner (today/NoteBanner): tights are for the
-// cold (sky), trends are the app's own (accent).
+// The dots on the app's notes (soft/NoteRow): Today's tights note is for
+// the cold (sky), trends and plain news are the app's own (accent),
+// success is fresh (mint) and errors are rose-clay.
 export const noteTints = {
   tights: mid.sky,
   trend: accent.mid,
+  info: accent.mid,
+  success: mid.mint,
+  error: "#9A4E5C",
 };
 
 // The dots on Profile's menu boxes (ui/ListRow).
@@ -147,7 +165,7 @@ export const atmosphereMix = {
 };
 
 export const semantic = {
-  error: "#9A4E5C",
+  error: noteTints.error,
   errorWash: wash.blush,
   success: "#52705F",
   successWash: wash.mint,
@@ -176,11 +194,10 @@ export const textSizes = {
   h3: 24,
   h2: 26,
   h1: 30,
-  display: 40,
-  accent: 44,
 };
 
-// Light spaced capitals: Today's tag and season line, and chip labels.
+// Light spaced capitals: Today's tag and season line, text actions and
+// chip labels.
 const SMALL_CAPS = {
   fontFamily: fonts.light,
   fontSize: textSizes.xs,
@@ -199,26 +216,6 @@ export const type = {
     letterSpacing: -0.3,
     color: ink.main,
   },
-  display: {
-    fontFamily: fonts.light,
-    fontSize: textSizes.display,
-    lineHeight: 44,
-    letterSpacing: -0.5,
-    color: ink.main,
-  },
-  // One word per screen at most.
-  accent: {
-    fontFamily: fonts.serifItalic,
-    fontSize: textSizes.accent,
-    lineHeight: 48,
-    color: ink.main,
-  },
-  title: {
-    fontFamily: fonts.regular,
-    fontSize: textSizes.h2,
-    lineHeight: 32,
-    color: ink.main,
-  },
   // Small spaced capitals: field labels, step counts, loading text.
   eyebrow: {
     fontFamily: fonts.light,
@@ -227,12 +224,33 @@ export const type = {
     textTransform: "uppercase",
     color: ink.muted,
   },
+  // Paragraphs and single lines of explanation.
   body: {
     fontFamily: fonts.regular,
     fontSize: textSizes.base,
     lineHeight: 22,
     color: ink.soft,
   },
+  // A bold part inside body text (spread over it).
+  emphasis: {
+    fontFamily: fonts.semibold,
+    color: ink.main,
+  },
+  // Small print: slider values, scale ends, group names in tag lists,
+  // placeholders and a section's line of description.
+  caption: {
+    fontFamily: fonts.regular,
+    fontSize: textSizes.sm,
+    lineHeight: 19,
+    color: ink.soft,
+  },
+  // What's typed into a text field.
+  input: {
+    fontFamily: fonts.regular,
+    fontSize: textSizes.base,
+    color: ink.main,
+  },
+  // Pill button labels (ui/Button).
   label: {
     fontFamily: fonts.semibold,
     fontSize: textSizes.sm,
@@ -240,17 +258,15 @@ export const type = {
     textTransform: "uppercase",
     color: ink.main,
   },
-  small: {
-    fontFamily: fonts.medium,
-    fontSize: textSizes.xs,
-    lineHeight: 16,
-    color: ink.soft,
-  },
-  // The title of a stacked screen (ui/Screen) and a style quiz question.
+  // A small secondary action drawn as plain text, like Today's tappable
+  // tag line: Skip, Change, Show all, Cancel, Back, Log out (ui/TextAction).
+  textAction: SMALL_CAPS,
+  // The title of a stacked screen (ui/Screen) and a style quiz question:
+  // the same size as Today's "Hey Katy" (pageTitle).
   screenTitle: {
     fontFamily: fonts.light,
-    fontSize: textSizes.h1,
-    lineHeight: 36,
+    fontSize: textSizes.h2,
+    lineHeight: 32,
     letterSpacing: -0.3,
     color: ink.main,
   },
@@ -261,21 +277,16 @@ export const type = {
     lineHeight: 30,
     color: ink.main,
   },
-  // The big choice cards and empty states.
+  // Empty states.
   cardTitle: {
     fontFamily: fonts.light,
     fontSize: textSizes.h4,
     lineHeight: 28,
     color: ink.main,
   },
-  cardText: {
-    fontFamily: fonts.regular,
-    fontSize: textSizes.md,
-    lineHeight: 20,
-    color: ink.soft,
-  },
-  // Profile: its title (smaller than a tab page's), and each menu box's
-  // name and the small-caps line under it.
+  // The title of a page opened from another (Profile, Settings, Add
+  // item...) - in its top panel or the stack header - smaller than a tab
+  // page's. Then each box's name and the small-caps line under it.
   menuTitle: {
     fontFamily: fonts.light,
     fontSize: textSizes.h5,
@@ -294,18 +305,13 @@ export const type = {
     lineHeight: 16,
     letterSpacing: 1.2,
   },
-  // ui/SectionTitle and the line under it.
+  // A heading over prose (ui/SectionTitle - Settings' sections). Light,
+  // like every large line.
   sectionTitle: {
-    fontFamily: fonts.regular,
+    fontFamily: fonts.light,
     fontSize: textSizes.h5,
     lineHeight: 26,
     color: ink.main,
-  },
-  sectionText: {
-    fontFamily: fonts.regular,
-    fontSize: textSizes.sm,
-    lineHeight: 19,
-    color: ink.soft,
   },
   // Today: the weekday and temperature, and the tag and season under them.
   todayHeadline: {
@@ -315,15 +321,14 @@ export const type = {
     color: ink.main,
   },
   todaySubline: SMALL_CAPS,
-  // Chip labels (quick filters, choices): Today's season line, a size
-  // smaller.
+  // Chip and segment labels: Today's season line, a size smaller.
   chipLabel: {
     ...SMALL_CAPS,
     fontSize: textSizes.xxs,
     lineHeight: 16,
   },
-  // Today's note banner. Regular rather than light, so it reads clearly
-  // on the translucent white.
+  // A line in a note (soft/NoteRow). Regular rather than light, so it
+  // reads clearly on the translucent white.
   note: {
     fontFamily: fonts.regular,
     fontSize: textSizes.sm,
@@ -341,15 +346,15 @@ export const type = {
   },
 };
 
-// The portfolio's scale, plus the page's side margin.
+// The app's one spacing scale, plus the page's side margin.
 export const space = {
   xxs: 4,
   xs: 8,
   sm: 12,
   md: 18,
-  lg: 28,
-  xl: 48,
-  xxl: 72,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
   // The page's side margin, and the space above its first line (under the
   // safe area).
   gutter: 24,
@@ -364,6 +369,23 @@ export const radii = {
   pill: 999,
 };
 
+// Plain icons (soft/IconButton): headers, close crosses and the icons in a
+// photo's corner are regular; arrows in boxes, a note's cross and the
+// hearts on a card are small; a tick's check and a chip's icon are tiny.
+export const iconSizes = {
+  regular: 24,
+  small: 18,
+  tiny: 14,
+};
+
+// The breathing bubble (soft/BubbleLoader) when it isn't filling a page:
+// inside a button or on a photo still loading (small), or in a list's
+// footer, a row or a sheet (medium).
+export const loaderSizes = {
+  small: 28,
+  medium: 40,
+};
+
 // Squircle corners on iOS (ignored on Android).
 export const continuous = { borderCurve: "continuous" };
 
@@ -375,17 +397,13 @@ const TAB_ICON = `0px 4px 14px ${fade(accent.mid, 0.35)}`;
 
 export const shadows = {
   soft: SOFT,
-  lifted: LIFTED,
-  glow: `0px 10px 30px ${fade(loved.mid, 0.38)}`,
-  // Cast upwards, by the tab bar and pull-up panels.
+  // Cast upwards, by the tab bar.
   tabBar: "0px -6px 24px rgba(46, 40, 56, 0.04)",
-  panel: "0px -10px 30px rgba(46, 40, 56, 0.07)",
   // The accent glow under the active tab icon.
   tabIcon: TAB_ICON,
-  // Raised and lit along the top: buttons, cards, choice cards.
+  // Raised and lit along the top: buttons and every box (house boxes,
+  // outfit and item cards, tiles).
   raised: `${SOFT}, ${LIGHT_RIM}`,
-  // A chosen choice card: an accent glow under the light rim.
-  chosen: `0px 10px 28px ${accent.mid}66, ${LIGHT_RIM}`,
   // A text field while typing in it.
   focus: `0px 0px 0px 3px ${accent.mid}66, 0px 8px 22px ${accent.mid}40`,
   // A slider's thumb: lifted, with an accent line along its bottom.
@@ -397,17 +415,15 @@ export const shadows = {
   tick: `${SOFT}, inset 0px 0px 0px 1.5px ${fade(accent.deep, 0.28)}`,
 };
 
-// The edge of the app's boxes - the Today tabs, the item and outfit cards,
-// the search boxes, filter buttons, the Add item /
-// Build outfit cards, field rows and week tags: a 1px rim of light along
-// the top, no drop shadow. Spread it into a style; change it here to
-// change them all.
+// The edge of the panels (Today's tabs, pull-up panels, sheets) and text
+// fields: a 1px rim of light along the top, no drop shadow. Spread it into
+// a style; change it here to change them all.
 export const boxEdge = {
   boxShadow: LIGHT_RIM,
 };
 
-// The house box (context/visual-language.md): Today's note banner,
-// Profile's menu boxes and the + tab's choice cards. Translucent white,
+// The house box (context/visual-language.md): every note, Profile's menu
+// boxes, the choice cards, the weekly day boxes and the selection bar. Translucent white,
 // rounded, the soft shadow with its light top rim, no border. Spread it
 // into a style; change it here to change them all.
 export const houseBox = {

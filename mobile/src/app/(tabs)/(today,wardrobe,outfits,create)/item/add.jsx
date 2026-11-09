@@ -11,8 +11,8 @@
 // its background removed and the item form opens with it attached.
 
 import { useEffect, useState } from "react";
-import { Stack } from "expo-router";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import { StyleSheet, Text, View } from "react-native";
 
 import { useAiConsent } from "@core/hooks/useAiConsent.js";
 import { usePhotoAnalysis } from "@core/hooks/usePhotoAnalysis.js";
@@ -20,13 +20,7 @@ import { useWardrobeItemForm } from "@core/hooks/useWardrobeItemForm.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 import { WARDROBE_KIND_LIST } from "@core/wardrobe/itemKinds.js";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  spacing,
-} from "../../../../theme/tokens";
-import { choiceTints } from "../../../../theme/soft";
+import { choiceTints, space, type } from "../../../../theme/soft";
 import { pickImage } from "../../../../platform/imagePicker";
 import { BubbleCelebration } from "../../../../components/soft";
 import {
@@ -47,20 +41,21 @@ import {
 } from "../../../../components/wardrobe/itemHandoff";
 import { ItemForm } from "../../../../components/wardrobe/ItemForm";
 import { ItemSaved } from "../../../../components/wardrobe/ItemSaved";
+import { showDialog } from "../../../../components/soft/Dialog";
 
+// A panel page (ui/Screen's pageTitle): the back arrow and title in the top
+// panel, every step in the bottom one.
 const TITLE = "Add item";
+const back = () => router.back();
 
 // The full item form, with just the photo (the analysis failed).
 const ReviewItem = ({ kind, prefill, onSaved, onCancel }) => {
   const form = useWardrobeItemForm({ kind, prefill, onSaved, singlePage: true });
 
   return (
-    <>
-      <Stack.Screen options={{ title: form.title }} />
-      <Screen edges={["bottom"]}>
-        <ItemForm form={form} onCancel={onCancel} />
-      </Screen>
-    </>
+    <Screen pageTitle={form.title} onBack={back}>
+      <ItemForm form={form} onCancel={onCancel} />
+    </Screen>
   );
 };
 
@@ -83,7 +78,7 @@ export default function AddItemScreen() {
   // "More than one item in this photo" (or none).
   useEffect(() => {
     if (flow.notice) {
-      Alert.alert(
+      showDialog(
         flow.notice === "multiple" ? "More than one item" : "No item found",
         flow.noticeText,
         [{ text: "OK", onPress: flow.dismissNotice }],
@@ -101,7 +96,7 @@ export default function AddItemScreen() {
         flow.analysePhoto(image);
       }
     } catch (err) {
-      Alert.alert("Photo", err.message);
+      showDialog("Photo", err.message);
     }
   };
 
@@ -120,21 +115,17 @@ export default function AddItemScreen() {
   // The AI question first - nothing can be added until it's answered.
   if (consent.loading) {
     return (
-      <>
-        <Stack.Screen options={{ title: TITLE }} />
+      <Screen pageTitle={TITLE} onBack={back} scroll={false}>
         <Loading />
-      </>
+      </Screen>
     );
   }
 
   if (consent.showPrompt || consent.showSaved) {
     return (
-      <>
-        <Stack.Screen options={{ title: TITLE }} />
-        <Screen edges={["bottom"]} centered>
-          <AiConsentPrompt consent={consent} />
-        </Screen>
-      </>
+      <Screen pageTitle={TITLE} onBack={back} centered>
+        <AiConsentPrompt consent={consent} />
+      </Screen>
     );
   }
 
@@ -142,21 +133,18 @@ export default function AddItemScreen() {
 
   if (flow.step === "saved") {
     return (
-      <>
-        <Stack.Screen options={{ title: TITLE }} />
-        <View style={styles.fill}>
-          <Screen scroll={false} edges={["bottom"]}>
-            <ItemSaved
-              message={flow.savedItem.message}
-              itemId={flow.savedItem.id}
-              hasMatches={flow.savedItem.hasMatches}
-              onAddAnother={addAnother}
-            />
-          </Screen>
+      <View style={styles.fill}>
+        <Screen pageTitle={TITLE} onBack={back} scroll={false}>
+          <ItemSaved
+            message={flow.savedItem.message}
+            itemId={flow.savedItem.id}
+            hasMatches={flow.savedItem.hasMatches}
+            onAddAnother={addAnother}
+          />
+        </Screen>
 
-          {celebrating ? <BubbleCelebration onDone={() => setCelebrating(false)} /> : null}
-        </View>
-      </>
+        {celebrating ? <BubbleCelebration onDone={() => setCelebrating(false)} /> : null}
+      </View>
     );
   }
 
@@ -164,10 +152,9 @@ export default function AddItemScreen() {
 
   if (flow.step === "analysing") {
     return (
-      <>
-        <Stack.Screen options={{ title: TITLE }} />
-        <Loading text={useAi ? "Analysing your item..." : "Preparing your photo..."} />
-      </>
+      <Screen pageTitle={TITLE} onBack={back} scroll={false}>
+        <Loading text={useAi ? "Analysing your item…" : "Preparing your photo…"} />
+      </Screen>
     );
   }
 
@@ -175,21 +162,18 @@ export default function AddItemScreen() {
 
   if (flow.step === "ready") {
     return (
-      <>
-        <Stack.Screen options={{ title: TITLE }} />
-        <Screen edges={["bottom"]}>
-          <AnalysedItemReview
-            // A new form when the kind is switched.
-            key={flow.kind}
-            kind={flow.kind}
-            prefill={flow.reviewPrefill}
-            photoUri={shownPhoto}
-            onSaved={(saved) => flow.markSaved(saved, flow.kind)}
-            onSwitchKind={flow.switchKind}
-            onChooseAnotherPhoto={flow.restart}
-          />
-        </Screen>
-      </>
+      <Screen pageTitle={TITLE} onBack={back}>
+        <AnalysedItemReview
+          // A new form when the kind is switched.
+          key={flow.kind}
+          kind={flow.kind}
+          prefill={flow.reviewPrefill}
+          photoUri={shownPhoto}
+          onSaved={(saved) => flow.markSaved(saved, flow.kind)}
+          onSwitchKind={flow.switchKind}
+          onChooseAnotherPhoto={flow.restart}
+        />
+      </Screen>
     );
   }
 
@@ -213,52 +197,49 @@ export default function AddItemScreen() {
   ) : null;
 
   return (
-    <>
-      <Stack.Screen options={{ title: TITLE }} />
-      <Screen edges={["bottom"]} centered={flow.step === "pick"}>
-        {flow.step === "pick" && (
-          <>
-            <ActionCards>
-              <ActionCard
-                icon="camera"
-                title="Take photo"
-                text="Use your camera"
-                tint={choiceTints.takePhoto}
-                onPress={() => choose("camera")}
-              />
-              <ActionCard
-                icon="image"
-                title="Choose photo"
-                text="Pick one from your photos"
-                tint={choiceTints.choosePhoto}
-                onPress={() => choose("library")}
-              />
-            </ActionCards>
-            <Message text={flow.error} />
-          </>
-        )}
+    <Screen pageTitle={TITLE} onBack={back} centered={flow.step === "pick"}>
+      {flow.step === "pick" && (
+        <>
+          <ActionCards>
+            <ActionCard
+              icon="camera"
+              title="Take photo"
+              text="Use your camera"
+              tint={choiceTints.takePhoto}
+              onPress={() => choose("camera")}
+            />
+            <ActionCard
+              icon="image"
+              title="Choose photo"
+              text="Pick one from your photos"
+              tint={choiceTints.choosePhoto}
+              onPress={() => choose("library")}
+            />
+          </ActionCards>
+          <Message text={flow.error} />
+        </>
+      )}
 
-        {(flow.step === "failed" || flow.step === "manual") && (
-          <>
-            {photo}
-            <Message text={flow.error} />
-            <Text style={styles.text}>What is it?</Text>
-            <View style={styles.row}>
-              {WARDROBE_KIND_LIST.map(({ kind, label }) => (
-                <Button
-                  key={kind}
-                  label={label}
-                  variant="secondary"
-                  onPress={() => setForm({ kind, prefill: flow.manualPrefill })}
-                  style={styles.rowButton}
-                />
-              ))}
-            </View>
-            <Button label="Choose another photo" variant="text" onPress={flow.restart} />
-          </>
-        )}
-      </Screen>
-    </>
+      {(flow.step === "failed" || flow.step === "manual") && (
+        <>
+          {photo}
+          <Message text={flow.error} />
+          <Text style={styles.text}>What is it?</Text>
+          <View style={styles.row}>
+            {WARDROBE_KIND_LIST.map(({ kind, label }) => (
+              <Button
+                key={kind}
+                label={label}
+                variant="secondary"
+                onPress={() => setForm({ kind, prefill: flow.manualPrefill })}
+                style={styles.rowButton}
+              />
+            ))}
+          </View>
+          <Button label="Choose another photo" variant="text" onPress={flow.restart} />
+        </>
+      )}
+    </Screen>
   );
 }
 
@@ -267,14 +248,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   text: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    color: colors.secondary,
+    ...type.body,
     textAlign: "center",
   },
   row: {
     flexDirection: "row",
-    gap: spacing.md,
+    gap: space.sm,
   },
   rowButton: {
     flex: 1,

@@ -4,37 +4,33 @@
 // web's page numbers. Pull down to refresh.
 
 import { useCallback, useState } from "react";
-import Feather from "@expo/vector-icons/Feather";
 import { router, useFocusEffect } from "expo-router";
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { FlatList, StyleSheet, useWindowDimensions, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAccumulatedPages } from "@core/hooks/useAccumulatedPages.js";
 import { useWardrobePage } from "@core/hooks/useWardrobePage.js";
 
-import { colors, radius, spacing } from "../../../theme/tokens";
-import { boxEdge, space } from "../../../theme/soft";
+import { colors } from "../../../theme/tokens";
+import { loaderSizes, space } from "../../../theme/soft";
 import { FilterSheet } from "../../../components/filters/FilterSheet";
 import {
   Button,
   EmptyState,
   Message,
-  TextField,
+  SearchRow,
 } from "../../../components/ui";
 import { CARD_GAP, twoColumnWidth } from "../../../components/ui/cardBox";
 import {
   handOverItem,
   takeWardrobeChanged,
 } from "../../../components/wardrobe/itemHandoff";
-import { Atmosphere, PageHeader } from "../../../components/soft";
+import {
+  Atmosphere,
+  BubbleLoader,
+  PageHeader,
+  SoftRefreshControl,
+} from "../../../components/soft";
 import { OutfitRebuildNote } from "../../../components/outfits/OutfitRebuildNote";
 import { ItemTile } from "../../../components/wardrobe/ItemTile";
 import { TypeFilter } from "../../../components/wardrobe/TypeFilter";
@@ -87,8 +83,8 @@ export default function WardrobeScreen() {
   };
 
   const emptyText = wardrobe.isFootwear
-    ? "No footwear found."
-    : "No clothes found.";
+    ? "No footwear found"
+    : "No clothes found";
 
   return (
     <SafeAreaView style={styles.screen} edges={["top"]}>
@@ -105,24 +101,12 @@ export default function WardrobeScreen() {
 
         <TypeFilter wardrobe={wardrobe} />
 
-        <View style={styles.searchRow}>
-          <TextField
-            placeholder="Search wardrobe..."
-            value={wardrobe.searchTerm}
-            onChangeText={wardrobe.setSearchTerm}
-            autoCapitalize="none"
-            returnKeyType="search"
-            style={styles.search}
-          />
-          <Pressable
-            onPress={() => setShowFilters(true)}
-            accessibilityRole="button"
-            accessibilityLabel="Filters"
-            style={styles.filterButton}
-          >
-            <Feather name="sliders" size={20} color={colors.main} />
-          </Pressable>
-        </View>
+        <SearchRow
+          placeholder="Search wardrobe…"
+          value={wardrobe.searchTerm}
+          onChangeText={wardrobe.setSearchTerm}
+          onFilters={() => setShowFilters(true)}
+        />
 
         <Message text={wardrobe.error} />
         <OutfitRebuildNote />
@@ -148,11 +132,11 @@ export default function WardrobeScreen() {
         onEndReached={list.loadMore}
         onEndReachedThreshold={0.5}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          <SoftRefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
         ListEmptyComponent={
           list.isFirstLoad ? (
-            <ActivityIndicator color={colors.muted} style={styles.spinner} />
+            <BubbleLoader size={loaderSizes.medium} fill={false} style={styles.spinner} />
           ) : wardrobe.data?.total === 0 ? (
             // Nothing in this collection at all, not just nothing matching.
             <EmptyState
@@ -172,7 +156,7 @@ export default function WardrobeScreen() {
         }
         ListFooterComponent={
           list.hasMore ? (
-            <ActivityIndicator color={colors.muted} style={styles.spinner} />
+            <BubbleLoader size={loaderSizes.medium} fill={false} style={styles.spinner} />
           ) : null
         }
         keyboardShouldPersistTaps="handled"
@@ -204,31 +188,13 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: space.gutter,
     paddingTop: space.pageTop,
-    paddingBottom: spacing.md,
-    gap: spacing.md,
-  },
-  searchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  search: {
-    flex: 1,
-  },
-  filterButton: {
-    width: 50,
-    height: 50,
-    borderRadius: radius.md,
-    borderCurve: "continuous",
-    backgroundColor: colors.fieldBackground,
-    ...boxEdge,
-    alignItems: "center",
-    justifyContent: "center",
+    paddingBottom: space.sm,
+    gap: space.sm,
   },
   // The same gutter and gaps as the outfit cards.
   list: {
     paddingHorizontal: space.gutter,
-    paddingBottom: spacing.xl,
+    paddingBottom: space.lg,
     flexGrow: 1,
   },
   column: {
@@ -236,6 +202,6 @@ const styles = StyleSheet.create({
     marginBottom: CARD_GAP,
   },
   spinner: {
-    marginVertical: spacing.xl,
+    marginVertical: space.lg,
   },
 });

@@ -1,17 +1,12 @@
-// Two or three options side by side, one selected ("All Time" /
-// "This Year"): a soft lavender track with the selected option on a white
-// pill. `options` is [{ key, label }].
+// Two or more options side by side, one selected (Yes / No, 1-5): a white
+// pill track with the selected option filled lilac, as a selected chip is,
+// in chip labels that keep their weight. `options` is [{ key, label }].
 
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  shadows,
-  spacing,
-} from "../../theme/tokens";
+import { colors } from "../../theme/tokens";
+import { radii, space, surface, type } from "../../theme/soft";
+import { PressableScale } from "../soft/PressableScale";
 
 export const SegmentedControl = ({ options, value, onChange }) => (
   <View style={styles.control} accessibilityRole="tablist">
@@ -19,7 +14,7 @@ export const SegmentedControl = ({ options, value, onChange }) => (
       const selected = option.key === value;
 
       return (
-        <Pressable
+        <PressableScale
           key={option.key}
           onPress={() => onChange(option.key)}
           accessibilityRole="tab"
@@ -29,7 +24,7 @@ export const SegmentedControl = ({ options, value, onChange }) => (
           <Text style={[styles.label, selected && styles.selectedLabel]}>
             {option.label}
           </Text>
-        </Pressable>
+        </PressableScale>
       );
     })}
   </View>
@@ -38,27 +33,21 @@ export const SegmentedControl = ({ options, value, onChange }) => (
 const styles = StyleSheet.create({
   control: {
     flexDirection: "row",
-    padding: 4,
-    borderRadius: radius.pill,
-    backgroundColor: colors.imageBackground,
+    padding: space.xxs,
+    borderRadius: radii.pill,
+    backgroundColor: surface.white,
   },
   segment: {
     flex: 1,
-    paddingVertical: spacing.sm + 1,
-    borderRadius: radius.pill,
+    paddingVertical: space.xs + 1,
+    borderRadius: radii.pill,
     alignItems: "center",
   },
   selected: {
-    backgroundColor: colors.inverse,
-    boxShadow: shadows.soft,
+    backgroundColor: colors.selected,
   },
-  label: {
-    fontFamily: fontWeights.medium,
-    fontSize: fontSizes.small,
-    color: colors.secondary,
-  },
+  label: type.chipLabel,
   selectedLabel: {
-    fontFamily: fontWeights.semibold,
     color: colors.main,
   },
 });

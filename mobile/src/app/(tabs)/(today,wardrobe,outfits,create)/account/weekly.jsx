@@ -3,6 +3,8 @@
 // and day list (WeekTagList) - with Save in place of Back / Next. Logic:
 // useWeeklyPreferences (shared with the web).
 
+import { router } from "expo-router";
+
 import { weeklyQuestion } from "@core/constants/styleQuizOptions.js";
 import { useWeeklyPreferences } from "@core/hooks/useWeeklyPreferences.js";
 
@@ -10,18 +12,25 @@ import { Loading, Message, Screen } from "../../../../components/ui";
 import { QuizActions } from "../../../../components/styleQuiz/QuizActions";
 import { WeekTagList } from "../../../../components/week/WeekTagList";
 
+const TITLE = "Weekly preferences";
+
 export default function WeeklyPreferencesScreen() {
   const weekly = useWeeklyPreferences();
 
   if (weekly.loading) {
-    return <Loading text="Loading your preferences..." />;
+    return (
+      <Screen pageTitle={TITLE} onBack={() => router.back()} scroll={false}>
+        <Loading text="Loading your preferences…" />
+      </Screen>
+    );
   }
 
   return (
     <Screen
       title={weeklyQuestion.title}
       subtitle={weeklyQuestion.subtitle}
-      edges={["bottom"]}
+      pageTitle={TITLE}
+      onBack={() => router.back()}
     >
       <WeekTagList weeklyTags={weekly.weeklyTags} onTagChange={weekly.setDayTag} />
 

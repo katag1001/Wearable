@@ -8,5 +8,5 @@ import { SoftNote } from "../soft";
 export const OutfitRebuildNote = () => {
   const { updating } = useOutfitRebuild();
 
-  return <SoftNote text={updating ? "Updating your outfits…" : null} type="success" />;
+  return <SoftNote text={updating ? "Updating your outfits…" : null} type="info" />;
 };

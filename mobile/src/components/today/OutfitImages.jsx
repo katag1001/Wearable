@@ -18,13 +18,15 @@
 
 import { useState } from "react";
 import { Image } from "expo-image";
-import { Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { outfitRows } from "@core/today/outfitRows.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import { colors, radius, spacing } from "../../theme/tokens";
+import { colors } from "../../theme/tokens";
+import { loaderSizes, radii, space } from "../../theme/soft";
 import { BubbleLoader } from "../soft/BubbleLoader";
+import { PressableScale } from "../soft/PressableScale";
 
 const PHOTO_ASPECT = 4 / 3; // height / width
 const PHOTO_SCALE = 0.95;
@@ -47,7 +49,7 @@ const Photo = ({ uri, style, label, showLoading }) => {
       />
       {showLoading && !loaded ? (
         <View style={StyleSheet.absoluteFill} pointerEvents="none">
-          <BubbleLoader size={28} />
+          <BubbleLoader size={loaderSizes.small} />
         </View>
       ) : null}
     </View>
@@ -81,19 +83,19 @@ const layOut = ({ match, footwear, width, height, fit }) => {
 
   // Rounded down and a touch under the full share, so two always fit side
   // by side - an exact fit can wrap from sub-pixel rounding.
-  const widthFit = ((width - spacing.sm * (columns - 1)) / columns) * PHOTO_SCALE;
+  const widthFit = ((width - space.xs * (columns - 1)) / columns) * PHOTO_SCALE;
 
   // In fit mode, also no taller than the space: every line of photos
   // (a row of three or more wraps) and the gaps between them.
   const lines = rows.reduce((sum, row) => sum + Math.ceil(row.length / columns), 0);
   const heightFit =
     fit && lines > 0
-      ? (height - spacing.sm * (lines - 1)) / lines / PHOTO_ASPECT
+      ? (height - space.xs * (lines - 1)) / lines / PHOTO_ASPECT
       : Infinity;
 
   const photoWidth = Math.max(0, Math.floor(Math.min(widthFit, heightFit)));
   const contentHeight =
-    lines > 0 ? lines * photoWidth * PHOTO_ASPECT + spacing.sm * (lines - 1) : 0;
+    lines > 0 ? lines * photoWidth * PHOTO_ASPECT + space.xs * (lines - 1) : 0;
 
   return { rows, photoWidth, contentHeight };
 };
@@ -162,14 +164,14 @@ export const OutfitImages = ({
               );
 
               return onItemPress ? (
-                <Pressable
+                <PressableScale
                   key={item._id}
                   onPress={() => onItemPress(item)}
                   accessibilityRole="button"
                   accessibilityLabel={itemLabel(item)}
                 >
                   {photo}
-                </Pressable>
+                </PressableScale>
               ) : (
                 photo
               );
@@ -183,7 +185,7 @@ export const OutfitImages = ({
 const styles = StyleSheet.create({
   outfit: {
     alignSelf: "stretch",
-    gap: spacing.sm,
+    gap: space.xs,
   },
   fit: {
     flex: 1,
@@ -193,10 +195,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    gap: spacing.sm,
+    gap: space.xs,
   },
   image: {
-    borderRadius: radius.lg,
+    borderRadius: radii.tile,
     backgroundColor: colors.itemBackground,
   },
 });

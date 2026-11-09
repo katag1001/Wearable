@@ -5,10 +5,12 @@
 
 import { useState } from "react";
 import { Image } from "expo-image";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
-import { colors, fontSizes, fontWeights, radius, spacing } from "../../theme/tokens";
+import { colors } from "../../theme/tokens";
+import { loaderSizes, radii, space, type } from "../../theme/soft";
 import { BubbleLoader } from "../soft/BubbleLoader";
+import { PressableScale } from "../soft/PressableScale";
 
 // The photo's shape until it's loaded (height / width).
 export const DEFAULT_PHOTO_ASPECT = 4 / 3;
@@ -24,26 +26,22 @@ export const ItemPhoto = ({
   onPress,
   label = "Change photo",
 }) => {
-  const [space, setSpace] = useState(null);
+  const [area, setArea] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
-  const width = space ? photoFitWidth(aspect, space.width, space.height) : 0;
+  const width = area ? photoFitWidth(aspect, area.width, area.height) : 0;
 
   return (
     <View
       style={styles.space}
-      onLayout={(event) => setSpace(event.nativeEvent.layout)}
+      onLayout={(event) => setArea(event.nativeEvent.layout)}
     >
-      {space ? (
-        <Pressable
+      {area ? (
+        <PressableScale
           onPress={onPress}
           accessibilityRole="button"
           accessibilityLabel={label}
-          style={({ pressed }) => [
-            styles.photo,
-            { width, height: width * aspect },
-            pressed && styles.pressed,
-          ]}
+          style={[styles.photo, { width, height: width * aspect }]}
         >
           {source ? (
             <>
@@ -60,14 +58,14 @@ export const ItemPhoto = ({
               />
               {!loaded ? (
                 <View style={StyleSheet.absoluteFill} pointerEvents="none">
-                  <BubbleLoader size={28} />
+                  <BubbleLoader size={loaderSizes.small} />
                 </View>
               ) : null}
             </>
           ) : (
             <Text style={styles.placeholder}>No photo yet - tap to add one</Text>
           )}
-        </Pressable>
+        </PressableScale>
       ) : null}
     </View>
   );
@@ -80,7 +78,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   photo: {
-    borderRadius: radius.lg,
+    borderRadius: radii.tile,
     borderCurve: "continuous",
     backgroundColor: colors.itemBackground,
     overflow: "hidden",
@@ -91,14 +89,9 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  pressed: {
-    opacity: 0.85,
-  },
   placeholder: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.small,
-    color: colors.muted,
+    ...type.caption,
     textAlign: "center",
-    padding: spacing.sm,
+    padding: space.xs,
   },
 });

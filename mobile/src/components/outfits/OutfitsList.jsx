@@ -7,29 +7,18 @@
 // after adding clothes), waiting for them to be made if `waitForNew`.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Feather from "@expo/vector-icons/Feather";
 import { router, useFocusEffect } from "expo-router";
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { FlatList, StyleSheet, useWindowDimensions, View } from "react-native";
 
 import { useAccumulatedPages } from "@core/hooks/useAccumulatedPages.js";
 import { useMatchSelection } from "@core/hooks/useMatchSelection.js";
 import { useMatchesPage } from "@core/hooks/useMatchesPage.js";
 import { seasonOptions } from "@core/constants/optionsBank.js";
 
-import { colors, radius, spacing } from "../../theme/tokens";
-import { boxEdge, space } from "../../theme/soft";
+import { loaderSizes, space } from "../../theme/soft";
 import { FilterSheet } from "../filters/FilterSheet";
-import { PageHeader } from "../soft";
-import { Button, Chip, ChipRow, EmptyState, Message, TextField } from "../ui";
+import { BubbleLoader, PageHeader, SoftRefreshControl } from "../soft";
+import { Button, Chip, ChipRow, EmptyState, Message, SearchRow } from "../ui";
 import { CARD_GAP, twoColumnWidth } from "../ui/cardBox";
 import { OutfitCard } from "./OutfitCard";
 import { splitIntoColumns } from "./outfitColumns";
@@ -38,6 +27,7 @@ import { useOutfitRebuild } from "../../outfitRebuild/OutfitRebuildProvider";
 import { OutfitRebuildNote } from "./OutfitRebuildNote";
 import { takeOutfitsChanged } from "./outfitsChanged";
 import { SelectionBar } from "./SelectionBar";
+import { showDialog } from "../soft/Dialog";
 
 // The FlatList's one row: both columns. It's one row so the list keeps
 // paging, refresh and its empty / footer states.
@@ -133,7 +123,7 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
   };
 
   const confirmDelete = (ids) =>
-    Alert.alert(
+    showDialog(
       ids.length > 1 ? "Delete outfits" : "Delete outfit",
       ids.length > 1
         ? `Are you sure you want to delete ${ids.length} outfits?`
@@ -179,54 +169,33 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
         {itemFilter ? (
           <ChipRow>
             <Chip
-              label="Outfits with your new item  ✕"
+              label="Outfits with your new item"
+              icon="x"
               selected
               onPress={onClearItemFilter}
             />
           </ChipRow>
         ) : null}
 
-        <View style={styles.searchRow}>
-          <TextField
-            placeholder="Search outfits..."
-            value={outfits.searchTerm}
-            onChangeText={outfits.setSearchTerm}
-            autoCapitalize="none"
-            returnKeyType="search"
-            style={styles.search}
-          />
-          <Pressable
-            onPress={() => setShowFilters(true)}
-            accessibilityRole="button"
-            accessibilityLabel="Filters"
-            style={styles.filterButton}
-          >
-            <Feather name="sliders" size={20} color={colors.main} />
-          </Pressable>
-        </View>
-
-        {selectMode && (
-          <SelectionBar
-            count={selectedIds.size}
-            onClear={clearSelection}
-            onDelete={() => confirmDelete([...selectedIds])}
-          />
-        )}
+        <SearchRow
+          placeholder="Search outfits…"
+          value={outfits.searchTerm}
+          onChangeText={outfits.setSearchTerm}
+          onFilters={() => setShowFilters(true)}
+        />
 
         <Message text={outfits.error} />
         <OutfitRebuildNote />
       </View>
 
       {outfits.waitingForNewMatch ? (
-        <EmptyState title="Finding your new matches...">
-          <ActivityIndicator color={colors.muted} />
-        </EmptyState>
+        <BubbleLoader text="Finding your new matches…" />
       ) : (
         <FlatList
           data={list.items.length ? COLUMNS_ROW : []}
           keyExtractor={(row) => row.key}
           extraData={[columns, selectedIds]}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[styles.list, selectMode && styles.listUnderBar]}
           renderItem={() => (
             <View style={styles.columns}>
               {columns.map((column, index) => (
@@ -239,11 +208,11 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
           onEndReached={list.loadMore}
           onEndReachedThreshold={0.5}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+            <SoftRefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
           ListEmptyComponent={
             list.isFirstLoad ? (
-              <ActivityIndicator color={colors.muted} style={styles.spinner} />
+              <BubbleLoader size={loaderSizes.medium} fill={false} style={styles.spinner} />
             ) : outfits.data?.total === 0 ? (
               <EmptyState
                 title="No outfits yet"
@@ -257,17 +226,27 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
               </EmptyState>
             ) : (
               <EmptyState
-                title="No outfits found."
+                title="No outfits found"
                 text="Try a different search or fewer filters."
               />
             )
           }
           ListFooterComponent={
             list.hasMore ? (
-              <ActivityIndicator color={colors.muted} style={styles.spinner} />
+              <BubbleLoader size={loaderSizes.medium} fill={false} style={styles.spinner} />
             ) : null
           }
           keyboardShouldPersistTaps="handled"
+        />
+      )}
+
+      {/* Floating over the bottom of the list while outfits are picked. */}
+      {selectMode && (
+        <SelectionBar
+          count={selectedIds.size}
+          onClear={clearSelection}
+          onDelete={() => confirmDelete([...selectedIds])}
+          style={styles.selectionBar}
         />
       )}
 
@@ -294,31 +273,23 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: space.gutter,
     paddingTop: space.pageTop,
-    paddingBottom: spacing.md,
-    gap: spacing.md,
-  },
-  searchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  search: {
-    flex: 1,
-  },
-  filterButton: {
-    width: 50,
-    height: 50,
-    borderRadius: radius.md,
-    borderCurve: "continuous",
-    backgroundColor: colors.fieldBackground,
-    ...boxEdge,
-    alignItems: "center",
-    justifyContent: "center",
+    paddingBottom: space.sm,
+    gap: space.sm,
   },
   list: {
     paddingHorizontal: space.gutter,
-    paddingBottom: spacing.xl,
+    paddingBottom: space.lg,
     flexGrow: 1,
+  },
+  // Room to scroll the last cards out from under the selection bar.
+  listUnderBar: {
+    paddingBottom: space.xxl * 2,
+  },
+  selectionBar: {
+    position: "absolute",
+    left: space.gutter,
+    right: space.gutter,
+    bottom: space.sm,
   },
   columns: {
     flexDirection: "row",
@@ -329,6 +300,6 @@ const styles = StyleSheet.create({
     gap: CARD_GAP,
   },
   spinner: {
-    marginVertical: spacing.xl,
+    marginVertical: space.lg,
   },
 });

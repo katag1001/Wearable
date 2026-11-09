@@ -2,9 +2,8 @@
 // through the user's items one at a time and tap one to show only outfits
 // with it (tap again to clear). The stepping is useFilterPanel's.
 
-import Feather from "@expo/vector-icons/Feather";
 import { Image } from "expo-image";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import {
   ITEM_CATEGORIES,
@@ -12,33 +11,27 @@ import {
 } from "@core/filters/filterDefaults.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  spacing,
-} from "../../theme/tokens";
-import { SelectionHalo } from "../soft";
-import { SectionTitle, TextField } from "../ui";
+import { colors } from "../../theme/tokens";
+import { radii, space, type } from "../../theme/soft";
+import { IconButton, PressableScale, SelectionHalo } from "../soft";
+import { EmptyState, SectionTitle, SelectedTick, TextField } from "../ui";
 
 const Arrow = ({ name, label, onPress, disabled }) => (
-  <Pressable
+  <IconButton
+    icon={name}
+    label={label}
+    tone="quiet"
     onPress={onPress}
     disabled={disabled}
-    accessibilityRole="button"
-    accessibilityLabel={label}
     hitSlop={8}
-    style={[styles.arrow, disabled && styles.disabled]}
-  >
-    <Feather name={name} size={22} color={colors.muted} />
-  </Pressable>
+    style={styles.arrow}
+  />
 );
 
 export const ItemFilterView = ({ panel }) => (
   <>
     <TextField
-      placeholder="Search clothing items..."
+      placeholder="Search clothing items…"
       value={panel.itemSearchTerm}
       onChangeText={panel.searchItems}
     />
@@ -50,7 +43,7 @@ export const ItemFilterView = ({ panel }) => (
 
       return (
         <View key={category} style={styles.category}>
-          <SectionTitle title={label} />
+          <SectionTitle title={label} field />
 
           <View style={styles.carousel}>
             <Arrow
@@ -61,13 +54,13 @@ export const ItemFilterView = ({ panel }) => (
             />
 
             {item ? (
-              <Pressable
+              <PressableScale
                 onPress={() => panel.toggleCategoryItem(category, item)}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 style={styles.item}
               >
-                {selected ? <SelectionHalo radius={radius.lg} /> : null}
+
                 <Image
                   source={item.imageUrl ? getImageUrl(item.imageUrl, 200) : null}
                   style={styles.image}
@@ -76,9 +69,15 @@ export const ItemFilterView = ({ panel }) => (
                 <Text style={styles.name} numberOfLines={1}>
                   {item.name}
                 </Text>
-              </Pressable>
+                {selected ? (
+                  <>
+                    <SelectionHalo radius={radii.tile} />
+                    <SelectedTick />
+                  </>
+                ) : null}
+              </PressableScale>
             ) : (
-              <Text style={[styles.item, styles.empty]}>No items found.</Text>
+              <EmptyState title="No items found" compact style={styles.item} />
             )}
 
             <Arrow
@@ -96,25 +95,22 @@ export const ItemFilterView = ({ panel }) => (
 
 const styles = StyleSheet.create({
   category: {
-    gap: spacing.sm,
+    gap: space.xs,
   },
   carousel: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: space.xs,
   },
   arrow: {
-    padding: spacing.xs,
-  },
-  disabled: {
-    opacity: 0.3,
+    padding: space.xxs,
   },
   item: {
     flex: 1,
     alignItems: "center",
-    gap: spacing.xs,
-    padding: spacing.sm,
-    borderRadius: radius.lg,
+    gap: space.xxs,
+    padding: space.xs,
+    borderRadius: radii.tile,
     borderCurve: "continuous",
     backgroundColor: colors.itemBackground,
   },
@@ -122,16 +118,5 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
   },
-  name: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.small,
-    color: colors.main,
-  },
-  empty: {
-    fontFamily: fontWeights.regular,
-    textAlign: "center",
-    paddingVertical: spacing.xl,
-    fontSize: fontSizes.small,
-    color: colors.secondary,
-  },
+  name: type.caption,
 });

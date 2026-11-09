@@ -3,7 +3,6 @@
 
 export { ActionCard, ActionCards } from "./ActionCard";
 export { Button } from "./Button";
-export { Card } from "./Card";
 export { Chip } from "./Chip";
 export { ChipRow } from "./ChipRow";
 export { ChoiceCard } from "./ChoiceCard";
@@ -17,9 +16,12 @@ export { Loading } from "./Loading";
 export { Message } from "./Message";
 export { PointSlider } from "./PointSlider";
 export { RangeSlider } from "./RangeSlider";
+export { SearchRow } from "./SearchRow";
 export { Screen } from "./Screen";
 export { SectionTitle } from "./SectionTitle";
 export { SegmentedControl } from "./SegmentedControl";
+export { SelectedTick } from "./SelectedTick";
 export { Sheet } from "./Sheet";
 export { StarRating } from "./StarRating";
+export { TextAction } from "./TextAction";
 export { TextField } from "./TextField";

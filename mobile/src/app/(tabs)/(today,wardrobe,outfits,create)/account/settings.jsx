@@ -2,6 +2,7 @@
 // picked), then what AI costs and why we use it, with sources. Logic:
 // useAiSettings (shared with the web).
 
+import { router } from "expo-router";
 import { Linking, StyleSheet, Text, View } from "react-native";
 
 import {
@@ -16,7 +17,7 @@ import {
 import { useAiSettings } from "@core/hooks/useAiSettings.js";
 import { splitBold } from "@core/utils/boldText.js";
 
-import { colors, fontSizes, fontWeights, spacing } from "../../../../theme/tokens";
+import { space, type } from "../../../../theme/soft";
 import {
   ChoiceCard,
   Loading,
@@ -47,11 +48,15 @@ export default function SettingsScreen() {
   const settings = useAiSettings();
 
   if (settings.loading) {
-    return <Loading text="Loading your settings..." />;
+    return (
+      <Screen pageTitle="Settings" onBack={() => router.back()} scroll={false}>
+        <Loading text="Loading your settings…" />
+      </Screen>
+    );
   }
 
   return (
-    <Screen edges={["bottom"]}>
+    <Screen pageTitle="Settings" onBack={() => router.back()}>
       <SectionTitle title="AI photo analysis" description={AI_SETTINGS_DESCRIPTION} />
       {AI_CHOICES.map((option) => (
         <ChoiceCard
@@ -104,20 +109,13 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   section: {
-    gap: spacing.sm,
+    gap: space.xs,
   },
-  text: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    color: colors.secondary,
-  },
-  bold: {
-    fontFamily: fontWeights.semibold,
-    color: colors.main,
-  },
+  text: type.body,
+  bold: type.emphasis,
   point: {
     flexDirection: "row",
-    gap: spacing.sm,
+    gap: space.xs,
   },
   pointText: {
     flex: 1,

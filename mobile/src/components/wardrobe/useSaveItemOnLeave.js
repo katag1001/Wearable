@@ -9,7 +9,8 @@
 
 import { useState } from "react";
 import { usePreventRemove } from "expo-router";
-import { Alert } from "react-native";
+
+import { showDialog } from "../soft/Dialog";
 
 // The fields as they'd be saved. `styles` is left out: it's worked out
 // from the colours, so it can change without the user changing anything.
@@ -34,7 +35,7 @@ export const useSaveItemOnLeave = ({ form, enabled = true }) => {
       return;
     }
 
-    Alert.alert(
+    showDialog(
       "Couldn't save",
       "Your changes to this item couldn't be saved.",
       [

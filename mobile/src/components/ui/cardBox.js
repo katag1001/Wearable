@@ -1,13 +1,12 @@
-// The box shared by the wardrobe's item cards and the outfit cards: the
-// search box's soft white fill and light top edge, no border, with room
-// around the photos so they sit smaller in the middle. The top padding
-// leaves space for the favourite heart in the corner.
+// The box shared by the wardrobe's item cards and the outfit cards: a
+// card (radii.card) in the house white, raised like every box, no border,
+// with room around the photos so they sit smaller in the middle. The top
+// padding leaves space for the hearts in the corner.
 
-import { colors, radius, spacing } from "../../theme/tokens";
-import { boxEdge } from "../../theme/soft";
+import { radii, shadows, space, surface } from "../../theme/soft";
 
 // Between the two columns, and between cards in a column.
-export const CARD_GAP = spacing.md;
+export const CARD_GAP = space.sm;
 
 export const CARD_PADDING = {
   sides: 18,
@@ -26,17 +25,15 @@ export const cardBox = {
   paddingTop: CARD_PADDING.top,
   paddingHorizontal: CARD_PADDING.sides,
   paddingBottom: CARD_PADDING.bottom,
-  borderRadius: radius.lg,
+  borderRadius: radii.card,
   borderCurve: "continuous",
-  backgroundColor: colors.fieldBackground,
-  ...boxEdge,
+  backgroundColor: surface.veil,
+  boxShadow: shadows.raised,
 };
 
-// The favourite heart's place and size on a card.
-export const CARD_HEART_SIZE = 20;
-
+// The hearts' place on a card (small icons: outfits/OutfitHearts).
 export const cardHeart = {
   position: "absolute",
-  top: spacing.sm,
-  right: spacing.sm,
+  top: space.xs,
+  right: space.xs,
 };

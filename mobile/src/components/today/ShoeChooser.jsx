@@ -9,18 +9,17 @@
 // Logic: useShoeChooser (shared with the web's popup).
 
 import { useEffect, useRef, useState } from "react";
-import Feather from "@expo/vector-icons/Feather";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Image } from "expo-image";
-import { BackHandler, Pressable, StyleSheet, Text, View } from "react-native";
+import { BackHandler, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useShoeChooser } from "@core/hooks/useShoeChooser.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import { colors, spacing } from "../../theme/tokens";
-import { type } from "../../theme/soft";
-import { Atmosphere } from "../soft";
+import { colors } from "../../theme/tokens";
+import { space } from "../../theme/soft";
+import { Atmosphere, SheetHeader } from "../soft";
 import { Loading } from "../ui";
 import { ActionButton, ActionRow } from "./ActionButton";
 import { SwipeDeck } from "./SwipeDeck";
@@ -91,24 +90,14 @@ export const ShoeChooser = ({
       style={[
         styles.page,
         {
-          paddingTop: insets.top + spacing.md,
-          paddingBottom: spacing.md,
+          paddingTop: insets.top + space.sm,
+          paddingBottom: space.sm,
         },
       ]}
     >
       <Atmosphere />
 
-      <View style={styles.header}>
-        <Text style={styles.title}>Change shoes</Text>
-        <Pressable
-          onPress={close}
-          accessibilityRole="button"
-          accessibilityLabel="Close"
-          hitSlop={12}
-        >
-          <Feather name="x" size={24} color={colors.muted} />
-        </Pressable>
-      </View>
+      <SheetHeader title={"Change shoes"} onClose={close} />
 
       {current ? (
         <SwipeDeck
@@ -133,7 +122,7 @@ export const ShoeChooser = ({
           </View>
         </SwipeDeck>
       ) : (
-        <Loading text="Loading footwear..." />
+        <Loading text="Loading footwear…" />
       )}
 
       {/* The same heart as choosing an outfit, whether it wears them now
@@ -154,16 +143,10 @@ export const ShoeChooser = ({
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    gap: spacing.lg,
-    paddingHorizontal: spacing.xl,
+    gap: space.md,
+    paddingHorizontal: space.lg,
     backgroundColor: colors.pageBackground,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  title: type.sheetTitle,
   photo: {
     flex: 1,
     pointerEvents: "none",

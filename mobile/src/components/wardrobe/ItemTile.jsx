@@ -5,14 +5,14 @@
 // favourite item score higher (useItemFavourite). `width` is the column's.
 
 import { Image } from "expo-image";
-import { Pressable, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 import { useItemFavourite } from "@core/hooks/useItemFavourite.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
+import { PressableScale } from "../soft/PressableScale";
 import { FavouriteHeart } from "../ui";
 import {
-  CARD_HEART_SIZE,
   cardBox,
   cardContentWidth,
   cardHeart,
@@ -29,7 +29,7 @@ const ItemHeart = ({ item, onToggled, onError }) => {
     <FavouriteHeart
       favourite={favourite}
       onPress={toggleFavourite}
-      size={CARD_HEART_SIZE}
+      size="small"
       style={cardHeart}
     />
   );
@@ -47,11 +47,11 @@ export const ItemTile = ({
   const photoSize = cardContentWidth(width);
 
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`Edit ${item.name}`}
-      style={({ pressed }) => [cardBox, { width }, pressed && styles.pressed]}
+      style={[styles.card, { width }]}
     >
       <Image
         source={item.imageUrl ? getImageUrl(item.imageUrl, 400) : null}
@@ -67,12 +67,10 @@ export const ItemTile = ({
           onError={onFavouriteError}
         />
       )}
-    </Pressable>
+    </PressableScale>
   );
 };
 
 const styles = StyleSheet.create({
-  pressed: {
-    transform: [{ scale: 0.98 }],
-  },
+  card: cardBox,
 });

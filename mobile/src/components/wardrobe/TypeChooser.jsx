@@ -10,7 +10,7 @@ import {
   getOptionsInCategory,
 } from "@core/wardrobe/typeChoices.js";
 
-import { Button, Chip, ChipRow, SectionTitle } from "../ui";
+import { Chip, ChipRow, SectionTitle, TextAction } from "../ui";
 
 export const TypeChooser = ({ form, titled = true }) => {
   const { typeOptions, formData, chooseSubtype } = form;
@@ -37,7 +37,7 @@ export const TypeChooser = ({ form, titled = true }) => {
 
   return (
     <>
-      {titled ? <SectionTitle title="Type" /> : null}
+      {titled ? <SectionTitle title="Type" field /> : null}
 
       {form.subtypeSuggestions.length > 0 && (
         <>
@@ -56,11 +56,7 @@ export const TypeChooser = ({ form, titled = true }) => {
           <SectionTitle
             description={category}
             right={
-              <Button
-                label="All categories"
-                variant="text"
-                onPress={() => setCategory(null)}
-              />
+              <TextAction label="All categories" onPress={() => setCategory(null)} />
             }
           />
           {typeChips(getOptionsInCategory(typeOptions, category))}

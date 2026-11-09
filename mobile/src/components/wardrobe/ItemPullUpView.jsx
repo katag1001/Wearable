@@ -5,17 +5,17 @@
 // to part way (usePhotoFollowsPanel). Tap the photo, or the camera in the
 // corner, to change it. `footer` goes under the form (e.g. Delete item).
 // There's no Save or Cancel: the screen saves on leaving
-// (useSaveItemOnLeave), behind a "Saving..." cover.
+// (useSaveItemOnLeave), behind a "Saving…" cover.
 
 import { useRef, useState } from "react";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Animated, Pressable, StyleSheet, View } from "react-native";
+import { Animated, StyleSheet, View } from "react-native";
 
-import { colors, spacing } from "../../theme/tokens";
+import { colors } from "../../theme/tokens";
 import { space } from "../../theme/soft";
 import {
   Atmosphere,
   BubbleLoader,
+  IconButton,
   PULL_UP_PEEK,
   PullUpPanel,
   PullUpScrollView,
@@ -69,19 +69,14 @@ export const ItemPullUpView = ({ form, footer }) => {
           </Animated.View>
         </View>
 
-        <Pressable
+        <IconButton
+          icon="camera"
+          label="Change photo"
+          tone="quiet"
           onPress={changePhoto}
-          accessibilityRole="button"
-          accessibilityLabel="Change photo"
           hitSlop={10}
-          style={({ pressed }) => [styles.cornerIcon, pressed && styles.pressed]}
-        >
-          <MaterialCommunityIcons
-            name="camera-outline"
-            size={24}
-            color={colors.muted}
-          />
-        </Pressable>
+          style={styles.cornerIcon}
+        />
       </View>
 
       {pageHeight > 0 && (
@@ -113,7 +108,7 @@ export const ItemPullUpView = ({ form, footer }) => {
       {/* Saving on the way out. */}
       {form.saving ? (
         <View style={styles.saving}>
-          <BubbleLoader text="Saving..." />
+          <BubbleLoader text="Saving…" />
         </View>
       ) : null}
     </View>
@@ -132,22 +127,18 @@ const styles = StyleSheet.create({
   photoArea: {
     flex: 1,
     marginHorizontal: space.gutter,
-    marginTop: spacing.sm,
-    marginBottom: PULL_UP_PEEK + spacing.md,
+    marginTop: space.xs,
+    marginBottom: PULL_UP_PEEK + space.sm,
   },
   cornerIcon: {
     position: "absolute",
-    top: 0,
-    right: 0,
-    padding: spacing.xs,
-  },
-  pressed: {
-    opacity: 0.5,
+    top: space.xxs,
+    right: space.xxs,
   },
   details: {
     paddingHorizontal: space.gutter,
-    paddingBottom: spacing.xl,
-    gap: spacing.md,
+    paddingBottom: space.lg,
+    gap: space.sm,
   },
   // Over everything, so nothing's changed while it saves.
   saving: {

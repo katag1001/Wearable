@@ -6,7 +6,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import { colors, fontSizes, fontWeights, spacing } from "../../theme/tokens";
+import { space, type } from "../../theme/soft";
 import { Button, Grid, ImageTile } from "../ui";
 
 export const MismatchPicker = ({
@@ -51,15 +51,11 @@ export const MismatchPicker = ({
 );
 
 const styles = StyleSheet.create({
-  hint: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    color: colors.secondary,
-  },
+  hint: type.body,
   items: {
-    paddingTop: spacing.sm,
+    paddingTop: space.xs,
   },
   actions: {
-    gap: spacing.sm,
+    gap: space.xs,
   },
 });

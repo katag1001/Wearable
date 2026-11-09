@@ -2,7 +2,8 @@
 // quiz (app/style-quiz.jsx) and its retake on Style Preferences
 // (account/style.jsx). The logic is useStyleQuiz (shared with the web).
 // A retake (quiz.retake) has a Skip on every step, which keeps the saved
-// answer. `edges`: the Screen's safe-area edges. `children` go under the
+// answer. `edges`: the Screen's safe-area edges. `pageTitle` / `onBack`:
+// the retake's panel page title and back arrow (ui/Screen). `children` go under the
 // step (the new user's Log out).
 
 import { StyleSheet, Text, View } from "react-native";
@@ -17,8 +18,7 @@ import {
   weeklyQuestion,
 } from "@core/constants/styleQuizOptions.js";
 
-import { spacing } from "../../theme/tokens";
-import { type } from "../../theme/soft";
+import { scaleRun, space, type } from "../../theme/soft";
 import { ChoiceCard, Message, Screen } from "../ui";
 import { ColoursStep } from "./ColoursStep";
 import { ImagesStep } from "./ImagesStep";
@@ -50,11 +50,18 @@ const STEP_TITLES = {
 const RetakeSkip = ({ quiz, onSkip }) =>
   quiz.retake ? <SubtitleWithSkip onSkip={quiz.saving ? undefined : onSkip} /> : null;
 
-export const StyleQuizSteps = ({ quiz, edges, children }) => {
+export const StyleQuizSteps = ({ quiz, edges, pageTitle, onBack, children }) => {
   const { title, subtitle } = STEP_TITLES[quiz.step];
 
   return (
-    <Screen key={quiz.step} title={title} subtitle={subtitle} edges={edges}>
+    <Screen
+      key={quiz.step}
+      pageTitle={pageTitle}
+      onBack={onBack}
+      title={title}
+      subtitle={subtitle}
+      edges={edges}
+    >
       {quiz.step === "gender" && (
         <>
           <View style={styles.questionSpace}>
@@ -114,6 +121,7 @@ export const StyleQuizSteps = ({ quiz, edges, children }) => {
           <PointScale
             question={seasonalityQuestion}
             smooth
+            run={scaleRun}
             value={quiz.seasonality}
             onChange={quiz.setSeasonality}
           />
@@ -131,6 +139,7 @@ export const StyleQuizSteps = ({ quiz, edges, children }) => {
           <PointScale
             question={trendsQuestion}
             smooth
+            run={scaleRun}
             value={quiz.trends}
             onChange={quiz.setTrends}
           />
@@ -160,11 +169,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   centredAnswers: {
-    gap: spacing.md,
+    gap: space.sm,
   },
   // Under a centred question, like Screen's subtitle.
   centredHint: {
-    marginTop: spacing.sm,
+    marginTop: space.xs,
     ...type.body,
     textAlign: "center",
   },

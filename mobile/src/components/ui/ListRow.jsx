@@ -6,7 +6,7 @@
 import Feather from "@expo/vector-icons/Feather";
 import { StyleSheet, Text, View } from "react-native";
 
-import { houseBox, ink, space, type } from "../../theme/soft";
+import { houseBox, iconSizes, ink, space, type } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
 
 const DOT = 7;
@@ -26,7 +26,7 @@ export const ListRow = ({ label, text, tint, onPress }) => (
       {text ? <Text style={styles.text}>{text}</Text> : null}
     </View>
 
-    <Feather name="arrow-right" size={18} color={ink.muted} />
+    <Feather name="arrow-right" size={iconSizes.small} color={ink.muted} />
   </PressableScale>
 );
 

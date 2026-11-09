@@ -1,20 +1,16 @@
 // A min / max slider with two thumbs (temperature ranges), like the web's
 // temperatureSlider.jsx. The thumbs can't cross. Screen readers can
-// adjust each thumb by one step. The chosen range is filled with the
-// accent (purple) and the thumbs are white bubbles.
+// adjust each thumb by one step. The rail is graded cold to warm like
+// every temperature slider (ui/SliderRail, temperatureRun): faint along
+// its length and full strength over the chosen range. The thumbs are white
+// bubbles, as on ui/PointSlider.
 
 import { useRef, useState } from "react";
 import { PanResponder, StyleSheet, Text, View } from "react-native";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  shadows,
-  spacing,
-} from "../../theme/tokens";
-import { accent } from "../../theme/soft";
+import { colors } from "../../theme/tokens";
+import { radii, shadows, space, temperatureRun, type } from "../../theme/soft";
+import { RAIL_HEIGHT, SliderRail } from "./SliderRail";
 
 const THUMB = 28;
 
@@ -98,8 +94,12 @@ export const RangeSlider = ({
         style={styles.track}
         onLayout={(event) => setTrackWidth(event.nativeEvent.layout.width)}
       >
-        <View style={styles.rail} />
-        <View style={[styles.range, { left, width: right - left }]} />
+        <SliderRail run={temperatureRun} style={styles.faint} />
+        {/* The whole rail at full strength, seen through a window over the
+            chosen range. */}
+        <View style={[styles.range, { left, width: right - left }]} pointerEvents="none">
+          <SliderRail run={temperatureRun} width={trackWidth} style={{ marginLeft: -left }} />
+        </View>
 
         <View
           {...responders.current.min.panHandlers}
@@ -130,22 +130,20 @@ export const RangeSlider = ({
 const styles = StyleSheet.create({
   slider: {
     paddingHorizontal: THUMB / 2,
-    gap: spacing.sm,
+    gap: space.xs,
   },
   track: {
     height: THUMB,
     justifyContent: "center",
   },
-  rail: {
-    height: 6,
-    borderRadius: radius.pill,
-    backgroundColor: colors.imageBackground,
+  faint: {
+    opacity: 0.35,
   },
   range: {
     position: "absolute",
-    height: 6,
-    borderRadius: radius.pill,
-    backgroundColor: accent.mid,
+    height: RAIL_HEIGHT,
+    borderRadius: radii.pill,
+    overflow: "hidden",
   },
   thumb: {
     position: "absolute",
@@ -159,9 +157,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  value: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.small,
-    color: colors.secondary,
-  },
+  value: type.caption,
 });

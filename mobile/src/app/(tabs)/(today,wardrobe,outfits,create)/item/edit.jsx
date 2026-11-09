@@ -9,7 +9,6 @@
 
 import { useEffect, useState } from "react";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Alert } from "react-native";
 
 import { getErrorMessage } from "@core/api/errors.js";
 import { useWardrobeItemForm } from "@core/hooks/useWardrobeItemForm.js";
@@ -27,6 +26,7 @@ import { ItemForm } from "../../../../components/wardrobe/ItemForm";
 import { ItemPullUpView } from "../../../../components/wardrobe/ItemPullUpView";
 import { ItemSaved } from "../../../../components/wardrobe/ItemSaved";
 import { useSaveItemOnLeave } from "../../../../components/wardrobe/useSaveItemOnLeave";
+import { showDialog } from "../../../../components/soft/Dialog";
 
 export default function EditItemScreen() {
   const params = useLocalSearchParams();
@@ -62,12 +62,12 @@ export default function EditItemScreen() {
       router.back();
     } catch (err) {
       setDeleting(false);
-      Alert.alert("Delete", getErrorMessage(err, "Failed to delete item"));
+      showDialog("Delete", getErrorMessage(err, "Failed to delete item"));
     }
   };
 
   const confirmDelete = () =>
-    Alert.alert("Delete", "Are you sure you want to delete this item?", [
+    showDialog("Delete", "Are you sure you want to delete this item?", [
       { text: "Cancel", style: "cancel" },
       { text: "Delete", style: "destructive", onPress: deleteItem },
     ]);
@@ -78,8 +78,9 @@ export default function EditItemScreen() {
   if (form.savedItem && !form.isUpdate) {
     return (
       <>
-        <Stack.Screen options={{ title: form.title }} />
-        <Screen scroll={false} edges={["bottom"]}>
+        {/* A panel page with its own back arrow and title. */}
+        <Stack.Screen options={{ headerShown: false }} />
+        <Screen pageTitle={form.title} onBack={() => router.back()} scroll={false}>
           <ItemSaved
             message={form.savedItem.message}
             itemId={form.savedItem.id}
@@ -97,7 +98,7 @@ export default function EditItemScreen() {
   if (form.isUpdate) {
     return (
       <>
-        <Stack.Screen options={{ title: form.title }} />
+        <Stack.Screen options={{ headerShown: true, title: form.title }} />
         <ItemPullUpView
           form={form}
           footer={
@@ -117,8 +118,9 @@ export default function EditItemScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: form.title }} />
-      <Screen edges={["bottom"]}>
+      {/* A panel page with its own back arrow and title. */}
+      <Stack.Screen options={{ headerShown: false }} />
+      <Screen pageTitle={form.title} onBack={() => router.back()}>
         <ItemForm form={form} onCancel={() => router.back()} />
       </Screen>
     </>

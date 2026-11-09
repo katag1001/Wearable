@@ -21,29 +21,15 @@
 import { useEffect, useRef, useState } from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 
 import { deleteMatches } from "@core/api/matches.js";
 import { getErrorMessage } from "@core/api/errors.js";
 import { useMatchCard } from "@core/hooks/useMatchCard.js";
 import { ratingDeletesOutfit } from "@core/matches/rating.js";
 
-import {
-  colors,
-  fontWeights,
-  radius,
-  shadows,
-  spacing,
-} from "../../../theme/tokens";
-import { space, textSizes } from "../../../theme/soft";
+import { colors } from "../../../theme/tokens";
+import { space, type } from "../../../theme/soft";
 import {
   Atmosphere,
   PULL_UP_PEEK,
@@ -52,6 +38,7 @@ import {
   useHeaderSpace,
 } from "../../../components/soft";
 import { OutfitDetails } from "../../../components/outfits/OutfitDetails";
+import { OutfitHearts } from "../../../components/outfits/OutfitHearts";
 import { OutfitMismatch } from "../../../components/outfits/OutfitMismatch";
 import {
   useAutoSaveOutfit,
@@ -62,41 +49,35 @@ import {
   takeOutfit,
 } from "../../../components/outfits/outfitHandoff";
 import { markOutfitsChanged } from "../../../components/outfits/outfitsChanged";
+import { ActionButton } from "../../../components/today/ActionButton";
 import { OutfitImages } from "../../../components/today/OutfitImages";
 import {
   useOutfitFollowsPanel,
 } from "../../../components/today/useOutfitFollowsPanel";
-import { Button, FavouriteHeart, Message } from "../../../components/ui";
+import { Button, Message } from "../../../components/ui";
+import { showDialog } from "../../../components/soft/Dialog";
 
 // How much of the page the details panel covers part way up. Fully open,
 // it reaches the header.
 const PART_WAY = 0.42;
 
-// "Wear today" with the heart for it on its right, like Today's heart.
-// Filled and done ("Worn today") once it's worn today.
+// "Wear today" with Today's own heart button on its right (the small
+// size): it lights up blush, as on Today, once the outfit is worn today
+// ("Worn today").
 const MarkWorn = ({ worn, loading, onPress }) => (
-  <Pressable
-    onPress={onPress}
-    disabled={worn || loading}
-    accessibilityRole="button"
-    accessibilityLabel={worn ? "Worn today" : "Wear today"}
-    accessibilityState={{ disabled: worn, busy: loading }}
-    hitSlop={8}
-    style={({ pressed }) => [styles.markWorn, pressed && styles.pressed]}
-  >
+  <View style={styles.markWorn}>
     <Text style={styles.markWornLabel}>{worn ? "Worn today" : "Wear today"}</Text>
-    <View style={[styles.wornHeart, worn && styles.wornHeartOn]}>
-      {loading ? (
-        <ActivityIndicator size="small" color={colors.secondary} />
-      ) : (
-        <MaterialCommunityIcons
-          name={worn ? "heart" : "heart-outline"}
-          size={20}
-          color={worn ? colors.inverse : colors.secondary}
-        />
-      )}
-    </View>
-  </Pressable>
+    <ActionButton
+      icon={worn ? "heart" : "heart-outline"}
+      iconSet={MaterialCommunityIcons}
+      label={worn ? "Worn today" : "Wear today"}
+      onPress={onPress}
+      loading={loading}
+      active={worn}
+      disabled={worn}
+      small
+    />
+  </View>
 );
 
 export default function OutfitScreen() {
@@ -176,7 +157,7 @@ export default function OutfitScreen() {
       return;
     }
 
-    Alert.alert(
+    showDialog(
       "Remove this outfit?",
       "Rating it 1 or 2 stars removes it from your outfits.",
       [
@@ -218,7 +199,7 @@ export default function OutfitScreen() {
   };
 
   const confirmDelete = () =>
-    Alert.alert("Delete outfit", "Are you sure you want to delete this outfit?", [
+    showDialog("Delete outfit", "Are you sure you want to delete this outfit?", [
       { text: "Cancel", style: "cancel" },
       { text: "Delete", style: "destructive", onPress: deleteOutfit },
     ]);
@@ -226,7 +207,8 @@ export default function OutfitScreen() {
   if (mismatching) {
     return (
       <>
-        <Stack.Screen options={{ title: "Mismatch" }} />
+        {/* A panel page with its own back arrow and title. */}
+        <Stack.Screen options={{ headerShown: false }} />
         <OutfitMismatch
           match={match}
           onClose={() =>
@@ -240,7 +222,7 @@ export default function OutfitScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: "Outfit" }} />
+      <Stack.Screen options={{ headerShown: true, title: "Outfit" }} />
       <View
         style={[styles.screen, { paddingTop: headerSpace }]}
         onLayout={(event) =>
@@ -257,27 +239,12 @@ export default function OutfitScreen() {
             </Animated.View>
           </View>
 
-          <View style={styles.cornerIcons}>
-            <FavouriteHeart
-              favourite={match.favourite}
-              onPress={card.toggleFavourite}
-              size={24}
-              style={styles.cornerIcon}
-            />
-            <Pressable
-              onPress={() => setMismatching(true)}
-              accessibilityRole="button"
-              accessibilityLabel="Mismatch"
-              hitSlop={10}
-              style={styles.cornerIcon}
-            >
-              <MaterialCommunityIcons
-                name="heart-broken-outline"
-                size={24}
-                color={colors.muted}
-              />
-            </Pressable>
-          </View>
+          <OutfitHearts
+            favourite={match.favourite}
+            onFavourite={card.toggleFavourite}
+            onMismatch={() => setMismatching(true)}
+            style={styles.cornerIcons}
+          />
         </View>
 
         {pageHeight > 0 && (
@@ -340,15 +307,15 @@ const styles = StyleSheet.create({
   outfitArea: {
     flex: 1,
     marginHorizontal: space.gutter,
-    marginTop: spacing.sm,
-    marginBottom: PULL_UP_PEEK + spacing.md,
+    marginTop: space.xs,
+    marginBottom: PULL_UP_PEEK + space.sm,
   },
   // Fills the panel's visible part, so Delete outfit can sit at its bottom.
   details: {
     flexGrow: 1,
     paddingHorizontal: space.gutter,
-    paddingBottom: spacing.xl,
-    gap: spacing.md,
+    paddingBottom: space.lg,
+    gap: space.sm,
   },
   // At the bottom of the panel, however short the details above it are.
   delete: {
@@ -357,39 +324,13 @@ const styles = StyleSheet.create({
   // The heart, with the broken heart straight underneath it.
   cornerIcons: {
     position: "absolute",
-    top: 0,
-    right: 0,
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  // Both the same size box, so they line up one above the other.
-  cornerIcon: {
-    padding: spacing.xs,
-  },
-  pressed: {
-    opacity: 0.5,
+    top: space.xxs,
+    right: space.xxs,
   },
   markWorn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: space.sm,
   },
-  // A small white circle like Today's hearts; soft lavender once worn.
-  wornHeart: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.cardBackground,
-    boxShadow: shadows.soft,
-  },
-  wornHeartOn: {
-    backgroundColor: colors.selected,
-  },
-  markWornLabel: {
-    fontFamily: fontWeights.medium,
-    fontSize: textSizes.md,
-    color: colors.secondary,
-  },
+  markWornLabel: type.textAction,
 });

@@ -1,60 +1,83 @@
 // A panel that slides up from the bottom over a dimmed screen (filters):
-// milk, with big rounded corners and a grab handle, over a light
-// plum-tinted backdrop. Tapping the dimmed area or the cross closes it.
-// `footer` stays pinned under the scrolling content.
+// milk, with the panels' rounded corners and light top rim (like Today's),
+// a grab handle, over a light plum-tinted backdrop. It eases in and out
+// over motion.panel, as panels do. Tapping the dimmed area or the cross
+// closes it. `footer` stays pinned under the scrolling content.
 
-import Feather from "@expo/vector-icons/Feather";
+import { useEffect, useRef, useState } from "react";
 import {
+  Animated,
+  Dimensions,
   Modal,
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors, radius, shadows, spacing } from "../../theme/tokens";
-import { type } from "../../theme/soft";
+import { colors } from "../../theme/tokens";
+import { boxEdge, motion, radii, space } from "../../theme/soft";
+import { SheetHeader } from "../soft/SheetHeader";
 
 export const Sheet = ({ visible, title, onClose, footer, children }) => {
   const insets = useSafeAreaInsets();
+  // Kept open while it slides away after `visible` turns false.
+  const [open, setOpen] = useState(visible);
+  const shown = useRef(new Animated.Value(0)).current;
+  const [height, setHeight] = useState(Dimensions.get("window").height);
+
+  useEffect(() => {
+    if (visible) setOpen(true);
+
+    Animated.timing(shown, {
+      toValue: visible ? 1 : 0,
+      duration: motion.panel,
+      easing: motion.easing,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (finished && !visible) setOpen(false);
+    });
+  }, [visible, shown]);
 
   return (
     <Modal
-      visible={visible}
+      visible={open}
       transparent
-      animationType="slide"
+      animationType="none"
       onRequestClose={onClose}
     >
       <View style={styles.container}>
-        <Pressable
-          style={styles.backdrop}
-          onPress={onClose}
-          accessibilityLabel="Close"
-        />
+        <Animated.View style={[StyleSheet.absoluteFill, { opacity: shown }]}>
+          <Pressable
+            style={styles.backdrop}
+            onPress={onClose}
+            accessibilityLabel="Close"
+          />
+        </Animated.View>
 
-        <View style={[styles.panel, { paddingBottom: insets.bottom + spacing.md }]}>
+        <Animated.View
+          onLayout={(event) => setHeight(event.nativeEvent.layout.height)}
+          style={[
+            styles.panel,
+            { paddingBottom: insets.bottom + space.sm },
+            {
+              transform: [
+                { translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [height, 0] }) },
+              ],
+            },
+          ]}
+        >
           <View style={styles.handle} />
 
-          <View style={styles.header}>
-            <Text style={styles.title}>{title}</Text>
-            <Pressable
-              onPress={onClose}
-              accessibilityRole="button"
-              accessibilityLabel="Close"
-              hitSlop={12}
-            >
-              <Feather name="x" size={22} color={colors.muted} />
-            </Pressable>
-          </View>
+          <SheetHeader title={title} onClose={onClose} style={styles.header} />
 
           <ScrollView contentContainerStyle={styles.content}>
             {children}
           </ScrollView>
 
           {footer ? <View style={styles.footer}>{footer}</View> : null}
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -66,43 +89,38 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
     backgroundColor: colors.overlayBackdrop,
   },
   panel: {
     maxHeight: "85%",
     backgroundColor: colors.pageBackground,
-    borderTopLeftRadius: 36,
-    borderTopRightRadius: 36,
+    borderTopLeftRadius: radii.sheet,
+    borderTopRightRadius: radii.sheet,
     borderCurve: "continuous",
-    boxShadow: shadows.lifted,
+    ...boxEdge,
   },
   handle: {
     alignSelf: "center",
     width: 40,
     height: 5,
-    marginTop: spacing.md,
-    borderRadius: radius.pill,
+    marginTop: space.sm,
+    borderRadius: radii.pill,
     backgroundColor: colors.imageBackground,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: spacing.xl,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
+    paddingHorizontal: space.gutter,
+    paddingVertical: space.sm,
   },
-  title: type.sheetTitle,
   content: {
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.md,
-    gap: spacing.md,
+    paddingHorizontal: space.gutter,
+    paddingBottom: space.sm,
+    gap: space.sm,
   },
   footer: {
     flexDirection: "row",
-    gap: spacing.md,
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
+    gap: space.sm,
+    paddingHorizontal: space.gutter,
+    paddingTop: space.sm,
   },
 });

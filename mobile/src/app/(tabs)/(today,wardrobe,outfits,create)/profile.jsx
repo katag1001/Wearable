@@ -5,7 +5,7 @@
 // along its foot. Both actions confirm first.
 
 import { router } from "expo-router";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { useDeleteAccount } from "@core/hooks/useDeleteAccount.js";
 
@@ -17,15 +17,16 @@ import {
   SoftScreen,
   TopPanel,
 } from "../../../components/soft";
-import { ListRow, Loading } from "../../../components/ui";
-import { menuTints, semantic, space, type } from "../../../theme/soft";
+import { ListRow, Loading, TextAction } from "../../../components/ui";
+import { menuTints, space } from "../../../theme/soft";
+import { showDialog } from "../../../components/soft/Dialog";
 
 export default function ProfileScreen() {
   const { logout } = useSession();
   const { deleting, deleteAccount } = useDeleteAccount({ onDeleted: logout });
 
   const confirmLogout = () =>
-    Alert.alert("Log out", "Are you sure you want to log out?", [
+    showDialog("Log out", "Are you sure you want to log out?", [
       { text: "Cancel", style: "cancel" },
       { text: "Log out", onPress: logout },
     ]);
@@ -34,12 +35,12 @@ export default function ProfileScreen() {
     const { ok, error } = await deleteAccount();
 
     if (!ok) {
-      Alert.alert("Delete account", error);
+      showDialog("Delete account", error);
     }
   };
 
   const confirmDelete = () =>
-    Alert.alert(
+    showDialog(
       "Delete account",
       "This will permanently delete your clothes, outfits, today's outfits, preferences, and all other account data. This can't be undone.",
       [
@@ -49,7 +50,7 @@ export default function ProfileScreen() {
     );
 
   if (deleting) {
-    return <Loading text="Deleting your account..." />;
+    return <Loading text="Deleting your account…" />;
   }
 
   return (
@@ -82,22 +83,8 @@ export default function ProfileScreen() {
 
         {/* Like Today's tag and season: two sublines, one each side. */}
         <View style={styles.actions}>
-          <Pressable
-            onPress={confirmLogout}
-            accessibilityRole="button"
-            hitSlop={12}
-            style={({ pressed }) => pressed && styles.pressed}
-          >
-            <Text style={styles.action}>Log out</Text>
-          </Pressable>
-          <Pressable
-            onPress={confirmDelete}
-            accessibilityRole="button"
-            hitSlop={12}
-            style={({ pressed }) => pressed && styles.pressed}
-          >
-            <Text style={[styles.action, styles.destructive]}>Delete account</Text>
-          </Pressable>
+          <TextAction label="Log out" onPress={confirmLogout} />
+          <TextAction label="Delete account" tone="error" onPress={confirmDelete} />
         </View>
       </BottomPanel>
     </SoftScreen>
@@ -114,12 +101,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: space.sm,
-  },
-  action: type.menuText,
-  destructive: {
-    color: semantic.error,
-  },
-  pressed: {
-    opacity: 0.5,
   },
 });

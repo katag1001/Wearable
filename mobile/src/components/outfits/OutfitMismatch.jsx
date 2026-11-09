@@ -1,7 +1,8 @@
 // The outfit screen's broken heart: straight to picking the two items that
 // don't go together, in place of the screen's content. Confirming does what
 // Mismatch on Today does (server/services/mismatchService.js) and calls
-// `onMismatched(deletedMatchIds)`; Back - or Android's back button - just
+// `onMismatched(deletedMatchIds)`; Back, the back arrow in its top panel or
+// Android's back button just
 // closes. Logic: useOutfitMismatch (shared with the web's outfit card).
 
 import { useEffect, useRef, useState } from "react";
@@ -9,7 +10,7 @@ import { BackHandler, StyleSheet } from "react-native";
 
 import { useOutfitMismatch } from "@core/hooks/useOutfitMismatch.js";
 
-import { spacing } from "../../theme/tokens";
+import { space } from "../../theme/soft";
 import { Message, Screen } from "../ui";
 import { MismatchPicker } from "./MismatchPicker";
 
@@ -34,7 +35,7 @@ export const OutfitMismatch = ({ match, onClose, onMismatched }) => {
   }, []);
 
   return (
-    <Screen edges={["bottom"]} scroll={false} contentStyle={styles.content}>
+    <Screen pageTitle="Mismatch" onBack={close} scroll={false} contentStyle={styles.content}>
       <Message text={error} />
       <MismatchPicker
         clothes={mismatch.clothes}
@@ -51,6 +52,6 @@ export const OutfitMismatch = ({ match, onClose, onMismatched }) => {
 
 const styles = StyleSheet.create({
   content: {
-    gap: spacing.lg,
+    gap: space.md,
   },
 });

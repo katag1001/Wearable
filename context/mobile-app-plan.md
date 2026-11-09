@@ -220,23 +220,22 @@ mobile/
 | `/user` sidebar (weekly / style / stats) | Profile (the person button on Today, since 2026-11-03 - it was a tab): list rows → stack screens, plus Log out and Delete account |
 | `/style-quiz` gate | Same gate in the root layout redirect |
 | Login / Register | `(auth)` group, redirect when logged in |
-| Modals (add/edit, filter, popups) | Full-screen modal for add/edit; bottom sheet (RN `Modal`, slide) for filters; native-feeling confirm dialogs |
+| Modals (add/edit, filter, popups) | Full-screen modal for add/edit; bottom sheet (RN `Modal`, eased slide) for filters; the app's own dialogs (`soft/Dialog`'s `showDialog`) for confirms and notices - never the system alert |
 
 ### Design
 
 - **Replaced (2026-11-03) by the soft visual language -
   `context/visual-language.md`.** Tokens now live in `mobile/src/theme/`
-  (`soft.js` + `tokens.js`); `core/theme/tokens.js` was removed (only the
-  mobile app used it). Fonts: Inter, Fira Code, Instrument Serif.
+  (`soft.js` holds every value; `tokens.js` only maps colour job names);
+  `core/theme/tokens.js` was removed (only the mobile app used it). Fonts:
+  Inter and Instrument Serif (loaded, unused).
 - Was: black/white tokens, the system font, hairline borders, 12px radius
   cards.
 - One accent: black. Filled black for the primary button, outline for
   secondary.
-- **UI kit** in `mobile/src/components/ui/`: `Screen` (safe area + scroll),
-  `Button`, `Chip` (tags/seasons/colours), `Card`, `TextField`, `Sheet`,
-  `ConfirmDialog`, `Toast` (replaces `messagePopup`), `RangeSlider`,
-  `ImageTile`, `EmptyState`, `Loading`. Feature screens use only these, so
-  restyling later means editing one folder.
+- **UI kit** in `mobile/src/components/ui/` and `soft/` - the current list
+  is in `context/visual-language.md` section 8. Feature screens use only
+  these, so restyling means editing `theme/soft.js` and those folders.
 - **Lists** use `FlatList` with infinite scroll: the next page loads as you
   near the bottom. This replaces web page numbers but uses the same `core`
   page cache and queries. The lists also get pull-to-refresh.
@@ -435,7 +434,7 @@ moves" above.
 | `core/wardrobe/` | `itemKinds` (clothing vs footwear), `itemValidation`, `saveWardrobeItem` (upload → save → clean up), `typeChoices`, `wardrobeTypes` |
 | `core/filters/filterDefaults.js` | The filter panel's fields and item categories |
 | `src/components/clothes/addUpdateItem.jsx` | The web add/edit modal for both kinds (replaces `addUpdateClothes.jsx` and `addUpdateFootwear.jsx`) |
-| `mobile/src/theme/` | Colours, fonts, spacing, radii, shadows for mobile (was `core/theme/tokens.js`; see `context/visual-language.md`) |
+| `mobile/src/theme/` | `soft.js`: every colour, type role, spacing, radius, shadow, icon size and motion for mobile; `tokens.js`: colour job names (was `core/theme/tokens.js`; see `context/visual-language.md`) |
 | `src/main.jsx` | Web calls `configureCore` (localStorage, `src/config.js` URL, `VITE_*` Cloudinary) |
 | `vite.config.js` | `@core` alias |
 | `mobile/src/platform/storage.js`, `useStorageReady.js` | Sync storage mirror: AsyncStorage + SecureStore (token), loaded behind the splash |
@@ -444,7 +443,7 @@ moves" above.
 | `mobile/src/app/_layout.jsx` | Boot (splash → storage → session) and the `Stack.Protected` gates |
 | `mobile/src/app/(auth)/login.jsx`, `register.jsx` | Log in / register |
 | `mobile/src/app/style-quiz.jsx`, `mobile/src/components/styleQuiz/` | The style quiz gate |
-| `mobile/src/app/(tabs)/` | Bottom tabs. Today / Wardrobe / Outfits are placeholders; Profile lists the account screens, Log out and Delete account (native confirm alerts) |
+| `mobile/src/app/(tabs)/` | Bottom tabs. Today / Wardrobe / Outfits are placeholders; Profile lists the account screens, Log out and Delete account (confirmed in the app's dialog) |
 | `mobile/src/app/account/` | Weekly preferences, Style preferences, Stats (stack screens with a back button) |
 | `mobile/src/components/week/WeekDayRow.jsx` | The seven-day picker (quiz + weekly preferences) |
 | `mobile/src/app/(tabs)/wardrobe.jsx`, `mobile/src/components/wardrobe/` | Wardrobe grid (type chips, search, pull to refresh, infinite scroll) |
@@ -456,7 +455,7 @@ moves" above.
 | `mobile/src/platform/useLocation.js` | One rough location fix for the weather (permission handled) |
 | `mobile/src/platform/imagePicker.js` | Camera / library with permission handling |
 | `mobile/.env` (not committed) | Cloudinary cloud name + upload preset, copied from the web's `VITE_*` values |
-| `mobile/src/components/ui/` | `Screen`, `Button`, `TextField`, `Message`, `Loading`, `EmptyState`, `ChoiceCard`, `ImageTile`, `TagTile`, `Grid`, `Card`, `ListRow`, `SectionTitle`, `SegmentedControl`, `Chip`, `ChipRow`, `Sheet`, `RangeSlider` |
+| `mobile/src/components/ui/`, `soft/` | The UI kit - listed in `context/visual-language.md` section 8 |
 | `mobile/metro.config.js` | Resolution of `core/` and `shared/` (see above) |
 | `mobile/.env.example` | API URL options (deployed / local LAN IP) |
 | `mobile/AGENTS.md`, `mobile/.claude/` | From the Expo template: guidance for AI coding tools on SDK changes |

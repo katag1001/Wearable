@@ -1,13 +1,14 @@
 // The item's photo: the newly chosen one, else the saved one, with
 // buttons to take a photo or choose one from the library.
 
-import { Alert, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import { spacing } from "../../theme/tokens";
+import { space } from "../../theme/soft";
 import { pickImage } from "../../platform/imagePicker";
 import { Button, ImageTile } from "../ui";
+import { showDialog } from "../soft/Dialog";
 
 // Takes or chooses a photo ("camera" | "library") and hands it to onPick.
 export const choosePhoto = async (source, onPick) => {
@@ -18,13 +19,13 @@ export const choosePhoto = async (source, onPick) => {
       onPick(image);
     }
   } catch (err) {
-    Alert.alert("Photo", err.message);
+    showDialog("Photo", err.message);
   }
 };
 
 // Asks whether to take a photo or choose one, then does it.
 export const askForPhoto = (onPick) =>
-  Alert.alert("Photo", "Change this item's photo?", [
+  showDialog("Photo", "Change this item's photo?", [
     { text: "Take photo", onPress: () => choosePhoto("camera", onPick) },
     { text: "Choose photo", onPress: () => choosePhoto("library", onPick) },
     { text: "Cancel", style: "cancel" },
@@ -74,11 +75,11 @@ export const PhotoPicker = ({ selectedImage, savedImageUrl, onPick }) => {
 
 const styles = StyleSheet.create({
   picker: {
-    gap: spacing.md,
+    gap: space.sm,
   },
   buttons: {
     flexDirection: "row",
-    gap: spacing.md,
+    gap: space.sm,
   },
   button: {
     flex: 1,

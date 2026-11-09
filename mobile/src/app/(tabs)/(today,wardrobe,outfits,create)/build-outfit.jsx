@@ -1,7 +1,8 @@
 // Build an outfit by hand. Most of the page is the outfit being built,
 // laid out as it's worn (tops over bottoms, as on Today), straight on the
-// page; tap an item there to take it out. The + to save it is in the
-// header, across from "Back to outfits".
+// page; tap an item there to take it out. The + to save it is a plain
+// icon in the header, as Wardrobe's and Outfits' + are, across from the
+// back arrow and the title.
 // Underneath, on a panel like the top of a card that's popped up (drag it
 // down to see the outfit full screen - PullUpPanel; the outfit scales up
 // and down with it, without re-laying out, so nothing flashes): the
@@ -11,17 +12,8 @@
 // Logic: useCreateMatch (shared with the web's Build Outfits page).
 
 import { useEffect, useRef, useState } from "react";
-import Feather from "@expo/vector-icons/Feather";
 import { router, Stack } from "expo-router";
-import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Animated, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
@@ -31,17 +23,12 @@ import {
 import { useCreateMatch } from "@core/hooks/useCreateMatch.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
-import {
-  colors,
-  fontWeights,
-  radius,
-  shadows,
-  spacing,
-} from "../../../theme/tokens";
-import { ink, space, textSizes, type } from "../../../theme/soft";
+import { colors } from "../../../theme/tokens";
+import { iconSizes, loaderSizes, radii, space } from "../../../theme/soft";
 import {
   Chip,
   ChipRow,
+  EmptyState,
   ImageTile,
   TextField,
 } from "../../../components/ui";
@@ -49,6 +36,8 @@ import { cardBox } from "../../../components/ui/cardBox";
 import { markOutfitsChanged } from "../../../components/outfits/outfitsChanged";
 import {
   Atmosphere,
+  BubbleLoader,
+  IconButton,
   LoopingRow,
   PULL_UP_PEEK,
   PullUpPanel,
@@ -58,48 +47,20 @@ import { OutfitImages } from "../../../components/today/OutfitImages";
 import {
   useOutfitFollowsPanel,
 } from "../../../components/today/useOutfitFollowsPanel";
+import { showDialog } from "../../../components/soft/Dialog";
 
 // The clothes row's tiles.
 const TILE_SIZE = 96;
-const TILE_GAP = spacing.sm;
+const TILE_GAP = space.xs;
 
-// The header's way back: an arrow and its words.
-const BackToOutfits = () => (
-  <Pressable
-    onPress={() => router.back()}
-    accessibilityRole="button"
-    accessibilityLabel="Back to outfits"
-    hitSlop={10}
-    style={({ pressed }) => [styles.back, pressed && styles.pressed]}
-  >
-    <Feather name="arrow-left" size={20} color={ink.main} />
-    <Text style={styles.backLabel}>Back to outfits</Text>
-  </Pressable>
-);
-
-// The header's save button: a + on the selected lavender, faded until the
-// outfit has an item.
-const SaveButton = ({ onPress, empty, saving }) => (
-  <Pressable
-    onPress={onPress}
-    disabled={empty || saving}
-    accessibilityRole="button"
-    accessibilityLabel="Save this outfit"
-    accessibilityState={{ disabled: empty, busy: saving }}
-    hitSlop={10}
-    style={({ pressed }) => [
-      styles.save,
-      empty && styles.saveDisabled,
-      pressed && styles.pressed,
-    ]}
-  >
-    {saving ? (
-      <ActivityIndicator color={colors.main} />
-    ) : (
-      <Feather name="plus" size={24} color={colors.main} />
-    )}
-  </Pressable>
-);
+// The header's save button: a plain +, faded until the outfit has an
+// item; the breathing bubble while it saves.
+const SaveButton = ({ onPress, empty, saving }) =>
+  saving ? (
+    <BubbleLoader size={iconSizes.regular} fill={false} />
+  ) : (
+    <IconButton icon="plus" label="Save this outfit" onPress={onPress} disabled={empty} />
+  );
 
 export default function BuildOutfitScreen() {
   const builder = useCreateMatch();
@@ -130,7 +91,7 @@ export default function BuildOutfitScreen() {
       markOutfitsChanged();
     }
 
-    Alert.alert(
+    showDialog(
       result.title,
       result.message,
       result.ok
@@ -161,8 +122,7 @@ export default function BuildOutfitScreen() {
 
       <Stack.Screen
         options={{
-          title: "",
-          headerLeft: () => <BackToOutfits />,
+          title: "Build outfit",
           headerRight: () => (
             <SaveButton
               onPress={builder.submit}
@@ -221,7 +181,7 @@ export default function BuildOutfitScreen() {
             )}
 
             <TextField
-              placeholder="Search clothing..."
+              placeholder="Search clothing…"
               value={builder.searchTerm}
               onChangeText={builder.setSearchTerm}
               autoCapitalize="none"
@@ -229,9 +189,9 @@ export default function BuildOutfitScreen() {
           </View>
 
           {builder.loading ? (
-            <ActivityIndicator color={colors.muted} style={styles.rowStatus} />
+            <BubbleLoader size={loaderSizes.medium} fill={false} style={styles.rowStatus} />
           ) : builder.categoryItems.length === 0 ? (
-            <Text style={[styles.empty, styles.rowStatus]}>No items found.</Text>
+            <EmptyState title="No items found" compact style={styles.rowStatus} />
           ) : (
             <LoopingRow
               // Starts again on the first item when what's shown changes.
@@ -251,8 +211,6 @@ export default function BuildOutfitScreen() {
                   selected={builder.isSelected(builder.category, item)}
                   onPress={() => builder.toggleItem(builder.category, item)}
                   resizeMode="contain"
-                  // The halo shows it's picked; no tick.
-                  showCheck={false}
                   style={styles.tile}
                 />
               )}
@@ -269,71 +227,41 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.pageBackground,
   },
-  back: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  backLabel: {
-    fontFamily: fontWeights.medium,
-    fontSize: textSizes.lg,
-    color: colors.main,
-  },
-  pressed: {
-    opacity: 0.5,
-  },
   // No box: the outfit sits straight on the page. It's always laid out
   // to the panel's tucked-away top (just the peek below it).
   fill: {
     flex: 1,
   },
   outfitArea: {
-    marginBottom: PULL_UP_PEEK + spacing.md,
+    marginBottom: PULL_UP_PEEK + space.sm,
     backgroundColor: "transparent",
     boxShadow: "none",
-    paddingTop: spacing.lg,
+    paddingTop: space.md,
     flex: 1,
     marginHorizontal: space.gutter,
-    marginTop: spacing.sm,
+    marginTop: space.xs,
   },
   photo: {
     backgroundColor: "transparent",
   },
-  // The + in the header, on the selected lavender so it stands out.
-  save: {
-    width: 42,
-    height: 42,
-    borderRadius: radius.pill,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.selected,
-    boxShadow: shadows.soft,
-  },
-  saveDisabled: {
-    opacity: 0.35,
-  },
   // Inside the pull-up panel (which draws the card itself).
   picker: {
-    gap: spacing.md,
-    paddingBottom: spacing.md,
+    gap: space.sm,
+    paddingBottom: space.sm,
   },
   controls: {
-    gap: spacing.md,
+    gap: space.sm,
     paddingHorizontal: space.gutter,
   },
   // The photos are trimmed to the item: pad them so they sit smaller in
   // the tile, with room round them.
   tile: {
     width: TILE_SIZE,
-    padding: spacing.md + 2,
-    borderRadius: radius.lg,
+    padding: space.sm + 2,
+    borderRadius: radii.tile,
   },
   rowStatus: {
     height: TILE_SIZE,
-    textAlignVertical: "center",
-  },
-  empty: {
-    ...type.body,
-    textAlign: "center",
+    justifyContent: "center",
   },
 });

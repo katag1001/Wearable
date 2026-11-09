@@ -17,7 +17,7 @@ import { visibleTagGroups } from "@core/utils/tagOptions.js";
 
 import { View } from "react-native";
 
-import { Chip, ChipRow, SectionTitle, SegmentedControl } from "../ui";
+import { Chip, ChipRow, SectionTitle, SegmentedControl, TextAction } from "../ui";
 
 const TIGHTS_ANSWERS = [
   { key: "yes", label: "Yes" },
@@ -29,7 +29,7 @@ const FABRIC_CHOICES = [{ value: "", label: "Not sure" }, ...fabricOptions.map((
 
 export const FabricField = ({ form, titled = true }) => (
   <>
-    {titled ? <SectionTitle title="Fabric" /> : null}
+    {titled ? <SectionTitle title="Fabric" field /> : null}
     <ChipRow>
       {FABRIC_CHOICES.map(({ value, label }) => (
         <Chip
@@ -45,7 +45,7 @@ export const FabricField = ({ form, titled = true }) => (
 
 export const TightsField = ({ form, titled = true }) => (
   <>
-    {titled ? <SectionTitle title="Would you wear this with tights?" /> : null}
+    {titled ? <SectionTitle title="Would you wear this with tights?" field /> : null}
     <SegmentedControl
       options={TIGHTS_ANSWERS}
       value={form.wearWithTights ? "yes" : "no"}
@@ -56,7 +56,7 @@ export const TightsField = ({ form, titled = true }) => (
 
 export const ColoursField = ({ form, titled = true }) => (
   <>
-    {titled ? <SectionTitle title="Colours" /> : null}
+    {titled ? <SectionTitle title="Colours" field /> : null}
     <ChipRow>
       {colorOptions.map((color) => (
         <Chip
@@ -73,7 +73,7 @@ export const ColoursField = ({ form, titled = true }) => (
 
 export const PatternField = ({ form, titled = true }) => (
   <>
-    {titled ? <SectionTitle title="Pattern" /> : null}
+    {titled ? <SectionTitle title="Pattern" field /> : null}
     <ChipRow>
       {patternOptions.map((pattern) => (
         <Chip
@@ -93,7 +93,7 @@ export const TagsField = ({ form, titled = true }) => {
   const [showAllTags, setShowAllTags] = useState(false);
 
   const toggle = (
-    <Chip
+    <TextAction
       label={showAllTags ? "Show fewer" : "Show all"}
       onPress={() => setShowAllTags(!showAllTags)}
     />
@@ -101,7 +101,7 @@ export const TagsField = ({ form, titled = true }) => {
 
   return (
     <>
-      {titled ? <SectionTitle title="Tags" right={toggle} /> : <SectionTitle right={toggle} />}
+      {titled ? <SectionTitle title="Tags" field right={toggle} /> : <SectionTitle right={toggle} />}
       {visibleTagGroups(formData.tags, showAllTags).map(({ group, tags }) => (
         <View key={group}>
           {showAllTags ? <SectionTitle description={group} /> : null}

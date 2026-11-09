@@ -24,6 +24,7 @@ import { configureCore } from "@core/config.js";
 import { PagedCacheProvider } from "@core/cache/PagedCacheProvider.jsx";
 
 import { SessionProvider, useSession } from "../auth/SessionProvider";
+import { DialogHost } from "../components/soft/Dialog";
 import { Button, EmptyState, Screen } from "../components/ui";
 import { API_URL, CLOUD_NAME, UPLOAD_PRESET } from "../platform/config";
 import { storage } from "../platform/storage";
@@ -114,6 +115,8 @@ function RootNavigator() {
           <Stack.Screen name="(auth)" />
         </Stack.Protected>
       </Stack>
+      {/* The app's pop-ups (soft/Dialog's showDialog), over every page. */}
+      <DialogHost />
       <StatusBar style="dark" />
     </PagedCacheProvider>
   );

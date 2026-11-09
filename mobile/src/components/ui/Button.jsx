@@ -1,14 +1,18 @@
 // The app's one button, as a pill with an uppercase tracked label.
 // "soft" (the default) is the main action: the selected lavender with an
 // ink label - there are no big dark buttons (context/visual-language.md).
-// "secondary" a translucent white pill with a light top edge, "text" a
-// plain label. Squeezes slightly
-// when pressed; shows a spinner while `loading`.
+// "secondary" the house white (veil) pill with a light top edge, "text"
+// the plain text action (type.textAction, as ui/TextAction) centred on its
+// row. Squeezes slightly when pressed; shows the breathing bubble while
+// `loading`. `icon`: a Feather icon beside the label (`iconPosition`
+// "end" or "start").
 
-import { ActivityIndicator, StyleSheet, Text } from "react-native";
+import Feather from "@expo/vector-icons/Feather";
+import { StyleSheet, Text, View } from "react-native";
 
-import { colors, radius, shadows, spacing } from "../../theme/tokens";
-import { type } from "../../theme/soft";
+import { colors } from "../../theme/tokens";
+import { iconSizes, loaderSizes, radii, shadows, space, surface, type } from "../../theme/soft";
+import { BubbleLoader } from "../soft/BubbleLoader";
 import { PressableScale } from "../soft/PressableScale";
 
 export const Button = ({
@@ -17,9 +21,15 @@ export const Button = ({
   variant = "soft",
   disabled = false,
   loading = false,
+  icon,
+  iconPosition = "end",
   style,
 }) => {
   const inactive = disabled || loading;
+  const labelStyle = [styles.label, styles[`${variant}Label`]];
+  const iconView = icon ? (
+    <Feather name={icon} size={iconSizes.small} color={StyleSheet.flatten(labelStyle).color} />
+  ) : null;
 
   return (
     <PressableScale
@@ -31,9 +41,13 @@ export const Button = ({
       style={[styles.base, styles[variant], inactive && styles.dimmed, style]}
     >
       {loading ? (
-        <ActivityIndicator color={colors.main} />
+        <BubbleLoader size={loaderSizes.small} fill={false} />
       ) : (
-        <Text style={[styles.label, styles[`${variant}Label`]]}>{label}</Text>
+        <View style={styles.content}>
+          {iconPosition === "start" ? iconView : null}
+          <Text style={labelStyle}>{label}</Text>
+          {iconPosition === "end" ? iconView : null}
+        </View>
       )}
     </PressableScale>
   );
@@ -42,8 +56,8 @@ export const Button = ({
 const styles = StyleSheet.create({
   base: {
     minHeight: 52,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.xl,
+    borderRadius: radii.pill,
+    paddingHorizontal: space.lg,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -52,7 +66,7 @@ const styles = StyleSheet.create({
     boxShadow: shadows.raised,
   },
   secondary: {
-    backgroundColor: colors.cardBackground,
+    backgroundColor: surface.veil,
     boxShadow: shadows.raised,
   },
   text: {
@@ -60,6 +74,11 @@ const styles = StyleSheet.create({
   },
   dimmed: {
     opacity: 0.5,
+  },
+  content: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.xs,
   },
   // Each variant sets its own colour below.
   label: {
@@ -72,7 +91,5 @@ const styles = StyleSheet.create({
   softLabel: {
     color: colors.main,
   },
-  textLabel: {
-    color: colors.secondary,
-  },
+  textLabel: type.textAction,
 });

@@ -7,7 +7,7 @@
 import Feather from "@expo/vector-icons/Feather";
 import { StyleSheet, Text, View } from "react-native";
 
-import { houseBox, ink, radii, space, type } from "../../theme/soft";
+import { houseBox, iconSizes, ink, radii, space, type } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
 
 const ICON_CIRCLE = 40;
@@ -21,7 +21,7 @@ export const ActionCard = ({ icon, title, text, tint, onPress }) => (
     style={styles.card}
   >
     <View style={[styles.icon, { backgroundColor: tint }]}>
-      <Feather name={icon} size={18} color={ink.main} />
+      <Feather name={icon} size={iconSizes.small} color={ink.main} />
     </View>
 
     <View style={styles.text}>
@@ -29,7 +29,7 @@ export const ActionCard = ({ icon, title, text, tint, onPress }) => (
       {text ? <Text style={styles.description}>{text}</Text> : null}
     </View>
 
-    <Feather name="arrow-right" size={18} color={ink.muted} />
+    <Feather name="arrow-right" size={iconSizes.small} color={ink.muted} />
   </PressableScale>
 );
 

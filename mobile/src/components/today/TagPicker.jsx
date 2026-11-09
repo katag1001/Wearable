@@ -4,13 +4,14 @@
 // and hands the tag to `onPick` (useToday's pickTag - today only).
 
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { View } from "react-native";
 
 import { usePagedCache } from "@core/cache/usePagedCache.js";
 import { visibleTagGroups } from "@core/utils/tagOptions.js";
 
-import { Chip, ChipRow, SectionTitle, Sheet } from "../ui";
-import { type } from "../../theme/soft";
+import { loaderSizes } from "../../theme/soft";
+import { BubbleLoader } from "../soft/BubbleLoader";
+import { Chip, ChipRow, EmptyState, Message, SectionTitle, Sheet } from "../ui";
 
 export const TagPicker = ({ visible, todayTag, onPick, onClose }) => {
   const matchesCache = usePagedCache("matches");
@@ -44,9 +45,9 @@ export const TagPicker = ({ visible, todayTag, onPick, onClose }) => {
   const groups = tags ? visibleTagGroups(tags) : [];
 
   const body = () => {
-    if (failed) return <Text style={styles.note}>Couldn't load your tags.</Text>;
-    if (!tags) return <Text style={styles.note}>Loading tags</Text>;
-    if (!groups.length) return <Text style={styles.note}>None of your outfits have tags yet.</Text>;
+    if (failed) return <Message text="Couldn't load your tags." />;
+    if (!tags) return <BubbleLoader text="Loading tags…" size={loaderSizes.medium} fill={false} />;
+    if (!groups.length) return <EmptyState title="None of your outfits have tags yet" compact />;
 
     return groups.map(({ group, tags: groupTags }) => (
       <View key={group}>
@@ -74,10 +75,3 @@ export const TagPicker = ({ visible, todayTag, onPick, onClose }) => {
     </Sheet>
   );
 };
-
-const styles = StyleSheet.create({
-  note: {
-    ...type.body,
-    textAlign: "center",
-  },
-});

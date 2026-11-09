@@ -1,15 +1,16 @@
 // The round icon buttons under a swipe deck (heart, broken heart, shoe):
 // the icon in soft ink on a plain translucent white circle with a faint
-// shadow - no rim or highlight. `active` fills it in blush - e.g. the
+// shadow - no rim or highlight. `active` fills it blush with a white icon
+// (hearts in theme/soft) - e.g. the
 // heart for what's already worn today.
 // `small`: a lesser action, sat between the big ones. `iconSet`: an
 // @expo/vector-icons set (Feather by default).
 
 import Feather from "@expo/vector-icons/Feather";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
-import { PressableScale } from "../soft";
-import { ink, loved, shadows, space, surface } from "../../theme/soft";
+import { BubbleLoader, PressableScale } from "../soft";
+import { hearts, ink, loaderSizes, shadows, space, surface } from "../../theme/soft";
 
 const SIZE = 60;
 const SMALL_SIZE = 46;
@@ -20,16 +21,17 @@ export const ActionButton = ({
   onPress,
   loading,
   active,
+  disabled = false,
   small = false,
   iconSet: Icon = Feather,
 }) => {
   const size = small ? SMALL_SIZE : SIZE;
-  const iconColor = active ? loved.deep : ink.soft;
+  const iconColor = active ? hearts.wornIcon : ink.soft;
 
   return (
     <PressableScale
       onPress={onPress}
-      disabled={loading}
+      disabled={loading || disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected: Boolean(active) }}
@@ -40,7 +42,7 @@ export const ActionButton = ({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={iconColor} />
+        <BubbleLoader size={loaderSizes.small} fill={false} />
       ) : (
         <Icon name={icon} size={small ? 22 : 27} color={iconColor} />
       )}
@@ -57,7 +59,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: space.xl,
+    gap: space.xxl,
   },
   button: {
     alignItems: "center",
@@ -66,6 +68,6 @@ const styles = StyleSheet.create({
     boxShadow: shadows.soft,
   },
   active: {
-    backgroundColor: loved.wash,
+    backgroundColor: hearts.worn,
   },
 });

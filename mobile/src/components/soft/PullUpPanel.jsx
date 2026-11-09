@@ -1,5 +1,6 @@
 // A panel along the bottom of the page like the top of a card that's popped
-// up: milk, big rounded top corners, a grab handle and a soft shadow above.
+// up: milk, the panels' rounded top corners and light top rim (like Today's
+// bottom panel) and a grab handle.
 // Drag its top strip to move it between its `stops` - how much of it shows
 // - and it snaps to the nearest (a flick goes on to the next one). Tapping
 // the strip tucks it away, or from tucked away brings it back to
@@ -30,8 +31,8 @@
 import { createContext, use, useEffect, useRef, useState } from "react";
 import { Animated, PanResponder, StyleSheet, View } from "react-native";
 
-import { colors, radius } from "../../theme/tokens";
-import { motion, shadows } from "../../theme/soft";
+import { colors } from "../../theme/tokens";
+import { boxEdge, motion, radii } from "../../theme/soft";
 
 // What's left showing when it's tucked away: the strip with the handle.
 export const PULL_UP_PEEK = 30;
@@ -215,10 +216,10 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: colors.pageBackground,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    borderTopLeftRadius: radii.sheet,
+    borderTopRightRadius: radii.sheet,
     borderCurve: "continuous",
-    boxShadow: shadows.panel,
+    ...boxEdge,
   },
   // Fills the rest of a panel with a set height.
   content: {
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 5,
-    borderRadius: radius.pill,
+    borderRadius: radii.pill,
     backgroundColor: colors.imageBackground,
   },
 });

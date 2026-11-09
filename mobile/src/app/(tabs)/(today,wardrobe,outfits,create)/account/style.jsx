@@ -11,7 +11,6 @@
 
 import { useEffect, useState } from "react";
 import { router, usePreventRemove } from "expo-router";
-import { Alert } from "react-native";
 
 import { getPreferences } from "@core/api/preferences.js";
 import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
@@ -19,11 +18,12 @@ import { useStyleQuiz } from "@core/hooks/useStyleQuiz.js";
 import { StyleQuizSteps } from "../../../../components/styleQuiz/StyleQuizSteps";
 import { Loading, Message, Screen } from "../../../../components/ui";
 import { useOutfitRebuild } from "../../../../outfitRebuild/OutfitRebuildProvider";
+import { showDialog } from "../../../../components/soft/Dialog";
 
 // Resolves true to go ahead with the new gender.
 const confirmGenderChange = () =>
   new Promise((resolve) => {
-    Alert.alert(
+    showDialog(
       "Change how you dress?",
       "This rebuilds all your outfits and resets what the app has learned about the pairings you like.",
       [
@@ -33,6 +33,8 @@ const confirmGenderChange = () =>
       { cancelable: true, onDismiss: () => resolve(false) }
     );
   });
+
+const TITLE = "Style preferences";
 
 export default function StylePreferencesScreen() {
   const [saved, setSaved] = useState(null);
@@ -49,14 +51,18 @@ export default function StylePreferencesScreen() {
 
   if (error) {
     return (
-      <Screen edges={["bottom"]}>
+      <Screen pageTitle={TITLE} onBack={() => router.back()}>
         <Message text={error} />
       </Screen>
     );
   }
 
   if (!saved) {
-    return <Loading text="Loading your preferences..." />;
+    return (
+      <Screen pageTitle={TITLE} onBack={() => router.back()} scroll={false}>
+        <Loading text="Loading your preferences…" />
+      </Screen>
+    );
   }
 
   return <StyleRetake saved={saved} />;
@@ -70,7 +76,7 @@ function StyleRetake({ saved }) {
   // The header's back arrow, Android's back button and swiping back.
   // `repeat` turns the check off and leaves.
   const allowLeaving = usePreventRemove(!finished, ({ repeat }) => {
-    Alert.alert(
+    showDialog(
       "Leave without saving?",
       "Your preferences aren't saved until you finish the quiz.",
       [
@@ -93,5 +99,7 @@ function StyleRetake({ saved }) {
     },
   });
 
-  return <StyleQuizSteps quiz={quiz} edges={["bottom"]} />;
+  return (
+    <StyleQuizSteps quiz={quiz} pageTitle={TITLE} onBack={() => router.back()} />
+  );
 }

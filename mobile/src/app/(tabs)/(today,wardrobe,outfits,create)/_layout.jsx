@@ -6,7 +6,7 @@
 
 import { Stack } from "expo-router";
 
-import { softHeader } from "../../../components/soft";
+import { BackButton, softHeader } from "../../../components/soft";
 
 export const unstable_settings = {
   anchor: "index",
@@ -15,36 +15,30 @@ export const unstable_settings = {
   create: { anchor: "create" },
 };
 
-// Pages opened on top of a tab's first page: the soft header with just a
-// back arrow (they can be reached from more than one tab).
+// Pages opened on top of a tab's first page that draw over the whole
+// screen (an outfit, an item, Build outfit): the soft header with the plain
+// back arrow (soft/BackButton) - they can be reached from more than one tab.
 const withHeader = (options = {}) => ({
   headerShown: true,
   ...softHeader,
-  headerBackButtonDisplayMode: "minimal",
+  headerLeft: () => <BackButton />,
   ...options,
 });
 
 export default function TabStack() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* No stack header: Profile draws its own back arrow in its top
-          panel, like Today. */}
+      {/* No stack header: Profile, its preference pages and Add item draw
+          their own back arrow and title in a top panel, like Today
+          (ui/Screen's pageTitle). */}
       <Stack.Screen name="profile" />
-      <Stack.Screen
-        name="account/weekly"
-        options={withHeader({ title: "Weekly preferences" })}
-      />
-      <Stack.Screen
-        name="account/style"
-        options={withHeader({ title: "Style preferences" })}
-      />
-      <Stack.Screen
-        name="account/settings"
-        options={withHeader({ title: "Settings" })}
-      />
+      <Stack.Screen name="account/weekly" />
+      <Stack.Screen name="account/style" />
+      <Stack.Screen name="account/settings" />
+      <Stack.Screen name="item/add" />
       <Stack.Screen name="build-outfit" options={withHeader()} />
       <Stack.Screen name="outfit" options={withHeader()} />
-      <Stack.Screen name="item/add" options={withHeader()} />
+      {/* A new item drawn by hand hides it again (a panel page). */}
       <Stack.Screen name="item/edit" options={withHeader()} />
     </Stack>
   );

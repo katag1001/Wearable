@@ -1,11 +1,13 @@
 // Back / Next at the bottom of a quiz step (pushed down when the step is
 // shorter than the screen). Leave out onNext for steps that move on by
 // themselves when you answer; `nextLabel` renames Next (e.g. "Finish").
-// Leave out onBack on the first step: Next sits alone in the middle.
+// Leave out onBack on the first step: Next sits alone in the middle. Back
+// is a step back within the quiz, so it's the plain text action (as Back
+// is wherever it steps back inside a page); the arrow is for leaving.
 
 import { StyleSheet, View } from "react-native";
 
-import { spacing } from "../../theme/tokens";
+import { space } from "../../theme/soft";
 import { Button } from "../ui";
 
 export const QuizActions = ({
@@ -20,7 +22,7 @@ export const QuizActions = ({
     {onBack ? (
       <Button
         label="Back"
-        variant="secondary"
+        variant="text"
         onPress={onBack}
         disabled={disabled}
         style={styles.button}
@@ -41,9 +43,9 @@ export const QuizActions = ({
 const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
-    gap: spacing.md,
+    gap: space.sm,
     marginTop: "auto",
-    paddingTop: spacing.sm,
+    paddingTop: space.xs,
   },
   centred: {
     justifyContent: "center",

@@ -12,7 +12,7 @@ import {
   AI_CONSENT_SAVED_MESSAGE,
 } from "@core/constants/aiAnalysis.js";
 
-import { colors, fontSizes, fontWeights } from "../../theme/tokens";
+import { type } from "../../theme/soft";
 import { Button, Message } from "../ui";
 
 export const AiConsentPrompt = ({ consent }) => {
@@ -49,9 +49,7 @@ export const AiConsentPrompt = ({ consent }) => {
 
 const styles = StyleSheet.create({
   text: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.body,
-    color: colors.secondary,
+    ...type.body,
     textAlign: "center",
   },
 });

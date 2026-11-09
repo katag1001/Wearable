@@ -1,20 +1,15 @@
 // A picture on pearl (the item background, a hue-free warm white),
-// optionally tappable and selectable (an iridescent halo + a tick in a
-// small white bubble - `showCheck={false}` for the halo alone). Without a
-// source it shows `placeholder` text instead.
+// optionally tappable and selectable (the iridescent halo + the selected
+// tick, ui/SelectedTick). Squeezes when pressed. Without a source it shows
+// `placeholder` text instead.
 
-import Feather from "@expo/vector-icons/Feather";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  shadows,
-  spacing,
-} from "../../theme/tokens";
+import { colors } from "../../theme/tokens";
+import { radii, space, type } from "../../theme/soft";
+import { PressableScale } from "../soft/PressableScale";
 import { SelectionHalo } from "../soft/SelectionHalo";
+import { SelectedTick } from "./SelectedTick";
 
 export const ImageTile = ({
   source,
@@ -24,7 +19,6 @@ export const ImageTile = ({
   onPress,
   aspectRatio = 1,
   resizeMode = "cover",
-  showCheck = true,
   style,
 }) => {
   const content = (
@@ -37,12 +31,8 @@ export const ImageTile = ({
 
       {selected ? (
         <>
-          <SelectionHalo radius={radius.lg} />
-          {showCheck ? (
-            <View style={styles.check}>
-              <Feather name="check" size={14} color={colors.main} />
-            </View>
-          ) : null}
+          <SelectionHalo radius={radii.tile} />
+          <SelectedTick />
         </>
       ) : null}
     </>
@@ -55,51 +45,34 @@ export const ImageTile = ({
   }
 
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected }}
-      style={({ pressed }) => [tileStyle, pressed && styles.pressed]}
+      style={tileStyle}
     >
       {content}
-    </Pressable>
+    </PressableScale>
   );
 };
 
 const styles = StyleSheet.create({
   tile: {
-    borderRadius: radius.lg,
+    borderRadius: radii.tile,
     borderCurve: "continuous",
     backgroundColor: colors.itemBackground,
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
   },
-  pressed: {
-    transform: [{ scale: 0.98 }],
-  },
   image: {
     width: "100%",
     height: "100%",
   },
   placeholder: {
-    fontFamily: fontWeights.regular,
-    fontSize: fontSizes.small,
-    color: colors.muted,
+    ...type.caption,
     textAlign: "center",
-    padding: spacing.sm,
-  },
-  check: {
-    position: "absolute",
-    top: spacing.sm,
-    right: spacing.sm,
-    width: 26,
-    height: 26,
-    borderRadius: radius.pill,
-    backgroundColor: colors.inverse,
-    boxShadow: shadows.soft,
-    alignItems: "center",
-    justifyContent: "center",
+    padding: space.xs,
   },
 });

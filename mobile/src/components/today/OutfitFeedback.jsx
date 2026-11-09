@@ -10,8 +10,7 @@
 // Logic: useOutfitFeedback (shared with the web's popup).
 
 import { useEffect, useRef } from "react";
-import Feather from "@expo/vector-icons/Feather";
-import { BackHandler, Pressable, StyleSheet, Text, View } from "react-native";
+import { BackHandler, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useOutfitFeedback } from "@core/hooks/useOutfitFeedback.js";
@@ -23,10 +22,10 @@ import {
   TOO_HOT,
 } from "@core/today/outfitFeedback.js";
 
-import { colors, spacing } from "../../theme/tokens";
-import { type } from "../../theme/soft";
+import { colors } from "../../theme/tokens";
+import { space } from "../../theme/soft";
 import { MismatchPicker } from "../outfits/MismatchPicker";
-import { Atmosphere } from "../soft";
+import { Atmosphere, SheetHeader } from "../soft";
 import { Button } from "../ui";
 
 export const OutfitFeedback = ({ today, onClose }) => {
@@ -68,22 +67,12 @@ export const OutfitFeedback = ({ today, onClose }) => {
     <View
       style={[
         styles.page,
-        { paddingTop: insets.top + spacing.md, paddingBottom: spacing.md },
+        { paddingTop: insets.top + space.sm, paddingBottom: space.sm },
       ]}
     >
       <Atmosphere />
 
-      <View style={styles.header}>
-        <Text style={styles.title}>{TITLES[feedback.step]}</Text>
-        <Pressable
-          onPress={close}
-          accessibilityRole="button"
-          accessibilityLabel="Close"
-          hitSlop={12}
-        >
-          <Feather name="x" size={24} color={colors.muted} />
-        </Pressable>
-      </View>
+      <SheetHeader title={TITLES[feedback.step]} onClose={close} />
 
       {picking ? (
         <MismatchPicker
@@ -154,19 +143,13 @@ export const OutfitFeedback = ({ today, onClose }) => {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    gap: spacing.lg,
-    paddingHorizontal: spacing.xl,
+    gap: space.md,
+    paddingHorizontal: space.lg,
     backgroundColor: colors.pageBackground,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  title: type.sheetTitle,
   options: {
     flex: 1,
     justifyContent: "center",
-    gap: spacing.md,
+    gap: space.sm,
   },
 });

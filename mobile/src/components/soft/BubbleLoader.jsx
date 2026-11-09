@@ -1,5 +1,7 @@
 // A single bubble breathing (0.96 <-> 1.04 over 2.4s) with an optional
-// line of text, centred in the space it's given. The soft ui/Loading.
+// line of text, centred in the space it's given - the app's only loader,
+// on its own or (`fill={false}`, small) inside a button, a row or a list
+// footer. The soft ui/Loading.
 
 import { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
@@ -7,7 +9,7 @@ import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import { space, type } from "../../theme/soft";
 import { Bubble } from "./Bubble";
 
-export const BubbleLoader = ({ text, size = 56 }) => {
+export const BubbleLoader = ({ text, size = 56, fill = true, style }) => {
   const breath = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export const BubbleLoader = ({ text, size = 56 }) => {
   }, [breath]);
 
   return (
-    <View style={styles.loader} accessibilityRole="progressbar" accessibilityLabel={text}>
+    <View style={[styles.loader, fill && styles.fill, style]} accessibilityRole="progressbar" accessibilityLabel={text}>
       <Animated.View
         style={{
           transform: [
@@ -50,8 +52,10 @@ export const BubbleLoader = ({ text, size = 56 }) => {
 };
 
 const styles = StyleSheet.create({
-  loader: {
+  fill: {
     flex: 1,
+  },
+  loader: {
     alignItems: "center",
     justifyContent: "center",
     gap: space.sm,

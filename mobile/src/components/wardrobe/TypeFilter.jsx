@@ -9,7 +9,7 @@ import {
   WARDROBE_TYPE_TITLES,
 } from "@core/wardrobe/wardrobeTypes.js";
 
-import { spacing } from "../../theme/tokens";
+import { space } from "../../theme/soft";
 import { Chip, ChipRow } from "../ui";
 
 export const TypeFilter = ({ wardrobe }) => {
@@ -20,7 +20,7 @@ export const TypeFilter = ({ wardrobe }) => {
     : [];
 
   return (
-    <View style={{ gap: spacing.sm }}>
+    <View style={{ gap: space.xs }}>
       <ChipRow scroll>
         {WARDROBE_TYPES.map((type) => (
           <Chip

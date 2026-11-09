@@ -9,7 +9,8 @@ import { StyleSheet, View } from "react-native";
 import { visibleTagGroups } from "@core/utils/tagOptions.js";
 import { TEMPERATURE_RANGE } from "@core/matches/matchFields.js";
 
-import { Chip, ChipRow, RangeSlider, SectionTitle, StarRating } from "../ui";
+import { space } from "../../theme/soft";
+import { Chip, ChipRow, RangeSlider, SectionTitle, StarRating, TextAction } from "../ui";
 
 export const OutfitDetails = ({ card, ratingAside }) => {
   const { draft } = card;
@@ -20,13 +21,13 @@ export const OutfitDetails = ({ card, ratingAside }) => {
 
   return (
     <>
-      <SectionTitle title="Rating" />
+      <SectionTitle title="Rating" field />
       <View style={styles.ratingRow}>
         <StarRating rating={draft.rating} onChange={card.setRating} style={styles.stars} />
         {ratingAside}
       </View>
 
-      <SectionTitle title="Temperature range" />
+      <SectionTitle title="Temperature range" field />
       <RangeSlider
         min={TEMPERATURE_RANGE.min}
         max={TEMPERATURE_RANGE.max}
@@ -37,7 +38,7 @@ export const OutfitDetails = ({ card, ratingAside }) => {
 
       {card.offersTights ? (
         <>
-          <SectionTitle title="Tights" />
+          <SectionTitle title="Tights" field />
           <ChipRow>
             <Chip
               label="Can wear with tights"
@@ -50,8 +51,9 @@ export const OutfitDetails = ({ card, ratingAside }) => {
 
       <SectionTitle
         title="Tags"
+        field
         right={
-          <Chip
+          <TextAction
             label={showAllTags ? "Show fewer" : "Show all"}
             onPress={() => setShowAllTags(!showAllTags)}
           />
@@ -81,7 +83,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
+    gap: space.sm,
   },
   stars: {
     justifyContent: "flex-start",

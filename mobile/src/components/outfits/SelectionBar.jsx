@@ -1,21 +1,17 @@
-// Shown while outfits are selected: how many, Clear, and Delete.
+// Shown while outfits are selected, floating over the bottom of the list:
+// the house box with how many are picked, Clear, and Delete (in rose-clay)
+// as plain text actions. Position it with `style`.
 
 import { StyleSheet, Text, View } from "react-native";
 
-import {
-  colors,
-  fontSizes,
-  fontWeights,
-  radius,
-  spacing,
-} from "../../theme/tokens";
-import { Button } from "../ui";
+import { houseBox, space, type } from "../../theme/soft";
+import { TextAction } from "../ui";
 
-export const SelectionBar = ({ count, onClear, onDelete }) => (
-  <View style={styles.bar}>
+export const SelectionBar = ({ count, onClear, onDelete, style }) => (
+  <View style={[styles.bar, style]}>
     <Text style={styles.count}>{count} selected</Text>
-    <Button label="Clear" variant="text" onPress={onClear} />
-    <Button label="Delete" variant="secondary" onPress={onDelete} />
+    <TextAction label="Clear" onPress={onClear} />
+    <TextAction label="Delete" tone="error" onPress={onDelete} />
   </View>
 );
 
@@ -23,16 +19,13 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.lg,
-    backgroundColor: colors.imageBackground,
+    gap: space.lg,
+    paddingHorizontal: space.md,
+    paddingVertical: space.md,
+    ...houseBox,
   },
   count: {
+    ...type.menuLabel,
     flex: 1,
-    fontSize: fontSizes.body,
-    fontFamily: fontWeights.medium,
-    color: colors.main,
   },
 });
