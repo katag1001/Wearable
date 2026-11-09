@@ -52,6 +52,35 @@ export const deep = {
 // The full iridescent run - selection halo, temperature track, bubbles.
 export const iridescent = [mid.blush, mid.lavender, mid.sky, mid.mint, mid.peach];
 
+// The rating stars' and favourite heart's colours: each star runs from one
+// to the next (the heart matches the first star), with mint between the
+// others so every star carries some green.
+export const ratingRun = [
+  mid.blush,
+  mid.mint,
+  mid.lavender,
+  mid.mint,
+  mid.sky,
+  mid.mint,
+];
+
+// The Atmosphere's colours: the bubble colours a touch clearer - a cooler
+// pink than mid.blush so it reads pink rather than peachy where it blends,
+// and a brighter blue and green.
+export const atmosphereColours = {
+  ...mid,
+  blush: "#EFA6C6",
+  sky: "#9CBEF2",
+  mint: "#A3DAC6",
+};
+
+// Things "filled in" with the atmosphere (soft/AtmosphereFill): a selected
+// chip. The colours in order along the blend, and how strongly they show.
+export const atmosphereBlend = {
+  hues: ["blush", "lavender", "sky", "mint", "mint"],
+  opacity: 0.45,
+};
+
 export const semantic = {
   error: "#9A4E5C",
   errorWash: wash.blush,

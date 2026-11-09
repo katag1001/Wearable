@@ -1,5 +1,6 @@
 // A small rounded toggle: seasons, colours, types, filters. A translucent
-// white pill; selected, it turns soft lavender with a stronger label.
+// white pill; selected, it fills with the atmosphere's colours
+// (soft/AtmosphereFill) and its label turns stronger.
 // `swatch` shows a colour dot (with a white ring) before the label.
 
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -13,18 +14,20 @@ import {
   spacing,
 } from "../../theme/tokens";
 import { boxEdge } from "../../theme/soft";
+import { AtmosphereFill } from "../soft/AtmosphereFill";
 
 export const Chip = ({ label, selected = false, onPress, swatch }) => (
   <Pressable
     onPress={onPress}
     accessibilityRole="button"
     accessibilityState={{ selected }}
-    style={({ pressed }) => [
-      styles.chip,
-      selected && styles.selected,
-      pressed && styles.pressed,
-    ]}
+    style={({ pressed }) => [styles.chip, pressed && styles.pressed]}
   >
+    {selected ? (
+      <View style={styles.fill} pointerEvents="none">
+        <AtmosphereFill />
+      </View>
+    ) : null}
     {swatch ? (
       <View style={[styles.swatch, { backgroundColor: swatch }]} />
     ) : null}
@@ -45,8 +48,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cardBackground,
     ...boxEdge,
   },
-  selected: {
-    backgroundColor: colors.selected,
+  // Clips the fill to the pill.
+  fill: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: radius.pill,
+    overflow: "hidden",
   },
   pressed: {
     transform: [{ scale: 0.97 }],
