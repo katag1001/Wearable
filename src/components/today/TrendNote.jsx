@@ -4,7 +4,7 @@ import { trendNoteText } from "@core/today/trendNote.js";
 // a current trend, for users who care a lot about trends. `shoeNote`: the
 // same for the shoe shown (useTodayLook shoeTrendNote).
 const TrendNote = ({ outfit, shoeNote }) => {
-  const text = trendNoteText(outfit?.trendNote, outfit?.matchId?._id ?? outfit?._id);
+  const text = trendNoteText(outfit?.trendNote);
 
   return (
     <>

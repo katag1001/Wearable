@@ -5,6 +5,21 @@ import { emptyPiece, GENDER_OPTIONS, isShoeTrend, PIECE_FIELDS, SHOE_FIELDS } fr
 
 const MAX_PIECES = 4;
 
+// Same as server/constants/trends.js TREND_LABEL_MAX_LENGTH.
+const TREND_LABEL_MAX_LENGTH = 120;
+
+// Shown under the Today note box, for ideas.
+const EXAMPLE_NOTES = [
+  "White jeans are really in right now.",
+  "White jeans are everywhere this season.",
+  "Bang on trend: white jeans.",
+  "You're right on trend with white jeans.",
+  "White jeans are having a moment.",
+  "White jeans? Very now.",
+  "Trend alert: white jeans are so in.",
+  "White jeans are one of this season's big looks.",
+];
+
 // yyyy-mm-dd for a date input.
 const dateInputValue = (date) => new Date(date).toISOString().slice(0, 10);
 
@@ -17,7 +32,6 @@ const threeMonthsFromNow = () => {
 const formFrom = (trend) => ({
   shoe: isShoeTrend(trend),
   label: trend?.label || "",
-  plural: Boolean(trend?.plural),
   genders: trend?.genders || [],
   pieces: trend?.pieces?.length ? trend.pieces : [emptyPiece()],
   until: trend?.until ? dateInputValue(trend.until) : threeMonthsFromNow(),
@@ -60,15 +74,24 @@ const TrendForm = ({ trend, onSave, onCancel }) => {
   return (
     <form className="trends-form" onSubmit={submit}>
       <label className="trends-field">
-        <span>Name (as the Today note says it)</span>
+        <span>Today note (the whole message)</span>
         <input
           value={form.label}
           onChange={(event) => set({ label: event.target.value })}
-          placeholder="e.g. White jeans"
-          maxLength={80}
+          placeholder="e.g. White jeans are really in right now."
+          maxLength={TREND_LABEL_MAX_LENGTH}
           required
         />
       </label>
+
+      <div className="trends-examples">
+        <span>Some examples:</span>
+        <ul>
+          {EXAMPLE_NOTES.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      </div>
 
       <label className="trends-check">
         <input
@@ -77,15 +100,6 @@ const TrendForm = ({ trend, onSave, onCancel }) => {
           onChange={(event) => setShoe(event.target.checked)}
         />
         Shoe trend - just a note on Today when the shoe shown is on it, no points
-      </label>
-
-      <label className="trends-check">
-        <input
-          type="checkbox"
-          checked={form.plural}
-          onChange={(event) => set({ plural: event.target.checked })}
-        />
-        Plural - "White jeans <strong>are</strong> really in", not "is"
       </label>
 
       <div className="trends-field">

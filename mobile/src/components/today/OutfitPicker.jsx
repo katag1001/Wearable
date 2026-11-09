@@ -94,7 +94,7 @@ export const OutfitPicker = ({
     return <Text style={styles.empty}>No outfits saved for today.</Text>;
   }
 
-  const trendNote = trendNoteText(outfit.trendNote, outfit.matchId?._id ?? outfit._id);
+  const trendNote = trendNoteText(outfit.trendNote);
   const shoeTrendNote = today.shoeTrendNote(shoe);
   const outfitKey = outfit.matchId?._id ?? outfit._id;
 

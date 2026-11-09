@@ -16,8 +16,10 @@ Unanswered counts as 1: no effect.
 A `Trend` document (shared by every user), edited on the web **/trends**
 page by admins:
 
-- `label` - how the Today note names it ("Long-sleeve tops with flared
-  jeans"), `plural` - "are" rather than "is".
+- `label` - the whole Today note, typed on the /trends page ("Long-sleeve
+  tops with flared jeans are having a moment."), up to 120 characters. The
+  page lists example wordings under the box. (`plural` is left over from
+  the old worded templates and no longer used.)
 - `genders` - who it counts for (`woman` / `unisex` / `man`); empty =
   everyone.
 - `pieces` - 1-4 items. Each piece has `subtype`, `colour`, `pattern`,
@@ -56,9 +58,8 @@ Names are checked against the app's own lists (`shared/subtypesByGender.json`,
 | On two or more (max) | 0 | 0 | +1 | +6 | +8 |
 
 Trends only ever add. At **4-5** the Today card also gets a note naming the
-first trend the outfit is on (`Today.trendNote`), worded from
-`shared/trendMessages.json` (`{trend}`, `{is}`) - `core/today/trendNote.js`
-picks one, the same all day per outfit. The web Today page shows the trend
+first trend the outfit is on (`Today.trendNote`) - its label is shown as
+it is (`core/today/trendNote.js`). The web Today page shows the trend
 points in its score line (`scoreBreakdown.trend`).
 
 ## Admins

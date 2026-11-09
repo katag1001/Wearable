@@ -11,8 +11,7 @@ import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { PressableScale } from "../soft";
 import { ink, loved, shadows, space, surface } from "../../theme/soft";
 
-export const ACTION_BUTTON_SIZE = 60;
-const SIZE = ACTION_BUTTON_SIZE;
+const SIZE = 60;
 const SMALL_SIZE = 46;
 
 export const ActionButton = ({

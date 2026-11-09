@@ -15,7 +15,7 @@ const TREND_POINTS = {
 const DEFAULT_TRENDS_LEVEL = 1;
 
 // From this level up, Today says which trend an outfit is on
-// (shared/trendMessages.json).
+// (the trend's label is the whole note).
 const TREND_NOTE_MIN_LEVEL = 4;
 
 // A trend saved without an end date ends this many months after it's added.
@@ -24,7 +24,7 @@ const TREND_DEFAULT_MONTHS = 3;
 // The most pieces (items) one trend can combine.
 const TREND_MAX_PIECES = 4;
 
-const TREND_LABEL_MAX_LENGTH = 80;
+const TREND_LABEL_MAX_LENGTH = 120;
 
 module.exports = {
   TREND_POINTS,

@@ -277,7 +277,7 @@ const todaySchema = new mongoose.Schema({
 
   // The trend the outfit is on, for users who care a lot about trends
   // (constants/trends.js TREND_NOTE_MIN_LEVEL) - the Today card says so,
-  // in words from shared/trendMessages.json. null otherwise.
+  // using the trend's label as the whole note. null otherwise.
   trendNote: {
     type: { label: String, plural: Boolean },
     default: null,

@@ -42,6 +42,16 @@
   font: inherit;
 }
 
+.trends-examples {
+  font-size: var(--description-font-size);
+  opacity: .75;
+}
+
+.trends-examples ul {
+  margin: .2rem 0 0;
+  padding-left: 1.2rem;
+}
+
 .trends-check {
   display: flex;
   align-items: center;

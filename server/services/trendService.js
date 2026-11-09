@@ -82,7 +82,7 @@ function checkTrend(input, now = new Date()) {
   const label = typeof input?.label === "string" ? input.label.trim() : "";
 
   if (!label || label.length > TREND_LABEL_MAX_LENGTH) {
-    return { error: `The name must be 1-${TREND_LABEL_MAX_LENGTH} characters.` };
+    return { error: `The Today note must be 1-${TREND_LABEL_MAX_LENGTH} characters.` };
   }
 
   const genders = [...new Set(toNameList(input.genders))];
