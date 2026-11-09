@@ -1,11 +1,10 @@
 // A min / max slider with two thumbs (temperature ranges), like the web's
 // temperatureSlider.jsx. The thumbs can't cross. Screen readers can
-// adjust each thumb by one step. The chosen range is graded cold to warm
-// (sky → mint → peach) and the thumbs are white bubbles.
+// adjust each thumb by one step. The chosen range is filled with the
+// accent (purple) and the thumbs are white bubbles.
 
 import { useRef, useState } from "react";
 import { PanResponder, StyleSheet, Text, View } from "react-native";
-import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 
 import {
   colors,
@@ -15,7 +14,7 @@ import {
   shadows,
   spacing,
 } from "../../theme/tokens";
-import { temperatureRun } from "../../theme/soft";
+import { accent } from "../../theme/soft";
 
 const THUMB = 28;
 
@@ -100,18 +99,7 @@ export const RangeSlider = ({
         onLayout={(event) => setTrackWidth(event.nativeEvent.layout.width)}
       >
         <View style={styles.rail} />
-        <View style={[styles.range, { left, width: right - left }]}>
-          <Svg width="100%" height="100%">
-            <Defs>
-              <LinearGradient id="rangeTrack" x1="0" y1="0" x2="1" y2="0">
-                <Stop offset="0" stopColor={temperatureRun[0]} />
-                <Stop offset="0.5" stopColor={temperatureRun[1]} />
-                <Stop offset="1" stopColor={temperatureRun[2]} />
-              </LinearGradient>
-            </Defs>
-            <Rect width="100%" height="100%" rx={3} fill="url(#rangeTrack)" />
-          </Svg>
-        </View>
+        <View style={[styles.range, { left, width: right - left }]} />
 
         <View
           {...responders.current.min.panHandlers}
@@ -157,7 +145,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     height: 6,
     borderRadius: radius.pill,
-    overflow: "hidden",
+    backgroundColor: accent.mid,
   },
   thumb: {
     position: "absolute",

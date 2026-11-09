@@ -92,7 +92,7 @@ export const loved = {
   deep: deep.blush,
 };
 
-// The temperature sliders' track, cold to warm.
+// The 1-5 point sliders' track (ui/PointSlider), cold to warm.
 export const temperatureRun = [mid.sky, mid.mint, mid.peach];
 
 // The icon circles on the big choice cards (ui/ActionCard).
