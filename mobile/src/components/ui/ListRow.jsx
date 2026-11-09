@@ -6,7 +6,7 @@
 import Feather from "@expo/vector-icons/Feather";
 import { StyleSheet, Text, View } from "react-native";
 
-import { continuous, ink, radii, shadows, space, surface, type } from "../../theme/soft";
+import { houseBox, ink, space, type } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
 
 const DOT = 7;
@@ -37,10 +37,7 @@ const styles = StyleSheet.create({
     gap: space.sm,
     paddingVertical: space.md,
     paddingHorizontal: space.md,
-    borderRadius: radii.tile,
-    ...continuous,
-    backgroundColor: surface.veil,
-    boxShadow: shadows.raised,
+    ...houseBox,
   },
   dot: {
     width: DOT,

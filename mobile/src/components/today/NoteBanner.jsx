@@ -10,7 +10,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { useEffect, useRef } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { continuous, ink, motion, noteTints, radii, shadows, space, surface, type } from "../../theme/soft";
+import { houseBox, ink, motion, noteTints, space, type } from "../../theme/soft";
 
 const DOT = 7;
 
@@ -64,10 +64,7 @@ const styles = StyleSheet.create({
     paddingVertical: space.sm,
     paddingHorizontal: space.md,
     gap: space.xs,
-    borderRadius: radii.tile,
-    ...continuous,
-    backgroundColor: surface.veil,
-    boxShadow: shadows.raised,
+    ...houseBox,
   },
   row: {
     flexDirection: "row",

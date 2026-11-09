@@ -7,9 +7,35 @@ and boxes. Background ideas come from the reference images
 (`../../portfolio/portfolio_v2` - read-only, never edit it), with far more
 subtle colour.
 
-Status (2026-11-09): rewritten around Today. Values live in
-`mobile/src/theme/soft.js`; components use its roles, never hues or
-literals.
+Status (2026-11-09): rewritten around Today.
+
+## 0. Everything goes through the root
+
+**Every style lives in one place, so that similar things are changed
+together.** The root is `mobile/src/theme/soft.js` (with `theme/tokens.js`
+built on it) for values, and the shared components for shapes.
+
+- **Values**: colours, fonts, text styles, spacing, radii, shadows and
+  motion are named roles in `soft.js` (`accent`, `loved`, `type.menuLabel`,
+  `shadows.raised`, `houseBox`, `menuTints`...). Components and screens
+  use the roles only. They never use a hex, an rgba, a hue name
+  (`mid.lavender`), a font size, or a hand-typed line height or letter
+  spacing.
+- **Shapes**: anything that appears in more than one place is one shared
+  component or style. Examples are the panels (`soft/Panels`), the page
+  title (`soft/PageHeader`), the house box (`houseBox`, used by the note
+  banner, the menu boxes and the choice cards), the menu box
+  (`ui/ListRow`) and the choice card (`ui/ActionCard`). Screens arrange
+  these pieces and don't restyle them.
+- **Similar items share a role**, even when they're on different screens.
+  For example, every box with a name over a small-caps line uses
+  `type.menuLabel` and `type.menuText`. Changing that role changes all of
+  them at once.
+- **Something new**: if a screen needs a look that doesn't exist yet, add a
+  named role to `soft.js` (or a shared component) first, then use it.
+  Never write a one-off style in the screen.
+- This document names the roles, so a change to the look is a change to
+  `soft.js`, plus this page when the rule itself changes.
 
 ## 1. The idea
 
@@ -178,6 +204,9 @@ loaded but not used.)
   out and Delete account sit at the foot of the bottom panel as two `menuText`
   sublines in a pair: Log out left, Delete account right in rose-clay.
   Both confirm first. No email shown.
+- **Add (the + tab)**: built like Profile. The top panel has "Add"
+  (`menuTitle`), and the bottom panel has two choice cards: Add item ("From
+  a photo", lavender) and Build outfit ("From your wardrobe", blush).
 - **Wardrobe / Outfits**: Wardrobe is a two-up grid of item photos, no
   names. Outfits is two Pinterest-style columns, tops over bottoms, in soft
   white boxes (`colors.fieldBackground`). Filters are in the frosted sheet.
@@ -195,9 +224,11 @@ loaded but not used.)
 |---|---|
 | `SoftScreen` / `Screen` | Atmosphere behind, milk base, gutter 24 |
 | `PageHeader` | `pageTitle` + optional plain icon on the right |
-| `NoteBanner` | The house box: veil, radius 20, raised, dots |
+| `NoteBanner` | The house box (`houseBox`): veil, radius 20, raised, dots |
 | `ActionButton` | Plain veil circle, soft shadow; active = blush wash |
-| `ActionCard` | Big choice: tinted icon circle, `cardTitle`, text, arrow, on a white box |
+| `ActionCard` | Choice card: the house box with a tinted icon circle (40), `menuLabel` over `menuText`, muted arrow |
+| `ListRow` | Menu box: the house box with a hue dot, `menuLabel` over `menuText`, muted arrow |
+| `Panels` | `TopPanel` / `BottomPanel` / `panelPage`: the homepage composition |
 | `Button` | Lavender pill (main), translucent white pill (secondary), text + `→` |
 | `Chip` | White pill; selected = solid lilac, label to ink |
 | `TextField` | White ~70%, no border, lavender focus glow |

@@ -401,6 +401,17 @@ export const boxEdge = {
   boxShadow: LIGHT_RIM,
 };
 
+// The house box (context/visual-language.md): Today's note banner,
+// Profile's menu boxes and the + tab's choice cards. Translucent white,
+// rounded, the soft shadow with its light top rim, no border. Spread it
+// into a style; change it here to change them all.
+export const houseBox = {
+  borderRadius: radii.tile,
+  ...continuous,
+  backgroundColor: surface.veil,
+  boxShadow: shadows.raised,
+};
+
 export const motion = {
   press: 200,
   panel: 320,

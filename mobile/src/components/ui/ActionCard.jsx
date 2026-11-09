@@ -1,14 +1,16 @@
-// A big tappable choice: an icon on a soft tint, a light title, a line of
-// description and an arrow, on a soft white card. The + tab's Add item /
-// Build outfit, and Add item's Take photo / Choose photo. `tint` is the
-// icon circle's colour (a wash from theme/soft).
+// A big tappable choice, as the house box (like Profile's menu boxes): an
+// icon on a soft tint, a light name over a small-caps line, and a muted
+// arrow. The + tab's Add item / Build outfit, and Add item's Take photo /
+// Choose photo. `tint` is the icon circle's colour (choiceTints in
+// theme/soft).
 
 import Feather from "@expo/vector-icons/Feather";
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, radius, spacing } from "../../theme/tokens";
-import { boxEdge, type } from "../../theme/soft";
+import { houseBox, ink, radii, space, type } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
+
+const ICON_CIRCLE = 40;
 
 export const ActionCard = ({ icon, title, text, tint, onPress }) => (
   <PressableScale
@@ -19,7 +21,7 @@ export const ActionCard = ({ icon, title, text, tint, onPress }) => (
     style={styles.card}
   >
     <View style={[styles.icon, { backgroundColor: tint }]}>
-      <Feather name={icon} size={22} color={colors.main} />
+      <Feather name={icon} size={18} color={ink.main} />
     </View>
 
     <View style={styles.text}>
@@ -27,7 +29,7 @@ export const ActionCard = ({ icon, title, text, tint, onPress }) => (
       {text ? <Text style={styles.description}>{text}</Text> : null}
     </View>
 
-    <Feather name="arrow-right" size={18} color={colors.muted} />
+    <Feather name="arrow-right" size={18} color={ink.muted} />
   </PressableScale>
 );
 
@@ -38,29 +40,26 @@ export const ActionCards = ({ children }) => (
 
 const styles = StyleSheet.create({
   cards: {
-    gap: spacing.lg,
+    gap: space.sm,
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.lg,
-    padding: spacing.xl,
-    borderRadius: radius.xl,
-    borderCurve: "continuous",
-    backgroundColor: colors.cardBackground,
-    ...boxEdge,
+    gap: space.sm,
+    padding: space.md,
+    ...houseBox,
   },
   icon: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.pill,
+    width: ICON_CIRCLE,
+    height: ICON_CIRCLE,
+    borderRadius: radii.pill,
     alignItems: "center",
     justifyContent: "center",
   },
   text: {
     flex: 1,
-    gap: spacing.xs,
+    gap: space.xxs,
   },
-  title: type.cardTitle,
-  description: type.cardText,
+  title: type.menuLabel,
+  description: type.menuText,
 });
