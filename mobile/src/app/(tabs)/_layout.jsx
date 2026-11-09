@@ -51,11 +51,11 @@ export default function TabsLayout() {
         />
         <Tabs.Screen
           name="(wardrobe)"
-          options={{ title: "Wardrobe", tabBarIcon: tabIcon("grid") }}
+          options={{ title: "Wardrobe", tabBarIcon: tabIcon("hanger", "mci") }}
         />
         <Tabs.Screen
           name="(outfits)"
-          options={{ title: "Outfits", tabBarIcon: tabIcon("layers") }}
+          options={{ title: "Outfits", tabBarIcon: tabIcon("tshirt-crew-outline", "mci") }}
         />
         <Tabs.Screen
           name="(create)"
