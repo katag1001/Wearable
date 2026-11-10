@@ -29,7 +29,9 @@ const isRain = (code) =>
   (code >= 80 && code <= 82) ||
   code >= 95;
 
-export const HOT_DAY_MAX = 22;
+// A hot day needs both: a warm peak and a warm start.
+export const HOT_DAY_MAX = 25;
+export const HOT_DAY_MIN = 18;
 export const COLD_DAY_MAX = 10;
 
 const SANDALS = ["Sandals", "Heeled sandals", "Flipflops"];
@@ -37,7 +39,7 @@ const SANDALS = ["Sandals", "Heeled sandals", "Flipflops"];
 // Boots when today's maximum is above this, sandals when today's minimum
 // is below this.
 export const BOOTS_TOO_WARM_ABOVE = 23;
-export const SANDALS_TOO_COOL_BELOW = 15;
+export const SANDALS_TOO_COOL_BELOW = 16;
 
 export const FOOTWEAR_UNSUITABLE_RULES = [
   { name: "too warm for boots", when: ({ max }) => max > BOOTS_TOO_WARM_ABOVE, footwear: BOOTS },
@@ -75,11 +77,11 @@ export const FOOTWEAR_WEATHER_RULES = [
   },
   {
     name: "hot",
-    when: ({ max }) => max >= HOT_DAY_MAX,
+    when: ({ min, max }) => max >= HOT_DAY_MAX && min >= HOT_DAY_MIN,
     points: {
-      "Sandals": 10,
-      "Heeled sandals": 10,
-      "Flipflops": 10,
+      "Sandals": 5,
+      "Heeled sandals": 5,
+      "Flipflops": 5,
       "Snow boots": -15,
       "Knee-high boots": -15,
     },

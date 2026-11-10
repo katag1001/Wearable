@@ -23,7 +23,7 @@ import {
  * Then groups:
  *   - unsuitable: every shoe today's weather doesn't penalise comes before
  *     every shoe it does, or that a FOOTWEAR_UNSUITABLE_RULES rule rules
- *     out - boots above 23°, sandals below 15° (constants/footwearWeather.js),
+ *     out - boots above 23°, sandals below 16° (constants/footwearWeather.js),
  *     and with tights,
  *     open shoes go to the bottom too (constants/footwearTights.js), so
  *     nothing else can lift an unsuitable shoe above a suitable one;
@@ -45,7 +45,7 @@ import {
 
 // Bump when the rules or numbers change, so shoe orders cached earlier in
 // the day (core/footwear/footwearCache.js) are ranked again.
-export const FOOTWEAR_RANKING_VERSION = 4;
+export const FOOTWEAR_RANKING_VERSION = 5;
 
 const DEFAULT_GENDER = "unisex";
 

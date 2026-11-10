@@ -95,7 +95,7 @@ has no bottom (an outfit with both uses the bottom).
    (`FOOTWEAR_UNSUITABLE_RULES`): **every boot** (ankle, knee-high, heeled,
    snow, walking, boots) when today's **maximum is above 23°**, and
    **Sandals, Heeled sandals and Flipflops** when today's **minimum is below
-   15°** - whatever their points. With tights, Sandals, Heeled sandals and
+   16°** - whatever their points. With tights, Sandals, Heeled sandals and
    Flipflops go to the bottom too - so nothing else can lift an unsuitable
    shoe above a suitable one. Suitable and unsuitable shoes are each ranked
    by the steps below.
@@ -172,7 +172,7 @@ the user's matrix (e.g. a shoe added under another gender preference).
 |---|---|
 | Snow | Snow boots +20, other boots +10; Sandals, Heeled sandals, Flipflops, Ballerinas, Heels −20 |
 | Rain (incl. drizzle, showers, storms) | All boots +10, Smart and Casual trainers +5; Sandals, Heeled sandals, Flipflops, Ballerinas −15 |
-| Hot (max ≥ 22°) | Sandals, Heeled sandals, Flipflops +10; Snow boots, Knee-high boots −15 |
+| Hot (max ≥ 25° and min ≥ 18°) | Sandals, Heeled sandals, Flipflops +5; Snow boots, Knee-high boots −15 |
 | Cold (max ≤ 10°) | All boots +10; Sandals, Heeled sandals, Flipflops −15, Ballerinas −5 |
 
 The order is worked out once per outfit and kept for the day, so scrolling
