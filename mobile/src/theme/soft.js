@@ -133,6 +133,7 @@ export const menuTints = {
   weekly: mid.sky,
   style: loved.mid,
   settings: accent.mid,
+  tour: mid.mint,
 };
 
 // The full iridescent run - selection halo, temperature track, bubbles.
@@ -372,7 +373,9 @@ export const radii = {
 // Plain icons (soft/IconButton): headers, close crosses and the icons in a
 // photo's corner are regular; arrows in boxes, a note's cross and the
 // hearts on a card are small; a tick's check and a chip's icon are tiny.
+// Large stands in for a photo (the tour's sample outfit).
 export const iconSizes = {
+  large: 72,
   regular: 24,
   small: 18,
   tiny: 14,
@@ -431,6 +434,19 @@ export const houseBox = {
   ...continuous,
   backgroundColor: surface.veil,
   boxShadow: shadows.raised,
+};
+
+// The app tour's speech bubble (src/tour/TourOverlay): nothing dims behind
+// it, so a deeper shadow than the boxes' - a close one to define its edge
+// and a wide soft one to lift it - with the light rim on top.
+const BUBBLE_EDGE = "0px 1px 4px rgba(46, 40, 56, 0.12)";
+
+export const tourBubble = {
+  fill: surface.milk,
+  // The arrow is solid white, with the same close shadow round its edge.
+  arrow: surface.white,
+  arrowShadow: BUBBLE_EDGE,
+  shadow: `${BUBBLE_EDGE}, 0px 12px 32px rgba(255, 255, 255, 0.12), ${LIGHT_RIM}`,
 };
 
 export const motion = {

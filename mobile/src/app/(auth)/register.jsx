@@ -5,10 +5,12 @@ import { register } from "@core/api/auth.js";
 import { getErrorMessage } from "@core/api/errors.js";
 
 import { Button, Message, Screen, TextField } from "../../components/ui";
+import { markTourPending } from "../../tour/tourStorage";
 
 const emptyForm = { firstName: "", email: "", password: "", password2: "" };
 
-// Like the web: on success the form clears and the user logs in.
+// Like the web: on success the form clears and the user logs in. The new
+// account is offered the app tour when it first reaches Today (src/tour).
 export default function RegisterScreen() {
   const [form, setForm] = useState(emptyForm);
   const [message, setMessage] = useState({ text: "", type: "error" });
@@ -34,6 +36,7 @@ export default function RegisterScreen() {
       setMessage({ text: data.message, type: data.ok ? "success" : "error" });
 
       if (data.ok) {
+        markTourPending(form.email);
         setForm(emptyForm);
       }
     } catch (error) {

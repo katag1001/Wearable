@@ -237,7 +237,7 @@ Code is not loaded. Instrument Serif Italic is loaded but not used.
 - **Profile**: the bottom panel holds the menu: one house box per item,
   each with a hue dot, a name (`menuLabel`) over a one-line description
   (`menuText`) and a muted arrow. Weekly preferences = sky, Style
-  preferences = blush, Settings = lavender. Log out and Delete account sit
+  preferences = blush, Settings = lavender, Take the tour = mint. Log out and Delete account sit
   at the foot as two text actions in a pair: Log out left, Delete account
   right in rose-clay. Both confirm first. No email shown.
 - **Add (the + tab)**: built like Profile with a tab page's full-size
@@ -267,6 +267,16 @@ Code is not loaded. Instrument Serif Italic is loaded but not used.
   the lavender pill (Leave and Delete included), any others as white pills,
   Cancel as the text action. Only the phone's permission prompts look like
   the system.
+- **App tour** (`mobile/src/tour`): offered in a dialog the first time a
+  new account reaches Today, and from Profile. Nothing is added over the
+  app - no dimming, no highlight - just a speech bubble: a milk card
+  (radius 28, `tourBubble.shadow`: a close shadow for the edge and a wide
+  soft one, no border) with a small solid white arrow pointing at the
+  element, on whichever side has more room: "1 of 8" in `eyebrow`,
+  `menuTitle` over `body`, Skip tour as a text action on the left, and
+  Back (a text action, from step 2) beside Next (the lavender pill) on the
+  right. While it runs, Today's outfit is a muted hanger
+  (`iconSizes.large`) over "Outfit" (`cardTitle`), straight on the milk.
 
 ## 8. Components (`mobile/src/components/ui`, `soft`)
 

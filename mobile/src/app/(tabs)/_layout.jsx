@@ -5,63 +5,92 @@
 // page. Outfit rebuilds after a preference change run in the background
 // for all of them (OutfitRebuildProvider). In the soft look: a milk bar
 // with no border, a faint shadow above, and the active tab on a lavender
-// bubble.
+// bubble. The app tour (src/tour) runs over all of it, tab bar included.
 
 import { Tabs } from "expo-router";
+import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { TabButton, tabIcon } from "../../components/soft";
 import { OutfitRebuildProvider } from "../../outfitRebuild/OutfitRebuildProvider";
 import { ink, shadows, surface, type } from "../../theme/soft";
+import { TourOverlay } from "../../tour/TourOverlay";
+import { TourProvider } from "../../tour/TourProvider";
 
 // Taller than the default bar (49), so the icon pill and the Inter labels
 // have room. The phone's bottom inset is added on top.
 const BAR_HEIGHT = 62;
+
+// A tab's button, registered for the tour step that points at it.
+const tourButton = (tourName) => (props) => <TabButton {...props} tourName={tourName} />;
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
 
   return (
     <OutfitRebuildProvider>
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          // No dark ripple circle on tap.
-          tabBarButton: (props) => <TabButton {...props} />,
-          tabBarActiveTintColor: ink.main,
-          tabBarInactiveTintColor: ink.muted,
-          tabBarStyle: {
-            height: BAR_HEIGHT + insets.bottom,
-            paddingTop: 8,
-            backgroundColor: surface.milk,
-            borderTopWidth: 0,
-            elevation: 0,
-            boxShadow: shadows.tabBar,
-          },
-          tabBarLabelStyle: {
-            ...type.tabLabel,
-            // A little space below lifts it clear of the bar's edge.
-            marginBottom: 3,
-          },
-        }}
-      >
-        <Tabs.Screen
-          name="(today)"
-          options={{ title: "Today", tabBarIcon: tabIcon("sun") }}
-        />
-        <Tabs.Screen
-          name="(wardrobe)"
-          options={{ title: "Wardrobe", tabBarIcon: tabIcon("hanger", "mci") }}
-        />
-        <Tabs.Screen
-          name="(outfits)"
-          options={{ title: "Outfits", tabBarIcon: tabIcon("tshirt-crew-outline", "mci") }}
-        />
-        <Tabs.Screen
-          name="(create)"
-          options={{ title: "Add", tabBarIcon: tabIcon("plus") }}
-        />
-      </Tabs>
+      <TourProvider>
+        <View style={styles.page}>
+          <Tabs
+            screenOptions={{
+              headerShown: false,
+              // No dark ripple circle on tap.
+              tabBarButton: (props) => <TabButton {...props} />,
+              tabBarActiveTintColor: ink.main,
+              tabBarInactiveTintColor: ink.muted,
+              tabBarStyle: {
+                height: BAR_HEIGHT + insets.bottom,
+                paddingTop: 8,
+                backgroundColor: surface.milk,
+                borderTopWidth: 0,
+                elevation: 0,
+                boxShadow: shadows.tabBar,
+              },
+              tabBarLabelStyle: {
+                ...type.tabLabel,
+                // A little space below lifts it clear of the bar's edge.
+                marginBottom: 3,
+              },
+            }}
+          >
+            <Tabs.Screen
+              name="(today)"
+              options={{ title: "Today", tabBarIcon: tabIcon("sun") }}
+            />
+            <Tabs.Screen
+              name="(wardrobe)"
+              options={{
+                title: "Wardrobe",
+                tabBarIcon: tabIcon("hanger", "mci"),
+                tabBarButton: tourButton("tab-wardrobe"),
+              }}
+            />
+            <Tabs.Screen
+              name="(outfits)"
+              options={{
+                title: "Outfits",
+                tabBarIcon: tabIcon("tshirt-crew-outline", "mci"),
+                tabBarButton: tourButton("tab-outfits"),
+              }}
+            />
+            <Tabs.Screen
+              name="(create)"
+              options={{
+                title: "Add",
+                tabBarIcon: tabIcon("plus"),
+                tabBarButton: tourButton("tab-create"),
+              }}
+            />
+          </Tabs>
+          <TourOverlay />
+        </View>
+      </TourProvider>
     </OutfitRebuildProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  page: {
+    flex: 1,
+  },
+});

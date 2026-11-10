@@ -2,7 +2,8 @@
 // button on Today and built like it (context/visual-language.md): the top
 // panel has a back arrow and the title, the bottom panel one box per
 // preferences screen (src/app/account/), then Log out and Delete account
-// along its foot. Both actions confirm first.
+// along its foot. Both actions confirm first. "Take the tour" goes back
+// to Today and runs the app tour again (src/tour).
 
 import { router } from "expo-router";
 import { StyleSheet, View } from "react-native";
@@ -20,10 +21,18 @@ import {
 import { ListRow, Loading, TextAction } from "../../../components/ui";
 import { menuTints, space } from "../../../theme/soft";
 import { showDialog } from "../../../components/soft/Dialog";
+import { useTour } from "../../../tour/TourProvider";
 
 export default function ProfileScreen() {
   const { logout } = useSession();
   const { deleting, deleteAccount } = useDeleteAccount({ onDeleted: logout });
+  const tour = useTour();
+
+  // Profile only opens from Today, so back is Today.
+  const takeTour = () => {
+    router.back();
+    tour.start();
+  };
 
   const confirmLogout = () =>
     showDialog("Log out", "Are you sure you want to log out?", [
@@ -78,6 +87,12 @@ export default function ProfileScreen() {
             text="AI photo analysis"
             tint={menuTints.settings}
             onPress={() => router.push("/account/settings")}
+          />
+          <ListRow
+            label="Take the tour"
+            text="See how the app works"
+            tint={menuTints.tour}
+            onPress={takeTour}
           />
         </View>
 

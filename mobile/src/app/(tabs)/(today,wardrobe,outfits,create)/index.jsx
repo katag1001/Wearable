@@ -10,7 +10,8 @@
 // from the top, everything else on one pulled up from the bottom, with a
 // strip of the weather-tinted atmosphere showing between them.
 // Logic: useWeather, useTodayLook - both shared with the web
-// homepage.
+// homepage. While the app tour runs (src/tour) the outfit is its sample
+// outfit, and the tag line is one of its steps.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
@@ -46,6 +47,9 @@ import { useOutfitRebuild } from "../../../outfitRebuild/OutfitRebuildProvider";
 import { useLocation } from "../../../platform/useLocation";
 import { space, type } from "../../../theme/soft";
 import { showDialog } from "../../../components/soft/Dialog";
+import { SampleOutfit } from "../../../tour/SampleOutfit";
+import { useTour } from "../../../tour/TourProvider";
+import { TourTarget } from "../../../tour/TourTarget";
 
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -60,6 +64,7 @@ export default function TodayScreen() {
     locationUnavailable: Boolean(location.error),
   });
   const today = useTodayLook({ todayReady: weather.ready, tagFilter: false });
+  const tour = useTour();
 
   // Over the whole page while true.
   const [celebrating, setCelebrating] = useState(false);
@@ -116,6 +121,10 @@ export default function TodayScreen() {
     !today.showSelector;
 
   const outfitSection = () => {
+    if (tour?.running) {
+      return <SampleOutfit />;
+    }
+
     if (!weather.ready && today.loading) {
       return weather.error ? null : <BubbleLoader text="Loading outfits" />;
     }
@@ -194,15 +203,17 @@ export default function TodayScreen() {
             <Text style={styles.headline}>{capitalise(getTodayDayOfWeek())}</Text>
             {/* Needs today's weather: a new tag can mean building today's
                 list again. */}
-            <PressableScale
-              onPress={() => setPickingTag(true)}
-              disabled={!weather.weather || today.changingTag}
-              accessibilityRole="button"
-              accessibilityHint="Pick another tag for today's outfits"
-              hitSlop={8}
-            >
-              <Text style={styles.subline}>{tag}</Text>
-            </PressableScale>
+            <TourTarget name="tag" style={styles.tag}>
+              <PressableScale
+                onPress={() => setPickingTag(true)}
+                disabled={!weather.weather || today.changingTag}
+                accessibilityRole="button"
+                accessibilityHint="Pick another tag for today's outfits"
+                hitSlop={8}
+              >
+                <Text style={styles.subline}>{tag}</Text>
+              </PressableScale>
+            </TourTarget>
           </View>
 
           {weather.weather ? (
@@ -267,6 +278,10 @@ const styles = StyleSheet.create({
   // Level with the season line when there's no temperature yet.
   waiting: {
     justifyContent: "flex-end",
+  },
+  // Only as wide as its words, for the tour's ring round it.
+  tag: {
+    alignSelf: "flex-start",
   },
   headline: type.todayHeadline,
   // The tag and season: the same light Inter as the line above, smaller,
