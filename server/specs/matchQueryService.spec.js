@@ -85,14 +85,14 @@ const orTights = (withoutTights, withTights) => ({
 const closeOrContaining = (min, max) => ({
   $or: [
     {
-      min_temp: { $gte: min - 1.5, $lte: min + 2 },
-      max_temp: { $gte: max - 2, $lte: max + 1.5 },
+      min_temp: { $gte: min - 2, $lte: min + 2 },
+      max_temp: { $gte: max - 1, $lte: max + 1 },
     },
     { min_temp: { $lte: min }, max_temp: { $gte: max } },
   ],
 });
 
-test("buildMatchFilter keeps outfits close to both ends (1.5 beyond, 2 inside), or containing the chosen range", () => {
+test("buildMatchFilter keeps outfits close to both ends (min within 2, max within 1), or containing the chosen range", () => {
   const filter = buildMatchFilter(
     USER,
     parseMatchQuery({ minTemp: "5", maxTemp: "15" })
@@ -110,7 +110,7 @@ test("buildMatchFilter checks only the chosen end when one temperature is given"
   );
   assert.deepEqual(
     buildMatchFilter(USER, parseMatchQuery({ maxTemp: "15" })).$and,
-    [orTights({ max_temp: { $gte: 13 } }, { max_temp: { $gte: 13 + TIGHTS_SHIFT } })]
+    [orTights({ max_temp: { $gte: 14 } }, { max_temp: { $gte: 14 + TIGHTS_SHIFT } })]
   );
 });
 

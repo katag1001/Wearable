@@ -109,8 +109,8 @@ const singleItemCondition = ({ item, itemIsValid }) => {
 
 // The same rule as today's tier 1 (see constants/todayOutfits.js): an
 // outfit is kept when its min_temp and max_temp are each close to the
-// chosen min and max (temperatureService.closeMatchBounds - 1.5° beyond
-// the range or 2° inside it), OR its range contains the whole chosen
+// chosen min and max (temperatureService.closeMatchBounds - the minimum
+// within 2° and the maximum within 1° either way), OR its range contains the whole chosen
 // range. With only one end chosen, just that end is checked: close to it
 // or beyond it.
 const rangeCondition = ({ minTemp, maxTemp }) => {

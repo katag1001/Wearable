@@ -29,12 +29,14 @@ const select = (matches, options = {}) =>
 
 /* -------------------- Weather tiers -------------------- */
 
-test("outfits up to 1.5 degrees beyond or 2 inside today's min and max, or covering the whole day, are tier 1", () => {
+test("outfits with a minimum within 2 degrees and a maximum within 1 of today's, or covering the whole day, are tier 1", () => {
   assert.equal(todayTierOf(match("exact", 10, 20), TODAY), 0);
-  assert.equal(todayTierOf(match("edges", 8.5, 21.5), TODAY), 0);
-  assert.equal(todayTierOf(match("inside", 12, 18), TODAY), 0);
-  assert.notEqual(todayTierOf(match("too far inside", 12.5, 18), TODAY), 0);
-  assert.notEqual(todayTierOf(match("too far outside", 7, 19), TODAY), 0);
+  assert.equal(todayTierOf(match("outer edges", 8, 21), TODAY), 0);
+  assert.equal(todayTierOf(match("inner edges", 12, 19), TODAY), 0);
+  assert.notEqual(todayTierOf(match("max too far inside", 12, 18.5), TODAY), 0);
+  assert.notEqual(todayTierOf(match("min too far inside", 12.5, 20), TODAY), 0);
+  assert.notEqual(todayTierOf(match("min too far outside", 7.5, 19.5), TODAY), 0);
+  assert.equal(todayTierOf(match("max outside but covers", 9, 21.5), TODAY), 0);
   assert.equal(todayTierOf(match("covers", 0, 30), TODAY), 0);
 });
 

@@ -5,8 +5,8 @@
 //
 //  1. The weather decides who's in the running. Tier 1: outfits whose
 //     min_temp and max_temp are each close to today's daytime min and max
-//     (temperatureService.closeMatchBounds: 1.5° beyond the day or 2°
-//     inside it), or whose range covers ALL of today's daytime
+//     (temperatureService.closeMatchBounds: the minimum within 2° and the
+//     maximum within 1° either way), or whose range covers ALL of today's daytime
 //     temperatures (FULL_COVERAGE). Then one tier per COVERAGE_STEPS value
 //     (95%, 90% ... 50%): those covering at least that much of the day.
 //     An outfit that takes tights (takesTights) is also checked against

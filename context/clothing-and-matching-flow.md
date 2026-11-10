@@ -1294,9 +1294,9 @@ the date and latitude, `getSeason`) and the user's weekday.
 
 1. **Tier 1** - either of these:
    - the outfit's `min_temp` and `max_temp` are each close to today's
-     daytime min and max: up to **`CLOSE_MATCH_OUTSIDE` = 1.5°** beyond
-     the day's range or **`CLOSE_MATCH_INSIDE` = 2°** inside it (a 10–20°
-     day takes 8.5–12° minimums and 18–22° maximums;
+     daytime min and max: the minimum within **`CLOSE_MATCH_MIN` = 2°**
+     and the maximum within **`CLOSE_MATCH_MAX` = 1°** either way (a
+     10–20° day takes 8–12° minimums and 19–21° maximums;
      `closeMatchBounds` in `server/services/temperatureService.js`);
    - the outfit's range covers **all** of today's daytime range.
 2. **Then one tier per `COVERAGE_STEPS` = 95%, 90%, 85% … 50%**: outfits

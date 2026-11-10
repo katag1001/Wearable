@@ -251,8 +251,8 @@ jacket, **11–17** with preference 1.
    first tier it fits; a tier only joins while the ones above have fewer
    than 200, ranked below them:
    - **tier 1**: `min_temp` and `max_temp` each close to the day's min
-     and max - up to **1.5°** beyond the day or **2°** inside it (10–20°
-     takes minimums 8.5–12 and maximums 18–22) - **or** covers all of the day (`min_temp <= min`
+     and max - the minimum within **2°** and the maximum within **1°**
+     either way (10–20° takes minimums 8–12 and maximums 19–21) - **or** covers all of the day (`min_temp <= min`
      and `max_temp >= max`) - both ranked together;
    - **tiers 2, 3, 4**: covers at least **90%**, **80%**, **70%** of it
      (`todayCoverageFraction` in `server/services/temperatureService.js`,
@@ -266,8 +266,8 @@ jacket, **11–17** with preference 1.
 
 - **Matches page:** the temperature filter uses today's tier-1 rule - a
   match is kept when its min and max are each close to the chosen min
-  and max (1.5° beyond or 2° inside - `CLOSE_MATCH_OUTSIDE` /
-  `CLOSE_MATCH_INSIDE`), or its range
+  and max (minimum within 2°, maximum within 1° - `CLOSE_MATCH_MIN` /
+  `CLOSE_MATCH_MAX`), or its range
   **contains** the whole chosen range. A slider end left at the edge
   (-10° / 50°) means no limit on that side; with one end chosen, only that
   end is checked (close to it or beyond it). Rule in
@@ -359,7 +359,7 @@ alone.
 | Highest maximum with layered tops / which tops count as jumpers | `LAYERED_MAX_TEMPS` / `LAYER_KINDS` |
 | Preference shift | `TEMPERATURE_PREFERENCE_SHIFT` |
 | Highest maximum with a long bottom | `LONG_BOTTOM_MAX_TEMP` |
-| Today's weather tiers and cap | `CLOSE_MATCH_OUTSIDE` / `CLOSE_MATCH_INSIDE` / `FULL_COVERAGE` / `PARTIAL_COVERAGE_STEPS` / `TODAY_OUTFIT_LIMIT` in `server/constants/todayOutfits.js` |
+| Today's weather tiers and cap | `CLOSE_MATCH_MIN` / `CLOSE_MATCH_MAX` / `FULL_COVERAGE` / `PARTIAL_COVERAGE_STEPS` / `TODAY_OUTFIT_LIMIT` in `server/constants/todayOutfits.js` |
 | Daytime hours for today's weather | `core/constants/daytimeHours.js` |
 | Tights shift / which skirts, dresses and shorts are asked about, and their defaults | `shared/tights.json` (`askBySubtype`; then run the reset script so `tights` flags follow) |
 

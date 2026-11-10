@@ -22,9 +22,10 @@ const TAG_SWITCH_MIN_OUTFITS = 10;
 // Weather tiers - they decide which outfits are in the running, not their
 // order. Each outfit goes in the first tier it fits:
 //  - tier 1: the outfit's min_temp and max_temp are each close to today's
-//    daytime min and max - up to CLOSE_MATCH_OUTSIDE degrees beyond the
-//    day's range, or CLOSE_MATCH_INSIDE degrees inside it (a 10-20 day
-//    takes minimums of 8.5-12 and maximums of 18-22) - OR its range covers
+//    daytime min and max - the minimum up to CLOSE_MATCH_MIN degrees
+//    either side of the day's min, the maximum up to CLOSE_MATCH_MAX
+//    either side of the day's max (a 10-20 day takes minimums of 8-12 and
+//    maximums of 19-21) - OR its range covers
 //    the whole day (temperatureService.todayCoverageFraction =
 //    FULL_COVERAGE);
 //  - then one tier per COVERAGE_STEPS value, highest first: it covers at
@@ -32,8 +33,8 @@ const TAG_SWITCH_MIN_OUTFITS = 10;
 // Whole tiers join, best first, until at least TODAY_OUTFIT_LIMIT outfits
 // are in the running; everything in the running is then ranked together.
 // The Matches page temperature filter uses the same closeness rule.
-const CLOSE_MATCH_OUTSIDE = 1.5;
-const CLOSE_MATCH_INSIDE = 2;
+const CLOSE_MATCH_MIN = 2;
+const CLOSE_MATCH_MAX = 1;
 const FULL_COVERAGE = 1;
 const COVERAGE_STEPS = [0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5];
 
@@ -83,8 +84,8 @@ module.exports = {
   TODAY_OUTFIT_LIMIT,
   DEFAULT_TODAY_TAG,
   TAG_SWITCH_MIN_OUTFITS,
-  CLOSE_MATCH_OUTSIDE,
-  CLOSE_MATCH_INSIDE,
+  CLOSE_MATCH_MIN,
+  CLOSE_MATCH_MAX,
   FULL_COVERAGE,
   COVERAGE_STEPS,
   FEW_OUTFITS_COVERAGE,
