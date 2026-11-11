@@ -28,6 +28,7 @@ export { SheetHeader } from "./SheetHeader";
 export { SoftNote } from "./SoftNote";
 export { SoftRefreshControl } from "./SoftRefreshControl";
 export { SoftScreen } from "./SoftScreen";
+export { StackHeader } from "./StackHeader";
 export { TabButton } from "./TabButton";
 export { TabIcon, tabIcon } from "./TabIcon";
 export { WeatherIcon } from "./WeatherIcon";

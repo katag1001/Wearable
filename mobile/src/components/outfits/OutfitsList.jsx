@@ -149,7 +149,6 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
       <View style={styles.header}>
         <PageHeader
           title="Outfits"
-          count={outfits.count}
           icon="plus"
           iconLabel="Build an outfit"
           onIconPress={() => router.push("/build-outfit")}

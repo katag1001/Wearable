@@ -228,6 +228,13 @@ export const type = {
     letterSpacing: -0.3,
     color: ink.main,
   },
+  // The "(24)" after a page title - much smaller than the title itself.
+  pageCount: {
+    fontFamily: fonts.light,
+    fontSize: textSizes.sm,
+    letterSpacing: 0,
+    color: ink.muted,
+  },
   // Small spaced capitals: field labels, step counts, loading text.
   eyebrow: {
     fontFamily: fonts.light,
@@ -254,6 +261,13 @@ export const type = {
     fontFamily: fonts.regular,
     fontSize: textSizes.sm,
     lineHeight: 19,
+    color: ink.soft,
+  },
+  // A day's number in the Plan tab's month (plan/MonthCalendar).
+  calendarDay: {
+    fontFamily: fonts.regular,
+    fontSize: textSizes.xl,
+    lineHeight: 22,
     color: ink.soft,
   },
   // What's typed into a text field.
@@ -387,6 +401,8 @@ export const radii = {
 // Large stands in for a photo (the tour's sample outfit).
 export const iconSizes = {
   large: 72,
+  // A quiet picture on an empty spot (Build outfit's hanger).
+  medium: 44,
   regular: 24,
   small: 18,
   tiny: 14,

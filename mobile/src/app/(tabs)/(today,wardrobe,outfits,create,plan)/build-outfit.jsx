@@ -19,6 +19,7 @@
 // Logic: useCreateMatch (shared with the web's Build Outfits page).
 
 import { useEffect, useRef, useState } from "react";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Animated, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -33,7 +34,7 @@ import { getTodayDate } from "@core/utils/dates.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
 import { colors } from "../../../theme/tokens";
-import { iconSizes, loaderSizes, radii, space } from "../../../theme/soft";
+import { iconSizes, ink, loaderSizes, radii, space } from "../../../theme/soft";
 import {
   Chip,
   ChipRow,
@@ -138,6 +139,9 @@ export default function BuildOutfitScreen() {
   }, [result]);
 
   const empty = selectedItems.length === 0;
+  // How much of the outfit's space the open clothes panel covers (the
+  // space is laid out to the panel's peek), so the hanger sits above it.
+  const hangerBottom = Math.max(0, panelHeight - PULL_UP_PEEK - space.sm);
 
   // The outfit shrinks and moves up as the panel opens.
   const follow = useOutfitFollowsPanel({
@@ -192,6 +196,21 @@ export default function BuildOutfitScreen() {
               itemLabel={(item) => `Remove ${item.name || "item"}`}
             />
           </Animated.View>
+          {/* Nothing picked yet: a small hanger in the middle of the space
+              left above the open clothes panel. */}
+          {empty && !shownShoe ? (
+            <View
+              style={[styles.emptyOutfit, { bottom: hangerBottom }]}
+              pointerEvents="none"
+            >
+              <MaterialCommunityIcons
+                name="hanger"
+                size={iconSizes.medium}
+                color={ink.muted}
+                accessibilityLabel="No items picked yet"
+              />
+            </View>
+          ) : null}
         </View>
       </View>
 
@@ -297,6 +316,15 @@ const styles = StyleSheet.create({
   },
   photo: {
     backgroundColor: "transparent",
+  },
+  emptyOutfit: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    opacity: 0.6,
   },
   // Inside the pull-up panel (which draws the card itself).
   picker: {

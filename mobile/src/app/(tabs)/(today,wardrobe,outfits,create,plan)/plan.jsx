@@ -54,7 +54,10 @@ export default function PlanScreen() {
 }
 
 const styles = StyleSheet.create({
+  // Grows to the panel's height so the calendar can stretch down to
+  // Coming up; scrolls once there's more than fits.
   content: {
+    flexGrow: 1,
     gap: space.lg,
     paddingBottom: space.lg,
   },

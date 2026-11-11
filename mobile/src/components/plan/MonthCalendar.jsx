@@ -12,7 +12,7 @@ import { WEEKDAY_LETTERS } from "@core/plan/calendar.js";
 import { calendarTints, iconSizes, ink, radii, space, type } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
 
-const DAY_SIZE = 40;
+const DAY_SIZE = 46;
 
 const MonthArrow = ({ icon, label, enabled, onPress }) => (
   <PressableScale
@@ -80,7 +80,7 @@ export const MonthCalendar = ({ calendar, onPickDay }) => (
     </View>
 
     {calendar.weeks.map((week) => (
-      <View key={week[0].date} style={styles.week}>
+      <View key={week[0].date} style={[styles.week, styles.dayRow]}>
         {week.map((cell) => (
           <Day key={cell.date} cell={cell} onPress={() => onPickDay(cell.date)} />
         ))}
@@ -90,7 +90,10 @@ export const MonthCalendar = ({ calendar, onPickDay }) => (
 );
 
 const styles = StyleSheet.create({
+  // Fills the height it's given: the weeks share it evenly, so the month
+  // runs down to whatever sits under it (Plan tab: Coming up).
   calendar: {
+    flex: 1,
     gap: space.xs,
   },
   header: {
@@ -102,6 +105,10 @@ const styles = StyleSheet.create({
   title: type.cardTitle,
   week: {
     flexDirection: "row",
+  },
+  dayRow: {
+    flex: 1,
+    alignItems: "center",
   },
   cell: {
     flex: 1,
@@ -123,7 +130,7 @@ const styles = StyleSheet.create({
   faded: {
     opacity: 0.35,
   },
-  dayNumber: type.caption,
+  dayNumber: type.calendarDay,
   // Always there (empty when not planned), so every number sits level.
   dot: {
     width: 5,

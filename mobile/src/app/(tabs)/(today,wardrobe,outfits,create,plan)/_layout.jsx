@@ -6,7 +6,7 @@
 
 import { Stack } from "expo-router";
 
-import { BackButton, softHeader } from "../../../components/soft";
+import { softHeader, StackHeader } from "../../../components/soft";
 
 export const unstable_settings = {
   anchor: "index",
@@ -17,12 +17,13 @@ export const unstable_settings = {
 };
 
 // Pages opened on top of a tab's first page that draw over the whole
-// screen (an outfit, an item, Build outfit): the soft header with the plain
-// back arrow (soft/BackButton) - they can be reached from more than one tab.
+// screen (an outfit, an item, Build outfit): a back arrow and title
+// (soft/StackHeader, drawn in JS so the title can't jump on a back press) -
+// they can be reached from more than one tab.
 const withHeader = (options = {}) => ({
   headerShown: true,
   ...softHeader,
-  headerLeft: () => <BackButton />,
+  header: (props) => <StackHeader {...props} />,
   ...options,
 });
 
