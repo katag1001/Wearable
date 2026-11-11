@@ -31,13 +31,16 @@ export const fetchTodayOutfits = async (todayStart) => {
 // range, season (for the seasonal points) and weekday (for the weekly
 // tag) - once per day; a second
 // call that day returns { alreadyBuilt: true }. `todayStart` is the
-// user's local midnight (ISO).
+// user's local midnight (ISO), `todayDate` their local "YYYY-MM-DD" -
+// planned days up to today are worn first; `plannedWorn` in the response
+// is today's plan's undo values (core/plan/plannedWorn.js), or null.
 export const createToday = async ({
   minTemp,
   maxTemp,
   season,
   todayStart,
   dayOfWeek,
+  todayDate,
 }) => {
   const response = await api.post("/today/create", {
     min_temp_today: minTemp,
@@ -45,6 +48,7 @@ export const createToday = async ({
     season_today: season,
     today_start: todayStart,
     day_of_week: dayOfWeek,
+    today_date: todayDate,
   });
 
   return response.data;

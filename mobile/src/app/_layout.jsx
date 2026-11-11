@@ -103,7 +103,7 @@ function RootNavigator() {
           redirectTo={loggedIn ? "/style-quiz" : "/login"}
         >
           {/* Every signed-in page is inside the tabs, so the tab bar is
-              always there (app/(tabs)/(today,wardrobe,outfits,create)). */}
+              always there (app/(tabs)/(today,wardrobe,outfits,create,plan)). */}
           <Stack.Screen name="(tabs)" />
         </Stack.Protected>
 

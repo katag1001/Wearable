@@ -1,7 +1,18 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const { isManualEdit, USER_EDIT_FIELDS } = require("../services/matchProtection.js");
+const {
+  isManualEdit,
+  isProtectedMatch,
+  UNPROTECTED_MATCH_FILTER,
+  USER_EDIT_FIELDS,
+} = require("../services/matchProtection.js");
+
+test("a planned outfit is protected, and the filter leaves it out", () => {
+  assert.equal(isProtectedMatch({ plannedFor: [{ date: "2026-11-14", footwear: null }] }), true);
+  assert.equal(isProtectedMatch({ plannedFor: [] }), false);
+  assert.deepEqual(UNPROTECTED_MATCH_FILTER["plannedFor.0"], { $exists: false });
+});
 
 const outfit = { min_temp: 10, max_temp: 18, tags: ["Everyday", "Work"], spring: true, noTights: false, favourite: false };
 

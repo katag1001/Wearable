@@ -39,6 +39,11 @@ export const TOUR_STEPS = [
     text: "Take a look through here to find the perfect styles for you. Build your own outfits or favourite what you love.",
   },
   {
+    target: "tab-plan",
+    title: "Plan ahead",
+    text: "Pick a day on the calendar to plan what you'll wear, with the weather for that day. On the day, your planned outfit is ready and waiting on Today.",
+  },
+  {
     target: "tab-create",
     title: "Add",
     text: "Time to start adding all your favourite pieces!",

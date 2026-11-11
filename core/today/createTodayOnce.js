@@ -5,9 +5,13 @@
 // away after that), so every device gets the same list - and if the list
 // is cleared on the server (server/scripts/resetToday.js), the next load
 // builds a new one from this device's weather (core/api/today.js).
+// Today's plan (Plan tab) is worn by the server on the way; its undo values
+// are kept for the Today page (core/plan/plannedWorn.js).
 
 import { createToday } from "../api/today.js";
+import { savePlannedWorn } from "../plan/plannedWorn.js";
 import {
+  getTodayDate,
   getTodayDayOfWeek,
   getTodayStartISO,
 } from "../utils/dates.js";
@@ -47,9 +51,12 @@ const sendCreateToday = async (weather, season) => {
     const data = await createToday({
       ...todayWeatherParams(weather, season),
       dayOfWeek: getTodayDayOfWeek(),
+      todayDate: getTodayDate(),
     });
 
     console.log("Created today:", data);
+
+    if (data?.plannedWorn) savePlannedWorn(data.plannedWorn);
 
     return data;
 

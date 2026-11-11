@@ -7,12 +7,15 @@
 //    twice) and hands back the list from before, so the app can undo it;
 //  - undoing puts that earlier list back - a shoe worn with the outfit on
 //    an earlier day keeps its place;
-//  - deleting a shoe takes it off every outfit.
+//  - the user can set the list by hand: picked in Build Outfit, or added /
+//    removed on the outfit screen (setMatchShoes);
+//  - deleting a shoe takes it off every outfit, and off any day it was
+//    planned for (the plan stays, with no shoe).
 // A worn outfit is protected from rematching (matchProtection.js), so the
 // list is never lost to a rebuild.
 
 const mongoose = require("mongoose");
-const { Match } = require("../models/AllModels.js");
+const { Match, Footwear } = require("../models/AllModels.js");
 
 const isId = (value) => mongoose.isValidObjectId(value);
 
@@ -51,7 +54,36 @@ const restoreShoes = async (userId, matchId, previous) => {
   );
 };
 
-const forgetShoe = (userId, footwearId) =>
-  Match.updateMany({ userId, footwear: footwearId }, { $pull: { footwear: footwearId } });
+// Pure: shoe ids as strings, without repeats, in order.
+const uniqueIds = (ids = []) => [...new Set(ids.map(String))];
 
-module.exports = { withShoeFirst, rememberShoe, restoreShoes, forgetShoe };
+// Sets the outfit's shoes to the user's own shoes among `footwearIds`, in
+// that order. Returns the new list, or null when there's no such outfit.
+const setMatchShoes = async (userId, matchId, footwearIds) => {
+  if (!isId(matchId) || !Array.isArray(footwearIds)) return null;
+
+  const wanted = uniqueIds(footwearIds.filter(isId));
+  const owned = new Set(
+    (await Footwear.find({ _id: { $in: wanted }, userId }).distinct("_id")).map(String)
+  );
+  const footwear = wanted.filter((id) => owned.has(id));
+
+  const { matchedCount } = await Match.updateOne(
+    { _id: matchId, userId },
+    { $set: { footwear } }
+  );
+
+  return matchedCount > 0 ? footwear : null;
+};
+
+const forgetShoe = (userId, footwearId) =>
+  Promise.all([
+    Match.updateMany({ userId, footwear: footwearId }, { $pull: { footwear: footwearId } }),
+    Match.updateMany(
+      { userId, "plannedFor.footwear": footwearId },
+      { $set: { "plannedFor.$[day].footwear": null } },
+      { arrayFilters: [{ "day.footwear": footwearId }] }
+    ),
+  ]);
+
+module.exports = { withShoeFirst, uniqueIds, rememberShoe, restoreShoes, setMatchShoes, forgetShoe };

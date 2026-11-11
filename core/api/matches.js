@@ -14,10 +14,24 @@ export const fetchAllMatches = async () => {
 
 // A hand-built outfit from these clothing ids. The server works out
 // everything else (temperature, seasons, colours, tags) from the items.
-export const createMatch = async (clothesIds) => {
-  const response = await api.post("/match/matches", { clothes: clothesIds });
+// `footwearIds`: shoes picked for it, best first - Today shows them first
+// with it. An outfit the user already built is refused (409) with its
+// `matchId`.
+export const createMatch = async (clothesIds, footwearIds = []) => {
+  const response = await api.post("/match/matches", {
+    clothes: clothesIds,
+    ...(footwearIds.length ? { footwear: footwearIds } : {}),
+  });
 
   return response.data;
+};
+
+// The outfit's shoes, set by hand (the outfit screen), best first.
+// Resolves the saved list of ids.
+export const setMatchFootwear = async (matchId, footwearIds) => {
+  const response = await api.put(`/match/${matchId}/footwear`, { footwear: footwearIds });
+
+  return response.data?.footwear ?? [];
 };
 
 // Only the fields sent change. Also used for favourite and worn-today.

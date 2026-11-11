@@ -1,6 +1,6 @@
 // The way back from a page: the plain header arrow (IconButton), the same
 // in a top panel (PageHeader) and in the stack header
-// (app/(tabs)/(today,wardrobe,outfits,create)/_layout.jsx). Goes back
+// (app/(tabs)/(today,wardrobe,outfits,create,plan)/_layout.jsx). Goes back
 // unless given its own `onPress`.
 
 import { router } from "expo-router";

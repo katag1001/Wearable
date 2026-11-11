@@ -101,6 +101,22 @@ wornYear: { type: Number, default: null },
 // first - shown first next time (services/matchFootwearService.js).
 footwear: [{ type: mongoose.Schema.Types.ObjectId, ref: "Footwear" }],
 
+// The days this outfit is planned for on the Plan tab: the user's local
+// date ("2026-11-14") and the one shoe locked to that day (or null). One
+// outfit per day per user. On the day the plan becomes a real "worn
+// today" and the entry is removed (services/planService.js); a planned
+// outfit is protected from rematching (matchProtection.js).
+plannedFor: {
+  type: [
+    {
+      _id: false,
+      date: { type: String, required: true },
+      footwear: { type: mongoose.Schema.Types.ObjectId, ref: "Footwear", default: null },
+    },
+  ],
+  default: [],
+},
+
 userMade: { type: Boolean, default: false },
 favourite: { type: Boolean, default: false },
 // True once the user has changed anything on the outfit by hand (edit page,
@@ -138,6 +154,9 @@ validate: { validator: Number.isInteger, message: "score must be a whole number"
 matchSchema.index({ userId: 1, score: -1, _id: -1 });
 
 matchSchema.index({ userId: 1, clothesKey: 1 }, { unique: true });
+
+// The Plan tab's calendar and the day's plan (services/planService.js).
+matchSchema.index({ userId: 1, "plannedFor.date": 1 });
 
 // Runs for save() and insertMany() alike.
 matchSchema.pre("validate", function () {

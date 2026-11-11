@@ -5,6 +5,7 @@ const footwearControllers = require("../controllers/footwearControllers");
 const cloudinaryControllers = require("../controllers/cloudinaryControllers");
 const analysisControllers = require("../controllers/analysisControllers");
 const trendControllers = require("../controllers/trendControllers");
+const planControllers = require("../controllers/planControllers");
 const { authMiddleware } = require("../middleware/authMiddleware");
 const { adminMiddleware } = require("../middleware/adminMiddleware");
 const { loginLimiter, registerLimiter } = require("../middleware/rateLimits");
@@ -67,12 +68,20 @@ router.put("/match/:id/temperature-feedback", authMiddleware, allControllers.giv
 router.put("/match/:id/tights-feedback", authMiddleware, allControllers.giveTightsFeedback);
 router.put("/match/:id/tag-feedback", authMiddleware, allControllers.giveTagFeedback);
 router.post("/match/:id/mismatch", authMiddleware, allControllers.mismatchMatch);
+router.put("/match/:id/footwear", authMiddleware, allControllers.setMatchFootwear);
 router.delete("/match/:id", authMiddleware, allControllers.deleteMatch);
 
 /* TODAY ROUTES */
 router.post("/today/create", authMiddleware, allControllers.createToday);
 router.get("/today/get", authMiddleware, allControllers.getToday);
 router.post("/today/tag", authMiddleware, allControllers.changeTodayTag);
+
+/* PLAN ROUTES (the Plan tab) */
+router.get("/plan", authMiddleware, planControllers.getPlans);
+router.post("/plan/suggest", authMiddleware, planControllers.suggestForDay);
+router.put("/plan/:date", authMiddleware, planControllers.planDay);
+router.put("/plan/:date/footwear", authMiddleware, planControllers.changePlanShoe);
+router.delete("/plan/:date", authMiddleware, planControllers.removePlan);
 
 /* PREFERENCES ROUTES */
 /* TREND ROUTES (admins only - the web /trends page) */

@@ -27,6 +27,7 @@ import {
   takeRemovedOutfits,
 } from "../../../components/outfits/outfitHandoff";
 import { OutfitRebuildNote } from "../../../components/outfits/OutfitRebuildNote";
+import { takePlanChanged } from "../../../components/plan/planChanged";
 import {
   BottomPanel,
   BubbleCelebration,
@@ -72,6 +73,10 @@ export default function TodayScreen() {
   const [givingFeedback, setGivingFeedback] = useState(false);
   const [pickingTag, setPickingTag] = useState(false);
 
+  // Read by the focus check below, which is made once.
+  const weatherReady = useRef(weather.ready);
+  weatherReady.current = weather.ready;
+
   // Coming back from the outfit screen: show its changes.
   useFocusEffect(
     useCallback(() => {
@@ -84,6 +89,11 @@ export default function TodayScreen() {
       const removed = takeRemovedOutfits();
 
       if (removed.length) today.dropOutfits(removed);
+
+      // Today itself was planned on the Plan tab: the server has worn it,
+      // so fetch the list (and the worn outfit) again.
+      // (Before today's first load, that load picks it up anyway.)
+      if (takePlanChanged("today") && weatherReady.current) today.reload();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
   );

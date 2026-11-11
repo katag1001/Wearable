@@ -193,12 +193,15 @@ export const getPatternPoints = (item, outfitPatterned, level) => {
 
 /* -------------------- Tag -------------------- */
 
+// `todayTag`: one tag, or a list (a planned day's plan - any of them).
 const hasTag = (item, todayTag) => {
-  if (!todayTag) return true;
+  const wanted = (Array.isArray(todayTag) ? todayTag : [todayTag])
+    .filter(Boolean)
+    .map((tag) => tag.trim().toLowerCase());
 
-  const wanted = todayTag.trim().toLowerCase();
+  if (!wanted.length) return true;
 
-  return (item.tags || []).some((tag) => tag.trim().toLowerCase() === wanted);
+  return (item.tags || []).some((tag) => wanted.includes(tag.trim().toLowerCase()));
 };
 
 const tagGroup = (item, todayTag) => (hasTag(item, todayTag) ? 0 : 1);

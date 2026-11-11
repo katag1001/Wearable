@@ -1,6 +1,6 @@
 // One outfit, full screen: its photos (with a heart to favourite it and a
 // broken heart to mark two of its items as a mismatch) filling the page,
-// and its star rating, temperature range and tags to edit on a pull-up
+// and its star rating, temperature range, tags and shoes to edit on a pull-up
 // panel (as on Build outfit): it opens part way up, drags down to see the
 // outfit on its own, or up to see every field. The outfit shrinks and
 // moves up as the panel rises to part way (useOutfitFollowsPanel).
@@ -40,6 +40,7 @@ import {
 import { OutfitDetails } from "../../../components/outfits/OutfitDetails";
 import { OutfitHearts } from "../../../components/outfits/OutfitHearts";
 import { OutfitMismatch } from "../../../components/outfits/OutfitMismatch";
+import { OutfitShoes } from "../../../components/outfits/OutfitShoes";
 import {
   useAutoSaveOutfit,
 } from "../../../components/outfits/useAutoSaveOutfit";
@@ -275,6 +276,8 @@ export default function OutfitScreen() {
                   )
                 }
               />
+
+              <OutfitShoes match={match} onChanged={changeMatch} />
 
               <Message text={error} />
 

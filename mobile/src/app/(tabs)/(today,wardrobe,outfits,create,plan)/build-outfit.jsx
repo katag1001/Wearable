@@ -9,10 +9,17 @@
 // category chips (with the chosen category's subtypes on a row below, as
 // in the wardrobe), a search, and those clothes in one row that scrolls
 // sideways and loops round - tap to add or remove.
+// The Shoes chip (after the clothing ones) picks shoes for the outfit,
+// shown with it - the first picked - and saved as the shoes Today shows
+// first with it.
+//
+// ?planDate=YYYY-MM-DD (the Plan tab's Build my own): building the outfit
+// for that day - its weather on top, one pair of shoes only, and saving
+// plans it (and favourites it), then goes back to the day.
 // Logic: useCreateMatch (shared with the web's Build Outfits page).
 
 import { useEffect, useRef, useState } from "react";
-import { router, Stack } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Animated, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -20,7 +27,9 @@ import {
   ITEM_CATEGORIES,
   ITEM_CATEGORY_LABELS,
 } from "@core/filters/filterDefaults.js";
-import { useCreateMatch } from "@core/hooks/useCreateMatch.js";
+import { SHOES_CATEGORY, useCreateMatch } from "@core/hooks/useCreateMatch.js";
+import { useDayWeather } from "@core/hooks/useDayWeather.js";
+import { getTodayDate } from "@core/utils/dates.js";
 import { getImageUrl } from "@core/utils/getImageUrl.js";
 
 import { colors } from "../../../theme/tokens";
@@ -48,6 +57,9 @@ import {
   useOutfitFollowsPanel,
 } from "../../../components/today/useOutfitFollowsPanel";
 import { showDialog } from "../../../components/soft/Dialog";
+import { DayWeatherCard } from "../../../components/plan/DayWeatherCard";
+import { markPlanChanged } from "../../../components/plan/planChanged";
+import { useLocation } from "../../../platform/useLocation";
 
 // The clothes row's tiles.
 const TILE_SIZE = 96;
@@ -62,15 +74,30 @@ const SaveButton = ({ onPress, empty, saving }) =>
     <IconButton icon="plus" label="Save this outfit" onPress={onPress} disabled={empty} />
   );
 
+// The day's weather, for building around it (planning only).
+const PlanWeather = ({ planDate }) => {
+  const location = useLocation();
+  const dayWeather = useDayWeather({
+    date: planDate,
+    latitude: location.latitude,
+    longitude: location.longitude,
+  });
+
+  return <DayWeatherCard dayWeather={dayWeather} />;
+};
+
 export default function BuildOutfitScreen() {
-  const builder = useCreateMatch();
+  const { planDate } = useLocalSearchParams();
+  const builder = useCreateMatch({ planDate: planDate || null });
   // The header is transparent: start below it.
   const headerSpace = useHeaderSpace();
   // The clothes panel's position and height, for the outfit to follow.
   const panelOffset = useRef(new Animated.Value(0)).current;
   const [panelHeight, setPanelHeight] = useState(0);
 
-  const { result, selectedItems } = builder;
+  const { result, selectedItems, selectedShoes } = builder;
+  // The shoe shown with the outfit: the first picked.
+  const shownShoe = selectedShoes[0] ?? null;
 
   // The outfit as OutfitImages lays it out; each item keeps its category
   // (which is its role) for removing it again.
@@ -91,15 +118,21 @@ export default function BuildOutfitScreen() {
       markOutfitsChanged();
     }
 
+    if (result.ok && planDate) {
+      markPlanChanged({ today: planDate === getTodayDate() });
+    }
+
+    const okButtons = planDate
+      ? [{ text: "OK", onPress: () => router.back() }]
+      : [
+          { text: "Build another", onPress: builder.clearResult },
+          { text: "See outfits", onPress: () => router.back() },
+        ];
+
     showDialog(
       result.title,
       result.message,
-      result.ok
-        ? [
-            { text: "Build another", onPress: builder.clearResult },
-            { text: "See outfits", onPress: () => router.back() },
-          ]
-        : [{ text: "OK", onPress: builder.clearResult }]
+      result.ok ? okButtons : [{ text: "OK", onPress: builder.clearResult }]
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
@@ -109,6 +142,7 @@ export default function BuildOutfitScreen() {
   // The outfit shrinks and moves up as the panel opens.
   const follow = useOutfitFollowsPanel({
     match: outfit,
+    footwear: shownShoe,
     panelOffset,
     panelHeight,
   });
@@ -122,7 +156,7 @@ export default function BuildOutfitScreen() {
 
       <Stack.Screen
         options={{
-          title: "Build outfit",
+          title: planDate ? "Plan outfit" : "Build outfit",
           headerRight: () => (
             <SaveButton
               onPress={builder.submit}
@@ -133,19 +167,28 @@ export default function BuildOutfitScreen() {
         }}
       />
 
+      {planDate ? (
+        <View style={styles.weather}>
+          <PlanWeather planDate={planDate} />
+        </View>
+      ) : null}
+
       {/* The outfit being built - most of the page. */}
       <View style={[cardBox, styles.outfitArea]}>
         <View style={styles.fill} onLayout={follow.onLayout}>
           <Animated.View style={[styles.fill, follow.style]}>
             <OutfitImages
               match={outfit}
+              footwear={shownShoe}
               fit
               // The same copy as the clothes row below, so a picked item is
               // usually already loaded; the bubble covers the rest.
               imageSize={300}
               showLoading
               imageStyle={styles.photo}
-              onItemPress={(item) => builder.toggleItem(categoryOf(item), item)}
+              onItemPress={(item) =>
+                builder.toggleItem(categoryOf(item) ?? SHOES_CATEGORY, item)
+              }
               itemLabel={(item) => `Remove ${item.name || "item"}`}
             />
           </Animated.View>
@@ -165,6 +208,13 @@ export default function BuildOutfitScreen() {
                   onPress={() => builder.chooseCategory(category)}
                 />
               ))}
+              {builder.hasFootwear ? (
+                <Chip
+                  label={planDate ? "Shoes (one pair)" : "Shoes"}
+                  selected={builder.category === SHOES_CATEGORY}
+                  onPress={() => builder.chooseCategory(SHOES_CATEGORY)}
+                />
+              ) : null}
             </ChipRow>
 
             {builder.subtypes.length > 0 && (
@@ -181,7 +231,7 @@ export default function BuildOutfitScreen() {
             )}
 
             <TextField
-              placeholder="Search clothing…"
+              placeholder={builder.category === SHOES_CATEGORY ? "Search shoes…" : "Search clothing…"}
               value={builder.searchTerm}
               onChangeText={builder.setSearchTerm}
               autoCapitalize="none"
@@ -231,6 +281,10 @@ const styles = StyleSheet.create({
   // to the panel's tucked-away top (just the peek below it).
   fill: {
     flex: 1,
+  },
+  weather: {
+    marginHorizontal: space.gutter,
+    marginTop: space.xs,
   },
   outfitArea: {
     marginBottom: PULL_UP_PEEK + space.sm,

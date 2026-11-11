@@ -1,0 +1,14 @@
+[
+  { "name": "Workday", "tags": ["Business casual", "Formal office"] },
+  { "name": "Working from home", "tags": ["Work from home", "Comfy casual"] },
+  { "name": "Lunch / brunch", "tags": ["Brunch / lunch", "Smart casual"] },
+  { "name": "Day out", "tags": ["Day out", "City break", "Elevated everyday"] },
+  { "name": "Dinner out", "tags": ["Restaurant dinner", "Casual dinner"] },
+  { "name": "Date night", "tags": ["Date night", "Restaurant dinner", "Drinks / night out"] },
+  { "name": "Night out", "tags": ["Drinks / night out", "Party", "Gig / concert"] },
+  { "name": "Wedding", "tags": ["Wedding guest"] },
+  { "name": "Formal event", "tags": ["Formal / black tie", "Cocktail party"] },
+  { "name": "Holiday / travel", "tags": ["Travel day", "City break", "Beach / pool"] },
+  { "name": "Gym / outdoors", "tags": ["Gym / sport", "Outdoor / hiking"] },
+  { "name": "Lazy day", "tags": ["Lounge / home", "Comfy casual"] }
+]

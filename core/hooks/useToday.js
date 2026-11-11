@@ -11,6 +11,7 @@ import {
 import { getErrorMessage } from "../api/errors.js";
 import { changeTodayTag, fetchTodayOutfits } from "../api/today.js";
 import { markMatchWorn } from "../matches/matchActions.js";
+import { getPlannedWorn } from "../plan/plannedWorn.js";
 import { rejectOutfit, wasRejectedToday } from "../today/outfitRejection.js";
 import { cacheToday, getCachedToday } from "../today/todayCache.js";
 import { todayWeatherParams } from "../today/createTodayOnce.js";
@@ -132,6 +133,10 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
   // device or the Outfits page). If this device picked the same one it
   // keeps its undo snapshot; otherwise it's shown without one, and opened
   // on. Nothing worn per the server leaves this device's choice as it is.
+  // Today's plan worn by the server (core/plan/plannedWorn.js) comes with
+  // the values from before, so it can be undone like this device's own -
+  // and, as with wearing another outfit here, it undoes this device's
+  // earlier pick.
   const applyServerWorn = (serverWorn) => {
     const matchId = serverWorn?.matchId?._id;
 
@@ -144,7 +149,21 @@ export const useToday = ({ todayReady, tagFilter = true }) => {
       return;
     }
 
-    setWornToday(fromAnotherDevice(serverWorn));
+    const planned = getPlannedWorn(matchId);
+
+    if (planned) {
+      if (local) undoWorn(local);
+
+      setWornToday({
+        matchId,
+        outfit: serverWorn,
+        matchSnapshot: planned.matchSnapshot,
+        clothesSnapshots: planned.clothesSnapshots,
+      });
+    } else {
+      setWornToday(fromAnotherDevice(serverWorn));
+    }
+
     setShowSelector(false);
   };
 

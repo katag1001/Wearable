@@ -15,4 +15,12 @@ export const STORAGE_KEYS = {
   todayOutfits: "today_outfits_cache",
   // Today's shoe order and worn shoe (core/footwear/footwearCache.js).
   todayFootwear: "today_footwear_cache",
+
+  // The days of forecast after today (core/weather/forecastCache.js), the
+  // typical weather for the year (core/weather/typicalWeather.js) and
+  // today's plan worn by the server (core/plan/plannedWorn.js) - the Plan
+  // tab.
+  forecast: "forecast_cache",
+  typicalWeather: "typical_weather_cache",
+  plannedWorn: "planned_worn_cache",
 };

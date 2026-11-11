@@ -187,7 +187,7 @@ mobile/
 │   ├── (auth)/register.jsx
 │   ├── style-quiz.jsx            gate, like StyleQuizGate
 │   ├── (tabs)/_layout.jsx        bottom tabs: (today) (wardrobe) (outfits) (create)
-│   └── (tabs)/(today,wardrobe,outfits,create)/   one stack per tab (shared
+│   └── (tabs)/(today,wardrobe,outfits,create,plan)/   one stack per tab (shared
 │       │                         routes, 2026-11-03): every page is in every
 │       │                         tab, so the tab bar is always on screen
 │       ├── _layout.jsx           the stack; `anchor` = each tab's first page

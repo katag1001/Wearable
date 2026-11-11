@@ -10,6 +10,7 @@ import {
   isOutfitPatterned,
   rankFootwear,
 } from "../footwear/footwearRanking.js";
+import { getPlannedWorn } from "../plan/plannedWorn.js";
 import { wornValuesOf } from "../today/wornSnapshot.js";
 import { isDateToday } from "../utils/dates.js";
 
@@ -180,6 +181,9 @@ export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
   useEffect(() => {
     if (!data || !wornMatchId || wornRef.current || hadLocalWorn) return;
 
+    // Today's plan's shoe comes with its undo values (below).
+    if (getPlannedWorn(wornMatchId)?.shoe) return;
+
     const shoeWornToday = data.items.find((item) => isDateToday(item.lastWornDate));
 
     if (shoeWornToday) {
@@ -232,6 +236,23 @@ export const useTodayFootwear = ({ outfits, wornMatchId, todayTag }) => {
       console.error("Failed to undo the previous shoe:", err)
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wornMatchId]);
+
+  // Today's plan worn by the server with its locked shoe
+  // (core/plan/plannedWorn.js): that shoe is today's, with the values from
+  // before, so changing it undoes it like a shoe worn here. Runs after the
+  // effect above, which has taken any earlier shoe back off.
+  useEffect(() => {
+    const plannedShoe = getPlannedWorn(wornMatchId)?.shoe;
+
+    if (!plannedShoe || wornRef.current) return;
+
+    setWorn({
+      footwearId: plannedShoe.footwearId,
+      matchId: wornMatchId,
+      snapshot: plannedShoe.snapshot,
+      previousFootwear: plannedShoe.previousFootwear,
+    });
   }, [wornMatchId]);
 
   /* -------------------- Shoes per outfit -------------------- */

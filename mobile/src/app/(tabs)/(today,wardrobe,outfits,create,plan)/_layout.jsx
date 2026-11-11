@@ -1,6 +1,6 @@
 // Each tab's own stack (expo-router shared routes: this folder becomes
-// (today), (wardrobe), (outfits) and (create), one per tab). Every page
-// lives in all four, so whatever opens - an outfit, an item, Profile -
+// (today), (wardrobe), (outfits), (create) and (plan), one per tab). Every
+// page lives in all five, so whatever opens - an outfit, an item, Profile -
 // opens inside the tab it was opened from, and the tab bar stays on screen.
 // `anchor` is each tab's first page.
 
@@ -13,6 +13,7 @@ export const unstable_settings = {
   wardrobe: { anchor: "wardrobe" },
   outfits: { anchor: "outfits" },
   create: { anchor: "create" },
+  plan: { anchor: "plan" },
 };
 
 // Pages opened on top of a tab's first page that draw over the whole
@@ -38,6 +39,9 @@ export default function TabStack() {
       <Stack.Screen name="item/add" />
       <Stack.Screen name="build-outfit" options={withHeader()} />
       <Stack.Screen name="outfit" options={withHeader()} />
+      {/* The Plan tab's day and its recommendations (app/.../plan.jsx). */}
+      <Stack.Screen name="plan-day" options={withHeader()} />
+      <Stack.Screen name="plan-outfits" options={withHeader()} />
       {/* A new item drawn by hand hides it again (a panel page). */}
       <Stack.Screen name="item/edit" options={withHeader()} />
     </Stack>

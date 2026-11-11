@@ -1,7 +1,8 @@
 // The bottom tabs: Today / Wardrobe / Outfits (the web header's Home /
-// Clothes / Matches) and + (add an item or build an outfit). Profile is
+// Clothes / Matches), Plan (a calendar to plan outfits for days ahead -
+// mobile only) and + (add an item or build an outfit). Profile is
 // the person button on Today. Each tab is its own stack
-// ((today,wardrobe,outfits,create)/_layout.jsx), so the bar stays on every
+// ((today,wardrobe,outfits,create,plan)/_layout.jsx), so the bar stays on every
 // page. Outfit rebuilds after a preference change run in the background
 // for all of them (OutfitRebuildProvider). In the soft look: a milk bar
 // with no border, a faint shadow above, and the active tab on a lavender
@@ -71,6 +72,14 @@ export default function TabsLayout() {
                 title: "Outfits",
                 tabBarIcon: tabIcon("tshirt-crew-outline", "mci"),
                 tabBarButton: tourButton("tab-outfits"),
+              }}
+            />
+            <Tabs.Screen
+              name="(plan)"
+              options={{
+                title: "Plan",
+                tabBarIcon: tabIcon("calendar"),
+                tabBarButton: tourButton("tab-plan"),
               }}
             />
             <Tabs.Screen

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const jwt_secret = process.env.JWT_SECRET;
 
-const { User, Match, PendingMatch, Today, Clothes, Preferences, Trend } = require("../models/AllModels.js");
+const { User, Match, PendingMatch, Today, Clothes, Preferences } = require("../models/AllModels.js");
 const { processMatches } = require("../services/matchService");
 const { waitUntil } = require("@vercel/functions");
 const { deleteAllFootwearForUser } = require("./footwearControllers.js");
@@ -45,7 +45,7 @@ const {
   rebuildStatus,
   startOutfitRebuild,
 } = require("../services/outfitRebuildService.js");
-const { cleanFavouriteColourFamilies, favouriteFamilyPalettes, getColorRules } = require("../utils/colorPalettes.js");
+const { cleanFavouriteColourFamilies, getColorRules } = require("../utils/colorPalettes.js");
 const {
   findPage,
   parseIdList,
@@ -77,13 +77,7 @@ const {
   changedMatchingFields,
   refreshMatchesForItem,
 } = require("../services/matchRefreshService.js");
-const {
-  selectTodayMatches,
-  todayTierOf,
-  todayFitOf,
-} = require("../services/todaySelectionService.js");
-const { todayScoreBreakdown, trendNoteOf } = require("../services/todayScoreService.js");
-const { trendsForGender } = require("../services/trendService.js");
+const { todayFitOf } = require("../services/todaySelectionService.js");
 const { hasEnoughForTag, reorderForTag } = require("../services/todayTagService.js");
 const { withUserLock } = require("../services/userLock.js");
 const { OCCASION_TAGS } = require("../constants/occasionTags.js");
@@ -99,6 +93,15 @@ const {
   applyRating,
   applyFavouriteScore,
 } = require("../services/matchRatingService.js");
+const { countWear, wearClothes } = require("../services/wearService.js");
+const { setMatchShoes } = require("../services/matchFootwearService.js");
+const { applyDuePlans, isPlanDate } = require("../services/planService.js");
+const {
+  selectOutfitsForDay,
+  todayScorer,
+  TODAY_BUILD_CLOTHES_FIELDS,
+  TODAY_CLOTHES_FIELDS,
+} = require("../services/dayOutfitService.js");
 
 // Matching runs after the response is sent. waitUntil keeps the Vercel
 // function alive until it finishes (up to the function's max duration);
@@ -579,6 +582,20 @@ exports.deleteItem = async (req, res) => {
 
 /* -------------------- MATCH CONTROLLERS -------------------- */
 
+// Shoes picked in Build Outfit (`footwear`: ids, best first) become the
+// outfit's shoes, which Today then shows first with it
+// (services/matchFootwearService.js). Returns the match to send back.
+const withPickedShoes = async (userId, match, footwearIds) => {
+  if (!Array.isArray(footwearIds) || !footwearIds.length) return match;
+
+  const footwear = await setMatchShoes(userId, match._id, footwearIds);
+
+  if (footwear) match.footwear = footwear;
+
+  return match;
+};
+
+// Body: `clothes` (ids), optionally `footwear` (shoe ids, best first).
 exports.createMatch = async (req, res) => {
   const userId = req.user?.userId;
 
@@ -610,8 +627,10 @@ exports.createMatch = async (req, res) => {
       );
     });
 
+    // The existing outfit's id comes back too, so the Plan tab can plan
+    // it instead.
     if (duplicate?.userMade) {
-      return res.status(409).json({ error: "Match already exists." });
+      return res.status(409).json({ error: "Match already exists.", matchId: duplicate._id });
     }
 
     // Get clothing items so we can describe the finished outfit
@@ -639,7 +658,7 @@ exports.createMatch = async (req, res) => {
 
       await recordOutfitClaimed(userId, clothes, baselineMatrix);
 
-      return res.json(claimed);
+      return res.json(await withPickedShoes(userId, claimed, req.body?.footwear));
     }
 
     // Manual outfits are never rejected - describeOutfit only computes
@@ -666,7 +685,7 @@ exports.createMatch = async (req, res) => {
 
     await recordOutfitCreated(userId, clothes, baselineMatrix);
 
-    return res.json(match);
+    return res.json(await withPickedShoes(userId, match, req.body?.footwear));
 
   } catch (error) {
     // Saved by a matching run between the duplicate check and this save
@@ -831,17 +850,9 @@ exports.updateMatch = async (req, res) => {
     } else {
 
       // If outfit was marked as worn, update its wear counts
+      // (services/wearService.js).
       if (req.body.lastWornDate) {
-        const wornYear = new Date(req.body.lastWornDate).getFullYear();
-
-        match.timesWorn = (match.timesWorn || 0) + 1;
-
-        match.timesWornThisYear =
-          match.wornYear === wornYear
-            ? (match.timesWornThisYear || 0) + 1
-            : 1;
-
-        match.wornYear = wornYear;
+        countWear(match, req.body.lastWornDate);
 
         // Wearing an outfit rejected earlier today takes the rejection back.
         if (shouldUndoRejection) {
@@ -851,40 +862,11 @@ exports.updateMatch = async (req, res) => {
 
       await match.save();
 
-      // If outfit was marked as worn, update all clothes in the outfit
+      // If outfit was marked as worn, update all clothes in the outfit -
+      // with the match's copy of the date, already turned into a Date by
+      // save().
       if (req.body.lastWornDate) {
-        const wornYear = new Date(req.body.lastWornDate).getFullYear();
-
-        await Clothes.updateMany(
-          {
-            _id: { $in: match.clothes },
-            userId,
-          },
-          [
-            {
-              $set: {
-                // The match's copy, already turned into a Date by save() -
-                // never the raw request value inside an update pipeline.
-                lastWornDate: match.lastWornDate,
-
-                timesWorn: {
-                  $add: [{ $ifNull: ["$timesWorn", 0] }, 1],
-                },
-
-                timesWornThisYear: {
-                  $cond: [
-                    { $eq: ["$wornYear", wornYear] },
-                    { $add: [{ $ifNull: ["$timesWornThisYear", 0] }, 1] },
-                    1,
-                  ],
-                },
-
-                wornYear,
-              },
-            },
-          ],
-          { updatePipeline: true }
-        );
+        await wearClothes(userId, match.clothes, match.lastWornDate);
       }
     }
 
@@ -907,6 +889,25 @@ exports.updateMatch = async (req, res) => {
     return res.status(500).json({
       error: error.message,
     });
+  }
+};
+
+// The outfit's shoes, set by hand on the outfit screen. Body: `footwear`
+// (the user's shoe ids, best first - others are dropped). Responds
+// { footwear }.
+exports.setMatchFootwear = async (req, res) => {
+  const userId = req.user?.userId;
+
+  try {
+    const footwear = await setMatchShoes(userId, req.params.id, req.body?.footwear);
+
+    if (!footwear) {
+      return res.status(404).json({ message: "Match not found" });
+    }
+
+    return res.json({ footwear });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -1166,14 +1167,6 @@ const WEEK_DAYS = [
   "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
 ];
 
-// The clothes fields Today needs: subtype (the shoe box pairs shoes with
-// the outfit's bottom), colors (shoes are preferred in an outer's
-// colours), lastWornDate (clothing freshness), and the worn fields
-// together (the snapshot the client takes before marking an outfit worn,
-// restored if another is worn instead on the same device).
-const TODAY_CLOTHES_FIELDS =
-  "name imageUrl type subtype colors lastWornDate timesWorn timesWornThisYear wornYear";
-
 // Today's tag from the weekly preferences, for the user's weekday (sent by
 // the client - "today" is the user's local day), spelt as the outfit tags
 // are. DEFAULT_TODAY_TAG if none is set, or the one set is no longer a tag.
@@ -1211,6 +1204,7 @@ exports.createToday = async (req, res) => {
       season_today,
       today_start,
       day_of_week,
+      today_date,
     } = req.body;
 
     if (!isValidTodayWeather(req.body)) {
@@ -1224,9 +1218,19 @@ exports.createToday = async (req, res) => {
 
     // One build per user at a time - requests arriving together would
     // otherwise each see "no list yet" and each save a full list.
-    const result = await withUserLock(userId, () =>
-      buildToday({ userId, todayStart, season_today, day_of_week, min_temp_today, max_temp_today })
-    );
+    const result = await withUserLock(userId, async () => {
+      // Planned days up to today become worn ones first
+      // (services/planService.js) - every call, so a plan made for today
+      // after the list was built still counts. `today_date` is the user's
+      // local date; older apps don't send it.
+      const plannedWorn = isPlanDate(today_date)
+        ? await applyDuePlans({ userId, todayDate: today_date, todayStart })
+        : null;
+
+      const built = await buildToday({ userId, todayStart, season_today, day_of_week, min_temp_today, max_temp_today });
+
+      return { ...built, plannedWorn };
+    });
 
     return res.json(result);
   } catch (err) {
@@ -1237,47 +1241,6 @@ exports.createToday = async (req, res) => {
       success: false,
     });
   }
-};
-
-// The clothes fields building today's list needs: lastWornDate (clothing
-// freshness), type + subtype (the floors that keep a tights range from
-// going too cold - todaySelectionService.todayFitOf), fabric + favourite
-// + colors + pattern (Today's points and trends - todayScoreService.js).
-const TODAY_BUILD_CLOTHES_FIELDS = "lastWornDate type subtype fabric favourite colors pattern";
-
-// (match) => its Today score (todayScoreService.js), worked out once per
-// match, its parts (breakdownOf) and trend note (trendNoteOf), plus the
-// user's temperature preference.
-const todayScorer = async (userId, season) => {
-  const [{ gender, temperature, colour, seasonality, favouriteColourFamilies, trends: trendsLevel }, running] =
-    await Promise.all([
-      getUserMatchingPreferences(userId),
-      Trend.find({ until: { $gte: new Date() } }).sort({ added: -1 }).lean(),
-    ]);
-  const trends = trendsForGender(running, gender);
-
-  const scoreContext = {
-    season,
-    seasonality,
-    palettes: getColorRules(colour).palettes,
-    favouriteColourPalettes: favouriteFamilyPalettes(favouriteColourFamilies),
-    trends,
-    trendsLevel,
-  };
-  const breakdowns = new Map();
-
-  const breakdownOf = (match) => {
-    if (!breakdowns.has(match)) {
-      breakdowns.set(match, todayScoreBreakdown(match, scoreContext));
-    }
-    return breakdowns.get(match);
-  };
-
-  const scoreOf = (match) => breakdownOf(match).total;
-
-  const noteOf = (match) => trendNoteOf(match, scoreContext);
-
-  return { scoreOf, breakdownOf, trendNoteOf: noteOf, temperature };
 };
 
 // The build itself, run under withUserLock. Returns the response body.
@@ -1310,31 +1273,22 @@ const buildToday = async ({
       };
     }
 
-    const [allMatches, { scoreOf, breakdownOf, trendNoteOf: noteOf, temperature }, hiddenIds] = await Promise.all([
-      Match.find({ userId }).populate("clothes", TODAY_BUILD_CLOTHES_FIELDS),
-      todayScorer(userId, season_today),
-      rebuild
-        ? Today.distinct("matchId", { userId, hidden: true, dateCreated: { $gte: todayStart } })
-        : [],
-    ]);
+    const hiddenIds = rebuild
+      ? await Today.distinct("matchId", { userId, hidden: true, dateCreated: { $gte: todayStart } })
+      : [];
 
     const todayRange = { min: min_temp_today, max: max_temp_today };
-    const hidden = new Set(hiddenIds.map(String));
 
-    // Anything that could get into a weather tier.
-    const matches = allMatches.filter(
-      (match) =>
-        !hidden.has(String(match._id)) &&
-        todayTierOf(match, todayRange, temperature) !== null
-    );
-
-    const { matches: chosen, notice } = selectTodayMatches({
-      matches,
-      todayRange,
-      todayTag: todayTag ?? (await getTodayTag(userId, day_of_week)),
-      temperaturePreference: temperature,
-      scoreOf,
-    });
+    // Picking is shared with the Plan tab (services/dayOutfitService.js);
+    // saving the list is Today's alone.
+    const { chosen, notice, breakdownOf, trendNoteOf: noteOf, temperature } =
+      await selectOutfitsForDay({
+        userId,
+        todayRange,
+        season: season_today,
+        todayTag: todayTag ?? (await getTodayTag(userId, day_of_week)),
+        leaveOut: hiddenIds,
+      });
 
     // Outfits rejected in the last few days are kept out of the top places.
     const selected = keepRejectedOutOfTop(chosen, todayStart);

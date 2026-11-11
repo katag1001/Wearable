@@ -115,6 +115,17 @@ export const choiceTints = {
   buildOutfit: loved.wash,
   takePhoto: accent.wash,
   choosePhoto: wash.sky,
+  // A planned day's two ways in (the Plan tab's day screen).
+  recommendOutfits: accent.wash,
+  buildOwnOutfit: loved.wash,
+};
+
+// The Plan tab's month grid (components/plan/MonthCalendar): today's ring,
+// the dot under a planned day, and the day cells.
+export const calendarTints = {
+  todayRing: accent.mid,
+  plannedDot: accent.deep,
+  day: surface.white,
 };
 
 // The dots on the app's notes (soft/NoteRow): Today's tights note is for

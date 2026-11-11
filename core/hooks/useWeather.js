@@ -7,14 +7,16 @@ import {
   getLastWeatherEntry,
   getTodayWeatherEntry,
 } from "../weather/weatherCache.js";
-import { fetchTodayForecast } from "../weather/openMeteo.js";
+import { cacheForecast } from "../weather/forecastCache.js";
+import { fetchForecast, firstDayOf } from "../weather/openMeteo.js";
 
 /*
  * Today's weather and season, and getting today's outfits made.
  *
  * The forecast is fetched once a day for the user's location (each app
  * passes it in: the browser's / the phone's) and cached; later loads use
- * the cache. Then /today/create runs (once a day) and `ready` turns true -
+ * the cache. The same request brings the next week's days, kept for the
+ * Plan tab (core/weather/forecastCache.js). Then /today/create runs (once a day) and `ready` turns true -
  * the Today outfits can load (useToday's todayReady).
  *
  * Without a location (refused or failed - `locationUnavailable`) or if the
@@ -40,12 +42,14 @@ export const useWeather = ({ latitude, longitude, locationUnavailable = false })
     try {
       console.log("Fetching new weather...");
 
-      const forecast = await fetchTodayForecast(lat, lon);
+      const days = await fetchForecast(lat, lon);
+      const forecast = firstDayOf(days);
 
       if (!forecast) return;
 
       setWeather(forecast);
       cacheWeather(forecast, { latitude: lat, longitude: lon });
+      cacheForecast(days, { latitude: lat, longitude: lon });
 
       await createTodayOnce(forecast, getSeason(new Date(), lat));
 

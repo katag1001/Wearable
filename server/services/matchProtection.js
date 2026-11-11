@@ -1,7 +1,8 @@
 // server/services/matchProtection.js
 //
 // Outfits the user has interacted with: favourited, rated, built
-// themselves, worn, or changed by hand (userEdited). The app's automatic clean-ups and
+// themselves, worn, changed by hand (userEdited) or planned for a day on
+// the Plan tab (plannedFor). The app's automatic clean-ups and
 // rematching (matchRefreshService) never delete or re-score these - they
 // may only refresh the labels copied from the items (colours, seasons,
 // ...). A mismatch is the user's own call and keeps only favourites and
@@ -21,7 +22,8 @@ function isProtectedMatch(match) {
     !!match.userEdited ||
     match.rating != null ||
     match.lastWornDate != null ||
-    (match.timesWorn || 0) > 0
+    (match.timesWorn || 0) > 0 ||
+    (match.plannedFor || []).length > 0
   );
 }
 
@@ -33,6 +35,7 @@ const UNPROTECTED_MATCH_FILTER = {
   rating: null,
   lastWornDate: null,
   timesWorn: { $not: { $gt: 0 } },
+  "plannedFor.0": { $exists: false },
 };
 
 // Arrays compare as sets, so re-saving the same tags in another order

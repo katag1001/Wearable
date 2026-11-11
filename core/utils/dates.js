@@ -81,3 +81,39 @@ export const isDateToday = (dateString) => {
     today.getDate() === date.getDate()
   );
 };
+
+
+/* -------------------------
+   PLAN DATES ("YYYY-MM-DD", the user's local day)
+------------------------- */
+
+const pad = (number) => String(number).padStart(2, "0");
+
+// A Date as the user's local "YYYY-MM-DD" (the Plan tab's dates).
+export const toPlanDate = (date) =>
+  `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+
+// Today as "YYYY-MM-DD".
+export const getTodayDate = () => toPlanDate(new Date());
+
+// A "YYYY-MM-DD" as a Date at local midnight.
+export const fromPlanDate = (planDate) => {
+  const [year, month, day] = planDate.split("-").map(Number);
+
+  return new Date(year, month - 1, day);
+};
+
+// The "YYYY-MM-DD" `days` after this one.
+export const addDaysToPlanDate = (planDate, days) => {
+  const date = fromPlanDate(planDate);
+  date.setDate(date.getDate() + days);
+
+  return toPlanDate(date);
+};
+
+// Whole days from today to a "YYYY-MM-DD" (0 today, negative if past).
+export const daysFromToday = (planDate) =>
+  Math.round((fromPlanDate(planDate) - fromPlanDate(getTodayDate())) / (24 * 60 * 60 * 1000));
+
+// The weekday ("monday") of a "YYYY-MM-DD".
+export const dayOfWeekOf = (planDate) => days[fromPlanDate(planDate).getDay()];

@@ -16,6 +16,7 @@ const { FOOTWEAR_FIELDS } = require("../constants/editableFields.js");
 // Checks shared/footwearMatrices.json when the server starts.
 require("../constants/footwearScoreBaseline.js");
 const { getUserMatchingPreferences } = require("../services/matchScoreService.js");
+const { countWear } = require("../services/wearService.js");
 const {
   rememberShoe,
   restoreShoes,
@@ -279,13 +280,7 @@ exports.wearFootwear = async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    const wornYear = wornDate.getFullYear();
-
-    item.lastWornDate = wornDate;
-    item.timesWorn = (item.timesWorn || 0) + 1;
-    item.timesWornThisYear =
-      item.wornYear === wornYear ? (item.timesWornThisYear || 0) + 1 : 1;
-    item.wornYear = wornYear;
+    countWear(item, wornDate);
 
     await item.save();
 

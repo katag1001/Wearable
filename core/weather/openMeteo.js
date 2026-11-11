@@ -1,62 +1,84 @@
 // core/weather/openMeteo.js
 //
-// Today's forecast from Open-Meteo (free, no key). Uses fetch rather than
+// The forecast from Open-Meteo (free, no key). Uses fetch rather than
 // the API client so the login token is NOT sent to Open-Meteo.
+//
+// One request a day brings today and the next FORECAST_DAYS_AHEAD days
+// (still a single call to Open-Meteo - it only counts extra past 14 days):
+// Today uses the first, the Plan tab the rest (core/weather/forecastCache.js).
 
 import { DAYTIME_END, DAYTIME_START } from "../constants/daytimeHours.js";
+
+// Days after today with a real forecast; later days get an estimate
+// (core/weather/typicalWeather.js).
+export const FORECAST_DAYS_AHEAD = 7;
 
 // 15-minute times come in the location's own time ("2026-10-15T07:30"),
 // so the "HH:MM" is read straight from the string - and compares as text.
 const clockOf = (time) => time.slice(11, 16);
+const dateOf = (time) => time.slice(0, 10);
 
-// The min / max of today's 15-minute temperatures within the daytime
-// window, or null if there are none.
-const daytimeRange = (readings) => {
-  if (!readings?.time?.length) return null;
+const isDaytime = (time) => clockOf(time) >= DAYTIME_START && clockOf(time) <= DAYTIME_END;
 
-  const today = readings.time[0].slice(0, 10);
+// { "YYYY-MM-DD": { min, max } } - each day's daytime min / max of these
+// readings ({ time: [...], [field]: [...] }). Days with none are left out.
+export const daytimeRangesByDate = (readings, field = "temperature_2m") => {
+  const ranges = {};
 
-  const temperatures = readings.time
-    .map((time, index) => ({ time, temperature: readings.temperature_2m[index] }))
-    .filter(
-      ({ time, temperature }) =>
-        time.startsWith(today) &&
-        clockOf(time) >= DAYTIME_START &&
-        clockOf(time) <= DAYTIME_END &&
-        typeof temperature === "number"
-    )
-    .map(({ temperature }) => temperature);
+  (readings?.time || []).forEach((time, index) => {
+    const temperature = readings[field]?.[index];
 
-  if (!temperatures.length) return null;
+    if (!isDaytime(time) || typeof temperature !== "number") return;
 
-  return { min: Math.min(...temperatures), max: Math.max(...temperatures) };
+    const date = dateOf(time);
+    const range = ranges[date];
+
+    ranges[date] = range
+      ? { min: Math.min(range.min, temperature), max: Math.max(range.max, temperature) }
+      : { min: temperature, max: temperature };
+  });
+
+  return ranges;
 };
 
-// { min, max, code } for today at this location - min / max over the
-// daytime window (core/constants/daytimeHours.js), falling back to the
-// whole day's if the 15-minute data is missing. null if the response has
-// no forecast. Throws if the request fails.
-export const fetchTodayForecast = async (latitude, longitude) => {
+// { "YYYY-MM-DD": { min, max, code } } for today and the next `days - 1`
+// days at this location - min / max over the daytime window
+// (core/constants/daytimeHours.js), falling back to the whole day's if
+// the 15-minute data is missing. null if the response has no forecast.
+// Throws if the request fails.
+export const fetchForecast = async (latitude, longitude, days = FORECAST_DAYS_AHEAD + 1) => {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${latitude}` +
     `&longitude=${longitude}` +
     `&minutely_15=temperature_2m` +
     `&daily=temperature_2m_max,temperature_2m_min,weather_code` +
-    `&forecast_days=1` +
+    `&forecast_days=${days}` +
     `&timezone=auto`;
 
   const response = await fetch(url);
   const data = await response.json();
 
-  if (!data.daily) {
+  if (!data.daily?.time?.length) {
     return null;
   }
 
-  const daytime = daytimeRange(data.minutely_15);
+  const daytime = daytimeRangesByDate(data.minutely_15);
 
-  return {
-    min: daytime?.min ?? data.daily.temperature_2m_min[0],
-    max: daytime?.max ?? data.daily.temperature_2m_max[0],
-    code: data.daily.weather_code?.[0],
-  };
+  return Object.fromEntries(
+    data.daily.time.map((date, index) => [
+      date,
+      {
+        min: daytime[date]?.min ?? data.daily.temperature_2m_min[index],
+        max: daytime[date]?.max ?? data.daily.temperature_2m_max[index],
+        code: data.daily.weather_code?.[index],
+      },
+    ])
+  );
+};
+
+// The first day of a fetchForecast result ({ min, max, code }), or null.
+export const firstDayOf = (days) => {
+  const [first] = Object.keys(days || {}).sort();
+
+  return first ? days[first] : null;
 };
