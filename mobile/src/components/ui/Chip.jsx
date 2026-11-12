@@ -2,7 +2,7 @@
 // pill; selected, a flat lilac one (colors.selected), and its label
 // (light spaced capitals, as Today's season line) darkens. Nothing else
 // changes, so it never shifts; it squeezes when pressed, like every
-// tappable. `swatch` shows a colour dot (with a white ring) before the
+// tappable. `swatch` shows a colour dot (with a soft shadow) before the
 // label; `icon` a small Feather icon after it (an "x" on a filter that
 // can be cleared).
 
@@ -58,8 +58,6 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: radii.pill,
-    borderWidth: 2,
-    borderColor: surface.white,
     boxShadow: shadows.soft,
   },
   label: type.chipLabel,

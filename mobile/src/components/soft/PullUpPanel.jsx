@@ -1,5 +1,5 @@
 // A panel along the bottom of the page like the top of a card that's popped
-// up: milk, the panels' rounded top corners and light top rim (like Today's
+// up: milk, the panels' rounded top corners and soft shadow (like Today's
 // bottom panel) and a grab handle.
 // Drag its top strip to move it between its `stops` - how much of it shows
 // - and it snaps to the nearest (a flick goes on to the next one). Tapping

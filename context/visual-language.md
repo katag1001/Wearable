@@ -69,9 +69,9 @@ This is what Today does. Other screens copy it.
   rest of the screen. It holds the content (the outfit).
 - Panels run edge to edge with no side margin. Their content keeps the
   `space.gutter` (24) side padding.
-- Edge: `boxEdge`, a 1px rim of light along the top. No border, no drop
-  shadow. Pull-up panels and sheets are panels too: the same radius 36 and
-  the same rim, no shadow.
+- Edge: `boxEdge`, the soft drop shadow. No border, rim or inset line.
+  Pull-up panels and sheets are panels too: the same radius 36 and
+  the same shadow.
 
 ### Type, in pairs
 
@@ -92,8 +92,8 @@ right-aligned. Large type is always light, never bold.
 
 The note banner (`today/NoteBanner`) is the house box (`houseBox`):
 
-- `surface.veil` (white 62%), `radii.tile` (20), `shadows.raised` (a soft
-  shadow plus the light top rim), no border.
+- `surface.veil` (white 62%), `radii.tile` (20), `shadows.raised` (the soft
+  shadow), no border.
 - Each line is a `soft/NoteRow`: a **small dot** (7px) in the hue for its
   job (`noteTints`), one line of text (`type.note`) and optionally a small
   muted X to close it.
@@ -139,7 +139,7 @@ The note banner (`today/NoteBanner`) is the house box (`houseBox`):
 
 ### Hues - washes and mids
 
-| Hue | Wash (fills) | Mid (dots, rims, small accents) | Job |
+| Hue | Wash (fills) | Mid (dots, small accents) | Job |
 |---|---|---|---|
 | Blush | `#FBEFF3` | `#E9B8CB` | **Loved** - favourite, worn, celebration |
 | Lavender | `#F3EFFA` | `#C6B6E6` | **The app** (`accent`) - focus, selection |
@@ -180,11 +180,11 @@ Deeper siblings for icon-sized accents: blush `#C27C97`, lavender
 
 ## 5. Surfaces, edges, depth
 
-- **Edges are made of light, never ink.** No dark borders or hairline
+- **No borders, rims or outlines - only shadow.** No borders, inset lines or hairline
   dividers anywhere. Things are separated by panels, boxes and space.
-- Shadows: `soft` `0 8px 24px rgba(46,40,56,0.06)`, `raised` = soft + light
-  top rim. **Every box is raised** (house boxes, outfit and item cards,
-  tiles); panels and text fields have only the rim (`boxEdge`).
+- Shadows: `soft` `0 8px 24px rgba(46,40,56,0.06)`, `raised` = soft. Every fill
+  reaches its edge. **Every box is raised** (house boxes, outfit and item cards,
+  tiles); panels, sheets, dialogs and text fields use `boxEdge` (the same soft shadow).
 - Radii: inputs 14 · boxes/tiles 20 · cards 28 (outfit and item cards,
   dialogs) · panels/sheets 36 · buttons/chips pill.
   `borderCurve: "continuous"` on iOS.
@@ -262,8 +262,8 @@ Code is not loaded. Instrument Serif Italic is loaded but not used.
 - **Auth**: the most atmospheric screen, with fields as floating white
   fields (radius 14) straight on the atmosphere.
 - **Dialogs**: every question and notice is the app's own dialog
-  (`soft/Dialog`), never the system alert: a milk card (radius 28, light
-  rim) over the plum backdrop, `menuTitle` over `body`, the first choice as
+  (`soft/Dialog`), never the system alert: a milk card (radius 28, soft
+  shadow) over the plum backdrop, `menuTitle` over `body`, the first choice as
   the lavender pill (Leave and Delete included), any others as white pills,
   Cancel as the text action. Only the phone's permission prompts look like
   the system.
@@ -296,18 +296,18 @@ Code is not loaded. Instrument Serif Italic is loaded but not used.
 | `Button` | Lavender pill (main), veil pill (secondary), text action (text); optional Feather icon |
 | `TextAction` | Plain `textAction` words; `tone="error"` in rose-clay |
 | `Chip` | White pill; selected = solid lilac, label to ink; optional small icon |
-| `SegmentedControl` | White pill track, selected segment lilac, chip labels |
-| `TextField` | Veil, radius 14, rim only, lavender focus glow; label in `eyebrow` |
+| `SegmentedControl` | White pill track, selected segment lilac edge to edge (no inset), chip labels |
+| `TextField` | Veil, radius 14, soft shadow, lavender focus glow (no ring); label in `eyebrow` |
 | `SearchRow` | A text field with the plain filter icon |
 | `FieldRow` | `eyebrow` label over a `menuLabel` value, Change as a text action |
 | `SectionTitle` | `sectionTitle` over prose; with `field`, an `eyebrow` field label |
-| `Sheet` | Milk panel, radius 36, rim, grab handle, plum backdrop; eases in over 320ms |
+| `Sheet` | Milk panel, radius 36, soft shadow, grab handle, plum backdrop; eases in over 320ms |
 | `ImageTile` | Selected = iridescent halo + `SelectedTick` |
 | `SelectedTick` | A 24 white bubble with a check, top left |
 | `cardBox` / `OutfitCard` / `ItemTile` / `OutfitHearts` | The card; favourite + broken heart in its corner |
 | `FavouriteHeart` | Plain heart; favourited = filled `hearts.favourite` |
 | `PointSlider` / `RangeSlider` / `SliderRail` | The graded rail (`temperatureRun` or `scaleRun`), white thumbs |
-| `PullUpPanel` | Milk panel, radius 36, rim, grab handle |
+| `PullUpPanel` | Milk panel, radius 36, soft shadow, grab handle |
 | `Loading` / `BubbleLoader` | One breathing bubble - the only loader, `loaderSizes` when small |
 | `EmptyState` | Bubble, `cardTitle`, `body`; `compact` = one body line |
 | `SoftRefreshControl` | Pull to refresh in deep lavender on milk |

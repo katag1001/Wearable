@@ -1,6 +1,6 @@
 // The app's pop-up questions and notices in the soft look, in place of the
 // system's alerts (which can't be styled): a milk card with the panels'
-// rounded corners and light rim, floating over the plum-tinted backdrop,
+// rounded corners and soft shadow, floating over the plum-tinted backdrop,
 // a light title, a line of body text and the app's own buttons.
 //
 // showDialog(title, message, buttons, options) takes the same arguments as

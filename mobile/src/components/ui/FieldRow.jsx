@@ -2,11 +2,11 @@
 // label uses) over its value, with a small text action on the right (e.g.
 // "Change"). `children` show under the row when it's open - e.g. the
 // field's picker. `swatches` (colour hexes) show as small circles with a
-// white ring before the value. Rows are separated by space, not lines.
+// soft shadow before the value. Rows are separated by space, not lines.
 
 import { StyleSheet, Text, View } from "react-native";
 
-import { radii, shadows, space, surface, type } from "../../theme/soft";
+import { radii, shadows, space, type } from "../../theme/soft";
 import { TextAction } from "./TextAction";
 
 export const FieldRow = ({
@@ -63,8 +63,6 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: radii.pill,
-    borderWidth: 2,
-    borderColor: surface.white,
     boxShadow: shadows.soft,
   },
   value: {

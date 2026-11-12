@@ -19,8 +19,6 @@ export const surface = {
   white: "#FFFFFF",
   // Translucent white over the atmosphere (cards, bubbles).
   veil: "rgba(255, 255, 255, 0.62)",
-  // The 1px "edge made of light" on top of a raised surface.
-  lightEdge: "rgba(255, 255, 255, 0.75)",
 };
 
 // Each hue has a job: blush = loved/worn, lavender = the app (focus,
@@ -120,10 +118,10 @@ export const choiceTints = {
   buildOwnOutfit: loved.wash,
 };
 
-// The Plan tab's month grid (components/plan/MonthCalendar): today's ring,
+// The Plan tab's month grid (components/plan/MonthCalendar): today's fill,
 // the dot under a planned day, and the day cells.
 export const calendarTints = {
-  todayRing: accent.mid,
+  today: accent.wash,
   plannedDot: accent.deep,
   day: surface.white,
 };
@@ -421,40 +419,39 @@ export const continuous = { borderCurve: "continuous" };
 
 const SOFT = "0px 8px 24px rgba(46, 40, 56, 0.06)";
 const LIFTED = "0px 16px 40px rgba(46, 40, 56, 0.08)";
-// The 1px rim of light along the top of a raised surface.
-const LIGHT_RIM = `inset 0px 1px 0px ${surface.lightEdge}`;
 const TAB_ICON = `0px 4px 14px ${fade(accent.mid, 0.35)}`;
 
+// Nothing is outlined - no borders, rims or inset lines anywhere, so every
+// fill reaches its edge. Things stand out by their drop shadow alone.
 export const shadows = {
   soft: SOFT,
   // Cast upwards, by the tab bar.
   tabBar: "0px -6px 24px rgba(46, 40, 56, 0.04)",
   // The accent glow under the active tab icon.
   tabIcon: TAB_ICON,
-  // Raised and lit along the top: buttons and every box (house boxes,
-  // outfit and item cards, tiles).
-  raised: `${SOFT}, ${LIGHT_RIM}`,
-  // A text field while typing in it.
-  focus: `0px 0px 0px 3px ${accent.mid}66, 0px 8px 22px ${accent.mid}40`,
-  // A slider's thumb: lifted, with an accent line along its bottom.
-  thumb: `${LIFTED}, inset 0px -1px 0px ${accent.mid}55`,
-  // The active tab's bubble: the glow, the light rim and a sky line along
-  // its bottom.
-  tabBubble: `${TAB_ICON}, ${LIGHT_RIM}, inset 0px -1px 0px ${mid.sky}55`,
-  // The round select tick on an outfit card: soft, with a faint accent ring.
-  tick: `${SOFT}, inset 0px 0px 0px 1.5px ${fade(accent.deep, 0.28)}`,
+  // Raised: buttons and every box (house boxes, outfit and item cards,
+  // tiles).
+  raised: SOFT,
+  // A text field while typing in it: a soft accent glow, no ring.
+  focus: `0px 8px 22px ${fade(accent.mid, 0.45)}`,
+  // A slider's thumb: lifted.
+  thumb: LIFTED,
+  // The active tab's bubble: the accent glow.
+  tabBubble: TAB_ICON,
+  // The round select tick on an outfit card.
+  tick: SOFT,
 };
 
-// The edge of the panels (Today's tabs, pull-up panels, sheets) and text
-// fields: a 1px rim of light along the top, no drop shadow. Spread it into
-// a style; change it here to change them all.
+// The edge of the panels (Today's tabs, pull-up panels, sheets, dialogs)
+// and text fields: the soft shadow, no border. Spread it into a style;
+// change it here to change them all.
 export const boxEdge = {
-  boxShadow: LIGHT_RIM,
+  boxShadow: SOFT,
 };
 
 // The house box (context/visual-language.md): every note, Profile's menu
 // boxes, the choice cards, the weekly day boxes and the selection bar. Translucent white,
-// rounded, the soft shadow with its light top rim, no border. Spread it
+// rounded, the soft shadow, no border. Spread it
 // into a style; change it here to change them all.
 export const houseBox = {
   borderRadius: radii.tile,
@@ -465,7 +462,7 @@ export const houseBox = {
 
 // The app tour's speech bubble (src/tour/TourOverlay): nothing dims behind
 // it, so a deeper shadow than the boxes' - a close one to define its edge
-// and a wide soft one to lift it - with the light rim on top.
+// and a wide soft one to lift it.
 const BUBBLE_EDGE = "0px 1px 4px rgba(46, 40, 56, 0.12)";
 
 export const tourBubble = {
@@ -473,7 +470,7 @@ export const tourBubble = {
   // The arrow is solid white, with the same close shadow round its edge.
   arrow: surface.white,
   arrowShadow: BUBBLE_EDGE,
-  shadow: `${BUBBLE_EDGE}, 0px 12px 32px rgba(255, 255, 255, 0.12), ${LIGHT_RIM}`,
+  shadow: `${BUBBLE_EDGE}, 0px 12px 32px rgba(255, 255, 255, 0.12)`,
 };
 
 export const motion = {

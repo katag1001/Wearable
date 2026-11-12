@@ -1,6 +1,6 @@
 // The Plan tab's month: the month's name between plain arrows, the
-// weekday letters, then the days in weeks (Monday first). Today has a
-// ring; a planned day a dot under its number; days that can't be planned
+// weekday letters, then the days in weeks (Monday first). Today is filled
+// lavender; a planned day a dot under its number; days that can't be planned
 // (past, or too far ahead) are faded and can't be tapped. `calendar` is
 // usePlanCalendar; `onPickDay(date)` opens the day.
 
@@ -124,8 +124,7 @@ const styles = StyleSheet.create({
     backgroundColor: calendarTints.day,
   },
   today: {
-    borderWidth: 1.5,
-    borderColor: calendarTints.todayRing,
+    backgroundColor: calendarTints.today,
   },
   faded: {
     opacity: 0.35,

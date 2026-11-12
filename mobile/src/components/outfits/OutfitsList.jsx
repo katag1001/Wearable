@@ -231,7 +231,8 @@ export const OutfitsList = ({ itemFilter, waitForNew, onClearItemFilter }) => {
             )
           }
           ListFooterComponent={
-            list.hasMore ? (
+            // Not during the first load: the empty state already shows one.
+            list.hasMore && !list.isFirstLoad ? (
               <BubbleLoader size={loaderSizes.medium} fill={false} style={styles.spinner} />
             ) : null
           }

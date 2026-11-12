@@ -33,7 +33,6 @@ export const SegmentedControl = ({ options, value, onChange }) => (
 const styles = StyleSheet.create({
   control: {
     flexDirection: "row",
-    padding: space.xxs,
     borderRadius: radii.pill,
     backgroundColor: surface.white,
   },

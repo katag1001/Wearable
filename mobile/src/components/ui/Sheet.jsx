@@ -1,5 +1,5 @@
 // A panel that slides up from the bottom over a dimmed screen (filters):
-// milk, with the panels' rounded corners and light top rim (like Today's),
+// milk, with the panels' rounded corners and soft shadow (like Today's),
 // a grab handle, over a light plum-tinted backdrop. It eases in and out
 // over motion.panel, as panels do. Tapping the dimmed area or the cross
 // closes it. `footer` stays pinned under the scrolling content.
