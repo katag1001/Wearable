@@ -19,7 +19,7 @@
 //
 // `match.tights` (set by describeOutfit) is true when the outfit's items
 // allow tights: a skirt, dress or shorts that's worn with tights, and a
-// warm top (the "warm" top group in temperatureGroups.js) or any outer -
+// warm top (level TIGHTS_MIN_TOP_LEVEL or above in temperatureGroups.js) or any outer -
 // tights only make sense on an outfit already dressed for the cold. The
 // outfit actually takes tights when that's true and it isn't `noTights`
 // (takesTights).
@@ -29,10 +29,10 @@
 // unambiguous.
 
 const { shift: TIGHTS_SHIFT, askBySubtype } = require("../../shared/tights.json");
-const { TOP_GROUPS, SKIRT_DRESS_MIN_TEMP } = require("../constants/temperatureGroups.js");
-const { minTempFloor, preferenceShiftOf } = require("./presetTemperatureService.js");
+const { TIGHTS_MIN_TOP_LEVEL, SKIRT_DRESS_MIN_TEMP } = require("../constants/temperatureGroups.js");
+const { minTempFloor, preferenceShiftOf, topLevelOf } = require("./presetTemperatureService.js");
 
-const WARM_TOPS = new Set(TOP_GROUPS.warm);
+const isWarmTop = (item) => item.type === "top" && (topLevelOf(item.subtype) || 0) >= TIGHTS_MIN_TOP_LEVEL;
 
 const asksAboutTights = (subtype) => typeof askBySubtype[subtype] === "boolean";
 
@@ -55,7 +55,7 @@ function canWearTights(items) {
   const hasTightsItem = items.some(itemWearsTights);
 
   const hasWarmLayer = items.some(
-    (item) => item.type === "outer" || (item.type === "top" && WARM_TOPS.has(item.subtype))
+    (item) => item.type === "outer" || isWarmTop(item)
   );
 
   return hasTightsItem && hasWarmLayer;

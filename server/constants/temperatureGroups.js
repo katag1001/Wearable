@@ -1,59 +1,96 @@
 // server/constants/temperatureGroups.js
 //
 // Preset temperature ranges (°C, daytime outdoor) for outfits, worked out
-// from subtypes only - clothing items carry no temperature of their own.
-// See services/presetTemperatureService.js for how these combine.
+// from subtypes and fabrics only - clothing items carry no temperature of
+// their own. See services/presetTemperatureService.js for how these combine
+// and context/temperature-ranges.md for the full walk-through.
 //
-//  - Every top and bottom belongs to a group. Each top group + bottom group
-//    pair has one base range (BASE_RANGES).
-//  - Every onepiece has its own range (ONEPIECE_RANGES).
-//  - Every outer has warmth points (OUTER_WARMTH_POINTS) that move an
-//    outfit's range down to colder days.
-//  - Every top group has layer points (TOP_LAYER_POINTS), used when a top
-//    is an extra layer: a top over the innermost top, or a top worn with
-//    a onepiece.
+//  - Every top and bottom has a warmth level, 1 (lightest) to 5 (warmest).
+//    The warmest top and warmest bottom pick the base range (BASE_RANGES);
+//    every other top takes off its LAYER_BONUS.
+//  - Every onepiece has its own range (ONEPIECE_RANGES); every top worn
+//    with it takes off ONEPIECE_LAYER_POINTS.
+//  - Fabrics (shared/fabrics.json "warmth") nudge the range.
+//  - Every outer has warmth points (OUTER_WARMTH_POINTS) that move the
+//    range down to colder days.
+//  - Floors and caps keep the result sensible.
 
-const TOP_GROUPS = {
-  short: [
-    "Short t-shirt", "Vest", "Croptop", "Off-the-shoulder top", "Linen shirt",
-    "Bodysuit", "Fancy top", "Party top", "Tunic", "Waistcoat", "Knit vest/tank",
-    "Halter/strappy top", "Tube top",
+// Warmth level of every top subtype.
+const TOP_LEVELS = {
+  1: [
+    "Vest", "Croptop", "Off-the-shoulder top", "Halter/strappy top", "Tube top",
+    "Knit vest/tank", "Short t-shirt", "Bodysuit", "Linen shirt", "Fancy top",
+    "Party top", "Tunic", "Waistcoat",
   ],
-  long: [
-    "Long-sleeve t-shirt", "Buttondown shirt", "Fancy blouse", "Short turtleneck",
-    "Long turtleneck", "Turtleneck", "Fine-knit jumper", "Light cardigan",
-    "Floaty blouse", "Denim shirt", "Peasant/boho blouse", "Thin turtleneck jumper",
-    "Oversized shirt", "3/4 sleeve top",
+  2: [
+    "Long-sleeve t-shirt", "3/4 sleeve top", "Buttondown shirt", "Denim shirt",
+    "Oversized shirt", "Fancy blouse", "Floaty blouse", "Peasant/boho blouse",
+    "Short turtleneck",
   ],
-  warm: [
-    "Hoodie/sweatshirt", "Chunky knit jumper", "Thick turtleneck jumper", "Warm cardigan",
-  ],
+  3: ["Fine-knit jumper", "Light cardigan", "Long turtleneck"],
+  4: ["Thin turtleneck jumper", "Turtleneck"],
+  5: ["Hoodie/sweatshirt", "Chunky knit jumper", "Thick turtleneck jumper", "Warm cardigan"],
 };
 
-const BOTTOM_GROUPS = {
-  short: [
+// Warmth level of every bottom subtype.
+const BOTTOM_LEVELS = {
+  1: [
     "Mini skirt", "Shorts", "Casual shorts", "Denim shorts", "Linen shorts",
-    "Cargo shorts", "Skater shorts", "Fancy Shorts", "Floaty maxi skirt",
-    "Fitted maxi skirt",
+    "Cargo shorts", "Skater shorts", "Fancy Shorts",
   ],
-  lightLong: [
-    "Smart skirt", "Midi-skirt", "Winter mini skirt",
-    "Linen pants", "Cropped trousers", "Floaty trousers",
-  ],
-  long: [
+  2: ["Floaty maxi skirt", "Fitted maxi skirt", "Linen pants", "Floaty trousers", "Cropped trousers"],
+  3: ["Smart skirt", "Midi-skirt", "Winter mini skirt", "Cropped jeans", "Leggings"],
+  4: [
     "Skinny jeans", "Slim jeans", "Straight leg jeans", "Tapered jeans", "Mom jeans",
     "Boyfriend jeans", "Relaxed jeans", "Wide leg jeans", "Baggy jeans", "Flared jeans",
-    "Bootcut jeans", "Barrel jeans", "Cropped jeans", "Tailored trousers",
-    "Tailored wide leg trousers", "Flared trousers", "Chinos", "Cargo pants", "Leather trousers",
-    "Leggings", "Sweatpants", "Wool trousers", "Ski/snow pants",
+    "Bootcut jeans", "Barrel jeans", "Tailored trousers", "Tailored wide leg trousers",
+    "Flared trousers", "Chinos", "Cargo pants", "Sweatpants",
   ],
+  5: ["Wool trousers", "Leather trousers", "Ski/snow pants"],
 };
 
-// [min, max] for a top group worn with a bottom group, no outer.
+// [min, max] for the warmest top's level (rows) with the warmest bottom's
+// level (columns), no outer. Level-5 jumpers are nearly always worn over
+// something (REQUIRES_LAYERING), so that row assumes a thin top underneath.
 const BASE_RANGES = {
-  short: { short: [22, 38], lightLong: [19, 34], long: [17, 28] },
-  long: { short: [17, 23], lightLong: [15, 22], long: [13, 22] },
-  warm: { short: [15, 22], lightLong: [9, 18], long: [5, 16] },
+  1: { 1: [22, 38], 2: [20, 35], 3: [18, 32], 4: [17, 28], 5: [14, 22] },
+  2: { 1: [18, 26], 2: [17, 25], 3: [15, 23], 4: [13, 22], 5: [11, 19] },
+  3: { 1: [16, 23], 2: [15, 22], 3: [13, 21], 4: [11, 20], 5: [9, 17] },
+  4: { 1: [14, 21], 2: [12, 20], 3: [10, 19], 4: [8, 18], 5: [6, 15] },
+  5: { 1: [14, 21], 2: [11, 19], 3: [9, 17], 4: [7, 17], 5: [5, 14] },
+};
+
+// The level used for an outfit with no top / no bottom.
+const NO_TOP_LEVEL = 1;
+const NO_BOTTOM_LEVEL = 4;
+
+// Degrees every top other than the warmest takes off the range, by its own
+// level: the warmest layer decides, anything with it adds a little.
+const LAYER_BONUS = { 1: 1, 2: 2, 3: 3, 4: 3, 5: 4 };
+
+// Degrees every top worn with a onepiece takes off the onepiece's range,
+// by the top's level.
+const ONEPIECE_LAYER_POINTS = { 1: 1, 2: 3, 3: 4, 4: 5, 5: 6 };
+
+// Fabric: the "warmth" of each top's, bottom's and onepiece's fabric
+// (shared/fabrics.json) is added up and moves the range down by the total
+// (cool fabrics have negative warmth, so move it up) - never more than
+// this many degrees either way. Outers' fabric isn't counted: their warmth
+// points already describe it.
+const FABRIC_SHIFT_LIMIT = 3;
+
+// Subtypes whose level already assumes these fabrics, so those don't count
+// again. Any other fabric on them still does.
+const FABRIC_NAMED_SUBTYPES = {
+  "Linen shirt": ["Linen"],
+  "Linen pants": ["Linen"],
+  "Linen shorts": ["Linen"],
+  "Chunky knit jumper": ["Chunky knit", "Wool / felted"],
+  "Thick turtleneck jumper": ["Chunky knit", "Wool / felted"],
+  "Warm cardigan": ["Chunky knit", "Wool / felted"],
+  "Wool trousers": ["Wool / felted", "Tweed / boucle"],
+  "Leather trousers": ["Leather / faux leather"],
+  "Winter mini skirt": ["Wool / felted", "Tweed / boucle", "Corduroy", "Leather / faux leather", "Suede"],
 };
 
 // [min, max] for a onepiece on its own, no top or outer.
@@ -134,8 +171,8 @@ const OUTER_MIN_TEMPS = {
   "Bolero": 14,
 };
 
-// Any outfit with a skirt or dress is never below this either - it's the bare-legs range; tights take it
-// shared/tights.json's shift colder (7 -> 5).
+// Any outfit with a skirt or dress is never below this either - it's the
+// bare-legs range; tights take it shared/tights.json's shift colder (7 -> 5).
 const SKIRT_DRESS_MIN_TEMP = 7;
 
 const SKIRT_DRESS_SUBTYPES = [
@@ -145,31 +182,24 @@ const SKIRT_DRESS_SUBTYPES = [
   "Evening dress", "Work dress", "Winter dress",
 ];
 
-// Degrees a top moves the range down when it's an extra layer over the
-// innermost top (which sets the base). A warm top over a summer top takes
-// the outfit from the summer rows to the jumper rows, hence 11; over a
-// long or warm top it adds much less (WARM_OVER_LONG_POINTS).
-const TOP_LAYER_POINTS = { short: 1, long: 4, warm: 11 };
-const WARM_OVER_LONG_POINTS = 4;
+// Maximum caps. Each is applied before the preference shift; a minimum
+// above a cap is lowered to it.
+//
+// Any outfit with layered tops (a second top, or a top with a onepiece):
+const LAYERED_MAX_TEMP = 28;
 
-// The same, for a top worn with a onepiece (every top is a layer then).
-const ONEPIECE_LAYER_POINTS = { short: 1, long: 4, warm: 5 };
+// Any outfit with a bottom of this level:
+const BOTTOM_MAX_TEMPS = { 4: 25, 5: 20 };
 
-// Tops only ever worn over another top: with a second top, never the
-// innermost one, whatever their group.
-const OVER_ONLY_TOPS = ["Waistcoat"];
-
-// Layered tops: an outfit with a top worn as an extra layer (over the
-// innermost top, or any top worn with a onepiece) never has a maximum above
-// the cap for its warmest layer. Tops listed here are jumpers/cardigans;
-// any other top worn as a layer (a shirt over a t-shirt, a waistcoat, a
-// blouse over a dress) uses the "other" cap.
-const LAYER_KINDS = {
-  warmJumper: ["Hoodie/sweatshirt", "Chunky knit jumper", "Thick turtleneck jumper", "Warm cardigan"],
-  lightJumper: ["Fine-knit jumper", "Thin turtleneck jumper", "Light cardigan"],
+// Any outfit containing this subtype:
+const SUBTYPE_MAX_TEMPS = {
+  "Short turtleneck": 20,
+  "Long turtleneck": 20,
+  "Turtleneck": 20,
+  "Thin turtleneck jumper": 20,
+  "Thick turtleneck jumper": 20,
+  "Ski/snow pants": 10,
 };
-
-const LAYERED_MAX_TEMPS = { warmJumper: 18, lightJumper: 24, other: 28 };
 
 // The warmest day an outfit with outers is still comfortable on is this
 // minus the outers' total warmth points - e.g. 23° with a blazer (2),
@@ -199,34 +229,36 @@ const MIN_SPAN = 3;
 // warmer days.
 const TEMPERATURE_PREFERENCE_SHIFT = { 1: 1, 2: 0.5, 3: 0, 4: -0.5, 5: -1 };
 
-// Any outfit with a bottom from the "long" group never has a maximum above
-// this. Applied with the layer caps, before the preference shift - so an
-// "always too cold" user's saved maximum can be this + 1.
-const LONG_BOTTOM_MAX_TEMP = 25;
+// Tops of this level or warmer let an outfit take tights
+// (services/tightsService.js canWearTights) - as does any outer.
+const TIGHTS_MIN_TOP_LEVEL = 4;
 
 // The same bounds as the temperature sliders.
 const TEMPERATURE_LIMITS = [-20, 50];
 
 module.exports = {
-  TOP_GROUPS,
-  BOTTOM_GROUPS,
+  TOP_LEVELS,
+  BOTTOM_LEVELS,
   BASE_RANGES,
+  NO_TOP_LEVEL,
+  NO_BOTTOM_LEVEL,
+  LAYER_BONUS,
+  ONEPIECE_LAYER_POINTS,
+  FABRIC_SHIFT_LIMIT,
+  FABRIC_NAMED_SUBTYPES,
   ONEPIECE_RANGES,
   OUTER_WARMTH_POINTS,
   NO_OUTER_MIN_TEMP,
   OUTER_MIN_TEMPS,
   SKIRT_DRESS_MIN_TEMP,
   SKIRT_DRESS_SUBTYPES,
-  TOP_LAYER_POINTS,
-  WARM_OVER_LONG_POINTS,
-  ONEPIECE_LAYER_POINTS,
-  OVER_ONLY_TOPS,
-  LAYER_KINDS,
-  LAYERED_MAX_TEMPS,
+  LAYERED_MAX_TEMP,
+  BOTTOM_MAX_TEMPS,
+  SUBTYPE_MAX_TEMPS,
   OUTER_CEILING_BASE,
   OUTER_MIN_SPAN,
   MIN_SPAN,
   TEMPERATURE_PREFERENCE_SHIFT,
-  LONG_BOTTOM_MAX_TEMP,
+  TIGHTS_MIN_TOP_LEVEL,
   TEMPERATURE_LIMITS,
 };

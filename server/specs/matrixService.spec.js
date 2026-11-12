@@ -89,6 +89,21 @@ test("fitsShape: a onepiece that requires a top needs a shape with a top", () =>
   assert.equal(fitsShape(onepiece("Jumpsuit"), { top: 0, bottom: 0, onepiece: 1, outer: 0 }, layeringRules), true);
 });
 
+test("fitsShape: an item that requires an outer needs a shape with an outer", () => {
+  const layeringRules = { requiresOuterSet: new Set(["Ski/snow pants"]) };
+
+  assert.equal(fitsShape(bottom("Ski/snow pants"), { top: 1, bottom: 1, onepiece: 0, outer: 0 }, layeringRules), false);
+  assert.equal(fitsShape(bottom("Ski/snow pants"), { top: 1, bottom: 1, onepiece: 0, outer: 1 }, layeringRules), true);
+  assert.equal(fitsShape(bottom("Jeans"), { top: 1, bottom: 1, onepiece: 0, outer: 0 }, layeringRules), true);
+});
+
+test("satisfiesLayeringRules rejects an item that requires an outer when there's none", () => {
+  const layeringRules = { requiresOuterSet: new Set(["Jeans"]) };
+
+  assert.equal(satisfiesLayeringRules([top("Short t-shirt"), bottom("Jeans")], layeringRules), false);
+  assert.equal(satisfiesLayeringRules([top("Short t-shirt"), bottom("Jeans"), outer("Puffer coat")], layeringRules), true);
+});
+
 test("satisfiesLayeringRules never applies the layering rule to a bottom", () => {
   const layeringRules = { requiresLayeringSet: new Set(["Jeans"]) };
   assert.equal(satisfiesLayeringRules([top("Short t-shirt"), bottom("Jeans")], layeringRules), true);

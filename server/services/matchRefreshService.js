@@ -34,13 +34,14 @@ const { isProtectedMatch } = require("./matchProtection.js");
 
 const ROLE_COUNT_FIELDS = ["topCount", "bottomCount", "onepieceCount", "outerCount", "hasOuter"];
 // The outfit's season flags (services/seasonalityService.js): from its
-// fabrics, colours, season-named types and temperature range.
+// fabrics, colours, season-named types and temperature range. A fabric
+// also moves the temperature range (presetTemperatureService.js step 2).
 const SEASON_FLAGS = ["spring", "summer", "autumn", "winter"];
 
 // Which outfit fields (describeOutfit's output) each matching item field feeds.
 const ITEM_FIELD_TO_OUTFIT_FIELDS = {
   colors: ["colors", ...SEASON_FLAGS],
-  fabric: SEASON_FLAGS,
+  fabric: ["min_temp", "max_temp", ...SEASON_FLAGS],
   pattern: ["patterns"],
   tags: ["tags"],
   subtype: ["min_temp", "max_temp", "tights", ...SEASON_FLAGS],

@@ -47,14 +47,15 @@ function context(baselineMatrix) {
   };
 }
 
-// The season flags describeOutfit gives these items (seasonalityService.js).
+// The season flags and temperature range describeOutfit gives these items
+// (seasonalityService.js, presetTemperatureService.js).
 function seasonFlagsOf(items) {
-  const { spring, summer, autumn, winter } = describeOutfit(items, {
+  const { spring, summer, autumn, winter, min_temp, max_temp } = describeOutfit(items, {
     isUserMade: true,
     colorRules: getColorRules(null),
   });
 
-  return { spring, summer, autumn, winter };
+  return { spring, summer, autumn, winter, min_temp, max_temp };
 }
 
 function match(items, overrides = {}) {
@@ -98,7 +99,7 @@ test("changedMatchingFields lists each matching field that changed", () => {
 test("outfitFieldsFor maps item fields to the outfit fields they feed", () => {
   const seasons = ["autumn", "spring", "summer", "winter"];
 
-  assert.deepEqual(outfitFieldsFor(["fabric"]).sort(), seasons);
+  assert.deepEqual(outfitFieldsFor(["fabric"]).sort(), ["max_temp", "min_temp", ...seasons].sort());
   assert.deepEqual(outfitFieldsFor(["subtype"]).sort(), ["max_temp", "min_temp", "tights", ...seasons].sort());
   assert.ok(outfitFieldsFor(["colors"]).includes("summer"));
   assert.ok(outfitFieldsFor(["type"]).includes("hasOuter"));
@@ -139,7 +140,7 @@ test("seasons never make an automatic outfit invalid", () => {
   assert.equal(isValidAutoOutfit([velvetTop, linenBottom], ctx), true);
 });
 
-test("planMatchRefresh refreshes only the changed season flags when a fabric changes", () => {
+test("planMatchRefresh refreshes only the changed season flags and range when a fabric changes", () => {
   const updatedTop = { ...top, fabric: "Velvet" };
   // A manual tag edit on the outfit must survive a fabric change.
   const existing = match([top, bottom], { tags: ["Manual"] });
@@ -152,6 +153,7 @@ test("planMatchRefresh refreshes only the changed season flags when a fabric cha
   );
 
   assert.equal(expected.summer, false, "velvet takes the outfit out of summer");
+  assert.ok(expected.max_temp < existing.max_temp, "velvet makes the outfit warmer");
   assert.deepEqual(deleteIds, []);
   assert.deepEqual(updates, [{ _id: existing._id, fields: expected }]);
 });

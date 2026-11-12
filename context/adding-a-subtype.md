@@ -127,6 +127,9 @@ Without an entry, it still matches on the words in its own name.
   in its role** (e.g. a cardigan that always needs a top underneath).
 - `REQUIRES_TOP`: a onepiece that must **always be worn with a top** (e.g.
   Overalls).
+- `REQUIRES_OUTER`: anything that must **always be worn with an outer**
+  (e.g. Ski/snow pants) - never matched, automatically or by hand,
+  without one.
 
 Add it to the relevant gender lists. Make sure the matrix gives it at
 least one compatible partner of the right kind, or it can never be
@@ -137,8 +140,12 @@ matched. `server/specs/matchScoreBaseline.spec.js` checks this.
 Clothing items have no temperature range; a match's range comes from its
 subtypes (see `temperature-ranges.md`). Add the new subtype to:
 
-- a top: one of `TOP_GROUPS` (short / long / warm);
-- a bottom: one of `BOTTOM_GROUPS` (short / lightLong / long);
+- a top: one of `TOP_LEVELS` (1 summer ... 5 warm);
+- a bottom: one of `BOTTOM_LEVELS` (1 short ... 5 warm);
+- if its level already assumes a fabric (a linen or wool one, say):
+  `FABRIC_NAMED_SUBTYPES`, so that fabric doesn't count twice;
+- if it should never be worn above a temperature (like turtlenecks):
+  `SUBTYPE_MAX_TEMPS`;
 - a onepiece: `ONEPIECE_RANGES`, with its own `[min, max]`;
 - an outer: both `OUTER_WARMTH_POINTS` and `OUTER_MIN_TEMPS`.
 

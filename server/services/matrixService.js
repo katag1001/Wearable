@@ -53,10 +53,11 @@ function canStandAlone(requiresLayeringSet, subtype) {
 
 // Whether `item` may fill a slot in `shape` given the single-item rules:
 //  - a top/outer that requires layering needs 2 slots of its role;
-//  - a onepiece that requires a top needs a shape with a top.
+//  - a onepiece that requires a top needs a shape with a top;
+//  - an item that requires an outer needs a shape with an outer.
 // Used to rule out a whole shape, or a candidate, before searching it.
 function fitsShape(item, shape, layeringRules = {}) {
-  const { requiresLayeringSet, requiresTopSet } = layeringRules;
+  const { requiresLayeringSet, requiresTopSet, requiresOuterSet } = layeringRules;
 
   if (
     LAYERABLE_ROLES.has(item.type) &&
@@ -70,6 +71,10 @@ function fitsShape(item, shape, layeringRules = {}) {
     return false;
   }
 
+  if (!shape.outer && requiresOuterSet?.has(item.subtype)) {
+    return false;
+  }
+
   return true;
 }
 
@@ -77,7 +82,7 @@ function fitsShape(item, shape, layeringRules = {}) {
 // of a shape. Bottoms are never subject to the layering rule - no shape
 // gives them a second same-role item to layer with.
 function satisfiesLayeringRules(items, layeringRules = {}) {
-  const { requiresLayeringSet, requiresTopSet } = layeringRules;
+  const { requiresLayeringSet, requiresTopSet, requiresOuterSet } = layeringRules;
   const roleCounts = {};
 
   items.forEach((item) => {
@@ -94,6 +99,10 @@ function satisfiesLayeringRules(items, layeringRules = {}) {
     }
 
     if (item.type === "onepiece" && !roleCounts.top && requiresTopSet?.has(item.subtype)) {
+      return false;
+    }
+
+    if (!roleCounts.outer && requiresOuterSet?.has(item.subtype)) {
       return false;
     }
 
