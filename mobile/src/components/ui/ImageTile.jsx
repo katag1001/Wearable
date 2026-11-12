@@ -1,5 +1,5 @@
 // A picture on pearl (the item background, a hue-free warm white),
-// optionally tappable and selectable (the iridescent halo + the selected
+// optionally tappable and selectable (the selection ring + the selected
 // tick, ui/SelectedTick). Squeezes when pressed. Without a source it shows
 // `placeholder` text instead.
 

@@ -145,7 +145,12 @@ export const menuTints = {
   tour: mid.mint,
 };
 
-// The full iridescent run - selection halo, temperature track, bubbles.
+// The ring around a selected tile (soft/SelectionHalo): one plain colour.
+export const selection = {
+  ring: accent.mid,
+};
+
+// The full iridescent run - bubbles, stars.
 export const iridescent = [mid.blush, mid.lavender, mid.sky, mid.mint, mid.peach];
 
 // The rating stars' colours: each star runs from one to the next, with

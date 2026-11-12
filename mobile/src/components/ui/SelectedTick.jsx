@@ -1,6 +1,6 @@
 // The tick on anything picked from a grid - style images, colour families,
 // clothes, outfit cards in select mode: a small white bubble in the top
-// left corner with a check, over the iridescent halo (soft/SelectionHalo).
+// left corner with a check, over the selection ring (soft/SelectionHalo).
 // `checked={false}` is the empty bubble with a soft shadow, for a card that
 // can be picked. Place it inside the tile; it positions itself.
 

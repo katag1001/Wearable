@@ -158,7 +158,7 @@ Deeper siblings for icon-sized accents: blush `#C27C97`, lavender
 - **Sliders**: every temperature slider (the quiz scale, an outfit's range,
   the filter) has the sky → mint → peach track (`temperatureRun`). The
   other 1-5 scales (seasonality, trends) are flat lavender (`scaleRun`).
-- The full five-hue iridescent run appears only in the selection halo, the
+- The full five-hue iridescent run appears only in the
   bubble celebration, the bubbles and the rating stars.
 
 ### Semantic
@@ -252,7 +252,7 @@ Code is not loaded. Instrument Serif Italic is loaded but not used.
   a two-up grid of item photos in cards, no names. Outfits is two
   Pinterest-style columns, tops over bottoms, in the same cards
   (`ui/cardBox`: veil, radius 28, raised). Filters are in the sheet. Select
-  mode shows iridescent halos, the selected tick and a floating selection
+  mode shows plain lavender selection rings, the selected tick and a floating selection
   bar (a house box) over the bottom of the list.
 - **Item add / edit / AI review**: photo large, fields below, each labelled
   with `eyebrow`; Change / Done are text actions.
@@ -302,7 +302,7 @@ Code is not loaded. Instrument Serif Italic is loaded but not used.
 | `FieldRow` | `eyebrow` label over a `menuLabel` value, Change as a text action |
 | `SectionTitle` | `sectionTitle` over prose; with `field`, an `eyebrow` field label |
 | `Sheet` | Milk panel, radius 36, soft shadow, grab handle, plum backdrop; eases in over 320ms |
-| `ImageTile` | Selected = iridescent halo + `SelectedTick` |
+| `ImageTile` | Selected = plain lavender ring (`selection.ring`) + `SelectedTick` |
 | `SelectedTick` | A 24 white bubble with a check, top left |
 | `cardBox` / `OutfitCard` / `ItemTile` / `OutfitHearts` | The card; favourite + broken heart in its corner |
 | `FavouriteHeart` | Plain heart; favourited = filled `hearts.favourite` |

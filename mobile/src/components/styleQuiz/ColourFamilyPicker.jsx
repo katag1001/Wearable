@@ -1,7 +1,7 @@
 // Favourite colour families (up to 3) as pie-chart tiles - used by the
 // style quiz and Style Preferences. Once 3 are picked the others dim
 // until one is unpicked. Tiles are pearl (no tint, so the colours read
-// true); a chosen one gets the iridescent halo and the selected tick.
+// true); a chosen one gets the selection ring and the selected tick.
 
 import { StyleSheet, Text } from "react-native";
 
