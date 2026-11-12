@@ -22,6 +22,7 @@ const TAGGED_OUTERS = [
   "Denim jacket",
   "Leather jacket",
   "Poncho",
+  "Bolero",
 ];
 
 const UNTAGGED_OUTERS = [
@@ -38,6 +39,7 @@ const UNTAGGED_OUTERS = [
   "Cropped jacket",
   "Bomber",
   "Gilet",
+  "Lightweight down jacket",
 ];
 
 module.exports = { TAGGED_OUTERS, UNTAGGED_OUTERS };

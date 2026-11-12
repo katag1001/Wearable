@@ -6,7 +6,7 @@ const { describeOutfit } = require("../services/outfitEvaluator.js");
 const { getColorRules } = require("../utils/colorPalettes.js");
 
 const tee = { _id: "tee", type: "top", subtype: "Short t-shirt", colors: ["White"], pattern: "Plain", tags: ["Everyday"], fabric: "" };
-const jeans = { _id: "jeans", type: "bottom", subtype: "Jeans", colors: ["Navy"], pattern: "Plain", tags: ["Everyday"], fabric: "" };
+const jeans = { _id: "jeans", type: "bottom", subtype: "Straight leg jeans", colors: ["Navy"], pattern: "Plain", tags: ["Everyday"], fabric: "" };
 
 const itemsById = new Map([tee, jeans].map((item) => [item._id, item]));
 

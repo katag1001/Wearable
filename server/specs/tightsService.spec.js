@@ -51,7 +51,7 @@ test("the item's own answer replaces its subtype's default", () => {
 
 test("playsuits and trousers never take tights, whatever the item says", () => {
   assert.equal(canWearTights([onepiece("Playsuit", true), outer("Denim jacket")]), false);
-  assert.equal(canWearTights([top("Short t-shirt"), bottom("Jeans"), outer("Classic trench")]), false);
+  assert.equal(canWearTights([top("Short t-shirt"), bottom("Straight leg jeans"), outer("Classic trench")]), false);
 });
 
 test("the tights range is the stored range moved colder at both ends", () => {
@@ -122,7 +122,7 @@ test("tightsItemOf finds the outfit's skirt, dress or shorts", () => {
   const skirt = bottom("Midi-skirt");
 
   assert.equal(tightsItemOf([top("Chunky knit jumper"), skirt]), skirt);
-  assert.equal(tightsItemOf([top("Chunky knit jumper"), bottom("Jeans")]), undefined);
+  assert.equal(tightsItemOf([top("Chunky knit jumper"), bottom("Straight leg jeans")]), undefined);
 });
 
 test("Today doesn't use the tights range for an outfit flagged noTights", () => {

@@ -23,7 +23,7 @@ const TOP_GROUPS = {
     "Long-sleeve t-shirt", "Buttondown shirt", "Fancy blouse", "Short turtleneck",
     "Long turtleneck", "Turtleneck", "Fine-knit jumper", "Light cardigan",
     "Floaty blouse", "Denim shirt", "Peasant/boho blouse", "Thin turtleneck jumper",
-    "Oversized shirt",
+    "Oversized shirt", "3/4 sleeve top",
   ],
   warm: [
     "Hoodie/sweatshirt", "Chunky knit jumper", "Thick turtleneck jumper", "Warm cardigan",
@@ -41,10 +41,11 @@ const BOTTOM_GROUPS = {
     "Linen pants", "Cropped trousers", "Floaty trousers",
   ],
   long: [
-    "Jeans", "Flared jeans", "Wide leg jeans", "High waisted jeans",
-    "Low waist jeans", "Skinny jeans", "Boyfriend jeans", "Tailored trousers",
+    "Skinny jeans", "Slim jeans", "Straight leg jeans", "Tapered jeans", "Mom jeans",
+    "Boyfriend jeans", "Relaxed jeans", "Wide leg jeans", "Baggy jeans", "Flared jeans",
+    "Bootcut jeans", "Barrel jeans", "Cropped jeans", "Tailored trousers",
     "Tailored wide leg trousers", "Flared trousers", "Chinos", "Cargo pants", "Leather trousers",
-    "Leggings", "Sweatpants", "Cropped jeans",
+    "Leggings", "Sweatpants", "Wool trousers", "Ski/snow pants",
   ],
 };
 
@@ -96,6 +97,8 @@ const OUTER_WARMTH_POINTS = {
   "Parka": 9,
   "Fur coat": 8,
   "Puffer coat": 11,
+  "Lightweight down jacket": 5,
+  "Bolero": 1,
 };
 
 // The coldest an outfit can ever go, however many tops are layered up.
@@ -127,6 +130,8 @@ const OUTER_MIN_TEMPS = {
   "Wool coat": -6,
   "Parka": -6,
   "Puffer coat": -10,
+  "Lightweight down jacket": 5,
+  "Bolero": 14,
 };
 
 // Any outfit with a skirt or dress is never below this either - it's the bare-legs range; tights take it

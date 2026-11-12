@@ -81,7 +81,9 @@ const SUBTYPE_DEFINITIONS = {
   "Short t-shirt":
     "A casual jersey top with short sleeves and a crew or V neck - plain, printed or graphic tees, including baby tees and boxy tees. Not cropped above the waist (that's Croptop) and not long-sleeved (Long-sleeve t-shirt).",
   "Long-sleeve t-shirt":
-    "A casual jersey top with long sleeves and a crew, scoop, square or V neck - t-shirt fabric, not knitted. Plain, striped or printed. A jersey top with a high neck is Long turtleneck; a knitted pullover is a jumper.",
+    "A casual jersey top with long sleeves and a crew, scoop, square or V neck - t-shirt fabric, not knitted. Plain, striped or printed. A jersey top with a high neck is Long turtleneck; a knitted pullover is a jumper; sleeves ending between the elbow and wrist are 3/4 sleeve top.",
+  "3/4 sleeve top":
+    "A top whose sleeves end between the elbow and the wrist (three-quarter or bracelet sleeves) - jersey, cotton or light woven fabric, any neckline. The sleeve length is the defining feature: full-length sleeves are Long-sleeve t-shirt, short sleeves are Short t-shirt. A knitted pullover is a jumper whatever its sleeve length.",
   "Vest":
     "A sleeveless jersey top (a tank top) with straps wide enough to cover the shoulder area - racerback, ribbed or plain cotton vests. Not knitted. A top with thin spaghetti straps or a halter neck is Halter/strappy top.",
   "Knit vest/tank":
@@ -111,17 +113,23 @@ const SUBTYPE_DEFINITIONS = {
   "Cropped jeans":
     "Jeans whose legs end above the ankle (mid-calf to just above the ankle bone), often with a raw or frayed hem - culotte jeans, straight cropped jeans. The shortened length is the defining feature, whatever the cut.",
   "Flared jeans":
-    "Jeans fitted through the hip and thigh that widen from the knee down to a flared or bootcut hem. The flare starting at the knee is the defining feature. Jeans that are wide all the way from the hip are Wide leg jeans.",
+    "Jeans fitted through the hip and thigh that widen from the knee down to a clearly flared, dramatic hem - 70s-style flares. A subtle flare just wide enough to sit over a boot is Bootcut jeans. Jeans that are wide all the way from the hip are Wide leg jeans.",
   "Wide leg jeans":
-    "Jeans that are wide and loose from the hip all the way down, with a wide, straight-falling leg - palazzo, barrel and wide straight jeans. Not tight at the thigh.",
-  "High waisted jeans":
-    "Straight or slim-straight jeans with a high rise sitting at the natural waist - mom jeans, straight-leg high-rise jeans. Use this when the cut is otherwise ordinary (not flared, wide, skinny, cropped or slouchy) and the high waist is the stand-out feature.",
-  "Low waist jeans":
-    "Jeans with a low rise sitting on the hips, well below the belly button - often baggy or bootcut Y2K styles. The low waistband is the stand-out feature.",
+    "Jeans that are wide from the hip all the way down, with a wide, straight-falling leg and a neat, defined waist - palazzo and wide straight jeans. Not tight at the thigh. Very loose, slouchy streetwear jeans are Baggy jeans; a leg that curves out at the knee and back in at the ankle is Barrel jeans.",
+  "Straight leg jeans":
+    "Jeans with a straight leg the same width from knee to ankle - neither tight like skinny, nor flared, wide or slouchy. Any rise (high, mid or low). The everyday classic cut; use it when nothing else about the cut stands out.",
+  "Mom jeans":
+    "High-rise jeans, roomy through the hip and thigh, that taper to a narrower ankle - a relaxed, 80s/90s look, usually rigid non-stretch denim. Looser and more slouchy than this is Boyfriend jeans.",
   "Skinny jeans":
     "Tight, stretchy jeans that hug the leg all the way down to a narrow ankle - jeggings included.",
   "Boyfriend jeans":
-    "Relaxed, slouchy jeans with a loose fit through the hip and leg and a slightly tapered or straight leg - often worn rolled at the ankle, sometimes distressed. Looser than straight jeans but not wide.",
+    "Relaxed, slouchy jeans with a loose fit through the hip and leg and a slightly tapered or straight leg - often worn rolled at the ankle, sometimes distressed. Looser than straight jeans but not wide. High-rise and tapered is Mom jeans.",
+  "Baggy jeans":
+    "Very loose, oversized jeans that hang off the body with lots of extra fabric through the whole leg, often pooling at the ankle - skater and 90s streetwear styles. Wider and slouchier than Wide leg jeans.",
+  "Bootcut jeans":
+    "Jeans fitted through the thigh with a slight flare from the knee, just wide enough to sit over a boot. Subtler than Flared jeans.",
+  "Barrel jeans":
+    "Jeans with a curved, rounded leg - roomy at the knee and tapering in again at the ankle, like a barrel or horseshoe shape, often with seams that twist to the front.",
   "Cropped trousers":
     "Non-denim trousers ending above the ankle (mid-calf to ankle) - capris, culottes, cropped chinos or cropped tailored trousers. The shortened length is the defining feature.",
   "Leather trousers":
@@ -133,7 +141,9 @@ const SUBTYPE_DEFINITIONS = {
   "Flared trousers":
     "Non-denim trousers fitted through the hip and thigh that flare out from the knee - kick-flares and bootcut trousers in suiting, jersey, velvet or crepe.",
   "Tailored trousers":
-    "Straight, slim or cigarette-leg trousers in suiting fabric with a structured waistband, belt loops or a pressed crease - suit trousers and smart work trousers. Wide tailored trousers are Tailored wide leg trousers.",
+    "Straight, slim or cigarette-leg trousers in suiting fabric with a structured waistband, belt loops or a pressed crease - suit trousers and smart work trousers. Wide tailored trousers are Tailored wide leg trousers; thick, warm wool or tweed trousers are Wool trousers.",
+  "Wool trousers":
+    "Warm trousers in a thick wool, wool-mix, tweed or flannel - heavier and more textured than ordinary suit trousers, made for cold weather. Any cut.",
   "Cargo pants":
     "Utility trousers with large patch pockets on the thighs (cargo pockets), usually cotton twill or nylon, often with drawstring or cuffed hems and a relaxed fit.",
   "Linen pants":
@@ -142,6 +152,8 @@ const SUBTYPE_DEFINITIONS = {
     "Skin-tight stretch trousers with no fly or pockets on the front, in jersey, ribbed knit or sports fabric - including gym leggings and flared yoga leggings.",
   "Sweatpants":
     "Casual trousers in sweatshirt or jersey fabric - joggers and tracksuit bottoms, usually with an elasticated or drawstring waist and often cuffed ankles.",
+  "Ski/snow pants":
+    "Padded, waterproof trousers for snow and skiing - salopettes and ski trousers in nylon or shell fabric, often with braces, reinforced hems and snow gaiters inside the leg.",
   "Fancy Shorts":
     "Dressy shorts for smart or evening wear: tailored suiting shorts, satin, silk, sequin, velvet or leather shorts.",
   "Casual shorts":
@@ -197,7 +209,9 @@ const SUBTYPE_DEFINITIONS = {
   "Fur coat":
     "A coat made of real or faux fur - shaggy, plush or fluffy all over.",
   "Puffer coat":
-    "A padded, quilted coat or jacket filled with down or synthetic fill, with visible stitched baffles - any length. A sleeveless padded one is Gilet.",
+    "A padded, quilted coat or jacket filled with down or synthetic fill, with visible stitched baffles - any length, thick and puffy. A thin, light one that packs down small is Lightweight down jacket; a sleeveless padded one is Gilet.",
+  "Lightweight down jacket":
+    "A thin, light quilted jacket with down or synthetic fill - flat, narrow baffles, packable, hip length or shorter. Much slimmer than a Puffer coat; sleeveless is Gilet.",
   "Wool coat":
     "A smart coat in wool or a wool blend (melton, cashmere-wool) - single or double-breasted overcoats, peacoats and wrap coats, usually knee or thigh length. Duffle coats with toggles have their own type.",
   "Parka":
@@ -205,7 +219,9 @@ const SUBTYPE_DEFINITIONS = {
   "Spring coat":
     "A light, unlined or lightly lined coat for mild weather - unpadded cotton, twill or light wool-mix coats, car coats and lightweight macs that aren't a classic trench or a waterproof rain coat.",
   "Cropped jacket":
-    "A short jacket ending at or above the waist that isn't denim, leather or a bomber - e.g. a cropped tweed or bouclé jacket, a cropped utility or cord jacket.",
+    "A short jacket ending at or above the waist that isn't denim, leather or a bomber - e.g. a cropped tweed or bouclé jacket, a cropped utility or cord jacket. A tiny cover-up that ends above the bust or ribs is Bolero.",
+  "Bolero":
+    "A very short cover-up that ends above the waist, often just covering the shoulders and upper arms - knitted shrugs, lace or satin evening boleros and cropped open-front jackets worn over dresses and strappy tops. Usually no fastening.",
   "Bomber":
     "A short jacket gathered at the waist with ribbed knit cuffs, hem and often collar - satin, nylon, suede or wool; a zip front.",
   "Denim jacket":
@@ -222,8 +238,12 @@ const SUBTYPE_DEFINITIONS = {
     "A sleeveless outer layer - padded/quilted, fleece, shearling or knitted gilets and body warmers.",
   "Turtleneck":
     "Any top with a high, folded or funnel neck - knitted or jersey.",
-  "Jeans":
-    "Denim trousers in any cut - straight, slim, skinny, relaxed or bootcut.",
+  "Slim jeans":
+    "Jeans cut close to the leg from thigh to ankle but not skin-tight - slim and skinny fits.",
+  "Tapered jeans":
+    "Jeans with room at the thigh that narrow steadily to a slim ankle - a slim-tapered or carrot fit. Roomier at the top than Slim jeans.",
+  "Relaxed jeans":
+    "Loose, roomy jeans through the seat, thigh and leg - relaxed, loose, baggy and skate fits.",
   "Chinos":
     "Smart-casual cotton twill trousers with slanted front pockets and a neat, flat front - beige, navy, olive or stone.",
   "Shorts":

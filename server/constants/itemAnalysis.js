@@ -10,7 +10,7 @@ const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 
 // Saved on every analysed item, so answers from different prompt wordings
 // can be told apart later. Bump it whenever the prompt or schema changes.
-const PROMPT_VERSION = "v3";
+const PROMPT_VERSION = "v4";
 
 // How much the model thinks before answering ("MINIMAL", "LOW", "MEDIUM",
 // "HIGH"). More is slower and costs more.

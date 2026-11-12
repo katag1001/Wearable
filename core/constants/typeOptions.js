@@ -267,8 +267,47 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Jeans",
-      "name": "Jeans",
+      "name": "Slim jeans",
       "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Straight leg jeans",
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Travel day",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Tapered jeans",
+      "tags": [
+        "Comfy casual",
         "Elevated everyday",
         "Errands",
         "Brunch / lunch",
@@ -277,6 +316,43 @@ const typeOptionsByGender = {
         "Restaurant dinner",
         "Date night",
         "Drinks / night out",
+        "Party",
+        "Travel day",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Relaxed jeans",
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Gig / concert",
+        "Travel day",
+        "City break",
+        "Festival"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Bootcut jeans",
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Gig / concert",
         "Party",
         "City break"
       ]
@@ -316,6 +392,28 @@ const typeOptionsByGender = {
         "Date night",
         "Drinks / night out",
         "Party",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Wool trousers",
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Festive party",
         "City break"
       ]
     },
@@ -373,6 +471,16 @@ const typeOptionsByGender = {
         "Gym / sport",
         "Outdoor / hiking",
         "Lounge / home"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Ski/snow pants",
+      "tags": [
+        "Travel day",
+        "Gym / sport",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -620,6 +728,24 @@ const typeOptionsByGender = {
         "Day out",
         "Travel day",
         "City break",
+        "Outdoor / hiking"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Lightweight down jacket",
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Festival",
+        "Gym / sport",
         "Outdoor / hiking"
       ]
     },
@@ -1336,6 +1462,27 @@ const typeOptionsByGender = {
     {
       "type": "top",
       "category": "Tops",
+      "name": "3/4 sleeve top",
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Travel day",
+        "City break",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Tops",
       "name": "Vest",
       "tags": [
         "Comfy casual",
@@ -1646,6 +1793,42 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Jeans",
+      "name": "Bootcut jeans",
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Gig / concert",
+        "Party",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Barrel jeans",
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
       "name": "Wide leg jeans",
       "tags": [
         "Elevated everyday",
@@ -1663,35 +1846,19 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Jeans",
-      "name": "High waisted jeans",
+      "name": "Baggy jeans",
       "tags": [
+        "Comfy casual",
         "Elevated everyday",
         "Errands",
         "Brunch / lunch",
         "Day out",
         "Casual dinner",
-        "Restaurant dinner",
-        "Date night",
         "Drinks / night out",
-        "Party",
-        "City break"
-      ]
-    },
-    {
-      "type": "bottom",
-      "category": "Jeans",
-      "name": "Low waist jeans",
-      "tags": [
-        "Elevated everyday",
-        "Errands",
-        "Brunch / lunch",
-        "Day out",
-        "Casual dinner",
-        "Restaurant dinner",
-        "Date night",
-        "Drinks / night out",
-        "Party",
-        "City break"
+        "Gig / concert",
+        "Travel day",
+        "City break",
+        "Festival"
       ]
     },
     {
@@ -1709,6 +1876,43 @@ const typeOptionsByGender = {
         "Drinks / night out",
         "Party",
         "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Straight leg jeans",
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Travel day",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Mom jeans",
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Gig / concert",
+        "Travel day",
+        "City break",
+        "Festival"
       ]
     },
     {
@@ -1844,6 +2048,29 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Trousers",
+      "name": "Wool trousers",
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Cocktail party",
+        "Festive party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
       "name": "Cargo pants",
       "tags": [
         "Comfy casual",
@@ -1911,6 +2138,16 @@ const typeOptionsByGender = {
         "Gym / sport",
         "Outdoor / hiking",
         "Lounge / home"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Ski/snow pants",
+      "tags": [
+        "Travel day",
+        "Gym / sport",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -2397,6 +2634,24 @@ const typeOptionsByGender = {
     },
     {
       "type": "outer",
+      "category": "Jackets",
+      "name": "Lightweight down jacket",
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Festival",
+        "Gym / sport",
+        "Outdoor / hiking"
+      ]
+    },
+    {
+      "type": "outer",
       "category": "Coats",
       "name": "Wool coat",
       "tags": [
@@ -2509,6 +2764,26 @@ const typeOptionsByGender = {
         "Gym / sport",
         "Outdoor / hiking",
         "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Bolero",
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Business casual",
+        "Brunch / lunch",
+        "Garden party / daytime event",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Festive party",
+        "Wedding guest",
+        "Formal / black tie"
       ]
     },
     {
@@ -3126,6 +3401,27 @@ const typeOptionsByGender = {
     {
       "type": "top",
       "category": "Tops",
+      "name": "3/4 sleeve top",
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Travel day",
+        "City break",
+        "Lounge / home"
+      ]
+    },
+    {
+      "type": "top",
+      "category": "Tops",
       "name": "Vest",
       "tags": [
         "Comfy casual",
@@ -3436,6 +3732,42 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Jeans",
+      "name": "Bootcut jeans",
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Gig / concert",
+        "Party",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Barrel jeans",
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
       "name": "Wide leg jeans",
       "tags": [
         "Elevated everyday",
@@ -3453,35 +3785,19 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Jeans",
-      "name": "High waisted jeans",
+      "name": "Baggy jeans",
       "tags": [
+        "Comfy casual",
         "Elevated everyday",
         "Errands",
         "Brunch / lunch",
         "Day out",
         "Casual dinner",
-        "Restaurant dinner",
-        "Date night",
         "Drinks / night out",
-        "Party",
-        "City break"
-      ]
-    },
-    {
-      "type": "bottom",
-      "category": "Jeans",
-      "name": "Low waist jeans",
-      "tags": [
-        "Elevated everyday",
-        "Errands",
-        "Brunch / lunch",
-        "Day out",
-        "Casual dinner",
-        "Restaurant dinner",
-        "Date night",
-        "Drinks / night out",
-        "Party",
-        "City break"
+        "Gig / concert",
+        "Travel day",
+        "City break",
+        "Festival"
       ]
     },
     {
@@ -3499,6 +3815,43 @@ const typeOptionsByGender = {
         "Drinks / night out",
         "Party",
         "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Straight leg jeans",
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Travel day",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Jeans",
+      "name": "Mom jeans",
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Gig / concert",
+        "Travel day",
+        "City break",
+        "Festival"
       ]
     },
     {
@@ -3644,6 +3997,31 @@ const typeOptionsByGender = {
     {
       "type": "bottom",
       "category": "Trousers",
+      "name": "Wool trousers",
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Work from home",
+        "Business casual",
+        "Formal office",
+        "Brunch / lunch",
+        "Day out",
+        "Casual dinner",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Festive party",
+        "Wedding guest",
+        "Formal / black tie",
+        "City break"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
       "name": "Cargo pants",
       "tags": [
         "Comfy casual",
@@ -3716,6 +4094,16 @@ const typeOptionsByGender = {
         "Gym / sport",
         "Outdoor / hiking",
         "Lounge / home"
+      ]
+    },
+    {
+      "type": "bottom",
+      "category": "Trousers",
+      "name": "Ski/snow pants",
+      "tags": [
+        "Travel day",
+        "Gym / sport",
+        "Outdoor / hiking"
       ]
     },
     {
@@ -4263,6 +4651,24 @@ const typeOptionsByGender = {
     },
     {
       "type": "outer",
+      "category": "Jackets",
+      "name": "Lightweight down jacket",
+      "tags": [
+        "Comfy casual",
+        "Elevated everyday",
+        "Smart casual",
+        "Errands",
+        "Brunch / lunch",
+        "Day out",
+        "Travel day",
+        "City break",
+        "Festival",
+        "Gym / sport",
+        "Outdoor / hiking"
+      ]
+    },
+    {
+      "type": "outer",
       "category": "Coats",
       "name": "Wool coat",
       "tags": [
@@ -4375,6 +4781,26 @@ const typeOptionsByGender = {
         "Gym / sport",
         "Outdoor / hiking",
         "Lounge / home"
+      ]
+    },
+    {
+      "type": "outer",
+      "category": "Jackets",
+      "name": "Bolero",
+      "tags": [
+        "Elevated everyday",
+        "Smart casual",
+        "Business casual",
+        "Brunch / lunch",
+        "Garden party / daytime event",
+        "Restaurant dinner",
+        "Date night",
+        "Drinks / night out",
+        "Party",
+        "Cocktail party",
+        "Festive party",
+        "Wedding guest",
+        "Formal / black tie"
       ]
     },
     {
