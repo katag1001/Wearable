@@ -8,7 +8,7 @@ import {
   getTodayWeatherEntry,
 } from "../weather/weatherCache.js";
 import { cacheForecast } from "../weather/forecastCache.js";
-import { fetchForecast, firstDayOf } from "../weather/openMeteo.js";
+import { fetchForecast, firstDayOf } from "../weather/forecast.js";
 
 /*
  * Today's weather and season, and getting today's outfits made.

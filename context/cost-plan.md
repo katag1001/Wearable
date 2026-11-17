@@ -29,7 +29,7 @@ per-user numbers.
 | 95/5 mix | $3.46 | $0.28 |
 
 Fixed plan fees ≈ $197/month (Vercel Pro 20, Cloudinary Plus 99, Atlas
-Flex ≤30, Open-Meteo Standard 29, Expo Starter 19), plus Google Play $25
+Flex ≤30, weather 29 (since removed: weather is free), Expo Starter 19), plus Google Play $25
 once and Apple $99/year if iOS.
 
 ## Tier 2 price (added 2026-11-12)
@@ -91,7 +91,7 @@ What each service costs and which code drives it.
 | Gemini 3.5 Flash-Lite | **$0.0044 per analysed photo** ($0.30 / $2.50 per M tokens in/out) | `server/services/geminiClient.js`, one call + up to 1 retry (`constants/itemAnalysis.js`) |
 | MongoDB Atlas | **~1.4 KB per saved outfit** (data + index), outfits ≈ 5,672 × (clothes ÷ 98)^2.5; shared out at ~$10/GB | `matches` collection, filled by `matchService.js` (≤2,000 new per piece). 70 pieces ≈ 1,500 outfits / 2.3 MB; 200 pieces ≈ 21,000 / 30 MB |
 | Vercel | ~$0.0003 per piece added (matching + analysis), ~$0.005 per user per month of daily use. Active CPU $0.128/h, memory $0.0106/GB-h, $0.60/M calls | `api/index.vercel.js`, matching runs via `waitUntil` |
-| Open-Meteo | ~45 calls per user per month; $29 per 1M (Standard) | `core/weather/openMeteo.js` (one call a day, cached) |
+| Weather (MET Norway + NASA POWER) | Free; one call to our server per user per day (Vercel usage), shared by area | `server/services/weatherService.js` |
 | Expo EAS Update | $0.005 per monthly active user above 3,000 | OTA updates on the `preview` channel |
 
 Per added photo, all services: **≈ $0.042** (Cloudinary 0.037 + Gemini
@@ -104,8 +104,9 @@ Per added photo, all services: **≈ $0.042** (Cloudinary 0.037 + Gemini
   existing tier 1 ~0.5, existing tier 2 ~1.0. The first limit to hit.
 - **Atlas:** Flex $8–30 up to 5 GB, M10 ~$57 (10 GB), M20 ~$146 (20 GB),
   M30 ~$394 (40 GB), M40 ~$760 (80 GB).
-- **Open-Meteo:** Standard $29 = 1M calls, Professional $99 = 5M. The free
-  API is non-commercial only.
+- **Weather:** free (MET Norway, NASA POWER). MET Norway asks for a special
+  agreement above 20 requests a second in total; our server caps itself at 15
+  and shares forecasts by area, so this isn't expected to be reached.
 - **Expo:** Starter $19 incl. 3,000 update users; Production $199 incl. 50,000.
 - **Vercel:** Pro $20 includes $20 of usage. Hobby is non-commercial only.
 
@@ -227,17 +228,18 @@ $29.41/year** (1,000 trials, 30% convert; ~2,940 payers; cost per payer
 $1.54). Without yearly plans Option B would need $3.96/month (2,000
 payers).
 
-## Open: weather provider (2026-11-17, undecided)
+## Weather: now free (2026-11-17)
 
-Open-Meteo's free API is non-commercial only, so a paid app needs its $29
-a month plan, though actual usage is ~$0.001 a user. Free alternatives
-discussed (terms not yet re-checked): **Apple WeatherKit** (free up to
-500,000 calls a month with the Apple developer account; works on Android
-through its web API, with the secret key on the server; Apple Weather
-credit required) and **MET Norway** (free for commercial use, no key;
-must identify the app, respect caching, credit them; hourly data needs
-converting). Either way, call it from the server and cache by area.
-Switching would take $29 a month off the fixed costs.
+The weather moved to free sources fetched by our server
+(`server/services/weatherService.js`): **MET Norway** for the forecast
+(free including for paid apps; shared by ~10 km area; our own cap of 15
+calls a second) and **NASA POWER** for typical weather past the forecast
+(free, no key; one table per ~50 km area, kept half a year). Weather is
+now **$0** a month. The only cost is a little Vercel usage (one call per
+user per day, already inside the Vercel figures). Fixed minimum is now
+~$175 a month before anyone signs up (Vercel 20, Cloudinary 99, Atlas
+from 30, Expo 19, email 7), plus Apple $99/year and Google Play $25 once.
+Earlier sections below still mention the old $29 weather plan: history.
 
 ## Page simplified to three steps (2026-11-17, page version 14)
 

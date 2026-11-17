@@ -213,9 +213,9 @@ Preference 3 (no shift):
 
 ### 4.1 Today's outfits
 
-1. The client (`core/weather/openMeteo.js`, web and mobile) gets today's
-   **daytime** min/max from Open-Meteo's 15-minute temperatures, **07:30 to
-   22:30** local time (`core/constants/daytimeHours.js`) - the overnight
+1. The client (`core/weather/forecast.js`, web and mobile) gets today's
+   **daytime** min/max from our server, worked out from MET Norway's
+   temperatures, **07:30 to 22:30** local time (`shared/daytimeHours.json`) - the overnight
    low is left out. It's cached for the day (fetched again if the window changes), shifted by the weather offset
    (sunny / rain), and posted to `/today/create` with the season and the
    user's weekday.

@@ -1,11 +1,12 @@
 // A planned day's weather, as a house box: the weather icon (forecast
 // only) and the temperatures, over "Forecast" or the estimate's note
-// ("Estimate: usually 5° – 10° around this time of year"). `dayWeather`
-// is useDayWeather.
+// ("Estimate: usually 5° – 10° around this time of year"), and where the
+// data comes from (MET Norway / NASA POWER, as their terms ask).
+// `dayWeather` is useDayWeather.
 
 import { StyleSheet, Text, View } from "react-native";
 
-import { dayWeatherNote, temperatureText } from "@core/plan/dayWeather.js";
+import { dayWeatherNote, dayWeatherSource, temperatureText } from "@core/plan/dayWeather.js";
 
 import { houseBox, loaderSizes, space, type } from "../../theme/soft";
 import { BubbleLoader } from "../soft/BubbleLoader";
@@ -34,6 +35,7 @@ export const DayWeatherCard = ({ dayWeather }) => {
         <Text style={styles.temperature}>{temperatureText(weather)}</Text>
       </View>
       <Text style={styles.note}>{dayWeatherNote(weather)}</Text>
+      <Text style={styles.source}>{dayWeatherSource(weather)}</Text>
     </View>
   );
 };
@@ -52,4 +54,5 @@ const styles = StyleSheet.create({
   },
   temperature: type.todayHeadline,
   note: type.todaySubline,
+  source: type.caption,
 });

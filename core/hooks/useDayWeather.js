@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { dayWeatherFor, needsEstimate } from "../plan/dayWeather.js";
 import { cacheForecast, getTodayForecastEntry } from "../weather/forecastCache.js";
 import { getLastWeatherEntry } from "../weather/weatherCache.js";
-import { fetchForecast } from "../weather/openMeteo.js";
+import { fetchForecast } from "../weather/forecast.js";
 import { getTypicalWeatherTable } from "../weather/typicalWeather.js";
 
 /*

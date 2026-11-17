@@ -1,6 +1,8 @@
 // core/weather/weatherCodes.js
 //
-// What the day's WMO weather code (from Open-Meteo) means for the app.
+// What the day's WMO weather code means for the app. The server translates
+// MET Norway's weather symbols into these codes
+// (server/services/weather/weatherSymbols.js).
 
 
 /* -------------------------

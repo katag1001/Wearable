@@ -6,6 +6,7 @@ const cloudinaryControllers = require("../controllers/cloudinaryControllers");
 const analysisControllers = require("../controllers/analysisControllers");
 const trendControllers = require("../controllers/trendControllers");
 const planControllers = require("../controllers/planControllers");
+const weatherControllers = require("../controllers/weatherControllers");
 const { authMiddleware } = require("../middleware/authMiddleware");
 const { adminMiddleware } = require("../middleware/adminMiddleware");
 const { loginLimiter, registerLimiter } = require("../middleware/rateLimits");
@@ -96,5 +97,9 @@ router.get("/preferences", authMiddleware, allControllers.getPreferences);
 router.put("/preferences", authMiddleware, allControllers.updatePreferences);
 router.get("/preferences/rebuild", authMiddleware, allControllers.getOutfitRebuildStatus);
 router.post("/preferences/rebuild", authMiddleware, allControllers.continueOutfitRebuild);
+
+/* WEATHER ROUTES (Today and the Plan tab; services/weatherService.js) */
+router.get("/weather/forecast", authMiddleware, weatherControllers.getForecast);
+router.get("/weather/typical", authMiddleware, weatherControllers.getTypical);
 
 module.exports = router;

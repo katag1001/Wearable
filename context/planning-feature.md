@@ -11,7 +11,7 @@ Mobile app only for now; server changes also reach the web Today page.
 | Picking a day's outfits (shared with Today) | `server/services/dayOutfitService.js` |
 | Counting a wear (shared) | `server/services/wearService.js` |
 | Numbers | `server/constants/planning.js`; plans -> tags `shared/planOccasions.json` |
-| Weather | `core/weather/openMeteo.js` (8 days, one call), `forecastCache.js`, `typicalWeather.js`; `core/plan/dayWeather.js`, `core/hooks/useDayWeather.js` |
+| Weather | `core/weather/forecast.js` (8 days, one call to our server: `server/services/weatherService.js`), `forecastCache.js`, `typicalWeather.js`; `core/plan/dayWeather.js`, `core/hooks/useDayWeather.js` |
 | Plan logic | `core/plan/*`, `core/api/plan.js`, `core/hooks/usePlan*.js` |
 | Undo of a plan worn by the server | `core/plan/plannedWorn.js` (read by useToday / useTodayFootwear) |
 | Screens | `mobile/src/app/(tabs)/(today,wardrobe,outfits,create,plan)/plan.jsx`, `plan-day.jsx`, `plan-outfits.jsx`, `build-outfit.jsx?planDate=`; `mobile/src/components/plan/*` |
@@ -97,16 +97,16 @@ plannedFor: [{ date: "2026-11-14", footwear: <Footwear id or null> }]
 
 ## Weather for the planned day
 
-- **Days 0-7:** Open-Meteo forecast, `forecast_days=8` - still one call
-  (extra weighting only starts past 14 days). Cached once a day; the same
-  forecast offset by weather code as Today.
-- **Beyond 7 days: estimate ("typical for this time of year").** Open-Meteo
-  Historical API, **hourly** temperature for the last **3 years** (daily
+- **Days 0-7:** MET Norway forecast via our server (`/weather/forecast`),
+  one call for all 8 days. Cached once a day; the same forecast offset by
+  weather code as Today.
+- **Beyond 7 days: estimate ("typical for this time of year").** NASA POWER
+  hourly history via our server (`/weather/typical`), **hourly** temperature for the last **3 years** (daily
   min is night-time, which would make every estimate colder than Today's
   daytime ranges). Daytime-window min/max per day of year, averaged over
-  the years and smoothed over +/-7 days. One-off download per location
-  (~120 KB compressed, ~80 weighted calls) rounded to ~50 km; only the
-  worked-out 366-day table (~6 KB) is kept on the phone. No weather code
+  the years and smoothed over +/-7 days. Worked out on the server once per
+  ~50 km area (kept half a year); only the 366-day table (~6 KB) goes to
+  the phone and is kept there. No weather code
   (offset 0). Always labelled as an estimate, e.g. "Estimate: usually
   5-10° around this time of year".
 - Not doing (for now): warning when a planned day comes into forecast range

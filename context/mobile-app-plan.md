@@ -120,7 +120,7 @@ platforms.
 | `src/components/today/todayCache.js`, `todayOutfitSort.jsx`, `outfitRejection.js` | `core/today/` (`.js`); the reject request → `core/api/matches.js`. The sort later moved to the server (see "After the build") |
 | `src/components/today/footwear/footwearCache.js`, `footwearRanking.js` | `core/footwear/` |
 | `src/components/today/footwear/footwearApi.js` | `core/api/footwear.js` |
-| Fetch + cache half of `src/components/today/autoWeather.jsx` | `core/weather/weatherCache.js` (shared with the outfit sort and shoe box, which had their own copies), `core/weather/openMeteo.js`, `core/today/createTodayOnce.js` + `core/api/today.js` |
+| Fetch + cache half of `src/components/today/autoWeather.jsx` | `core/weather/weatherCache.js` (shared with the outfit sort and shoe box, which had their own copies), `core/weather/forecast.js` (since 2026-11-17 the forecast comes from MET Norway via our server), `core/today/createTodayOnce.js` + `core/api/today.js` |
 | `Homepage.jsx`'s `getCurrentSeason` | Replaced by `getSeason()` from `core/utils/dates.js` (same result with no latitude) |
 | `:root` colour and size vars in `src/App.css` | `core/theme/tokens.js` (mobile reads it; web CSS stays as is) |
 
@@ -134,7 +134,7 @@ what the hook returns. Mobile then reuses the hook with its own view.
 |---|---|---|---|
 | `src/App.jsx` | 270 | `useAuthSession` | restore session, verify token, login, logout, style quiz needed, clear caches |
 | `components/today/viewToday.jsx` | 1366 | `useToday` | fetch with retries, sort + sort cache, tag select, next/prev, reject, mark worn + undo snapshot, delete outfit |
-| `components/today/autoWeather.jsx` | 343 | `useWeather` | cached weather, Open-Meteo fetch, post to `/today/create`, season |
+| `components/today/autoWeather.jsx` | 343 | `useWeather` | cached weather, forecast fetch, post to `/today/create`, season |
 | `components/today/footwear/todayFootwearBox.jsx` | 434 | `useTodayFootwear` | ranking, wear / unwear / reject, cache |
 | `components/clothes/addUpdateClothes.jsx` | 641 | `useSaveClothing` | two-step form, validation, upload → save → clean up image on failure |
 | `components/footwear/addUpdateFootwear.jsx` | 392 | `useSaveFootwear` | same flow for footwear |

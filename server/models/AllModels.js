@@ -514,6 +514,29 @@ const trendSchema = new mongoose.Schema({
   until: { type: Date, required: true },
 });
 
+// Weather shared between users (services/weatherService.js), each document
+// deleted by MongoDB once `deleteAt` passes:
+//   "forecast:<lat>,<lon>" - an area's MET Norway forecast (data.series)
+//   "typical:<lat>,<lon>"  - an area's typical-weather table (data.table)
+//   "met-rate:<second>"    - calls to MET Norway in that second (count)
+//   "met-pause"            - no MET Norway calls until freshUntil
+const weatherCacheSchema = new mongoose.Schema(
+  {
+    _id: { type: String },
+    kind: { type: String },
+    data: { type: mongoose.Schema.Types.Mixed },
+    // Reused without asking again until then (MET Norway's Expires).
+    freshUntil: { type: Date },
+    // MET Norway's Last-Modified, sent back as If-Modified-Since.
+    lastModified: { type: String },
+    count: { type: Number },
+    // Someone is fetching this area until then.
+    lockUntil: { type: Date },
+    deleteAt: { type: Date, index: { expires: 0 } },
+  },
+  { versionKey: false }
+);
+
 
 /* -------------------- MODELS -------------------- */
 
@@ -527,4 +550,5 @@ Footwear: mongoose.model("Footwear", footwearSchema),
 Preferences: mongoose.model("Preferences", preferencesSchema),
 MatchScore: mongoose.model("MatchScore", matchScoreSchema),
 Trend: mongoose.model("Trend", trendSchema),
+WeatherCache: mongoose.model("WeatherCache", weatherCacheSchema),
 };

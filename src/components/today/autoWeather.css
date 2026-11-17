@@ -169,3 +169,20 @@
     transition: none;
   }
 }
+
+
+/* =========================================================
+   WEATHER CREDIT (MET Norway's terms ask for it)
+========================================================= */
+
+.weather-credit {
+  margin: .15rem 0 0;
+
+  color: var(--secondary-color);
+  font-family: inherit;
+
+  font-size: .65rem;
+  letter-spacing: .06em;
+
+  opacity: .7;
+}

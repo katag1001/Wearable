@@ -3,10 +3,12 @@
 // panel has a back arrow and the title, the bottom panel one box per
 // preferences screen (src/app/account/), then Log out and Delete account
 // along its foot. Both actions confirm first. "Take the tour" goes back
-// to Today and runs the app tour again (src/tour).
+// to Today and runs the app tour again (src/tour). Under the menu, the
+// weather data credits the sources' terms ask for
+// (server/services/weather/weatherSources.js).
 
 import { router } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { useDeleteAccount } from "@core/hooks/useDeleteAccount.js";
 
@@ -19,7 +21,7 @@ import {
   TopPanel,
 } from "../../../components/soft";
 import { ListRow, Loading, TextAction } from "../../../components/ui";
-import { menuTints, space } from "../../../theme/soft";
+import { menuTints, space, type } from "../../../theme/soft";
 import { showDialog } from "../../../components/soft/Dialog";
 import { useTour } from "../../../tour/TourProvider";
 
@@ -96,6 +98,12 @@ export default function ProfileScreen() {
           />
         </View>
 
+        <Text style={styles.credits}>
+          Weather data from MET Norway (CC BY 4.0). Typical weather from NASA
+          Langley Research Center's POWER Project, funded through the NASA
+          Earth Science Division.
+        </Text>
+
         {/* Like Today's tag and season: two sublines, one each side. */}
         <View style={styles.actions}>
           <TextAction label="Log out" onPress={confirmLogout} />
@@ -111,6 +119,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: space.xs,
     gap: space.sm,
+  },
+  credits: {
+    ...type.caption,
+    paddingTop: space.sm,
   },
   actions: {
     flexDirection: "row",

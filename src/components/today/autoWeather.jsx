@@ -54,6 +54,10 @@ const AutoWeather = ({ setTodayReady }) => {
         </p>
       )}
 
+      {/* The forecast's source, as MET Norway's terms ask
+          (server/services/weather/weatherSources.js). */}
+      {weather && <p className="weather-credit">Weather data from MET Norway</p>}
+
     </div>
   );
 };

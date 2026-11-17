@@ -3,7 +3,11 @@
 // The times (local, 24h "HH:MM") whose temperatures make up "today's
 // weather", both ends included. The overnight low isn't what anyone wears
 // clothes in, and outfit ranges are for daytime outdoors - so it's left
-// out. Open-Meteo's readings are every 15 minutes, so keep both ends on a
-// quarter hour.
-export const DAYTIME_START = "07:30";
-export const DAYTIME_END = "22:30";
+// out. The server works the forecast out over the same window
+// (server/services/weather/forecastDays.js), so the numbers live in
+// shared/daytimeHours.json.
+
+import daytimeHours from "../../shared/daytimeHours.json";
+
+export const DAYTIME_START = daytimeHours.start;
+export const DAYTIME_END = daytimeHours.end;

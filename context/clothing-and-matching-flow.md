@@ -1282,10 +1282,10 @@ order. Files: `server/services/todaySelectionService.js` (which outfits),
 `server/services/todayRankingService.js` (the order), numbers in
 `server/constants/todayOutfits.js` and `server/constants/seasonality.js`.
 
-**Today's weather.** The client (`core/weather/openMeteo.js`, web and
-mobile) takes the min and max of Open-Meteo's **15-minute** temperatures from
-**07:30 to 22:30** local time (`core/constants/daytimeHours.js`) - the
-overnight low isn't what anyone dresses for. It's shifted by the weather
+**Today's weather.** The client (`core/weather/forecast.js`, web and
+mobile) asks our server (`/weather/forecast`), which takes the min and max of
+MET Norway's temperatures from **07:30 to 22:30** local time
+(`shared/daytimeHours.json`) - the overnight low isn't what anyone dresses for. It's shifted by the weather
 offset (sunny / rain) and sent to `/today/create` with the season (from
 the date and latitude, `getSeason`) and the user's weekday.
 

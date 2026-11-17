@@ -178,9 +178,9 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
   <p class="small">Each month's trials pay nothing that month. The ones who stay pay from the next month, and keep paying until they cancel. Yearly payers pay the whole year up front. The last column is what that month's trials bring over their whole time with you, after their own costs and the stores' cut.</p>
   <div class="tablebox"><table class="year">
     <thead>
-      <tr><th></th><th class="n grp" colspan="3">Users</th><th class="n grp" colspan="9">What you pay</th><th class="n grp" colspan="4">Money</th><th></th></tr>
+      <tr><th></th><th class="n grp" colspan="3">Users</th><th class="n grp" colspan="8">What you pay</th><th class="n grp" colspan="4">Money</th><th></th></tr>
       <tr><th>Month</th><th class="n">New trials</th><th class="n">Paying</th><th class="n">Active</th>
-        <th class="n">Cloudinary</th><th class="n">Gemini</th><th class="n">Database</th><th class="n">Vercel</th><th class="n">Weather</th><th class="n">Expo</th><th class="n">Email</th><th class="n">One-off</th><th class="n">Total</th>
+        <th class="n">Cloudinary</th><th class="n">Gemini</th><th class="n">Database</th><th class="n">Vercel</th><th class="n">Expo</th><th class="n">Email</th><th class="n">One-off</th><th class="n">Total</th>
         <th class="n">Paid in</th><th class="n">Stores</th><th class="n">Profit</th><th class="n">Running total</th><th class="n">These trials will bring</th></tr>
     </thead>
     <tbody id="yearRows"></tbody>
@@ -194,7 +194,8 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
       <div style="display:grid; gap:8px; min-width:0">
         <h3>What you pay</h3>
         <ul class="small">
-          <li><b>Every month, whatever happens:</b> Vercel $20, Cloudinary $99 (Plus plan), MongoDB Atlas from $30, Open-Meteo $29, Expo $19, email $7. That's $204 before anyone signs up.</li>
+          <li><b>Every month, whatever happens:</b> Vercel $20, Cloudinary $99 (Plus plan), MongoDB Atlas from $30, Expo $19, email $7. That's $175 before anyone signs up.</li>
+          <li><b>Weather is free:</b> the forecast comes from MET Norway and the typical weather from NASA POWER, both fetched by your server and shared between users in the same area. The only cost is a little server use, already in the Vercel figure.</li>
           <li><b>Grows with users:</b> Gemini, about $0.0044 a photo analysed. Cloudinary (photos, storage, viewing) and the database move up to bigger plans as usage grows: Cloudinary $249 at 225+ credits, the database $57, $146, $394, $760 as it passes 5, 10, 20, 40 GB.</li>
           <li><b>Month 1 only:</b> Apple Developer Program $99 (covers the year) and Google Play $25 (once, ever). GitHub is free.</li>
         </ul>
@@ -229,7 +230,8 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
       <a href="https://www.mongodb.com/pricing">MongoDB</a> ·
       <a href="https://theimagecdn.com/docs/cloudinary-pricing">Cloudinary credits</a> ·
       <a href="https://pricepertoken.com/pricing-page/model/google-gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite</a> ·
-      <a href="https://openmeteo.substack.com/p/api-subscriptions-for-commercial">Open-Meteo</a> ·
+      <a href="https://api.met.no/doc/TermsOfService">MET Norway terms</a> ·
+      <a href="https://power.larc.nasa.gov/docs/referencing/">NASA POWER</a> ·
       <a href="https://docs.expo.dev/billing/faq/">Expo</a> ·
       <a href="https://developer.apple.com/support/enrollment/">Apple Developer</a> ·
       <a href="https://github.com/pricing">GitHub</a> ·
@@ -251,7 +253,6 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
   const BW_GB = 0.17;               // viewed per user per month
   const GEMINI = 0.0044;            // per analysed photo
   const VERCEL_PIECE = 0.0003, VERCEL_USER = 0.005;
-  const WEATHER_CALLS = 45;
   const CLOTHES_SHARE = 0.83;
   const MATCH_GB = 1.4 / 1048576, PIECE_DOC_GB = 2 / 1048576;
   const EMAIL = 7;
@@ -275,18 +276,15 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
 
     // What it costs per unit of use (for per-user figures).
     const usage = (added * tx / 1000 + stored * gbPiece + users * BW_GB) * CREDIT
-      + added * s.ai * GEMINI + gb * 10 + added * VERCEL_PIECE + users * VERCEL_USER
-      + users * WEATHER_CALLS * 29 / 1e6;
+      + added * s.ai * GEMINI + gb * 10 + added * VERCEL_PIECE + users * VERCEL_USER;
 
     // What the plans actually charge.
     const credits = added * tx / 1000 + stored * gbPiece + users * BW_GB;
-    const calls = users * WEATHER_CALLS;
     const services = {
       cloudinary: credits <= 225 ? 99 : credits <= 600 ? 249 : credits * 0.415,
       gemini: added * s.ai * GEMINI,
       database: ATLAS.find((t) => gb <= t[0])[1],
       vercel: Math.max(20, added * VERCEL_PIECE + users * VERCEL_USER),
-      weather: calls <= 1e6 ? 29 : calls <= 5e6 ? 99 : Math.ceil(calls / 5e6) * 99,
       expo: 19 + Math.max(0, users - 3000) * 0.005,
       email: EMAIL,
     };
@@ -428,7 +426,7 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
 
     // Month rows
     running = 0;
-    const svcKeys = ["cloudinary", "gemini", "database", "vercel", "weather", "expo", "email"];
+    const svcKeys = ["cloudinary", "gemini", "database", "vercel", "expo", "email"];
     document.getElementById("yearRows").innerHTML = months.map((m, i) => {
       running += m.profit;
       return `<tr><td>Month ${i + 1}</td>${cell(fmt(m.n))}${cell(fmt(m.payers))}${cell(fmt(m.active))}` +

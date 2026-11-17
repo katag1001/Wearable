@@ -6,7 +6,7 @@
 // as an estimate. { kind: "forecast" | "estimate", min, max, code }
 // (code null for an estimate).
 
-import { FORECAST_DAYS_AHEAD } from "../weather/openMeteo.js";
+import { FORECAST_DAYS_AHEAD } from "../weather/forecast.js";
 import { getWeatherTempOffset } from "../weather/weatherCodes.js";
 import { daysFromToday, fromPlanDate, getSeason } from "../utils/dates.js";
 
@@ -37,6 +37,11 @@ export const dayWeatherNote = (weather) =>
   weather.kind === "estimate"
     ? `Estimate: usually ${degrees(weather.min)} – ${degrees(weather.max)} around this time of year`
     : "Forecast";
+
+// Where the day's weather comes from, as their terms ask us to credit
+// (server/services/weather/weatherSources.js).
+export const dayWeatherSource = (weather) =>
+  weather.kind === "estimate" ? "Based on NASA POWER data" : "Data from MET Norway";
 
 // The day's weather as the server picks outfits from it (as Today's -
 // core/today/createTodayOnce.js todayWeatherParams): the range shifted by

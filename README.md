@@ -25,7 +25,7 @@ Two front ends share one API:
   out from the subtypes.
 - **Build your own outfits** - no rules; they also teach the app your taste.
 - **Today** - built once a day on the server from the day's weather
-  (Open-Meteo), your weekday tag, season, freshness and scores. Swipe
+  (MET Norway, fetched by the server), your weekday tag, season, freshness and scores. Swipe
   through, pick shoes, mark as worn; the broken heart covers too hot / too
   cold / mismatch / not with tights.
 - **Style quiz** - gender, colour and pattern levels, favourite palettes,
@@ -41,7 +41,7 @@ Two front ends share one API:
             |
    Express API (server/)  ── one Vercel serverless function (api/)
       |        |        |
-  MongoDB  Cloudinary  Gemini        clients call Open-Meteo directly
+  MongoDB  Cloudinary  Gemini  MET Norway + NASA POWER (weather, via the server)
 ```
 
 | Folder | What |
@@ -62,7 +62,8 @@ Two front ends share one API:
 | Vercel | Hosting the website and the API (+ Analytics / Speed Insights on the web) |
 | Cloudinary | Image storage, background removal, thumbnails |
 | Google Gemini (`gemini-3.5-flash-lite`) | Photo analysis |
-| Open-Meteo | Today's weather (called from the apps, no key) |
+| MET Norway (Locationforecast) | The weather forecast, fetched by the server and shared by area (free, including commercial use; needs `MET_CONTACT`) |
+| NASA POWER | Typical weather for Plan days past the forecast, fetched by the server (free, no key) |
 | Expo / EAS | Building and releasing the mobile app |
 
 ## Running locally
@@ -83,7 +84,7 @@ npx expo start       # mobile app in Expo Go
 
 | Where | Variables |
 |---|---|
-| `server/.env` (Vercel env vars when deployed) | `MONGO`, `JWT_SECRET`, `CLOUD_NAME`, `CLOUD_API_KEY`, `CLOUD_API_SECRET`, `GEMINI_API_KEY`, optional `GEMINI_MODEL` |
+| `server/.env` (Vercel env vars when deployed) | `MONGO`, `JWT_SECRET`, `CLOUD_NAME`, `CLOUD_API_KEY`, `CLOUD_API_SECRET`, `GEMINI_API_KEY`, optional `GEMINI_MODEL`, `MET_CONTACT` (contact sent to MET Norway with every weather request; change before launch, see `context/before-launch.md`) |
 | `.env` (web) | `VITE_CLOUD_NAME`, `VITE_UPLOAD_PRESET` |
 | `mobile/.env` | `EXPO_PUBLIC_CLOUD_NAME`, `EXPO_PUBLIC_UPLOAD_PRESET`, optional `EXPO_PUBLIC_API_URL` (defaults to the Vercel API) |
 
