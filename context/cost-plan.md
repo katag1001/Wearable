@@ -228,6 +228,23 @@ $29.41/year** (1,000 trials, 30% convert; ~2,940 payers; cost per payer
 $1.54). Without yearly plans Option B would need $3.96/month (2,000
 payers).
 
+## Break-even payers + settings kept (2026-11-17, page version 17)
+
+- New month-by-month column **"Needed to break even"**: paying users that
+  would cover all that month's costs (plan fees, the new trials' free
+  month, leavers' data, one-offs) at the set prices after the stores' cut,
+  each payer bringing (1 − store cut) × average payment − their own running
+  cost. Yearly payments are spread over 12 months here (the profit column
+  is cash, so a month can show a profit while under this number). Green
+  when "Paying" reaches it, orange when not; "never" when a payer brings in
+  less than they cost.
+- **The user's settings are saved on their device** (localStorage, key
+  `wardrobe-unit-costs:settings`) and restored when the page opens, with a
+  "Reset to example values" button. **When changing the page: keep every
+  input's `id` unchanged** (saved values are matched by id; renaming one
+  loses the user's value for it), and give new inputs new ids (they start
+  at their example value).
+
 ## Weather: now free (2026-11-17)
 
 The weather moved to free sources fetched by our server

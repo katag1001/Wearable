@@ -82,7 +82,9 @@ thead th { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em;
 td.n, th.n { text-align: right; white-space: nowrap; }
 tbody tr:last-child td { border-bottom: none; }
 tr.total td { font-weight: 800; border-top: 2px solid var(--fg); }
-table.year { min-width: 1240px; font-size: 13.5px; }
+table.year { min-width: 1340px; font-size: 13.5px; }
+.stepHead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 10px 16px; }
+.keepNote { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 table.year th:first-child, table.year td:first-child { position: sticky; left: 0; background: var(--surface); }
 table.year thead th:first-child { background: var(--bg); }
 table.year th.grp { text-align: center; border-bottom: 0; padding-bottom: 0; }
@@ -107,7 +109,10 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
 
 <!-- ==================== STEP 1 ==================== -->
 <section>
-  <div style="display:grid; gap:4px"><span class="step">Step 1</span><h2>Your settings</h2></div>
+  <div class="stepHead">
+    <div style="display:grid; gap:4px"><span class="step">Step 1</span><h2>Your settings</h2></div>
+    <div class="keepNote"><span class="small">Your numbers are kept on this device.</span><button type="button" class="btn" id="resetBtn">Reset to example values</button></div>
+  </div>
   <div class="panel">
 
     <div class="group">
@@ -175,11 +180,11 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
 <!-- ==================== STEP 3 ==================== -->
 <section>
   <div style="display:grid; gap:4px"><span class="step">Step 3</span><h2>Month by month</h2></div>
-  <p class="small">Each month's trials pay nothing that month. The ones who stay pay from the next month, and keep paying until they cancel. Yearly payers pay the whole year up front. The last column is what that month's trials bring over their whole time with you, after their own costs and the stores' cut.</p>
+  <p class="small">Each month's trials pay nothing that month. The ones who stay pay from the next month, and keep paying until they cancel. Yearly payers pay the whole year up front. "Needed to break even" is how many paying users that month would cover all of that month's costs (including the new trials' free month), at your prices after the stores' cut: orange when there are fewer, green when there are enough. It spreads each yearly payment over its 12 months, so a month can show a profit (yearly payments arriving up front) while still being under this number. The last column is what that month's trials bring over their whole time with you, after their own costs and the stores' cut.</p>
   <div class="tablebox"><table class="year">
     <thead>
-      <tr><th></th><th class="n grp" colspan="3">Users</th><th class="n grp" colspan="8">What you pay</th><th class="n grp" colspan="4">Money</th><th></th></tr>
-      <tr><th>Month</th><th class="n">New trials</th><th class="n">Paying</th><th class="n">Active</th>
+      <tr><th></th><th class="n grp" colspan="4">Users</th><th class="n grp" colspan="8">What you pay</th><th class="n grp" colspan="4">Money</th><th></th></tr>
+      <tr><th>Month</th><th class="n">New trials</th><th class="n">Paying</th><th class="n">Needed to break even</th><th class="n">Active</th>
         <th class="n">Cloudinary</th><th class="n">Gemini</th><th class="n">Database</th><th class="n">Vercel</th><th class="n">Expo</th><th class="n">Email</th><th class="n">One-off</th><th class="n">Total</th>
         <th class="n">Paid in</th><th class="n">Stores</th><th class="n">Profit</th><th class="n">Running total</th><th class="n">These trials will bring</th></tr>
     </thead>
@@ -424,17 +429,28 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
       : `At ${usd(st.monthly)} a month or ${usd(st.yearly)} a year, the first year loses ${usd(-T.profit)}. That's because each trial costs ${usd(tv.trialCost)} in its free month and pays later: year 1's trials still bring about ${usd(toCome)} after month 12, so the year's trials ${T.profit + toCome >= 0 ? `end up ${usd(T.profit + toCome)} ahead` : `still end up ${usd(-(T.profit + toCome))} behind`} (before year 2's plan fees).`;
     set("verdict", verdict);
 
+    // Paying users needed to cover a month's costs: each payer brings the
+    // average payment after the stores' cut, less their own running cost;
+    // the rest of the month's costs (plan fees, the trials' free month,
+    // leavers' data, one-off fees) has to be covered by that.
+    const perPayer = (1 - st.fee) * ((1 - st.yearShare) * st.monthly + (st.yearShare * st.yearly) / 12) - tv.payerCost;
+    const neededCell = (m) => {
+      if (perPayer <= 0) return `<td class="n neg">never</td>`;
+      const needed = Math.ceil(Math.max(0, m.costs - m.payers * tv.payerCost) / perPayer);
+      return `<td class="n ${m.payers >= needed ? "pos" : "neg"}">${fmt(needed)}</td>`;
+    };
+
     // Month rows
     running = 0;
     const svcKeys = ["cloudinary", "gemini", "database", "vercel", "expo", "email"];
     document.getElementById("yearRows").innerHTML = months.map((m, i) => {
       running += m.profit;
-      return `<tr><td>Month ${i + 1}</td>${cell(fmt(m.n))}${cell(fmt(m.payers))}${cell(fmt(m.active))}` +
+      return `<tr><td>Month ${i + 1}</td>${cell(fmt(m.n))}${cell(fmt(m.payers))}${neededCell(m)}${cell(fmt(m.active))}` +
         svcKeys.map((k) => cell(usd(m.services[k]))).join("") +
         `${cell(m.oneOff ? usd(m.oneOff) : "-")}<td class="n"><b>${usd(m.costs)}</b></td>` +
         `${cell(usd(m.paidIn))}${cell(usd(m.store))}${moneyCell(m.profit)}${moneyCell(running)}${moneyCell(m.n * tv.lifetime)}</tr>`;
     }).join("") +
-      `<tr class="total"><td>Year 1</td>${cell(fmt(trials))}<td></td><td></td>` +
+      `<tr class="total"><td>Year 1</td>${cell(fmt(trials))}<td></td><td></td><td></td>` +
       svcKeys.map((k) => cell(usd(months.reduce((t, m) => t + m.services[k], 0)))).join("") +
       `${cell(usd(APPLE_YEAR + GOOGLE_ONCE))}${cell(usd(T.costs))}${cell(usd(T.paidIn))}${cell(usd(T.store))}${moneyCell(T.profit)}<td></td>${moneyCell(trials * tv.lifetime)}</tr>`;
 
@@ -446,12 +462,49 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
     ].join("");
   }
 
+  /* ---------- Keeping your numbers ---------- */
+  // Every setting is saved on this device as you type and put back when the
+  // page opens again (also after the page is updated: settings are matched
+  // by their id, so keep ids unchanged; a new setting starts at its example
+  // value). "Reset to example values" goes back to the page's own values.
+  const STORE_KEY = "wardrobe-unit-costs:settings";
+  const inputs = () => [...document.querySelectorAll("input")];
+
+  const saveSettings = () => {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(Object.fromEntries(inputs().map((el) => [el.id, el.value]))));
+    } catch {
+      // Storage blocked (private window): the page still works, just unsaved.
+    }
+  };
+
+  const restoreSettings = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
+      inputs().forEach((el) => {
+        if (typeof saved[el.id] === "string" && saved[el.id] !== "") el.value = saved[el.id];
+      });
+    } catch {
+      // Nothing saved, or storage blocked: keep the example values.
+    }
+  };
+
+  const update = () => {
+    run();
+    saveSettings();
+  };
+
   document.getElementById("yAllBtn").addEventListener("click", () => {
     const v = document.getElementById("yAll").value;
     MONTH_IDS.forEach((id) => { document.getElementById(id).value = v; });
-    run();
+    update();
   });
-  document.querySelectorAll("input").forEach((el) => el.addEventListener("input", run));
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    inputs().forEach((el) => { el.value = el.defaultValue; });
+    update();
+  });
+  inputs().forEach((el) => el.addEventListener("input", update));
+  restoreSettings();
   run();
 })();
 </script>
