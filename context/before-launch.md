@@ -13,6 +13,33 @@ as you go; tick things off when they're done.
       variables (Production and Preview), and in `server/.env` for running
       locally.
 
+## Must add
+
+- [ ] **An "About & legal" screen** in the app, opened from a row in
+      Profile. It should hold:
+      - **Data credits.** MET Norway: "Based on data from MET Norway", with a
+        link to the CC BY 4.0 licence
+        (https://creativecommons.org/licenses/by/4.0/). We change their data
+        (daily highs/lows and weather codes are worked out from their hourly
+        forecast), so "based on". NASA POWER: "The data was obtained from the
+        National Aeronautics and Space Administration (NASA) Langley Research
+        Center's Prediction Of Worldwide Energy Resources (POWER) project
+        funded through the NASA Earth Science Division."
+      - **The privacy policy.** Needed for the app stores anyway. It should
+        say that the phone sends its location to our server for the weather,
+        and that our server, not the phone, asks MET Norway and NASA POWER,
+        so they never see the user.
+      - Later: terms of use, open-source licences.
+
+      Both sources accept credits on a separate page as long as it's easy to
+      find from inside the app (not only on a website). Once the screen
+      exists, remove the temporary credits: the source line on the Plan tab's
+      weather card (`mobile/src/components/plan/DayWeatherCard.jsx`,
+      `dayWeatherSource` in `core/plan/dayWeather.js`) and the credits
+      paragraph at the bottom of Profile (`profile.jsx`). The web's Today
+      line (`src/components/today/autoWeather.jsx`) can stay until the web
+      goes offline.
+
 ## Check
 
 - [ ] **NASA POWER's licence for a paid app.** The Plan tab's typical
