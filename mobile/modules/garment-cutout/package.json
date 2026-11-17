@@ -1,0 +1,7 @@
+{
+  "name": "garment-cutout",
+  "version": "0.1.0",
+  "description": "Cuts garments out of photos on the phone (ML Kit on Android, Apple Vision on iPhone).",
+  "private": true,
+  "main": "index.js"
+}

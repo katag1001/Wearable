@@ -18,6 +18,17 @@
       },
       "channel": "preview"
     },
+    "preview-strict": {
+      "distribution": "internal",
+      "environment": "preview",
+      "android": {
+        "buildType": "apk"
+      },
+      "channel": "preview-strict",
+      "env": {
+        "EXPO_PUBLIC_CUTOUT_STRICT_TEST": "1"
+      }
+    },
     "production": {
       "environment": "production",
       "autoIncrement": true,

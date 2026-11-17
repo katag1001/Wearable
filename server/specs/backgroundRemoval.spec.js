@@ -21,6 +21,11 @@ test("any other image gets nothing derived", () => {
   assert.deepEqual(derivedImageFields(undefined), {});
 });
 
+test("a phone cut-out has no thumbnail or original to derive", () => {
+  assert.deepEqual(derivedImageFields("lx4k2abc_cutout"), {});
+  assert.deepEqual(withDerivedImageFields({ cloudinaryId: "lx4k2abc_cutout" }), { cloudinaryId: "lx4k2abc_cutout" });
+});
+
 test("a save only gains derived fields when it sends a background-removed image", () => {
   assert.deepEqual(withDerivedImageFields({ name: "Top" }), { name: "Top" });
   assert.deepEqual(withDerivedImageFields({ cloudinaryId: "plain" }), { cloudinaryId: "plain" });

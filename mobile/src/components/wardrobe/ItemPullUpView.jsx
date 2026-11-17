@@ -3,7 +3,9 @@
 // panel - it opens part way up, drags down to see the photo on its own, or
 // up to see every field. The photo shrinks and moves up as the panel rises
 // to part way (usePhotoFollowsPanel). Tap the photo, or the camera in the
-// corner, to change it. `footer` goes under the form (e.g. Delete item).
+// corner, to change it: the new photo is cut out on the phone first
+// (PhotoPicker's choosePhoto), with "Use original photo" in the other
+// corner to swap. `footer` goes under the form (e.g. Delete item).
 // There's no Save or Cancel: the screen saves on leaving
 // (useSaveItemOnLeave), behind a "Saving…" cover.
 
@@ -21,9 +23,10 @@ import {
   PullUpScrollView,
   useHeaderSpace,
 } from "../soft";
+import { Button } from "../ui";
 import { ItemForm } from "./ItemForm";
 import { DEFAULT_PHOTO_ASPECT, ItemPhoto } from "./ItemPhoto";
-import { askForPhoto, photoSource } from "./PhotoPicker";
+import { askForPhoto, photoSource, swapPhoto, swapPhotoLabel } from "./PhotoPicker";
 import { usePhotoFollowsPanel } from "./usePhotoFollowsPanel";
 
 // How much of the page the details panel covers part way up (as on the
@@ -45,7 +48,10 @@ export const ItemPullUpView = ({ form, footer }) => {
     openVisible: partWay,
   });
 
-  const changePhoto = () => askForPhoto(form.setSelectedImage);
+  // Cutting a newly chosen photo out on the phone (PhotoPicker).
+  const [preparingPhoto, setPreparingPhoto] = useState(false);
+  const changePhoto = () => askForPhoto(form.setSelectedImage, setPreparingPhoto);
+  const swapLabel = swapPhotoLabel(form.selectedImage);
 
   return (
     <View
@@ -77,6 +83,16 @@ export const ItemPullUpView = ({ form, footer }) => {
           hitSlop={10}
           style={styles.cornerIcon}
         />
+
+        {/* A newly chosen photo: cut-out <-> as taken. */}
+        {swapLabel ? (
+          <Button
+            label={swapLabel}
+            variant="secondary"
+            onPress={() => form.setSelectedImage(swapPhoto(form.selectedImage))}
+            style={styles.cornerSwap}
+          />
+        ) : null}
       </View>
 
       {pageHeight > 0 && (
@@ -105,10 +121,10 @@ export const ItemPullUpView = ({ form, footer }) => {
         </PullUpPanel>
       )}
 
-      {/* Saving on the way out. */}
-      {form.saving ? (
+      {/* Saving on the way out, or cutting out a new photo. */}
+      {form.saving || preparingPhoto ? (
         <View style={styles.saving}>
-          <BubbleLoader text="Saving…" />
+          <BubbleLoader text={form.saving ? "Saving…" : "Preparing photo…"} />
         </View>
       ) : null}
     </View>
@@ -134,6 +150,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: space.xxs,
     right: space.xxs,
+  },
+  cornerSwap: {
+    position: "absolute",
+    top: space.xxs,
+    left: space.xxs,
   },
   details: {
     paddingHorizontal: space.gutter,

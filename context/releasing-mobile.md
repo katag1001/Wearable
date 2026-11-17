@@ -1,5 +1,10 @@
 # Releasing the mobile app
 
+> **Waiting to be deployed (2026-11-17): the phone cut-out**, on the git
+> branch `phone-cutout`. It needs a new build and changes the app version
+> to 1.1.0. Step-by-step: `context/phone-cutout-plan.md`, "Deploying it
+> later".
+
 How changes get from the code to the app on the phone. The app is an
 Android **preview** build (an APK installed straight from Expo, not the
 Play Store), made with EAS Build and updated over the air with EAS Update.

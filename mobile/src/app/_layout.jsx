@@ -27,6 +27,7 @@ import { SessionProvider, useSession } from "../auth/SessionProvider";
 import { DialogHost } from "../components/soft/Dialog";
 import { Button, EmptyState, Screen } from "../components/ui";
 import { API_URL, CLOUD_NAME, UPLOAD_PRESET } from "../platform/config";
+import { prepareGarmentCutout } from "../platform/garmentCutout";
 import { storage } from "../platform/storage";
 import { useStorageReady } from "../platform/useStorageReady";
 
@@ -87,6 +88,15 @@ function RootNavigator() {
       SplashScreen.hide();
     }
   }, [isCheckingToken]);
+
+  // Signed in: get the phone ready to cut out item photos (Android
+  // downloads ML Kit's model the first time), so the first photo added
+  // doesn't wait for it.
+  useEffect(() => {
+    if (loggedIn) {
+      prepareGarmentCutout();
+    }
+  }, [loggedIn]);
 
   if (isCheckingToken) {
     return null;

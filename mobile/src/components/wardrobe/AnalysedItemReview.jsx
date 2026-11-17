@@ -6,7 +6,13 @@
 //
 // `onSwitchKind(fields)` starts the review again as the other kind
 // (clothing <-> footwear) - the screen remounts this with the new kind.
+//
+// `image` ({ imageUrl, cloudinaryId }) is the photo the item is saved
+// with; "Use original photo" (`photoChoice`, PhotoChoice) can swap it, and
+// the form follows. "Choose another photo" asks first if the user has
+// changed anything, since the new photo's analysis replaces it.
 
+import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { useAnalysedItemReview } from "@core/hooks/useAnalysedItemReview.js";
@@ -23,17 +29,64 @@ import {
   TightsField,
 } from "./ItemDetailsPage";
 import { TypeChooser } from "./TypeChooser";
+import { PhotoChoice } from "./PhotoChoice";
+import { showDialog } from "../soft/Dialog";
+
+// Fields that aren't the user's edits: the photo (swapped separately) and
+// footwear's style (set from the colours).
+const NOT_EDITS = new Set(["imageUrl", "cloudinaryId", "styles"]);
+
+// The form's details, comparable before and after.
+const detailsOf = (formData) =>
+  JSON.stringify(
+    Object.keys(formData)
+      .filter((key) => !NOT_EDITS.has(key))
+      .sort()
+      .map((key) => [key, formData[key] ?? null])
+  );
 
 export const AnalysedItemReview = ({
   kind,
   prefill,
   photoUri,
+  image,
+  photoChoice,
+  cutoutFailure,
   onSaved,
   onSwitchKind,
   onChooseAnotherPhoto,
 }) => {
   const form = useWardrobeItemForm({ kind, prefill, onSaved, singlePage: true });
   const review = useAnalysedItemReview(form);
+
+  // The details as analysed, to tell whether the user changed any.
+  const [analysedDetails] = useState(() => detailsOf(form.formData));
+
+  // The photo swapped (cut-out <-> as taken): save with the new one.
+  const { updateField } = form;
+  useEffect(() => {
+    if (image?.cloudinaryId) {
+      updateField("imageUrl", image.imageUrl);
+      updateField("cloudinaryId", image.cloudinaryId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [image?.cloudinaryId]);
+
+  const chooseAnotherPhoto = () => {
+    if (detailsOf(form.formData) === analysedDetails) {
+      onChooseAnotherPhoto();
+      return;
+    }
+
+    showDialog(
+      "Choose another photo",
+      "The new photo will be analysed again, and your changes will be replaced.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Choose another photo", onPress: onChooseAnotherPhoto },
+      ]
+    );
+  };
 
   const otherKind = kind === "clothing" ? "footwear" : "clothing";
 
@@ -82,6 +135,8 @@ export const AnalysedItemReview = ({
     <>
       <ImageTile source={{ uri: photoUri }} aspectRatio={4 / 5} resizeMode="contain" />
 
+      <PhotoChoice choice={photoChoice} failure={cutoutFailure} disabled={form.saving} />
+
       <View>{rows(review.mainFields)}</View>
 
       <Button
@@ -96,11 +151,16 @@ export const AnalysedItemReview = ({
       <Message text={form.error} />
 
       <View style={styles.actions}>
-        <Button label="Save" onPress={form.save} loading={form.saving} />
+        <Button
+          label="Save"
+          onPress={form.save}
+          loading={form.saving}
+          disabled={photoChoice?.swapping}
+        />
         <Button
           label="Choose another photo"
           variant="text"
-          onPress={onChooseAnotherPhoto}
+          onPress={chooseAnotherPhoto}
           disabled={form.saving}
         />
       </View>

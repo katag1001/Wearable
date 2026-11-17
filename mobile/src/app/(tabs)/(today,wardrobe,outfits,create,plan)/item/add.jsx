@@ -9,6 +9,11 @@
 // Before any of it, a user who hasn't said whether AI may analyse their
 // photos has to answer (AiConsentPrompt). Opted out, the photo only has
 // its background removed and the item form opens with it attached.
+//
+// The phone cuts the garment out first (platform/garmentCutout.js,
+// context/phone-cutout-plan.md); "Use original photo" swaps back to the
+// photo as taken. In the strict test build there's no Cloudinary backup
+// and the reason a cut-out failed is shown.
 
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
@@ -22,6 +27,7 @@ import { WARDROBE_KIND_LIST } from "@core/wardrobe/itemKinds.js";
 
 import { choiceTints, space, type } from "../../../../theme/soft";
 import { pickImage } from "../../../../platform/imagePicker";
+import { CUTOUT_STRICT_TEST, cutOutPhoto } from "../../../../platform/garmentCutout";
 import { BubbleCelebration } from "../../../../components/soft";
 import {
   ActionCard,
@@ -41,6 +47,7 @@ import {
 } from "../../../../components/wardrobe/itemHandoff";
 import { ItemForm } from "../../../../components/wardrobe/ItemForm";
 import { ItemSaved } from "../../../../components/wardrobe/ItemSaved";
+import { PhotoChoice } from "../../../../components/wardrobe/PhotoChoice";
 import { showDialog } from "../../../../components/soft/Dialog";
 
 // A panel page (ui/Screen's pageTitle): the back arrow and title in the top
@@ -62,7 +69,11 @@ const ReviewItem = ({ kind, prefill, onSaved, onCancel }) => {
 export default function AddItemScreen() {
   const consent = useAiConsent();
   const useAi = consent.choice === true;
-  const flow = usePhotoAnalysis({ useAi });
+  const flow = usePhotoAnalysis({
+    useAi,
+    cutOut: cutOutPhoto,
+    cloudinaryBackup: !CUTOUT_STRICT_TEST,
+  });
 
   // The full item form over the flow (failed analysis): { kind, prefill } or null.
   const [form, setForm] = useState(null);
@@ -154,6 +165,8 @@ export default function AddItemScreen() {
     return (
       <Screen pageTitle={TITLE} onBack={back} scroll={false}>
         <Loading text={useAi ? "Analysing your item…" : "Preparing your photo…"} />
+        {/* Strict test build: the phone's cut-out failed before the upload. */}
+        <PhotoChoice choice={null} failure={flow.cutoutFailure} />
       </Screen>
     );
   }
@@ -169,6 +182,9 @@ export default function AddItemScreen() {
           kind={flow.kind}
           prefill={flow.reviewPrefill}
           photoUri={shownPhoto}
+          image={flow.image}
+          photoChoice={flow.photoChoice}
+          cutoutFailure={flow.cutoutFailure}
           onSaved={(saved) => flow.markSaved(saved, flow.kind)}
           onSwitchKind={flow.switchKind}
           onChooseAnotherPhoto={flow.restart}
@@ -223,6 +239,7 @@ export default function AddItemScreen() {
       {(flow.step === "failed" || flow.step === "manual") && (
         <>
           {photo}
+          <PhotoChoice choice={flow.photoChoice} failure={flow.cutoutFailure} />
           <Message text={flow.error} />
           <Text style={styles.text}>What is it?</Text>
           <View style={styles.row}>
@@ -231,6 +248,7 @@ export default function AddItemScreen() {
                 key={kind}
                 label={label}
                 variant="secondary"
+                disabled={flow.photoChoice?.swapping}
                 onPress={() => setForm({ kind, prefill: flow.manualPrefill })}
                 style={styles.rowButton}
               />

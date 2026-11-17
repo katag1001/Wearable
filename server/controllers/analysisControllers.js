@@ -7,16 +7,21 @@ const { getAiAnalysisChoice } = require("../services/aiConsentService.js");
 const { loadTakenNames } = require("../services/itemNameService.js");
 const { getUserMatchingPreferences } = require("../services/matchScoreService.js");
 const { isImageUsedByAnotherUser } = require("../services/imageService.js");
+const { backgroundChoice, logCutoutFailure, removesBackground } = require("../services/phoneCutoutService.js");
 const { DAILY_ANALYSIS_LIMIT } = require("../constants/itemAnalysis.js");
 
 /*
  * A new item's photo, after the app has uploaded it to Cloudinary. Its
- * background is always removed (services/backgroundRemovalService.js);
- * then, only for users who said yes to AI analysis (Preferences.aiAnalysis,
+ * background is removed (services/backgroundRemovalService.js) - unless
+ * the phone already cut it out, or asks to keep it (`background`, and the
+ * phone's `cutoutFailure` report: services/phoneCutoutService.js); then,
+ * only for users who said yes to AI analysis (Preferences.aiAnalysis,
  * services/aiConsentService.js), Gemini fills in the item from it.
  *
- *   POST /items/analyse { cloudinaryId }           - remove background + AI
- *   POST /items/remove-background { cloudinaryId } - remove background only
+ *   POST /items/analyse { cloudinaryId, background?, cutoutFailure? }
+ *     - remove background + AI
+ *   POST /items/remove-background { cloudinaryId, background?, cutoutFailure? }
+ *     - remove background only
  *
  * Both count towards the same daily limit (DAILY_ANALYSIS_LIMIT).
  */
@@ -66,6 +71,11 @@ const removeBackgroundOrNull = (cloudinaryId, label) =>
     console.error(`[${label}] background not removed, using the photo as uploaded:`, error.message || error);
     return null;
   });
+
+// The same, but only when the request wants Cloudinary to remove it (not
+// when the phone already did, or asked to keep it): null otherwise.
+const removeRequestedBackground = (req, cloudinaryId, label) =>
+  removesBackground(req.body) ? removeBackgroundOrNull(cloudinaryId, label) : Promise.resolve(null);
 
 /*
  * POST /items/analyse { cloudinaryId }
@@ -118,8 +128,10 @@ exports.analyseItem = async (req, res) => {
     );
     if (!quota) return undefined;
 
+    logCutoutFailure("analyse item", userId, req.body);
+
     const [removed, { gender }, takenNames] = await Promise.all([
-      removeBackgroundOrNull(cloudinaryId, "analyse item"),
+      removeRequestedBackground(req, cloudinaryId, "analyse item"),
       getUserMatchingPreferences(userId),
       loadTakenNames(userId),
     ]);
@@ -129,7 +141,13 @@ exports.analyseItem = async (req, res) => {
     const image = await loadAnalysisImage(removed?.cloudinaryId || cloudinaryId);
     const result = await analyseImage({ image, gender, takenNames });
 
-    console.log("[analyse item]", { userId, status: result.status, backgroundRemoved: !!removed, usage: result.usage });
+    console.log("[analyse item]", {
+      userId,
+      status: result.status,
+      background: backgroundChoice(req.body),
+      backgroundRemoved: !!removed,
+      usage: result.usage,
+    });
 
     if (result.status === "failed") {
       console.error("[analyse item] no usable answer:", result.problems);
@@ -172,9 +190,15 @@ exports.removeItemBackground = async (req, res) => {
     );
     if (!quota) return undefined;
 
-    const removed = await removeBackgroundOrNull(cloudinaryId, "remove background");
+    logCutoutFailure("remove background", userId, req.body);
 
-    console.log("[remove background]", { userId, backgroundRemoved: !!removed });
+    const removed = await removeRequestedBackground(req, cloudinaryId, "remove background");
+
+    console.log("[remove background]", {
+      userId,
+      background: backgroundChoice(req.body),
+      backgroundRemoved: !!removed,
+    });
 
     return res.json({ image: removed, remaining: quota.remaining });
   } catch (error) {

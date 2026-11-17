@@ -2,7 +2,7 @@
   "expo": {
     "name": "LovedWornSeen",
     "slug": "loved-worn-seen",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -53,6 +53,15 @@
         "expo-location",
         {
           "locationWhenInUsePermission": "LovedWornSeen uses your location to get today's weather, so it can suggest outfits that suit it."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": false,
+            "enableShrinkResourcesInReleaseBuilds": false
+          }
         }
       ]
     ],

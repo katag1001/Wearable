@@ -9,9 +9,19 @@
 import { getCoreConfig } from "../config.js";
 import { api } from "./client.js";
 
+// The end of the id of a garment cut out on the phone (mobile/src/platform/
+// garmentCutout.js). Unlike Cloudinary's "_nobg" cut-outs
+// (server/constants/backgroundRemoval.js) it has no thumbnail or original
+// kept beside it; the web pads both (src/styles/sharedComponents.css).
+export const PHONE_CUTOUT_SUFFIX = "_cutout";
+
+const randomId = () =>
+  `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+
 // Uploads an image and returns Cloudinary's response
 // ({ secure_url, public_id, ... }). `file` is whatever the platform's
-// FormData takes: a File on the web, { uri, name, type } on a phone.
+// FormData takes: a File on the web, { uri, name, type } on a phone - plus
+// `cutout: true` for a phone cut-out, which gets a "_cutout" id.
 // Doesn't use the API client, so the login token is NOT sent to
 // Cloudinary. Uses XMLHttpRequest rather than fetch: on the phone, Expo's
 // fetch can't send { uri, name, type } parts ("Unsupported FormDataPart
@@ -21,7 +31,16 @@ export const uploadImageToCloudinary = (file) => {
 
   const formData = new FormData();
 
-  formData.append("file", file);
+  // A phone photo may carry extras (`cutout`, its swap `alternative` -
+  // mobile/src/components/wardrobe/PhotoPicker.jsx): send only the file.
+  const isPhoneFile = typeof file?.uri === "string";
+
+  formData.append("file", isPhoneFile ? { uri: file.uri, name: file.name, type: file.type } : file);
+
+  if (file?.cutout) {
+    formData.append("public_id", `${randomId()}${PHONE_CUTOUT_SUFFIX}`);
+  }
+
   formData.append("upload_preset", uploadPreset);
 
   return new Promise((resolve, reject) => {

@@ -1,0 +1,26 @@
+// The Android half of the garment cut-out (context/phone-cutout-plan.md).
+
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'com.katag1001.lovedwornseen'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.garmentcutout"
+  defaultConfig {
+    versionCode 1
+    versionName '0.1.0'
+  }
+}
+
+dependencies {
+  // Google ML Kit subject segmentation. The model itself is downloaded by
+  // Google Play services the first time it's used (~200 KB in the app).
+  implementation 'com.google.android.gms:play-services-mlkit-subject-segmentation:16.0.0-beta1'
+  // ModuleInstall: asks Play services to download that model and says when
+  // it's ready (ML Kit crashes if asked to cut out before then).
+  implementation 'com.google.android.gms:play-services-base:18.5.0'
+}

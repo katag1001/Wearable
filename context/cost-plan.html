@@ -1,0 +1,459 @@
+<title>Wardrobe Unit Costs</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column in three steps: everything you can change, the year's result, then the month-by-month breakdown. Details folded away at the end. */
+:root {
+  --bg: #f7f6f9;
+  --surface: #ffffff;
+  --fg: #22202a;
+  --muted: #6b6677;
+  --line: #e2dfe8;
+  --accent: #6d4a8c;
+  --accent-soft: #efe8f5;
+  --warn: #9a5b00;
+  --warn-soft: #fbf1e1;
+  --good: #2f6b4f;
+  --good-soft: #e5f2ea;
+  --display: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17151c; --surface: #201d27; --fg: #ece9f2; --muted: #a29cb0; --line: #34303f;
+  --accent: #c3a3e0; --accent-soft: #2c2438; --warn: #f0b45c; --warn-soft: #33281a; --good: #7fcaa4; --good-soft: #1d2e25; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #17151c; --surface: #201d27; --fg: #ece9f2; --muted: #a29cb0; --line: #34303f;
+  --accent: #c3a3e0; --accent-soft: #2c2438; --warn: #f0b45c; --warn-soft: #33281a; --good: #7fcaa4; --good-soft: #1d2e25; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 40px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 40px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(28px, 4.4vw, 40px); font-weight: 800; line-height: 1.1; }
+h2 { font-size: 22px; font-weight: 700; }
+h3 { font-size: 15px; font-weight: 700; }
+p { margin: 0; max-width: 72ch; }
+section { display: grid; gap: 16px; min-width: 0; }
+.step { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 700; }
+.lede { color: var(--muted); font-size: 16px; }
+.small { font-size: 13.5px; color: var(--muted); }
+td.n, th.n, .val { font-variant-numeric: tabular-nums; }
+a { color: var(--accent); }
+ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+li { max-width: 72ch; }
+
+/* Step 1: settings */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 18px; }
+.group { display: grid; gap: 10px; }
+.group + .group { border-top: 1px solid var(--line); padding-top: 16px; }
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 14px; }
+.grid6 { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 760px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid6 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.field { display: grid; gap: 4px; min-width: 0; align-content: start; }
+.field label { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.field .hint { font-size: 12px; color: var(--muted); }
+.field input { font: inherit; font-variant-numeric: tabular-nums; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); width: 100%; box-sizing: border-box; }
+.field input:focus-visible, .btn:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fillrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.fillrow .field { flex: 0 1 170px; }
+.btn { font: inherit; font-weight: 700; font-size: 14px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); cursor: pointer; }
+.btn:hover { background: var(--surface); }
+
+/* Step 2: the result */
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.tile .label { font-size: 13px; color: var(--muted); font-weight: 600; }
+.tile .val { font-family: var(--display); font-size: 26px; font-weight: 800; }
+.tile .sub { font-size: 12.5px; color: var(--muted); }
+.tile.good { background: var(--good-soft); border-color: transparent; }
+.tile.good .val { color: var(--good); }
+.tile.bad { background: var(--warn-soft); border-color: transparent; }
+.tile.bad .val { color: var(--warn); }
+.verdict { font-size: 15px; max-width: 80ch; }
+
+/* Step 3: the months */
+.tablebox { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+thead th { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 700; background: var(--bg); }
+td.n, th.n { text-align: right; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+tr.total td { font-weight: 800; border-top: 2px solid var(--fg); }
+table.year { min-width: 1240px; font-size: 13.5px; }
+table.year th:first-child, table.year td:first-child { position: sticky; left: 0; background: var(--surface); }
+table.year thead th:first-child { background: var(--bg); }
+table.year th.grp { text-align: center; border-bottom: 0; padding-bottom: 0; }
+td.neg { color: var(--warn); }
+td.pos { color: var(--good); }
+.svc { font-weight: 700; }
+
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px 18px; }
+details[open] { padding-bottom: 18px; }
+summary { cursor: pointer; font-weight: 700; font-family: var(--display); padding: 12px 0; }
+.details { display: grid; gap: 18px; }
+.cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+@media (max-width: 760px) { .cols2 { grid-template-columns: 1fr; } }
+</style>
+
+<div class="wrap">
+
+<header style="display:grid; gap:10px">
+  <h1>Running costs and profit, first year</h1>
+  <p class="lede">Everyone gets a free first month, then pays monthly or yearly, or leaves. Set everything in step 1. Step 2 shows how the year turns out, and step 3 shows it month by month.</p>
+</header>
+
+<!-- ==================== STEP 1 ==================== -->
+<section>
+  <div style="display:grid; gap:4px"><span class="step">Step 1</span><h2>Your settings</h2></div>
+  <div class="panel">
+
+    <div class="group">
+      <h3>Prices</h3>
+      <div class="grid">
+        <div class="field"><label for="monthlyPrice">Monthly price ($)</label><input id="monthlyPrice" type="number" min="0" step="0.5" value="2.99"></div>
+        <div class="field"><label for="yearlyPrice">Yearly price ($)</label><input id="yearlyPrice" type="number" min="0" step="1" value="29.99"><span class="hint" id="yearHint"></span></div>
+        <div class="field"><label for="yearShare">Payers choosing yearly (%)</label><input id="yearShare" type="number" min="0" max="100" value="30"><span class="hint">The rest pay monthly</span></div>
+        <div class="field"><label for="storeFee">App store cut (%)</label><input id="storeFee" type="number" min="0" max="90" value="15"><span class="hint">Taken from every payment</span></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>New free trials each month</h3>
+      <div class="grid6">
+        <div class="field"><label for="ym1">Month 1</label><input id="ym1" type="number" min="0" value="40"></div>
+        <div class="field"><label for="ym2">Month 2</label><input id="ym2" type="number" min="0" value="60"></div>
+        <div class="field"><label for="ym3">Month 3</label><input id="ym3" type="number" min="0" value="80"></div>
+        <div class="field"><label for="ym4">Month 4</label><input id="ym4" type="number" min="0" value="110"></div>
+        <div class="field"><label for="ym5">Month 5</label><input id="ym5" type="number" min="0" value="150"></div>
+        <div class="field"><label for="ym6">Month 6</label><input id="ym6" type="number" min="0" value="200"></div>
+        <div class="field"><label for="ym7">Month 7</label><input id="ym7" type="number" min="0" value="260"></div>
+        <div class="field"><label for="ym8">Month 8</label><input id="ym8" type="number" min="0" value="330"></div>
+        <div class="field"><label for="ym9">Month 9</label><input id="ym9" type="number" min="0" value="420"></div>
+        <div class="field"><label for="ym10">Month 10</label><input id="ym10" type="number" min="0" value="520"></div>
+        <div class="field"><label for="ym11">Month 11</label><input id="ym11" type="number" min="0" value="640"></div>
+        <div class="field"><label for="ym12">Month 12</label><input id="ym12" type="number" min="0" value="780"></div>
+      </div>
+      <div class="fillrow">
+        <div class="field"><label for="yAll">Same every month</label><input id="yAll" type="number" min="0" value="200"></div>
+        <button type="button" class="btn" id="yAllBtn">Fill all 12 months</button>
+        <span class="small">Example numbers: put in your own.</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>How users behave</h3>
+      <div class="grid">
+        <div class="field"><label for="conv">Trials that go on to pay (%)</label><input id="conv" type="number" min="0" max="100" value="30"></div>
+        <div class="field"><label for="churn">Monthly payers who cancel a month (%)</label><input id="churn" type="number" min="0.5" max="100" step="0.5" value="15"><span class="hint">Lifestyle apps: ~15–20%</span></div>
+        <div class="field"><label for="renew">Yearly payers who renew (%)</label><input id="renew" type="number" min="0" max="99" value="30"><span class="hint">Typical: 23–40%</span></div>
+        <div class="field"><label for="size">Pieces added in the free month</label><input id="size" type="number" min="1" value="200"></div>
+        <div class="field"><label for="adds">Pieces a payer adds a month</label><input id="adds" type="number" min="0" step="0.5" value="2.5"></div>
+        <div class="field"><label for="grace">Months to keep leavers' data</label><input id="grace" type="number" min="0" step="1" value="1"></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Costs</h3>
+      <div class="grid">
+        <div class="field"><label for="fallback">Photos falling back to Cloudinary (%)</label><input id="fallback" type="number" min="0" max="100" step="0.5" value="8"><span class="hint">~5% Huawei phones, plus failed cut-outs</span></div>
+        <div class="field"><label for="aiShare">Users with AI analysis on (%)</label><input id="aiShare" type="number" min="0" max="100" value="100"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== STEP 2 ==================== -->
+<section>
+  <div style="display:grid; gap:4px"><span class="step">Step 2</span><h2>How the first year turns out</h2></div>
+  <p class="verdict" id="verdict"></p>
+  <div class="tiles" id="tiles"></div>
+</section>
+
+<!-- ==================== STEP 3 ==================== -->
+<section>
+  <div style="display:grid; gap:4px"><span class="step">Step 3</span><h2>Month by month</h2></div>
+  <p class="small">Each month's trials pay nothing that month. The ones who stay pay from the next month, and keep paying until they cancel. Yearly payers pay the whole year up front. The last column is what that month's trials bring over their whole time with you, after their own costs and the stores' cut.</p>
+  <div class="tablebox"><table class="year">
+    <thead>
+      <tr><th></th><th class="n grp" colspan="3">Users</th><th class="n grp" colspan="9">What you pay</th><th class="n grp" colspan="4">Money</th><th></th></tr>
+      <tr><th>Month</th><th class="n">New trials</th><th class="n">Paying</th><th class="n">Active</th>
+        <th class="n">Cloudinary</th><th class="n">Gemini</th><th class="n">Database</th><th class="n">Vercel</th><th class="n">Weather</th><th class="n">Expo</th><th class="n">Email</th><th class="n">One-off</th><th class="n">Total</th>
+        <th class="n">Paid in</th><th class="n">Stores</th><th class="n">Profit</th><th class="n">Running total</th><th class="n">These trials will bring</th></tr>
+    </thead>
+    <tbody id="yearRows"></tbody>
+  </table></div>
+</section>
+
+<details>
+  <summary>How it's worked out</summary>
+  <div class="details">
+    <div class="cols2">
+      <div style="display:grid; gap:8px; min-width:0">
+        <h3>What you pay</h3>
+        <ul class="small">
+          <li><b>Every month, whatever happens:</b> Vercel $20, Cloudinary $99 (Plus plan), MongoDB Atlas from $30, Open-Meteo $29, Expo $19, email $7. That's $204 before anyone signs up.</li>
+          <li><b>Grows with users:</b> Gemini, about $0.0044 a photo analysed. Cloudinary (photos, storage, viewing) and the database move up to bigger plans as usage grows: Cloudinary $249 at 225+ credits, the database $57, $146, $394, $760 as it passes 5, 10, 20, 40 GB.</li>
+          <li><b>Month 1 only:</b> Apple Developer Program $99 (covers the year) and Google Play $25 (once, ever). GitHub is free.</li>
+        </ul>
+      </div>
+      <div style="display:grid; gap:8px; min-width:0">
+        <h3>Per user</h3>
+        <ul class="small" id="perUser"></ul>
+      </div>
+    </div>
+    <div class="cols2">
+      <div style="display:grid; gap:8px; min-width:0">
+        <h3>Measured figures</h3>
+        <ul class="small">
+          <li><b>Cloudinary, 30 days to 12 Nov 2026:</b> 130 background removals at 75 transformations each; 3.2 MB stored a piece the old way (2.5 MB of it the original).</li>
+          <li><b>Gemini:</b> 122 photos cost $0.54, so $0.0044 a photo.</li>
+          <li><b>Database:</b> 98 clothing pieces had 5,672 saved outfits at about 1.4 KB each. Outfits grow with clothing count to the power 2.5, about 21,000 at 200 pieces.</li>
+          <li><b>Phone cut-out:</b> tested on Android in November 2026, about a second a photo.</li>
+        </ul>
+      </div>
+      <div style="display:grid; gap:8px; min-width:0">
+        <h3>Assumptions</h3>
+        <ul class="small">
+          <li>A phone cut-out stores about 0.75 MB a piece; a Cloudinary fallback 3.2 MB and 85 transformations. The 0.75 MB is an estimate until it's measured live.</li>
+          <li>A Cloudinary credit is valued at $0.44. Everyone views photos the way you do (0.17 GB a month).</li>
+          <li>Leavers' data is deleted after the months you set. Prices are US dollars before VAT.</li>
+          <li>Prices come from third-party summaries dated November 2026: check them before launch.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="small">Sources:
+      <a href="https://makerkit.dev/blog/saas/vercel-cost">Vercel</a> ·
+      <a href="https://www.mongodb.com/pricing">MongoDB</a> ·
+      <a href="https://theimagecdn.com/docs/cloudinary-pricing">Cloudinary credits</a> ·
+      <a href="https://pricepertoken.com/pricing-page/model/google-gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite</a> ·
+      <a href="https://openmeteo.substack.com/p/api-subscriptions-for-commercial">Open-Meteo</a> ·
+      <a href="https://docs.expo.dev/billing/faq/">Expo</a> ·
+      <a href="https://developer.apple.com/support/enrollment/">Apple Developer</a> ·
+      <a href="https://github.com/pricing">GitHub</a> ·
+      <a href="https://www.revenuecat.com/state-of-subscription-apps-2026/">RevenueCat renewal rates</a>
+    </p>
+  </div>
+</details>
+
+</div>
+
+<script>
+(function () {
+  /* ---------- Unit figures ---------- */
+  const CREDIT = 99 / 225;          // $ per Cloudinary credit
+  const TX_PHONE = 10;              // transformations per photo cut out on the phone
+  const TX_REMOVAL = 75;            // extra for a Cloudinary background removal (fallback)
+  const GB_PHONE = 0.00075;         // stored per piece, phone cut-out (estimate)
+  const GB_FALLBACK = 0.0032;       // stored per piece, Cloudinary route (measured)
+  const BW_GB = 0.17;               // viewed per user per month
+  const GEMINI = 0.0044;            // per analysed photo
+  const VERCEL_PIECE = 0.0003, VERCEL_USER = 0.005;
+  const WEATHER_CALLS = 45;
+  const CLOTHES_SHARE = 0.83;
+  const MATCH_GB = 1.4 / 1048576, PIECE_DOC_GB = 2 / 1048576;
+  const EMAIL = 7;
+  const APPLE_YEAR = 99, GOOGLE_ONCE = 25;
+  const ATLAS = [[5, 30], [10, 57], [20, 146], [40, 394], [80, 760], [Infinity, 1460]];
+
+  const outfits = (pieces) => 5672 * Math.pow((pieces * CLOTHES_SHARE) / 98, 2.5);
+  const dbGb = (pieces) => outfits(pieces) * MATCH_GB + pieces * PIECE_DOC_GB;
+
+  /* ---------- One month's bill ---------- */
+  // groups: [{ n, adds, keeps, active }] - users of one kind: pieces added
+  // this month and held, and whether they use the app.
+  function bill(groups, s) {
+    const tx = TX_PHONE + TX_REMOVAL * s.fallback;
+    const gbPiece = (1 - s.fallback) * GB_PHONE + s.fallback * GB_FALLBACK;
+    const sum = (f) => groups.reduce((t, g) => t + g.n * f(g), 0);
+    const added = sum((g) => g.adds);
+    const stored = sum((g) => g.keeps);
+    const users = sum((g) => (g.active ? 1 : 0));
+    const gb = sum((g) => dbGb(g.keeps));
+
+    // What it costs per unit of use (for per-user figures).
+    const usage = (added * tx / 1000 + stored * gbPiece + users * BW_GB) * CREDIT
+      + added * s.ai * GEMINI + gb * 10 + added * VERCEL_PIECE + users * VERCEL_USER
+      + users * WEATHER_CALLS * 29 / 1e6;
+
+    // What the plans actually charge.
+    const credits = added * tx / 1000 + stored * gbPiece + users * BW_GB;
+    const calls = users * WEATHER_CALLS;
+    const services = {
+      cloudinary: credits <= 225 ? 99 : credits <= 600 ? 249 : credits * 0.415,
+      gemini: added * s.ai * GEMINI,
+      database: ATLAS.find((t) => gb <= t[0])[1],
+      vercel: Math.max(20, added * VERCEL_PIECE + users * VERCEL_USER),
+      weather: calls <= 1e6 ? 29 : calls <= 5e6 ? 99 : Math.ceil(calls / 5e6) * 99,
+      expo: 19 + Math.max(0, users - 3000) * 0.005,
+      email: EMAIL,
+    };
+    const total = Object.values(services).reduce((a, b) => a + b, 0);
+    return { services, total, usage, users };
+  }
+
+  /* ---------- Reading the settings ---------- */
+  const num = (id, min = 0) => {
+    const v = parseFloat(document.getElementById(id).value);
+    return isFinite(v) && v >= min ? v : min;
+  };
+  const pct = (id) => Math.min(num(id), 100) / 100;
+  const MONTH_IDS = Array.from({ length: 12 }, (_, i) => "ym" + (i + 1));
+
+  function settings() {
+    return {
+      monthly: num("monthlyPrice"), yearly: num("yearlyPrice"),
+      yearShare: pct("yearShare"), fee: Math.min(pct("storeFee"), 0.9),
+      signups: MONTH_IDS.map((id) => num(id)),
+      conv: pct("conv"), churn: Math.max(pct("churn"), 0.005), renew: Math.min(pct("renew"), 0.99),
+      size: num("size", 1), adds: num("adds"), grace: num("grace"),
+      s: { fallback: pct("fallback"), ai: pct("aiShare") },
+    };
+  }
+
+  /* ---------- The year, month by month ---------- */
+  // Each month's trials have a free month; a share pay from the next month
+  // (monthly payers cancel at the monthly rate, yearly payers can only
+  // leave at renewal); the rest leave and their data is kept a while.
+  // Money is counted when it arrives: yearly payers pay the year up front.
+  function year(st) {
+    const N = st.signups;
+    return N.map((n, i) => {
+      let monthly = 0, yearly = 0, yearlyPaying = 0, held = 0;
+      for (let k = 0; k < i; k += 1) {
+        const starts = N[k] * st.conv, age = i - k - 1;
+        monthly += starts * (1 - st.yearShare) * Math.pow(1 - st.churn, age);
+        const y = starts * st.yearShare * Math.pow(st.renew, Math.floor(age / 12));
+        yearly += y;
+        if (age % 12 === 0) yearlyPaying += y;
+        if (age < st.grace) held += N[k] * (1 - st.conv);
+      }
+      const payers = monthly + yearly;
+      const b = bill([
+        { n, adds: st.size, keeps: st.size, active: true },
+        { n: held, adds: 0, keeps: st.size, active: false },
+        { n: payers, adds: st.adds, keeps: st.size, active: true },
+      ], st.s);
+      const oneOff = i === 0 ? APPLE_YEAR + GOOGLE_ONCE : 0;
+      const costs = b.total + oneOff;
+      const paidIn = monthly * st.monthly + yearlyPaying * st.yearly;
+      // Paid in, split into what the prices bring (for the break-even price).
+      const monthlyUnits = monthly, yearlyUnits = yearlyPaying;
+      const store = paidIn * st.fee;
+      return { n, payers, active: b.users, services: b.services, oneOff, costs, paidIn, store, profit: paidIn - store - costs, monthlyUnits, yearlyUnits };
+    });
+  }
+
+  // One trial over its whole time with you, by month from its free month:
+  // payments after the stores' cut, less its own running costs (not the
+  // plan fees, which you pay anyway).
+  function trialValue(st, months = 120) {
+    const one = (g) => bill([{ ...g, n: 1 }], st.s).usage;
+    const trialCost = one({ adds: st.size, keeps: st.size, active: true });
+    const heldCost = one({ adds: 0, keeps: st.size, active: false });
+    const payerCost = one({ adds: st.adds, keeps: st.size, active: true });
+    const keep = 1 - st.fee;
+    const flow = [-trialCost];
+    for (let t = 1; t < months; t += 1) {
+      const age = t - 1;
+      const monthly = st.conv * (1 - st.yearShare) * Math.pow(1 - st.churn, age);
+      const yearly = st.conv * st.yearShare * Math.pow(st.renew, Math.floor(age / 12));
+      const held = age < st.grace ? 1 - st.conv : 0;
+      const paid = monthly * st.monthly * keep + (age % 12 === 0 ? yearly * st.yearly * keep : 0);
+      flow.push(paid - (monthly + yearly) * payerCost - held * heldCost);
+    }
+    let payback = -1;
+    for (let t = 0, s = 0; t < flow.length; t += 1) { s += flow[t]; if (s >= 0) { payback = t; break; } }
+    return { flow, trialCost, payerCost, lifetime: flow.reduce((a, b) => a + b, 0), payback };
+  }
+
+  /* ---------- Formatting ---------- */
+  function usd(v) {
+    if (!isFinite(v)) return "-";
+    const a = Math.abs(v), sign = v < -0.005 ? "−" : "";
+    if (a >= 1000) return sign + "$" + Math.round(a).toLocaleString("en-US");
+    if (a >= 100) return sign + "$" + Math.round(a);
+    if (a > 0 && a < 0.01) return sign + "$" + a.toFixed(3);
+    return sign + "$" + a.toFixed(2);
+  }
+  const fmt = (v) => Math.round(v).toLocaleString("en-US");
+  const cell = (v) => `<td class="n">${v}</td>`;
+  const moneyCell = (v) => `<td class="n${v < -0.005 ? " neg" : ""}">${usd(v)}</td>`;
+  const set = (id, text) => { document.getElementById(id).textContent = text; };
+  const tile = (label, value, sub, tone = "") =>
+    `<div class="tile${tone ? " " + tone : ""}"><span class="label">${label}</span><span class="val">${value}</span><span class="sub">${sub}</span></div>`;
+
+  /* ---------- Render ---------- */
+  function run() {
+    const st = settings();
+    const months = year(st);
+    const tv = trialValue(st);
+
+    const disc = st.monthly > 0 ? 1 - st.yearly / (12 * st.monthly) : 0;
+    set("yearHint", disc > 0.005 ? `${Math.round(disc * 100)}% less than paying monthly` : disc < -0.005 ? "more than paying monthly" : "the same as paying monthly");
+
+    // Totals
+    const sum = (k) => months.reduce((t, m) => t + m[k], 0);
+    const T = { costs: sum("costs"), paidIn: sum("paidIn"), store: sum("store"), profit: sum("profit") };
+    let running = 0, low = 0, lowMonth = 0;
+    months.forEach((m, i) => { running += m.profit; if (running < low) { low = running; lowMonth = i + 1; } });
+    const trials = st.signups.reduce((a, b) => a + b, 0);
+    const after12 = (i) => tv.flow.slice(Math.max(0, 12 - i)).reduce((a, b) => a + b, 0);
+    const toCome = st.signups.reduce((t, n, i) => t + n * after12(i), 0);
+    const end = months[11];
+
+    // Year-1 break-even monthly price (yearly price kept in proportion).
+    const ratio = st.monthly > 0 ? st.yearly / st.monthly : 10;
+    const units = months.reduce((t, m) => t + m.monthlyUnits + m.yearlyUnits * ratio, 0);
+    const breakEven = units > 0 ? T.costs / (units * (1 - st.fee)) : Infinity;
+
+    document.getElementById("tiles").innerHTML =
+      tile("Profit in year 1", usd(T.profit), T.profit < 0 ? "a loss over the first 12 months" : "after all costs and the stores' cut", T.profit < 0 ? "bad" : "good") +
+      tile("Paid in", usd(T.paidIn), `${usd(T.store)} of it to the app stores`) +
+      tile("Running costs", usd(T.costs), `incl. ${usd(APPLE_YEAR + GOOGLE_ONCE)} of one-off fees`) +
+      tile("Most you're out of pocket", low < 0 ? usd(-low) : "$0", low < 0 ? `lowest point, month ${lowMonth}` : "you're never behind") +
+      tile("Each trial is worth", usd(tv.lifetime), tv.lifetime > 0
+        ? `costs ${usd(tv.trialCost)} up front, paid back by month ${tv.payback + 1}`
+        : `costs ${usd(tv.trialCost)} up front and never pays it back`, tv.lifetime > 0 ? "good" : "bad") +
+      tile("Still to come after year 1", usd(toCome), "from year 1's trials, as they keep paying and cancelling") +
+      tile("Paying at the end of the year", fmt(end.payers), `from ${fmt(trials)} trials over the year`) +
+      tile("Break-even price for year 1", usd(breakEven), `a month (or ${usd(breakEven * ratio)} a year)`);
+
+    const verdict = T.profit >= 0
+      ? `At ${usd(st.monthly)} a month or ${usd(st.yearly)} a year, the first year makes ${usd(T.profit)}${low < 0 ? `, after being up to ${usd(-low)} behind in month ${lowMonth}` : ""}. Year 1's trials will bring about ${usd(toCome)} more after that.`
+      : `At ${usd(st.monthly)} a month or ${usd(st.yearly)} a year, the first year loses ${usd(-T.profit)}. That's because each trial costs ${usd(tv.trialCost)} in its free month and pays later: year 1's trials still bring about ${usd(toCome)} after month 12, so the year's trials ${T.profit + toCome >= 0 ? `end up ${usd(T.profit + toCome)} ahead` : `still end up ${usd(-(T.profit + toCome))} behind`} (before year 2's plan fees).`;
+    set("verdict", verdict);
+
+    // Month rows
+    running = 0;
+    const svcKeys = ["cloudinary", "gemini", "database", "vercel", "weather", "expo", "email"];
+    document.getElementById("yearRows").innerHTML = months.map((m, i) => {
+      running += m.profit;
+      return `<tr><td>Month ${i + 1}</td>${cell(fmt(m.n))}${cell(fmt(m.payers))}${cell(fmt(m.active))}` +
+        svcKeys.map((k) => cell(usd(m.services[k]))).join("") +
+        `${cell(m.oneOff ? usd(m.oneOff) : "-")}<td class="n"><b>${usd(m.costs)}</b></td>` +
+        `${cell(usd(m.paidIn))}${cell(usd(m.store))}${moneyCell(m.profit)}${moneyCell(running)}${moneyCell(m.n * tv.lifetime)}</tr>`;
+    }).join("") +
+      `<tr class="total"><td>Year 1</td>${cell(fmt(trials))}<td></td><td></td>` +
+      svcKeys.map((k) => cell(usd(months.reduce((t, m) => t + m.services[k], 0)))).join("") +
+      `${cell(usd(APPLE_YEAR + GOOGLE_ONCE))}${cell(usd(T.costs))}${cell(usd(T.paidIn))}${cell(usd(T.store))}${moneyCell(T.profit)}<td></td>${moneyCell(trials * tv.lifetime)}</tr>`;
+
+    // Per user, in the details
+    document.getElementById("perUser").innerHTML = [
+      `<li><b>A trial's free month:</b> about ${usd(tv.trialCost)} (adding ${fmt(st.size)} pieces, analysing them, storing them).</li>`,
+      `<li><b>A paying user, each month:</b> about ${usd(tv.payerCost)} to run, against ${usd((1 - st.fee) * ((1 - st.yearShare) * st.monthly + st.yearShare * st.yearly / 12))} a month on average after the stores' cut.</li>`,
+      `<li><b>A photo:</b> ${TX_PHONE} Cloudinary transformations cut out on the phone, ${TX_PHONE + TX_REMOVAL} when it falls back to Cloudinary (${Math.round(st.s.fallback * 100)}% of photos).</li>`,
+    ].join("");
+  }
+
+  document.getElementById("yAllBtn").addEventListener("click", () => {
+    const v = document.getElementById("yAll").value;
+    MONTH_IDS.forEach((id) => { document.getElementById(id).value = v; });
+    run();
+  });
+  document.querySelectorAll("input").forEach((el) => el.addEventListener("input", run));
+  run();
+})();
+</script>
