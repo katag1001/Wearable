@@ -31,7 +31,7 @@ import {
 import { SHOES_CATEGORY, useCreateMatch } from "@core/hooks/useCreateMatch.js";
 import { useDayWeather } from "@core/hooks/useDayWeather.js";
 import { getTodayDate } from "@core/utils/dates.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { photoSource } from "@core/images/photoSource.js";
 
 import { colors } from "../../../theme/tokens";
 import { iconSizes, ink, loaderSizes, radii, space } from "../../../theme/soft";
@@ -273,7 +273,7 @@ export default function BuildOutfitScreen() {
               renderItem={(item) => (
                 <ImageTile
                   source={
-                    item.imageUrl ? { uri: getImageUrl(item.imageUrl, 300) } : null
+                    photoSource(item.imageKey, 300)
                   }
                   placeholder={item.name}
                   label={item.name}

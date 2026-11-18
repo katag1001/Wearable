@@ -5,11 +5,7 @@ const { findPage } = require("../services/queryHelpers.js");
 const {
   deleteReplacedImage,
   destroyItemImages,
-  withReplacedImageFields,
-  withDerivedImageFields,
-  ITEM_IMAGE_FIELDS,
-  canUseItemImages,
-  IMAGE_IN_USE_ERROR,
+  imageProblem,
 } = require("../services/imageService.js");
 const { pickFields } = require("../services/requestFields.js");
 const { FOOTWEAR_FIELDS } = require("../constants/editableFields.js");
@@ -37,8 +33,7 @@ const {
  */
 
 // Only FOOTWEAR_FIELDS come from the form (constants/editableFields.js).
-// With the thumbnail and original of a background-removed image.
-const editableFields = (body) => withDerivedImageFields(pickFields(body, FOOTWEAR_FIELDS));
+const editableFields = (body) => pickFields(body, FOOTWEAR_FIELDS);
 
 exports.createFootwear = async (req, res) => {
   const userId = req.user?.userId;
@@ -70,8 +65,10 @@ exports.createFootwear = async (req, res) => {
 
     const fields = editableFields(req.body);
 
-    if (!(await canUseItemImages(fields))) {
-      return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
+    const imageError = await imageProblem(fields, userId);
+
+    if (imageError) {
+      return res.status(409).json({ error: imageError });
     }
 
     const item = new Footwear({
@@ -172,14 +169,15 @@ exports.updateFootwear = async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    const fields = withReplacedImageFields(editableFields(req.body), existingItem);
+    const fields = editableFields(req.body);
 
-    if (
-      fields.cloudinaryId !== undefined &&
-      fields.cloudinaryId !== existingItem.cloudinaryId &&
-      !(await canUseItemImages(fields, { exceptId: existingItem._id }))
-    ) {
-      return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
+    const imageError =
+      fields.imageKey !== undefined && fields.imageKey !== existingItem.imageKey
+        ? await imageProblem(fields, userId, { exceptId: existingItem._id })
+        : null;
+
+    if (imageError) {
+      return res.status(409).json({ error: imageError });
     }
 
     const updatedItem = await Footwear.findOneAndUpdate(
@@ -335,7 +333,7 @@ exports.unwearFootwear = async (req, res) => {
 // images. Image failures are logged
 // and skipped so the account still goes.
 exports.deleteAllFootwearForUser = async (userId) => {
-  const items = await Footwear.find({ userId }).select(ITEM_IMAGE_FIELDS.join(" "));
+  const items = await Footwear.find({ userId }).select("imageKey");
 
   for (const item of items) {
     await destroyItemImages(item, "account deleted");

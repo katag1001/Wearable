@@ -7,12 +7,10 @@
 //
 // storage: { getItem(key), setItem(key, value), removeItem(key) }, all
 // synchronous, like localStorage.
-// cloudName / uploadPreset: the Cloudinary account images are uploaded to
-// (only needed by core/api/images.js).
 
 let config = null;
 
-export const configureCore = ({ apiUrl, storage, cloudName, uploadPreset }) => {
+export const configureCore = ({ apiUrl, storage }) => {
   if (!apiUrl) {
     throw new Error("configureCore: apiUrl is required");
   }
@@ -21,7 +19,7 @@ export const configureCore = ({ apiUrl, storage, cloudName, uploadPreset }) => {
     throw new Error("configureCore: storage is required");
   }
 
-  config = { apiUrl, storage, cloudName, uploadPreset };
+  config = { apiUrl, storage };
 };
 
 export const getCoreConfig = () => {

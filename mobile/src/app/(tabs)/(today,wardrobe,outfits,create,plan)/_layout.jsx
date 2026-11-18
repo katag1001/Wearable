@@ -37,6 +37,7 @@ export default function TabStack() {
       <Stack.Screen name="account/weekly" />
       <Stack.Screen name="account/style" />
       <Stack.Screen name="account/settings" />
+      <Stack.Screen name="account/delete" />
       <Stack.Screen name="item/add" />
       <Stack.Screen name="build-outfit" options={withHeader()} />
       <Stack.Screen name="outfit" options={withHeader()} />

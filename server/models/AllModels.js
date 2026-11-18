@@ -173,20 +173,9 @@ const pendingMatchSchema = matchSchema.clone();
 
 const clothesSchema = new mongoose.Schema({
 name: { type: String, required: true },
-imageUrl: { type: String, default: "" },
-
-cloudinaryId: {
-    type: String,
-    default: ""
-  },
-
-// The shown image (above) is the photo with its background removed. A
-// small copy for grids, and the photo as uploaded - see
-// services/imageService.js, which deletes all three together.
-thumbnailUrl: { type: String, default: "" },
-thumbnailCloudinaryId: { type: String, default: "" },
-originalImageUrl: { type: String, default: "" },
-originalCloudinaryId: { type: String, default: "" },
+// The item photo in Cloudflare R2 (services/photoKeys.js): the files are
+// <imageKey>-900.webp and <imageKey>-300.webp. "" = no photo.
+imageKey: { type: String, default: "" },
 
 userId: {
 type: mongoose.Schema.Types.ObjectId,
@@ -443,20 +432,9 @@ matchScoreSchema.index(
 // Today page suggests shoes for the worn outfit and marks them worn.
 const footwearSchema = new mongoose.Schema({
 name: { type: String, required: true },
-imageUrl: { type: String, default: "" },
-
-cloudinaryId: {
-    type: String,
-    default: ""
-  },
-
-// The shown image (above) is the photo with its background removed. A
-// small copy for grids, and the photo as uploaded - see
-// services/imageService.js, which deletes all three together.
-thumbnailUrl: { type: String, default: "" },
-thumbnailCloudinaryId: { type: String, default: "" },
-originalImageUrl: { type: String, default: "" },
-originalCloudinaryId: { type: String, default: "" },
+// The item photo in Cloudflare R2 (services/photoKeys.js): the files are
+// <imageKey>-900.webp and <imageKey>-300.webp. "" = no photo.
+imageKey: { type: String, default: "" },
 
 userId: {
 type: mongoose.Schema.Types.ObjectId,

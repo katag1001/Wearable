@@ -4,7 +4,8 @@ import { colorOptions, tagOptions } from "../constants/optionsBank.js";
 // is worked out on the server from its subtypes (context/temperature-ranges.md).
 export const getInitialState = () => ({
   name: "",
-  imageUrl: "",
+  // The item photo (core/images/photoSource.js), "" until there is one.
+  imageKey: "",
   colors: [],
   // Footwear only - worked out from the colours (useWardrobeItemForm).
   styles: "plain",

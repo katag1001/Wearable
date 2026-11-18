@@ -7,15 +7,15 @@ morning the Today page ranks the best ones for your weather, week and
 history. Everything you do - favouriting, building, rejecting, "too cold",
 "these two don't go" - feeds back into future suggestions.
 
-Two front ends share one API:
-
-- **Wearable** - the website (Vite + React), on Vercel.
-- **LovedWornSeen** - the iOS / Android app (Expo + React Native), built
-  with EAS.
+The app is **LovedWornSeen**, for iOS / Android (Expo + React Native),
+built with EAS. The website (Vite + React, on Vercel) is only a "Coming
+soon" page plus the admin's login and /trends editor: it stopped being an
+app in November 2026 (`context/cloudflare-migration-plan.md`, phase 1).
 
 ## Features
 
-- **Add from a photo** - Cloudinary removes the background, Google Gemini
+- **Add from a photo** - the phone cuts the garment out (Cloudflare removes
+  the background when it can't), Google Gemini
   names the item and picks its type, colours, pattern, fabric and tags
   (200 analyses per user per day). Or add by hand.
 - **Clothing and footwear** wardrobes with search, filters and favourites.
@@ -41,14 +41,14 @@ Two front ends share one API:
             |
    Express API (server/)  ── one Vercel serverless function (api/)
       |        |        |
-  MongoDB  Cloudinary  Gemini  MET Norway + NASA POWER (weather, via the server)
+  MongoDB  Cloudflare R2 + Images  Gemini  MET Norway + NASA POWER (weather, via the server)
 ```
 
 | Folder | What |
 |---|---|
 | `server/` | Express API: routes, controllers, Mongoose models, matching / scoring / Today services, specs, DB scripts |
 | `api/` | Vercel entry point for the server |
-| `src/` | Web UI only |
+| `src/` | The website: "Coming soon", login, /trends (admin) |
 | `mobile/` | Expo app, mobile UI only |
 | `core/` | Client logic shared by web and mobile: API calls, caches, screen hooks, weather, footwear ranking. No DOM or React Native code |
 | `shared/` | JSON data used by the server and both apps (colours, palettes, subtypes, footwear scoring, tights...) |
@@ -60,7 +60,8 @@ Two front ends share one API:
 |---|---|
 | MongoDB | All data |
 | Vercel | Hosting the website and the API (+ Analytics / Speed Insights on the web) |
-| Cloudinary | Image storage, background removal, thumbnails |
+| Cloudflare R2 | Item photos, private (bucket `lws-images`), two WebP sizes each |
+| Cloudflare Workers + Images | Background removal when the phone can't (`workers/cutout`, Worker `lws-cutout`) |
 | Google Gemini (`gemini-3.5-flash-lite`) | Photo analysis |
 | MET Norway (Locationforecast) | The weather forecast, fetched by the server and shared by area (free, including commercial use; needs `MET_CONTACT`) |
 | NASA POWER | Typical weather for Plan days past the forecast, fetched by the server (free, no key) |
@@ -84,9 +85,8 @@ npx expo start       # mobile app in Expo Go
 
 | Where | Variables |
 |---|---|
-| `server/.env` (Vercel env vars when deployed) | `MONGO`, `JWT_SECRET`, `CLOUD_NAME`, `CLOUD_API_KEY`, `CLOUD_API_SECRET`, `GEMINI_API_KEY`, optional `GEMINI_MODEL`, `MET_CONTACT` (contact sent to MET Norway with every weather request; change before launch, see `context/before-launch.md`) |
-| `.env` (web) | `VITE_CLOUD_NAME`, `VITE_UPLOAD_PRESET` |
-| `mobile/.env` | `EXPO_PUBLIC_CLOUD_NAME`, `EXPO_PUBLIC_UPLOAD_PRESET`, optional `EXPO_PUBLIC_API_URL` (defaults to the Vercel API) |
+| `server/.env` (Vercel env vars when deployed) | `MONGO`, `JWT_SECRET`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` (photo storage), `CUTOUT_WORKER_URL`, `CUTOUT_WORKER_KEY` (the background-removal Worker; the key is also its secret), `GEMINI_API_KEY`, optional `GEMINI_MODEL`, `MET_CONTACT` (contact sent to MET Norway with every weather request; change before launch, see `context/before-launch.md`) |
+| `mobile/.env` | optional `EXPO_PUBLIC_API_URL` (defaults to the Vercel API) |
 
 ## Docs
 

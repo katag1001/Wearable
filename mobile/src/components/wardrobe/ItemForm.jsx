@@ -32,7 +32,7 @@ export const ItemForm = ({
     {showPhoto && (
       <PhotoPicker
         selectedImage={form.selectedImage}
-        savedImageUrl={form.formData.imageUrl}
+        savedImageKey={form.formData.imageKey}
         onPick={form.setSelectedImage}
       />
     )}

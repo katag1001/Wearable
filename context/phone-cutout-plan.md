@@ -1,5 +1,11 @@
 # Phone cut-out: plan
 
+> **Superseded in part (2026-11-18):** Cloudinary is gone. The backup is now
+> Cloudflare (`context/cloudflare-migration-plan.md`), always on, with a
+> test-only notice; the strict build (`preview-strict`,
+> `CUTOUT_STRICT_TEST`) was removed. The test steps below that mention them
+> are history.
+
 Cutting garments out of photos **on the phone** instead of with Cloudinary's
 paid background removal (~80% of a new user's cost, `context/cost-plan.md`).
 

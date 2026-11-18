@@ -4,7 +4,7 @@
 
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { photoSource } from "@core/images/photoSource.js";
 
 import { space, type } from "../../theme/soft";
 import { Button, Grid, ImageTile } from "../ui";
@@ -26,7 +26,7 @@ export const MismatchPicker = ({
         {clothes.map((item) => (
           <ImageTile
             key={item._id}
-            source={item.imageUrl ? { uri: getImageUrl(item.imageUrl, 400) } : null}
+            source={photoSource(item.imageKey, 400)}
             placeholder={item.name}
             label={item.name}
             selected={isSelected(item._id)}

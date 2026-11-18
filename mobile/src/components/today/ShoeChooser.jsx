@@ -15,7 +15,7 @@ import { BackHandler, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useShoeChooser } from "@core/hooks/useShoeChooser.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { photoSource } from "@core/images/photoSource.js";
 
 import { colors } from "../../theme/tokens";
 import { space } from "../../theme/soft";
@@ -24,8 +24,7 @@ import { Loading } from "../ui";
 import { ActionButton, ActionRow } from "./ActionButton";
 import { SwipeDeck } from "./SwipeDeck";
 
-const shoePhoto = (shoe) =>
-  shoe?.imageUrl ? getImageUrl(shoe.imageUrl, 800) : null;
+const shoePhoto = (shoe) => photoSource(shoe?.imageKey, 800);
 
 export const ShoeChooser = ({
   footwear,
@@ -53,7 +52,9 @@ export const ShoeChooser = ({
       .map(shoePhoto)
       .filter(Boolean);
 
-    Image.prefetch(neighbours).catch(() => {});
+    if (neighbours.length) {
+      Image.prefetch(neighbours.map((photo) => photo.uri), { headers: neighbours[0].headers }).catch(() => {});
+    }
     // Once per shoe shown.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, shoes.length]);

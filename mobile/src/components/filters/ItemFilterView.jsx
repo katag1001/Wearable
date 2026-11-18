@@ -9,7 +9,7 @@ import {
   ITEM_CATEGORIES,
   ITEM_CATEGORY_LABELS,
 } from "@core/filters/filterDefaults.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { photoSource } from "@core/images/photoSource.js";
 
 import { colors } from "../../theme/tokens";
 import { radii, space, type } from "../../theme/soft";
@@ -62,7 +62,7 @@ export const ItemFilterView = ({ panel }) => (
               >
 
                 <Image
-                  source={item.imageUrl ? getImageUrl(item.imageUrl, 200) : null}
+                  source={photoSource(item.imageKey, 200)}
                   style={styles.image}
                   contentFit="contain"
                 />

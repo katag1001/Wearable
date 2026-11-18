@@ -1,6 +1,5 @@
-// src/components/LoginForm.jsx
+// src/components/login/LoginForm.jsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { getErrorMessage } from "@core/api/errors.js";
 import "./loginForm.css";
 
@@ -58,10 +57,6 @@ const LoginForm = ({ login }) => {
         <br />
 
         <button type="submit">Login</button>
-
-        <Link className="register-button" to="/register">
-          Register
-        </Link>
       </form>
     </div>
   );

@@ -1,37 +1,27 @@
 // src/pages/Login.jsx
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import Header from '../components/header';
-import LoginForm from '../components/login/LoginForm';
-import '../styles/pages.css';
+//
+// The admin's way in to /trends (there's no other use for logging in on
+// the website now). Once logged in it goes straight to /trends.
 
-const Login = ({ login, logout, loggedIn }) => {
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+import LoginForm from "../components/login/LoginForm";
+
+const Login = ({ login, loggedIn }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
     if (loggedIn) {
-      navigate('/');
+      navigate("/trends", { replace: true });
     }
   }, [loggedIn, navigate]);
 
   return (
     <div className="full-page-container">
-      <Header loggedIn={loggedIn} />
       <div className="main-container">
-        {loggedIn ? (
-          <>
-          
-            <p>You are logged in</p>
-            <button 
-            className="logout-button"
-            onClick={logout}>Logout</button>
-          </>
-        ) : (
-          <>
-          <h2 className="page-title">Login</h2>
-          <LoginForm login={login} />
-          </>
-        )}
+        <h2 className="page-title">Login</h2>
+        <LoginForm login={login} />
       </div>
     </div>
   );

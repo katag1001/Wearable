@@ -1,81 +1,85 @@
 // core/api/images.js
 //
-// Item photos live on Cloudinary. The app uploads them there directly,
-// then saves the returned URL on the item through the API.
+// Item photos (context/cloudflare-migration-plan.md). They're stored
+// privately in Cloudflare R2; the app never holds any storage keys:
+//
+//   uploadPhoto   asks our server for a short-lived signed link and PUTs
+//                 the photo straight to storage with it -> an upload key
+//   processPhoto  has the server make the item photo from an upload (the
+//                 two stored sizes; Cloudflare removes the background
+//                 when the phone couldn't) -> { imageKey, removedBy }
+//   discardPhotos deletes photos made but never saved to an item
+//
+// (Adding from a photo with AI on goes through /items/analyse instead of
+// processPhoto: core/api/analysis.js.)
 
-// The browser and React Native both provide XMLHttpRequest.
+// React Native provides XMLHttpRequest.
 /* global XMLHttpRequest */
 
-import { getCoreConfig } from "../config.js";
 import { api } from "./client.js";
 
-// The end of the id of a garment cut out on the phone (mobile/src/platform/
-// garmentCutout.js). Unlike Cloudinary's "_nobg" cut-outs
-// (server/constants/backgroundRemoval.js) it has no thumbnail or original
-// kept beside it; the web pads both (src/styles/sharedComponents.css).
-export const PHONE_CUTOUT_SUFFIX = "_cutout";
+const UPLOAD_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-const randomId = () =>
-  `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
-
-// Uploads an image and returns Cloudinary's response
-// ({ secure_url, public_id, ... }). `file` is whatever the platform's
-// FormData takes: a File on the web, { uri, name, type } on a phone - plus
-// `cutout: true` for a phone cut-out, which gets a "_cutout" id.
-// Doesn't use the API client, so the login token is NOT sent to
-// Cloudinary. Uses XMLHttpRequest rather than fetch: on the phone, Expo's
-// fetch can't send { uri, name, type } parts ("Unsupported FormDataPart
-// implementation"), but React Native's XMLHttpRequest can.
-export const uploadImageToCloudinary = (file) => {
-  const { cloudName, uploadPreset } = getCoreConfig();
-
-  const formData = new FormData();
-
-  // A phone photo may carry extras (`cutout`, its swap `alternative` -
-  // mobile/src/components/wardrobe/PhotoPicker.jsx): send only the file.
-  const isPhoneFile = typeof file?.uri === "string";
-
-  formData.append("file", isPhoneFile ? { uri: file.uri, name: file.name, type: file.type } : file);
-
-  if (file?.cutout) {
-    formData.append("public_id", `${randomId()}${PHONE_CUTOUT_SUFFIX}`);
-  }
-
-  formData.append("upload_preset", uploadPreset);
-
-  return new Promise((resolve, reject) => {
+// Sends `blob` with a PUT to `url` (the signed link). XMLHttpRequest, as
+// React Native's fetch can't always send a file body.
+const putFile = (url, blob, contentType) =>
+  new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
 
-    request.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
+    request.open("PUT", url);
+    request.setRequestHeader("Content-Type", contentType);
 
-    request.onload = () => {
-      if (request.status < 200 || request.status >= 300) {
-        reject(new Error(`Cloudinary upload failed: ${request.responseText}`));
-        return;
-      }
+    request.onload = () =>
+      request.status >= 200 && request.status < 300
+        ? resolve()
+        : reject(new Error(`Photo upload failed (${request.status})`));
+    request.onerror = () => reject(new Error("Photo upload failed: network error"));
 
-      try {
-        resolve(JSON.parse(request.responseText));
-      } catch {
-        reject(new Error("Cloudinary upload failed: invalid response"));
-      }
-    };
-
-    request.onerror = () => reject(new Error("Cloudinary upload failed: network error"));
-
-    request.send(formData);
+    request.send(blob);
   });
+
+// Uploads a photo ({ uri, type } from the phone) and returns its upload
+// key. Throws if it can't.
+export const uploadPhoto = async (file) => {
+  const contentType = UPLOAD_TYPES.includes(file?.type) ? file.type : "image/jpeg";
+
+  const { data } = await api.post("/images/upload-link", { contentType });
+  const blob = await (await fetch(file.uri)).blob();
+
+  await putFile(data.uploadUrl, blob, contentType);
+
+  return data.uploadKey;
 };
 
-// Removes an image uploaded for a save that then failed. The server only
-// deletes images no item uses. Failures are logged, not thrown.
-export const deleteUnusedImage = async (publicId) => {
+// The item photo made from an upload: { imageKey, removedBy } (removedBy:
+// "phone" | "cloudflare" | null). `background`: "phone" (already cut out),
+// "remove" (Cloudflare removes it), "none" (the photo as taken).
+// `cutoutFailure`: why the phone couldn't, for the server's log. Throws if
+// it can't be made.
+export const processPhoto = async (uploadKey, { background, cutoutFailure } = {}) => {
+  const response = await api.post("/images/process", {
+    uploadKey,
+    ...(background && { background }),
+    ...(cutoutFailure && { cutoutFailure }),
+  });
+
+  return response.data.image;
+};
+
+// Uploads and processes in one go -> { imageKey, removedBy }.
+export const savePhoto = async (file, options) => processPhoto(await uploadPhoto(file), options);
+
+// Deletes photos that were made but never saved to an item. The server
+// only deletes the user's own photos that no item uses, so it's always
+// safe. Failures are logged, not thrown.
+export const discardPhotos = async (imageKeys) => {
+  const keys = (imageKeys || []).filter(Boolean);
+
+  if (!keys.length) return;
 
   try {
-
-    await api.post("/cloudinary/delete", { publicId });
-
+    await api.post("/images/discard", { imageKeys: keys });
   } catch (error) {
-    console.error("Failed to clean up Cloudinary image after save failure:", error);
+    console.error("Failed to discard unused photos:", error);
   }
 };

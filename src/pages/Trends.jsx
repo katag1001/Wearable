@@ -24,7 +24,7 @@ const forText = (genders) =>
         .join(", ")}`
     : "For everyone";
 
-const Trends = () => {
+const Trends = ({ logout }) => {
   const { trends, loading, error, save, remove, clear } = useTrendsAdmin();
   const [editingId, setEditingId] = useState(null);
 
@@ -38,7 +38,14 @@ const Trends = () => {
 
   return (
     <div className="page trends-page">
-      <h1 className="page-title">Current trends</h1>
+      <div className="trends-list-header">
+        <h1 className="page-title">Current trends</h1>
+        {logout && (
+          <button type="button" className="trends-link" onClick={logout}>
+            Log out
+          </button>
+        )}
+      </div>
 
 
       {error && <p className="trends-error">{error}</p>}

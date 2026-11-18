@@ -1,91 +1,60 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const cloudinary = require("../cloudinary.js");
-const {
-  deleteReplacedImage,
-  destroyItemImages,
-  withReplacedImageFields,
-} = require("../services/imageService.js");
+const r2 = require("../services/storage/r2Storage.js");
+const { deleteReplacedImage, destroyItemImages } = require("../services/imageService.js");
 
-// Records destroy calls instead of contacting Cloudinary.
-const stubDestroy = (t, { fail = false } = {}) => {
-  const destroyed = [];
+const KEY_A = "users/0123456789abcdef01234567/photos/11111111-1111-4111-8111-111111111111";
+const KEY_B = "users/0123456789abcdef01234567/photos/22222222-2222-4222-8222-222222222222";
 
-  t.mock.method(cloudinary.uploader, "destroy", async (publicId) => {
+// Records deletes instead of contacting R2.
+const stubDelete = (t, { fail = false } = {}) => {
+  const deleted = [];
+
+  t.mock.method(r2, "deleteFiles", async (keys) => {
     if (fail) throw new Error("network down");
-    destroyed.push(publicId);
-    return { result: "ok" };
+    deleted.push(...keys);
   });
 
-  return destroyed;
+  return deleted;
 };
 
-test("deleteReplacedImage deletes the old image when the item got a new one", async (t) => {
-  const destroyed = stubDestroy(t);
+test("deleteReplacedImage deletes the old photo's files when the item got a new one", async (t) => {
+  const deleted = stubDelete(t);
 
-  await deleteReplacedImage({ cloudinaryId: "old" }, { cloudinaryId: "new" });
+  await deleteReplacedImage({ imageKey: KEY_A }, { imageKey: KEY_B });
 
-  assert.deepEqual(destroyed, ["old"]);
+  assert.deepEqual(deleted, [`${KEY_A}-900.webp`, `${KEY_A}-300.webp`]);
 });
 
-test("deleteReplacedImage keeps the image when it didn't change", async (t) => {
-  const destroyed = stubDestroy(t);
+test("deleteReplacedImage keeps the photo when it didn't change", async (t) => {
+  const deleted = stubDelete(t);
 
-  await deleteReplacedImage({ cloudinaryId: "same" }, { cloudinaryId: "same" });
+  await deleteReplacedImage({ imageKey: KEY_A }, { imageKey: KEY_A });
 
-  assert.deepEqual(destroyed, []);
+  assert.deepEqual(deleted, []);
 });
 
-test("deleteReplacedImage does nothing when the item had no image", async (t) => {
-  const destroyed = stubDestroy(t);
+test("deleteReplacedImage does nothing when the item had no photo", async (t) => {
+  const deleted = stubDelete(t);
 
-  await deleteReplacedImage({ cloudinaryId: "" }, { cloudinaryId: "new" });
+  await deleteReplacedImage({ imageKey: "" }, { imageKey: KEY_B });
+  await deleteReplacedImage(null, { imageKey: KEY_B });
 
-  assert.deepEqual(destroyed, []);
+  assert.deepEqual(deleted, []);
 });
 
-test("deleteReplacedImage doesn't throw when Cloudinary fails", async (t) => {
-  stubDestroy(t, { fail: true });
+test("destroyItemImages deletes both sizes", async (t) => {
+  const deleted = stubDelete(t);
+
+  await destroyItemImages({ imageKey: KEY_B }, "test");
+
+  assert.deepEqual(deleted, [`${KEY_B}-900.webp`, `${KEY_B}-300.webp`]);
+});
+
+test("a failed delete is logged, never thrown (a stray file mustn't fail a save)", async (t) => {
+  stubDelete(t, { fail: true });
   t.mock.method(console, "error", () => {});
 
-  await assert.doesNotReject(
-    deleteReplacedImage({ cloudinaryId: "old" }, { cloudinaryId: "new" })
-  );
-});
-
-const withAllImages = (id) => ({
-  cloudinaryId: id,
-  thumbnailCloudinaryId: `${id}_thumb`,
-  originalCloudinaryId: `${id}_original`,
-});
-
-test("deleting an item deletes its image, thumbnail and original", async (t) => {
-  const destroyed = stubDestroy(t);
-
-  await destroyItemImages(withAllImages("a"), "item deleted");
-
-  assert.deepEqual(destroyed, ["a", "a_thumb", "a_original"]);
-});
-
-test("a replaced image takes its thumbnail and original with it", async (t) => {
-  const destroyed = stubDestroy(t);
-
-  await deleteReplacedImage(withAllImages("old"), { cloudinaryId: "new" });
-
-  assert.deepEqual(destroyed, ["old", "old_thumb", "old_original"]);
-});
-
-test("a new image clears the old thumbnail and original fields", () => {
-  const existing = withAllImages("old");
-
-  assert.deepEqual(withReplacedImageFields({ name: "x" }, existing), { name: "x" });
-  assert.deepEqual(withReplacedImageFields({ cloudinaryId: "old" }, existing), { cloudinaryId: "old" });
-  assert.deepEqual(withReplacedImageFields({ cloudinaryId: "new" }, existing), {
-    thumbnailUrl: "",
-    thumbnailCloudinaryId: "",
-    originalImageUrl: "",
-    originalCloudinaryId: "",
-    cloudinaryId: "new",
-  });
+  await assert.doesNotReject(destroyItemImages({ imageKey: KEY_A }, "test"));
 });

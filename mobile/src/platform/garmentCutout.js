@@ -8,18 +8,34 @@
 //
 // It never throws: if the phone can't do it - no native part, an iPhone
 // older than iOS 17, no Google Play services, too slow, an error - the
-// photo is used as it was taken, and (unless this is the strict test
-// build) the server asks Cloudinary to remove the background instead.
+// photo as taken is uploaded and our Cloudflare Worker removes the
+// background on the server instead (context/cloudflare-migration-plan.md).
 
 import { Platform } from "react-native";
 
-import { cutOutGarment, isCutoutAvailable, prepareCutout } from "../../modules/garment-cutout";
+import { setCutoutNoticeListener } from "@core/images/cutoutNotice.js";
 
-// The strict test build (eas.json profile "preview-strict",
-// EXPO_PUBLIC_CUTOUT_STRICT_TEST=1): no Cloudinary backup, and the reason
-// a cut-out failed is shown on screen. Never set in "preview" or
-// "production" - those use the backup and show no technical messages.
-export const CUTOUT_STRICT_TEST = process.env.EXPO_PUBLIC_CUTOUT_STRICT_TEST === "1";
+import { cutOutGarment, isCutoutAvailable, prepareCutout } from "../../modules/garment-cutout";
+import { showDialog } from "../components/soft/Dialog";
+
+// TESTING ONLY - take out before launch (context/before-launch.md, "Must
+// take out"): tells the user whenever a photo's background was removed by
+// Cloudflare because the phone couldn't do it. Set to false (or remove this
+// and registerCutoutNotice) to stop it.
+export const SHOW_CLOUDFLARE_CUTOUT_NOTICE = true;
+
+// Called once at start-up (src/app/_layout.jsx).
+export const registerCutoutNotice = () => {
+  setCutoutNoticeListener(
+    SHOW_CLOUDFLARE_CUTOUT_NOTICE
+      ? () =>
+          showDialog(
+            "Background removed by Cloudflare",
+            "The phone couldn't cut this photo out, so Cloudflare removed the background instead. (Test notice - it won't show after launch.)"
+          )
+      : null
+  );
+};
 
 // After this long the cut-out counts as failed (normally it takes ~1 s;
 // the first one may wait for ML Kit's model to download).
@@ -55,7 +71,7 @@ const failureReport = (reason) => ({
 // Resolves to
 //   { image: { uri, name, type, cutout: true } }  - the cut-out, to upload
 //   { image: null, failure: { reason, platform, osVersion } }
-// `cutout: true` makes core/api/images.js upload it under a "_cutout" id.
+// `cutout: true` tells the server it's already cut out (no Cloudflare).
 export const cutOutPhoto = async (photo) => {
   if (!isCutoutAvailable) {
     return { image: null, failure: failureReport("This app version can't cut out photos") };

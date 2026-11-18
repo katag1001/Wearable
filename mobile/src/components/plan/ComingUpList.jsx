@@ -7,7 +7,7 @@ import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
 
 import { dayTitle } from "@core/plan/calendar.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { photoSource } from "@core/images/photoSource.js";
 
 import { houseBox, iconSizes, ink, radii, space, surface, type } from "../../theme/soft";
 import { PressableScale } from "../soft/PressableScale";
@@ -16,9 +16,9 @@ import { SectionTitle } from "../ui";
 const THUMB_SIZE = 44;
 
 const Thumb = ({ item }) =>
-  item?.imageUrl ? (
+  item?.imageKey ? (
     <Image
-      source={{ uri: getImageUrl(item.imageUrl, 150) }}
+      source={photoSource(item.imageKey, 150)}
       style={styles.thumb}
       contentFit="contain"
       accessibilityLabel={item.name}

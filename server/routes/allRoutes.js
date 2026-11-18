@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const allControllers = require("../controllers/allControllers");
 const footwearControllers = require("../controllers/footwearControllers");
-const cloudinaryControllers = require("../controllers/cloudinaryControllers");
+const imagesControllers = require("../controllers/imagesControllers");
 const analysisControllers = require("../controllers/analysisControllers");
 const trendControllers = require("../controllers/trendControllers");
 const planControllers = require("../controllers/planControllers");
@@ -45,14 +45,15 @@ router.put("/footwear/:id", authMiddleware, footwearControllers.updateFootwear);
 router.delete("/footwear/:id", authMiddleware, footwearControllers.deleteFootwear);
 
 /* ITEM ANALYSIS */
-// Fills in a new item from its uploaded photo (nothing is saved).
+// Makes the item photo from an upload and fills the item in from it
+// (nothing is saved).
 router.post("/items/analyse", authMiddleware, analysisControllers.analyseItem);
-// The same photo's background removed only - for users who opted out of AI.
-router.post("/items/remove-background", authMiddleware, analysisControllers.removeItemBackground);
 
-/* IMAGE ROUTES */
-// Removes an uploaded image no item uses (after a failed save).
-router.post("/cloudinary/delete", authMiddleware, cloudinaryControllers.deleteUnusedImage);
+/* IMAGE ROUTES (item photos in Cloudflare R2: controllers/imagesControllers.js) */
+router.post("/images/upload-link", authMiddleware, imagesControllers.getUploadLink);
+router.post("/images/process", authMiddleware, imagesControllers.processPhoto);
+router.post("/images/discard", authMiddleware, imagesControllers.discardPhotos);
+router.get("/images/file", authMiddleware, imagesControllers.getPhotoFile);
 
 /* MATCH ROUTES */
 router.post("/match/matches", authMiddleware, allControllers.createMatch);

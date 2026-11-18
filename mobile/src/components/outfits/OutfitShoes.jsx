@@ -8,7 +8,7 @@ import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 import { useOutfitShoes } from "@core/hooks/useOutfitShoes.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { photoSource } from "@core/images/photoSource.js";
 
 import { radii, space } from "../../theme/soft";
 import { EmptyState, ImageTile, Message, SectionTitle, TextAction } from "../ui";
@@ -17,7 +17,7 @@ const TILE_SIZE = 76;
 
 const ShoeTile = ({ shoe, selected, onPress, label }) => (
   <ImageTile
-    source={shoe.imageUrl ? { uri: getImageUrl(shoe.imageUrl, 300) } : null}
+    source={photoSource(shoe.imageKey, 300)}
     placeholder={shoe.name}
     label={label}
     selected={selected}

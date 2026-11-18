@@ -12,8 +12,8 @@
 //
 // The phone cuts the garment out first (platform/garmentCutout.js,
 // context/phone-cutout-plan.md); "Use original photo" swaps back to the
-// photo as taken. In the strict test build there's no Cloudinary backup
-// and the reason a cut-out failed is shown.
+// photo as taken. When the phone can't cut it out, Cloudflare removes the
+// background on the server.
 
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
@@ -22,12 +22,12 @@ import { StyleSheet, Text, View } from "react-native";
 import { useAiConsent } from "@core/hooks/useAiConsent.js";
 import { usePhotoAnalysis } from "@core/hooks/usePhotoAnalysis.js";
 import { useWardrobeItemForm } from "@core/hooks/useWardrobeItemForm.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { photoSource } from "@core/images/photoSource.js";
 import { WARDROBE_KIND_LIST } from "@core/wardrobe/itemKinds.js";
 
 import { choiceTints, space, type } from "../../../../theme/soft";
 import { pickImage } from "../../../../platform/imagePicker";
-import { CUTOUT_STRICT_TEST, cutOutPhoto } from "../../../../platform/garmentCutout";
+import { cutOutPhoto } from "../../../../platform/garmentCutout";
 import { BubbleCelebration } from "../../../../components/soft";
 import {
   ActionCard,
@@ -69,11 +69,7 @@ const ReviewItem = ({ kind, prefill, onSaved, onCancel }) => {
 export default function AddItemScreen() {
   const consent = useAiConsent();
   const useAi = consent.choice === true;
-  const flow = usePhotoAnalysis({
-    useAi,
-    cutOut: cutOutPhoto,
-    cloudinaryBackup: !CUTOUT_STRICT_TEST,
-  });
+  const flow = usePhotoAnalysis({ useAi, cutOut: cutOutPhoto });
 
   // The full item form over the flow (failed analysis): { kind, prefill } or null.
   const [form, setForm] = useState(null);
@@ -119,7 +115,11 @@ export default function AddItemScreen() {
 
   // The background-removed photo once the analysis made it, else the one
   // picked.
-  const shownPhoto = flow.imageUrl ? getImageUrl(flow.imageUrl, 900) : flow.photo?.uri;
+  const shownPhoto = flow.imageKey
+    ? photoSource(flow.imageKey, 900)
+    : flow.photo?.uri
+      ? { uri: flow.photo.uri }
+      : null;
 
   /* -------------------- AI consent -------------------- */
 
@@ -165,8 +165,6 @@ export default function AddItemScreen() {
     return (
       <Screen pageTitle={TITLE} onBack={back} scroll={false}>
         <Loading text={useAi ? "Analysing your item…" : "Preparing your photo…"} />
-        {/* Strict test build: the phone's cut-out failed before the upload. */}
-        <PhotoChoice choice={null} failure={flow.cutoutFailure} />
       </Screen>
     );
   }
@@ -181,10 +179,9 @@ export default function AddItemScreen() {
           key={flow.kind}
           kind={flow.kind}
           prefill={flow.reviewPrefill}
-          photoUri={shownPhoto}
+          photo={shownPhoto}
           image={flow.image}
           photoChoice={flow.photoChoice}
-          cutoutFailure={flow.cutoutFailure}
           onSaved={(saved) => flow.markSaved(saved, flow.kind)}
           onSwitchKind={flow.switchKind}
           onChooseAnotherPhoto={flow.restart}
@@ -209,7 +206,7 @@ export default function AddItemScreen() {
   /* -------------------- Photo -------------------- */
 
   const photo = shownPhoto ? (
-    <ImageTile source={{ uri: shownPhoto }} aspectRatio={4 / 5} resizeMode="contain" />
+    <ImageTile source={shownPhoto} aspectRatio={4 / 5} resizeMode="contain" />
   ) : null;
 
   return (
@@ -239,7 +236,7 @@ export default function AddItemScreen() {
       {(flow.step === "failed" || flow.step === "manual") && (
         <>
           {photo}
-          <PhotoChoice choice={flow.photoChoice} failure={flow.cutoutFailure} />
+          <PhotoChoice choice={flow.photoChoice} />
           <Message text={flow.error} />
           <Text style={styles.text}>What is it?</Text>
           <View style={styles.row}>

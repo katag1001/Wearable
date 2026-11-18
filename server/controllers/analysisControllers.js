@@ -1,115 +1,52 @@
 const { analyseImage } = require("../services/itemAnalysisService.js");
 const { isGeminiConfigured } = require("../services/geminiClient.js");
-const { loadAnalysisImage } = require("../services/analysisImageService.js");
-const { removeBackground } = require("../services/backgroundRemovalService.js");
+const { analysisImageFrom } = require("../services/analysisImageService.js");
+const { processUpload, PhotoError } = require("../services/photoService.js");
 const { claimAnalysis } = require("../services/analysisQuotaService.js");
 const { getAiAnalysisChoice } = require("../services/aiConsentService.js");
 const { loadTakenNames } = require("../services/itemNameService.js");
 const { getUserMatchingPreferences } = require("../services/matchScoreService.js");
-const { isImageUsedByAnotherUser } = require("../services/imageService.js");
-const { backgroundChoice, logCutoutFailure, removesBackground } = require("../services/phoneCutoutService.js");
+const { isOwnUploadKey } = require("../services/photoKeys.js");
+const { backgroundChoice, logCutoutFailure } = require("../services/phoneCutoutService.js");
 const { DAILY_ANALYSIS_LIMIT } = require("../constants/itemAnalysis.js");
 
 /*
- * A new item's photo, after the app has uploaded it to Cloudinary. Its
- * background is removed (services/backgroundRemovalService.js) - unless
- * the phone already cut it out, or asks to keep it (`background`, and the
- * phone's `cutoutFailure` report: services/phoneCutoutService.js); then,
- * only for users who said yes to AI analysis (Preferences.aiAnalysis,
- * services/aiConsentService.js), Gemini fills in the item from it.
+ * POST /items/analyse { uploadKey, background?, cutoutFailure? }
  *
- *   POST /items/analyse { cloudinaryId, background?, cutoutFailure? }
- *     - remove background + AI
- *   POST /items/remove-background { cloudinaryId, background?, cutoutFailure? }
- *     - remove background only
- *
- * Both count towards the same daily limit (DAILY_ANALYSIS_LIMIT).
- */
-
-// The checks both routes share: the user, the photo id, and that the photo
-// is the user's own new photo (or one of their own items'). Responds and
-// returns null if any fails.
-const checkPhotoRequest = async (req, res) => {
-  const userId = req.user?.userId;
-  const { cloudinaryId } = req.body || {};
-
-  if (!userId) {
-    res.status(401).json({ error: "Unauthorized" });
-    return null;
-  }
-
-  if (!cloudinaryId || typeof cloudinaryId !== "string") {
-    res.status(400).json({ error: "Missing cloudinaryId" });
-    return null;
-  }
-
-  if (await isImageUsedByAnotherUser(cloudinaryId, userId)) {
-    res.status(403).json({ error: "That image belongs to another user" });
-    return null;
-  }
-
-  return { userId, cloudinaryId };
-};
-
-// Takes one photo from today's allowance; responds 429 and returns null if
-// none are left.
-const claimPhoto = async (userId, res, limitMessage) => {
-  const quota = await claimAnalysis(userId);
-
-  if (!quota.allowed) {
-    res.status(429).json({ error: limitMessage, code: "daily_limit" });
-    return null;
-  }
-
-  return quota;
-};
-
-// The background-removed photo, or null if it couldn't be made (the photo
-// is then used as uploaded).
-const removeBackgroundOrNull = (cloudinaryId, label) =>
-  removeBackground(cloudinaryId).catch((error) => {
-    console.error(`[${label}] background not removed, using the photo as uploaded:`, error.message || error);
-    return null;
-  });
-
-// The same, but only when the request wants Cloudinary to remove it (not
-// when the phone already did, or asked to keep it): null otherwise.
-const removeRequestedBackground = (req, cloudinaryId, label) =>
-  removesBackground(req.body) ? removeBackgroundOrNull(cloudinaryId, label) : Promise.resolve(null);
-
-/*
- * POST /items/analyse { cloudinaryId }
- *
- * Fills in a new item from its photo. The photo's background is removed
- * first and the result is what Gemini sees. Answers 200 with
+ * Fills in a new item from its photo. The phone has uploaded the photo
+ * (controllers/imagesControllers.js); it's made into the item photo here
+ * (services/photoService.js: the phone's cut-out, or Cloudflare removes
+ * the background when the phone couldn't - `background`,
+ * services/phoneCutoutService.js), then, only for users who said yes to AI
+ * analysis (Preferences.aiAnalysis, services/aiConsentService.js), Gemini
+ * fills the item in from it. Counts towards the daily limit
+ * (DAILY_ANALYSIS_LIMIT). Answers 200 with
  *   { status: "ok", kind: "clothing" | "footwear", fields, image, remaining }
  *   { status: "multiple" | "none", image, remaining }
  * where `fields` is ready to save as the new item (nothing is saved here)
- * and `image` is the background-removed photo:
- *   { imageUrl, cloudinaryId, createdIds } - save the item with imageUrl
- *   and cloudinaryId; createdIds are every image made, to delete if it's
- *   never saved.
- * `image` is null if the background couldn't be removed - the photo is
- * then analysed and saved as uploaded.
+ * and `image` is the item photo: { imageKey, removedBy } - save the item
+ * with imageKey (or discard it: /images/discard); removedBy is "phone",
+ * "cloudflare" or null (kept as taken).
  * Errors carry a `code`: not_configured, consent_required (the user hasn't
  * answered the AI prompt), ai_opted_out, daily_limit, failed (a failed
- * analysis also sends `image`).
+ * analysis also sends `image` if it was made).
  */
 exports.analyseItem = async (req, res) => {
   if (!isGeminiConfigured()) {
     return res.status(503).json({ error: "Photo analysis isn't set up", code: "not_configured" });
   }
 
-  // The background-removed photo, once made - sent back even if the
-  // analysis then fails, so the app can use it (or delete it).
-  let removedImage = null;
+  const userId = req.user?.userId;
+  const uploadKey = req.body?.uploadKey;
+
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+  if (!isOwnUploadKey(uploadKey, userId)) return res.status(400).json({ error: "Missing or invalid uploadKey" });
+
+  // The item photo, once made - sent back even if the analysis then
+  // fails, so the app can use it (or delete it).
+  let image = null;
 
   try {
-    const request = await checkPhotoRequest(req, res);
-    if (!request) return undefined;
-
-    const { userId, cloudinaryId } = request;
-
     // Nothing goes to Gemini without the user's yes.
     const aiChoice = await getAiAnalysisChoice(userId);
 
@@ -121,88 +58,50 @@ exports.analyseItem = async (req, res) => {
       );
     }
 
-    const quota = await claimPhoto(
-      userId,
-      res,
-      `You've reached today's limit of ${DAILY_ANALYSIS_LIMIT} photo analyses. Add the item by hand, or try again tomorrow.`
-    );
-    if (!quota) return undefined;
+    const quota = await claimAnalysis(userId);
+
+    if (!quota.allowed) {
+      return res.status(429).json({
+        error: `You've reached today's limit of ${DAILY_ANALYSIS_LIMIT} photo analyses. Add the item by hand, or try again tomorrow.`,
+        code: "daily_limit",
+      });
+    }
 
     logCutoutFailure("analyse item", userId, req.body);
 
-    const [removed, { gender }, takenNames] = await Promise.all([
-      removeRequestedBackground(req, cloudinaryId, "analyse item"),
+    const [photo, { gender }, takenNames] = await Promise.all([
+      processUpload({ userId, uploadKey, background: backgroundChoice(req.body) }),
       getUserMatchingPreferences(userId),
       loadTakenNames(userId),
     ]);
 
-    removedImage = removed;
+    image = { imageKey: photo.imageKey, removedBy: photo.removedBy };
 
-    const image = await loadAnalysisImage(removed?.cloudinaryId || cloudinaryId);
-    const result = await analyseImage({ image, gender, takenNames });
+    const result = await analyseImage({ image: await analysisImageFrom(photo.image), gender, takenNames });
 
     console.log("[analyse item]", {
       userId,
       status: result.status,
       background: backgroundChoice(req.body),
-      backgroundRemoved: !!removed,
+      removedBy: photo.removedBy,
       usage: result.usage,
     });
 
     if (result.status === "failed") {
       console.error("[analyse item] no usable answer:", result.problems);
-      return res.status(502).json({ error: "Couldn't analyse the photo", code: "failed", image: removedImage });
+      return res.status(502).json({ error: "Couldn't analyse the photo", code: "failed", image });
     }
 
     return res.json({
       status: result.status,
       ...(result.status === "ok" && { kind: result.kind, fields: result.fields }),
-      image: removedImage,
+      image,
       remaining: quota.remaining,
     });
   } catch (error) {
+    if (error instanceof PhotoError) return res.status(error.status).json({ error: error.message, code: "failed" });
+
     console.error("[analyse item] FAILED", error);
-    return res.status(502).json({ error: "Couldn't analyse the photo", code: "failed", image: removedImage });
-  }
-};
-
-/*
- * POST /items/remove-background { cloudinaryId }
- *
- * For users who fill their items in themselves: only removes the photo's
- * background - nothing is sent to Gemini. Answers 200 with
- *   { image, remaining }
- * where `image` is as for /items/analyse (null if the background couldn't
- * be removed - the photo is then saved as uploaded). Errors carry a
- * `code`: daily_limit, failed.
- */
-exports.removeItemBackground = async (req, res) => {
-  try {
-    const request = await checkPhotoRequest(req, res);
-    if (!request) return undefined;
-
-    const { userId, cloudinaryId } = request;
-
-    const quota = await claimPhoto(
-      userId,
-      res,
-      `You've reached today's limit of ${DAILY_ANALYSIS_LIMIT} photos. Add the item without a photo, or try again tomorrow.`
-    );
-    if (!quota) return undefined;
-
-    logCutoutFailure("remove background", userId, req.body);
-
-    const removed = await removeRequestedBackground(req, cloudinaryId, "remove background");
-
-    console.log("[remove background]", {
-      userId,
-      background: backgroundChoice(req.body),
-      backgroundRemoved: !!removed,
-    });
-
-    return res.json({ image: removed, remaining: quota.remaining });
-  } catch (error) {
-    console.error("[remove background] FAILED", error);
-    return res.status(502).json({ error: "Couldn't process the photo", code: "failed" });
+    return res.status(502).json({ error: "Couldn't analyse the photo", code: "failed", image });
   }
 };

@@ -4,24 +4,26 @@
 // A newly chosen photo is cut out on the phone first
 // (platform/garmentCutout.js; context/phone-cutout-plan.md) and the
 // cut-out is used, with "Use original photo" to swap back to the photo as
-// taken (swapPhoto). If the phone can't, the photo is used as taken - no
-// Cloudinary here. Either way it's only uploaded when the item is saved
+// taken (swapPhoto). If the phone can't, the photo as taken is marked
+// `cutoutFailed` and Cloudflare removes its background when the item is
+// saved. Either way it's only uploaded when the item is saved
 // (core/wardrobe/saveWardrobeItem.js).
 
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { photoSource } from "@core/images/photoSource.js";
 
 import { space } from "../../theme/soft";
-import { CUTOUT_STRICT_TEST, cutOutPhoto } from "../../platform/garmentCutout";
+import { cutOutPhoto } from "../../platform/garmentCutout";
 import { pickImage } from "../../platform/imagePicker";
 import { Button, ImageTile } from "../ui";
 import { showDialog } from "../soft/Dialog";
 
 // Takes or chooses a photo ("camera" | "library"), cuts the garment out
 // and hands the result to onPick: the cut-out, with the photo as taken as
-// its `alternative` - or just the photo as taken if the phone couldn't.
+// its `alternative` - or the photo as taken marked `cutoutFailed` (with
+// why) if the phone couldn't.
 // `onBusy(true/false)` while it's cutting out.
 export const choosePhoto = async (source, onPick, onBusy) => {
   try {
@@ -38,11 +40,7 @@ export const choosePhoto = async (source, onPick, onBusy) => {
       return;
     }
 
-    onPick(image);
-
-    if (CUTOUT_STRICT_TEST) {
-      showDialog("Cut-out test", `The phone couldn't cut this photo out. ${failure?.reason || ""}`);
-    }
+    onPick({ ...image, cutoutFailed: failure || { reason: "unknown" } });
   } catch (err) {
     onBusy?.(false);
     showDialog("Photo", err.message);
@@ -74,18 +72,14 @@ export const swapPhotoLabel = (selectedImage) =>
     : null;
 
 // The newly chosen photo, else the saved one, as an image source.
-export const photoSource = (selectedImage, savedImageUrl) =>
-  selectedImage
-    ? { uri: selectedImage.uri }
-    : savedImageUrl
-      ? { uri: getImageUrl(savedImageUrl, 800) }
-      : null;
+export const shownPhotoSource = (selectedImage, savedImageKey) =>
+  selectedImage ? { uri: selectedImage.uri } : photoSource(savedImageKey, 800);
 
-export const PhotoPicker = ({ selectedImage, savedImageUrl, onPick }) => {
+export const PhotoPicker = ({ selectedImage, savedImageKey, onPick }) => {
   const [busy, setBusy] = useState(false);
   const choose = (source) => choosePhoto(source, onPick, setBusy);
 
-  const preview = photoSource(selectedImage, savedImageUrl);
+  const preview = shownPhotoSource(selectedImage, savedImageKey);
   const swapLabel = swapPhotoLabel(selectedImage);
 
   const hasPhoto = !!preview;

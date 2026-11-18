@@ -10,12 +10,9 @@ const { deleteAllFootwearForUser } = require("./footwearControllers.js");
 const {
   deleteReplacedImage,
   destroyItemImages,
-  withReplacedImageFields,
-  withDerivedImageFields,
-  ITEM_IMAGE_FIELDS,
-  canUseItemImages,
-  IMAGE_IN_USE_ERROR,
+  imageProblem,
 } = require("../services/imageService.js");
+const { deleteUserFiles } = require("../services/photoService.js");
 const { pickFields } = require("../services/requestFields.js");
 const {
   CLOTHING_FIELDS,
@@ -237,10 +234,10 @@ exports.deleteUser = async (req, res) => {
   try {
     // 1. Find all clothing items belonging to the user
     const clothes = await Clothes.find({ userId }).select(
-      ["_id", ...ITEM_IMAGE_FIELDS].join(" ")
+      "_id imageKey"
     );
 
-    // 2. Delete all clothing images from Cloudinary (failures are logged)
+    // 2. Delete all clothing photos (failures are logged)
     for (const item of clothes) {
       await destroyItemImages(item, "account deleted");
     }
@@ -258,6 +255,10 @@ exports.deleteUser = async (req, res) => {
 
     // 6. Delete all footwear (and its images) belonging to the user
     await deleteAllFootwearForUser(userId);
+
+    // 6b. Delete every other file of theirs in photo storage (uploads and
+    // photos never saved to an item)
+    await deleteUserFiles(userId);
 
     // 7. Delete the user's preferences
     await Preferences.deleteOne({ userId });
@@ -351,7 +352,7 @@ return res.status(400).json({ error: "Missing type" });
 }
 
 try {
-const fields = withDerivedImageFields(pickFields(req.body, CLOTHING_FIELDS));
+const fields = pickFields(req.body, CLOTHING_FIELDS);
 
 const existingItem = await Clothes.findOne({
 name: String(name ?? ""),
@@ -369,8 +370,9 @@ if (existingItem) {
   });
 }
 
-if (!(await canUseItemImages(fields))) {
-  return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
+const imageError = await imageProblem(fields, userId);
+if (imageError) {
+  return res.status(409).json({ error: imageError });
 }
 
 const item = new Clothes({
@@ -488,14 +490,15 @@ if (!existingItem) {
 return res.json({ message: "Item not found" });
 }
 
-const fields = withReplacedImageFields(withDerivedImageFields(pickFields(req.body, CLOTHING_FIELDS)), existingItem);
+const fields = pickFields(req.body, CLOTHING_FIELDS);
 
-if (
-  fields.cloudinaryId !== undefined &&
-  fields.cloudinaryId !== existingItem.cloudinaryId &&
-  !(await canUseItemImages(fields, { exceptId: existingItem._id }))
-) {
-  return res.status(409).json({ error: IMAGE_IN_USE_ERROR });
+const imageError =
+  fields.imageKey !== undefined && fields.imageKey !== existingItem.imageKey
+    ? await imageProblem(fields, userId, { exceptId: existingItem._id })
+    : null;
+
+if (imageError) {
+  return res.status(409).json({ error: imageError });
 }
 
 const updatedItem = await Clothes.findOneAndUpdate(
@@ -548,9 +551,7 @@ exports.deleteItem = async (req, res) => {
       });
     }
 
-    console.log("cloudinaryId:", item.cloudinaryId);
-
-    console.log("Deleting from Cloudinary...");
+    console.log("Deleting its photo...");
     await destroyItemImages(item, "item deleted");
 
     console.log("Deleting matches...");

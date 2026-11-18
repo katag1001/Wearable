@@ -1,0 +1,21 @@
+# The background-removal Worker (context/cloudflare-migration-plan.md).
+# Our server calls it when the phone couldn't cut a photo out. Runs on the
+# free Workers plan. Deploy (from the project root, logged in with
+# `npx wrangler login`):
+#   npx wrangler deploy --config workers/cutout/wrangler.toml
+#   npx wrangler secret put CUTOUT_WORKER_KEY --config workers/cutout/wrangler.toml
+# The same CUTOUT_WORKER_KEY goes in server/.env and Vercel, with the
+# Worker's address as CUTOUT_WORKER_URL.
+
+name = "lws-cutout"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+# Cloudflare Images: background removal (segment = "foreground", BiRefNet).
+[images]
+binding = "IMAGES"
+
+# The private photo bucket (read only: the server stores the results).
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "lws-images"

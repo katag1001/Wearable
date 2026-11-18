@@ -7,21 +7,22 @@ const {
   cutoutFailureOf,
 } = require("../services/phoneCutoutService.js");
 
-test("the background is removed by Cloudinary unless the phone says otherwise", () => {
-  assert.equal(backgroundChoice({ cloudinaryId: "x" }), "remove");
+test("the background is removed by Cloudflare unless the phone says otherwise", () => {
+  assert.equal(backgroundChoice({ uploadKey: "x" }), "remove");
   assert.equal(backgroundChoice(undefined), "remove");
-  assert.equal(removesBackground({ cloudinaryId: "x" }), true);
+  assert.equal(removesBackground({ uploadKey: "x" }), true);
 });
 
-test("a phone cut-out or a 'keep' request skips Cloudinary", () => {
+test("a phone cut-out or the photo as taken skips Cloudflare", () => {
   assert.equal(backgroundChoice({ background: "phone" }), "phone");
-  assert.equal(backgroundChoice({ background: "keep" }), "keep");
+  assert.equal(backgroundChoice({ background: "none" }), "none");
   assert.equal(removesBackground({ background: "phone" }), false);
-  assert.equal(removesBackground({ background: "keep" }), false);
+  assert.equal(removesBackground({ background: "none" }), false);
 });
 
 test("anything else sent as the background still means remove", () => {
   assert.equal(backgroundChoice({ background: "PHONE" }), "remove");
+  assert.equal(backgroundChoice({ background: "keep" }), "remove");
   assert.equal(backgroundChoice({ background: { $ne: 1 } }), "remove");
   assert.equal(removesBackground({ background: 3 }), true);
 });

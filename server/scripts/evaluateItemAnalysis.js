@@ -18,7 +18,7 @@
 //
 // Writes a report to server/scripts/reports/ (git-ignored): open the .html
 // in a browser to see every item's photo with the saved and analysed
-// values side by side. Reads MONGO, Cloudinary and GEMINI_* from
+// values side by side. Reads MONGO, R2_* (photo storage) and GEMINI_* from
 // server/.env, like the server does.
 
 const fs = require("fs");
@@ -28,7 +28,7 @@ require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
 const { User, Clothes, Footwear } = require("../models/AllModels.js");
 const { getUserMatchingPreferences } = require("../services/matchScoreService.js");
-const { loadAnalysisImage, analysisImageUrl } = require("../services/analysisImageService.js");
+const { loadAnalysisImage } = require("../services/analysisImageService.js");
 const { analyseImage } = require("../services/itemAnalysisService.js");
 const { isGeminiConfigured, getModel } = require("../services/geminiClient.js");
 const { subtypeIndex } = require("../services/analysisPrompt.js");
@@ -51,7 +51,7 @@ function argValue(name) {
 /* -------------------- Loading -------------------- */
 
 async function loadItems(userId, kind) {
-  const withImage = { userId, cloudinaryId: { $nin: [null, ""] } };
+  const withImage = { userId, imageKey: { $nin: [null, ""] } };
 
   const [clothes, footwear] = await Promise.all([
     kind === "footwear" ? [] : Clothes.find(withImage).lean(),
@@ -200,8 +200,9 @@ function tagsRow(saved, analysed) {
   return `<tr><th>Tags</th><td colspan="2">${chips.join(" ")}</td></tr>`;
 }
 
-function itemCard(saved, result, comparison, yours) {
-  const image = `<img src="${escape(analysisImageUrl(saved.cloudinaryId))}" alt="">`;
+// photo: what Gemini got ({ mimeType, data }), shown in the report.
+function itemCard(saved, result, comparison, yours, photo) {
+  const image = photo ? `<img src="data:${photo.mimeType};base64,${photo.data}" alt="">` : "";
 
   if (result.status !== "ok") {
     return `<div class="card"><div>${image}</div><div><h3>${escape(saved.name)}</h3><p class="diff">Analysis: ${escape(result.status)}${result.problems ? ` (${escape(result.problems.join("; "))})` : ""}</p></div></div>`;
@@ -296,11 +297,14 @@ async function main() {
 
   let usage = { promptTokens: 0, cachedTokens: 0, outputTokens: 0, requests: 0 };
 
+  const photos = [];
+
   const results = await mapLimited(items, async (item, index) => {
     let result;
 
     try {
-      const image = await loadAnalysisImage(item.cloudinaryId);
+      const image = await loadAnalysisImage(item.imageKey);
+      photos[index] = image;
       result = await analyseImage({ image, gender, model });
     } catch (error) {
       result = { status: "failed", problems: [error.message] };
@@ -325,7 +329,7 @@ async function main() {
     compareItem(item, results[i], currentSubtypes, yoursFor(item))
   );
   const summary = summarise(comparisons, usage, model);
-  const cards = items.map((item, i) => itemCard(item, results[i], comparisons[i], yoursFor(item)));
+  const cards = items.map((item, i) => itemCard(item, results[i], comparisons[i], yoursFor(item), photos[i]));
 
   fs.mkdirSync(REPORTS_DIR, { recursive: true });
 

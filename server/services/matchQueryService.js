@@ -25,7 +25,7 @@ const { TIGHTS_SHIFT } = require("./tightsService.js");
 
 // Only what the outfit cards and filter panel use - the full clothing
 // documents are much larger and are repeated in every outfit they appear in.
-const CLOTHES_CARD_FIELDS = "name imageUrl type";
+const CLOTHES_CARD_FIELDS = "name imageKey type";
 
 /* -------------------- Parsing -------------------- */
 

@@ -163,7 +163,7 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
     <div class="group">
       <h3>Costs</h3>
       <div class="grid">
-        <div class="field"><label for="fallback">Photos falling back to Cloudinary (%)</label><input id="fallback" type="number" min="0" max="100" step="0.5" value="8"><span class="hint">~5% Huawei phones, plus failed cut-outs</span></div>
+        <div class="field"><label for="fallback">Photos falling back to Cloudflare (%)</label><input id="fallback" type="number" min="0" max="100" step="0.5" value="8"><span class="hint">~5% Huawei phones, plus failed cut-outs</span></div>
         <div class="field"><label for="aiShare">Users with AI analysis on (%)</label><input id="aiShare" type="number" min="0" max="100" value="100"></div>
       </div>
     </div>
@@ -185,7 +185,7 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
     <thead>
       <tr><th></th><th class="n grp" colspan="4">Users</th><th class="n grp" colspan="8">What you pay</th><th class="n grp" colspan="4">Money</th><th></th></tr>
       <tr><th>Month</th><th class="n">New trials</th><th class="n">Paying</th><th class="n">Needed to break even</th><th class="n">Active</th>
-        <th class="n">Cloudinary</th><th class="n">Gemini</th><th class="n">Database</th><th class="n">Vercel</th><th class="n">Expo</th><th class="n">Email</th><th class="n">One-off</th><th class="n">Total</th>
+        <th class="n">Cloudflare</th><th class="n">Gemini</th><th class="n">Database</th><th class="n">Vercel</th><th class="n">Expo</th><th class="n">Email</th><th class="n">One-off</th><th class="n">Total</th>
         <th class="n">Paid in</th><th class="n">Stores</th><th class="n">Profit</th><th class="n">Running total</th><th class="n">These trials will bring</th></tr>
     </thead>
     <tbody id="yearRows"></tbody>
@@ -199,10 +199,10 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
       <div style="display:grid; gap:8px; min-width:0">
         <h3>What you pay</h3>
         <ul class="small">
-          <li><b>Every month, whatever happens:</b> Vercel $20, Cloudinary $99 (Plus plan), MongoDB Atlas from $30, Expo $19, email $7. That's $175 before anyone signs up.</li>
+          <li><b>Every month, whatever happens:</b> Vercel $20, Cloudflare Workers $5 (paid plan, from launch), MongoDB Atlas from $30, Expo $19, email $7. That's $81 before anyone signs up.</li>
           <li><b>Weather is free:</b> the forecast comes from MET Norway and the typical weather from NASA POWER, both fetched by your server and shared between users in the same area. The only cost is a little server use, already in the Vercel figure.</li>
-          <li><b>Grows with users:</b> Gemini, about $0.0044 a photo analysed. Cloudinary (photos, storage, viewing) and the database move up to bigger plans as usage grows: Cloudinary $249 at 225+ credits, the database $57, $146, $394, $760 as it passes 5, 10, 20, 40 GB.</li>
-          <li><b>Month 1 only:</b> Apple Developer Program $99 (covers the year) and Google Play $25 (once, ever). GitHub is free.</li>
+          <li><b>Grows with users:</b> Gemini, about $0.0044 a photo analysed. Cloudflare charges only past its free amounts: photo storage (R2) $0.015 a GB a month after 10 GB, $4.50 a million writes after 1 million, $0.36 a million reads after 10 million, viewing free; background removal when the phone can't, $0.50 per 1,000 after 5,000 a month; Worker requests $0.30 a million after 10 million. The database moves up to bigger plans: $57, $146, $394, $760 as it passes 5, 10, 20, 40 GB.</li>
+          <li><b>Month 1 only:</b> Apple Developer Program $99 (covers the year), Google Play $25 (once, ever) and the domain for photo links, about $11 a year. GitHub is free.</li>
         </ul>
       </div>
       <div style="display:grid; gap:8px; min-width:0">
@@ -214,7 +214,7 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
       <div style="display:grid; gap:8px; min-width:0">
         <h3>Measured figures</h3>
         <ul class="small">
-          <li><b>Cloudinary, 30 days to 12 Nov 2026:</b> 130 background removals at 75 transformations each; 3.2 MB stored a piece the old way (2.5 MB of it the original).</li>
+          <li><b>Cloudflare test, 17–18 Nov 2026:</b> background removal takes 2–5 seconds a photo; each piece is stored as two WebP sizes (900 and 300 px), 20–40 KB together for the test photos.</li>
           <li><b>Gemini:</b> 122 photos cost $0.54, so $0.0044 a photo.</li>
           <li><b>Database:</b> 98 clothing pieces had 5,672 saved outfits at about 1.4 KB each. Outfits grow with clothing count to the power 2.5, about 21,000 at 200 pieces.</li>
           <li><b>Phone cut-out:</b> tested on Android in November 2026, about a second a photo.</li>
@@ -223,8 +223,8 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
       <div style="display:grid; gap:8px; min-width:0">
         <h3>Assumptions</h3>
         <ul class="small">
-          <li>A phone cut-out stores about 0.75 MB a piece; a Cloudinary fallback 3.2 MB and 85 transformations. The 0.75 MB is an estimate until it's measured live.</li>
-          <li>A Cloudinary credit is valued at $0.44. Everyone views photos the way you do (0.17 GB a month).</li>
+          <li>A piece takes 50 KB of storage (allowing for bigger photos than the test), 3 storage writes and 3 reads to add, and every photo shown costs one read and one Worker request. Everyone loads about 6,000 photos a month (the 0.17 GB you viewed under Cloudinary); the phone keeps photos it has shown, so it's likely less.</li>
+          <li>Photo resizing now runs on the server; the Vercel figure per piece is unchanged until it's measured.</li>
           <li>Leavers' data is deleted after the months you set. Prices are US dollars before VAT.</li>
           <li>Prices come from third-party summaries dated November 2026: check them before launch.</li>
         </ul>
@@ -233,7 +233,9 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
     <p class="small">Sources:
       <a href="https://makerkit.dev/blog/saas/vercel-cost">Vercel</a> ·
       <a href="https://www.mongodb.com/pricing">MongoDB</a> ·
-      <a href="https://theimagecdn.com/docs/cloudinary-pricing">Cloudinary credits</a> ·
+      <a href="https://developers.cloudflare.com/r2/pricing/">Cloudflare R2</a> ·
+      <a href="https://developers.cloudflare.com/images/pricing/">Cloudflare Images</a> ·
+      <a href="https://developers.cloudflare.com/workers/platform/pricing/">Cloudflare Workers</a> ·
       <a href="https://pricepertoken.com/pricing-page/model/google-gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite</a> ·
       <a href="https://api.met.no/doc/TermsOfService">MET Norway terms</a> ·
       <a href="https://power.larc.nasa.gov/docs/referencing/">NASA POWER</a> ·
@@ -250,18 +252,21 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
 <script>
 (function () {
   /* ---------- Unit figures ---------- */
-  const CREDIT = 99 / 225;          // $ per Cloudinary credit
-  const TX_PHONE = 10;              // transformations per photo cut out on the phone
-  const TX_REMOVAL = 75;            // extra for a Cloudinary background removal (fallback)
-  const GB_PHONE = 0.00075;         // stored per piece, phone cut-out (estimate)
-  const GB_FALLBACK = 0.0032;       // stored per piece, Cloudinary route (measured)
-  const BW_GB = 0.17;               // viewed per user per month
+  // Cloudflare: R2 storage, Images background removal, Workers.
+  const GB_PIECE = 0.00005;                         // stored per piece: two WebP sizes (assumed 50 KB)
+  const R2_GB = 0.015, R2_FREE_GB = 10;             // $ per GB-month, free GB
+  const WRITE = 4.5e-6, FREE_WRITES = 1e6;          // $ per write, free a month
+  const READ = 0.36e-6, FREE_READS = 1e7;           // $ per read, free a month
+  const WRITES_PIECE = 3, READS_PIECE = 3;          // to add a piece
+  const VIEWS_USER = 6000;                          // photos loaded per active user a month
+  const REMOVAL = 0.0005, FREE_REMOVALS = 5000;     // $ per background removal, free a month
+  const WORKERS = 5, WORKER_REQ = 0.3e-6, FREE_REQ = 1e7; // plan, $ per request, included
   const GEMINI = 0.0044;            // per analysed photo
   const VERCEL_PIECE = 0.0003, VERCEL_USER = 0.005;
   const CLOTHES_SHARE = 0.83;
   const MATCH_GB = 1.4 / 1048576, PIECE_DOC_GB = 2 / 1048576;
   const EMAIL = 7;
-  const APPLE_YEAR = 99, GOOGLE_ONCE = 25;
+  const APPLE_YEAR = 99, GOOGLE_ONCE = 25, DOMAIN_YEAR = 11;
   const ATLAS = [[5, 30], [10, 57], [20, 146], [40, 394], [80, 760], [Infinity, 1460]];
 
   const outfits = (pieces) => 5672 * Math.pow((pieces * CLOTHES_SHARE) / 98, 2.5);
@@ -271,22 +276,28 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
   // groups: [{ n, adds, keeps, active }] - users of one kind: pieces added
   // this month and held, and whether they use the app.
   function bill(groups, s) {
-    const tx = TX_PHONE + TX_REMOVAL * s.fallback;
-    const gbPiece = (1 - s.fallback) * GB_PHONE + s.fallback * GB_FALLBACK;
     const sum = (f) => groups.reduce((t, g) => t + g.n * f(g), 0);
     const added = sum((g) => g.adds);
     const stored = sum((g) => g.keeps);
     const users = sum((g) => (g.active ? 1 : 0));
     const gb = sum((g) => dbGb(g.keeps));
 
-    // What it costs per unit of use (for per-user figures).
-    const usage = (added * tx / 1000 + stored * gbPiece + users * BW_GB) * CREDIT
+    // Cloudflare use this month.
+    const storedGb = stored * GB_PIECE;
+    const writes = added * WRITES_PIECE;
+    const reads = added * READS_PIECE + users * VIEWS_USER;
+    const removals = added * s.fallback;
+    const requests = users * VIEWS_USER + removals;
+
+    // What it costs per unit of use (for per-user figures; no free amounts).
+    const usage = storedGb * R2_GB + writes * WRITE + reads * READ + removals * REMOVAL + requests * WORKER_REQ
       + added * s.ai * GEMINI + gb * 10 + added * VERCEL_PIECE + users * VERCEL_USER;
 
     // What the plans actually charge.
-    const credits = added * tx / 1000 + stored * gbPiece + users * BW_GB;
+    const over = (used, free) => Math.max(0, used - free);
     const services = {
-      cloudinary: credits <= 225 ? 99 : credits <= 600 ? 249 : credits * 0.415,
+      cloudflare: WORKERS + over(storedGb, R2_FREE_GB) * R2_GB + over(writes, FREE_WRITES) * WRITE
+        + over(reads, FREE_READS) * READ + over(removals, FREE_REMOVALS) * REMOVAL + over(requests, FREE_REQ) * WORKER_REQ,
       gemini: added * s.ai * GEMINI,
       database: ATLAS.find((t) => gb <= t[0])[1],
       vercel: Math.max(20, added * VERCEL_PIECE + users * VERCEL_USER),
@@ -339,7 +350,7 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
         { n: held, adds: 0, keeps: st.size, active: false },
         { n: payers, adds: st.adds, keeps: st.size, active: true },
       ], st.s);
-      const oneOff = i === 0 ? APPLE_YEAR + GOOGLE_ONCE : 0;
+      const oneOff = i === 0 ? APPLE_YEAR + GOOGLE_ONCE + DOMAIN_YEAR : 0;
       const costs = b.total + oneOff;
       const paidIn = monthly * st.monthly + yearlyPaying * st.yearly;
       // Paid in, split into what the prices bring (for the break-even price).
@@ -415,7 +426,7 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
     document.getElementById("tiles").innerHTML =
       tile("Profit in year 1", usd(T.profit), T.profit < 0 ? "a loss over the first 12 months" : "after all costs and the stores' cut", T.profit < 0 ? "bad" : "good") +
       tile("Paid in", usd(T.paidIn), `${usd(T.store)} of it to the app stores`) +
-      tile("Running costs", usd(T.costs), `incl. ${usd(APPLE_YEAR + GOOGLE_ONCE)} of one-off fees`) +
+      tile("Running costs", usd(T.costs), `incl. ${usd(APPLE_YEAR + GOOGLE_ONCE + DOMAIN_YEAR)} of one-off fees`) +
       tile("Most you're out of pocket", low < 0 ? usd(-low) : "$0", low < 0 ? `lowest point, month ${lowMonth}` : "you're never behind") +
       tile("Each trial is worth", usd(tv.lifetime), tv.lifetime > 0
         ? `costs ${usd(tv.trialCost)} up front, paid back by month ${tv.payback + 1}`
@@ -442,7 +453,7 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
 
     // Month rows
     running = 0;
-    const svcKeys = ["cloudinary", "gemini", "database", "vercel", "expo", "email"];
+    const svcKeys = ["cloudflare", "gemini", "database", "vercel", "expo", "email"];
     document.getElementById("yearRows").innerHTML = months.map((m, i) => {
       running += m.profit;
       return `<tr><td>Month ${i + 1}</td>${cell(fmt(m.n))}${cell(fmt(m.payers))}${neededCell(m)}${cell(fmt(m.active))}` +
@@ -452,13 +463,13 @@ summary { cursor: pointer; font-weight: 700; font-family: var(--display); paddin
     }).join("") +
       `<tr class="total"><td>Year 1</td>${cell(fmt(trials))}<td></td><td></td><td></td>` +
       svcKeys.map((k) => cell(usd(months.reduce((t, m) => t + m.services[k], 0)))).join("") +
-      `${cell(usd(APPLE_YEAR + GOOGLE_ONCE))}${cell(usd(T.costs))}${cell(usd(T.paidIn))}${cell(usd(T.store))}${moneyCell(T.profit)}<td></td>${moneyCell(trials * tv.lifetime)}</tr>`;
+      `${cell(usd(APPLE_YEAR + GOOGLE_ONCE + DOMAIN_YEAR))}${cell(usd(T.costs))}${cell(usd(T.paidIn))}${cell(usd(T.store))}${moneyCell(T.profit)}<td></td>${moneyCell(trials * tv.lifetime)}</tr>`;
 
     // Per user, in the details
     document.getElementById("perUser").innerHTML = [
       `<li><b>A trial's free month:</b> about ${usd(tv.trialCost)} (adding ${fmt(st.size)} pieces, analysing them, storing them).</li>`,
       `<li><b>A paying user, each month:</b> about ${usd(tv.payerCost)} to run, against ${usd((1 - st.fee) * ((1 - st.yearShare) * st.monthly + st.yearShare * st.yearly / 12))} a month on average after the stores' cut.</li>`,
-      `<li><b>A photo:</b> ${TX_PHONE} Cloudinary transformations cut out on the phone, ${TX_PHONE + TX_REMOVAL} when it falls back to Cloudinary (${Math.round(st.s.fallback * 100)}% of photos).</li>`,
+      `<li><b>A photo:</b> cut out on the phone for free; when the phone can't (${Math.round(st.s.fallback * 100)}% of photos), Cloudflare removes the background for ${usd(REMOVAL)}, free for the first 5,000 a month. Storing a piece costs about ${usd(GB_PIECE * R2_GB * 12)} a year.</li>`,
     ].join("");
   }
 

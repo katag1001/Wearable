@@ -8,7 +8,7 @@
 // adds to each photo's style (e.g. its background). `width`: lay out to
 // this width straight away instead of measuring (the outfit cards, whose
 // height is worked out before they draw - outfitImagesHeight).
-// `imageSize`: the Cloudinary copy's size. `onItemPress(item)` makes each
+// `imageSize`: the size shown (picks the stored photo size). `onItemPress(item)` makes each
 // item tappable, with `itemLabel(item)` as its accessibility label.
 // `showLoading`: a small breathing bubble on each photo until it loads.
 //
@@ -21,7 +21,7 @@ import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 
 import { outfitRows } from "@core/today/outfitRows.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { photoSource } from "@core/images/photoSource.js";
 
 import { colors } from "../../theme/tokens";
 import { loaderSizes, radii, space } from "../../theme/soft";
@@ -34,13 +34,13 @@ const PHOTO_SCALE = 0.95;
 const UPPER_TYPES = ["top", "outer"];
 
 // One photo, with the bubble over it while it loads (`showLoading`).
-const Photo = ({ uri, style, label, showLoading }) => {
+const Photo = ({ source, style, label, showLoading }) => {
   const [loaded, setLoaded] = useState(false);
 
   return (
     <View>
       <Image
-        source={{ uri }}
+        source={source}
         style={style}
         contentFit="contain"
         transition={150}
@@ -76,8 +76,8 @@ const withShoes = (rows, clothes, shoes, columns) => {
 // Rows, photo size and total height for an outfit laid out `width` wide
 // (and, with `fit`, no taller than `height`).
 const layOut = ({ match, footwear, width, height, fit }) => {
-  const clothes = (match?.clothes || []).filter((item) => item?.imageUrl);
-  const shoes = footwear?.imageUrl ? [footwear] : [];
+  const clothes = (match?.clothes || []).filter((item) => item?.imageKey);
+  const shoes = footwear?.imageKey ? [footwear] : [];
   const columns = clothes.length + shoes.length === 1 ? 1 : 2;
   const rows = withShoes(outfitRows(clothes), clothes, shoes, columns);
 
@@ -152,7 +152,7 @@ export const OutfitImages = ({
               const photo = (
                 <Photo
                   key={item._id}
-                  uri={getImageUrl(item.imageUrl, imageSize)}
+                  source={photoSource(item.imageKey, imageSize)}
                   style={[
                     styles.image,
                     imageStyle,

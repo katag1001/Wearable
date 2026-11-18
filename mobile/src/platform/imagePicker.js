@@ -1,13 +1,22 @@
 // mobile/src/platform/imagePicker.js
 //
 // A photo for a wardrobe item, from the camera or the photo library.
-// Returns what core/api/images.js uploads ({ uri, name, type } - the
-// phone's version of the web's File), or null if cancelled.
-// Throws PermissionDeniedError if the user has refused access.
+// Returns { uri, name, type } (what core/api/images.js uploads), or null if
+// cancelled. Throws PermissionDeniedError if the user has refused access.
+//
+// The photo is shrunk to at most MAX_SIDE pixels as a JPEG straight away,
+// so the cut-out, the upload and storage all handle a small file
+// (context/cloudflare-migration-plan.md: the smallest size that still looks
+// sharp; the app stores 900 px at most).
 
 import * as ImagePicker from "expo-image-picker";
+import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 
 export class PermissionDeniedError extends Error {}
+
+// The longest side kept (background removal works best from ~1,000 px up).
+const MAX_SIDE = 1600;
+const JPEG_QUALITY = 0.85;
 
 const SOURCES = {
   camera: {
@@ -24,11 +33,24 @@ const SOURCES = {
   },
 };
 
-// Cloudinary resizes on delivery, so the upload doesn't need full quality.
 const PICKER_OPTIONS = {
   mediaTypes: ["images"],
   allowsEditing: true,
-  quality: 0.8,
+  quality: 1,
+};
+
+// The photo at most MAX_SIDE a side, as a JPEG file.
+const shrink = async ({ uri, width, height }) => {
+  const context = ImageManipulator.manipulate(uri);
+
+  if (Math.max(width || 0, height || 0) > MAX_SIDE) {
+    context.resize(width >= height ? { width: MAX_SIDE } : { height: MAX_SIDE });
+  }
+
+  const image = await context.renderAsync();
+  const saved = await image.saveAsync({ compress: JPEG_QUALITY, format: SaveFormat.JPEG });
+
+  return saved.uri;
 };
 
 // source: "camera" | "library"
@@ -48,11 +70,10 @@ export const pickImage = async (source) => {
   }
 
   const asset = result.assets[0];
-  const type = asset.mimeType || "image/jpeg";
 
   return {
-    uri: asset.uri,
-    name: asset.fileName || `photo.${type.split("/")[1] || "jpg"}`,
-    type,
+    uri: await shrink(asset),
+    name: "photo.jpg",
+    type: "image/jpeg",
   };
 };

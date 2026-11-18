@@ -26,7 +26,7 @@ import {
 import { Button } from "../ui";
 import { ItemForm } from "./ItemForm";
 import { DEFAULT_PHOTO_ASPECT, ItemPhoto } from "./ItemPhoto";
-import { askForPhoto, photoSource, swapPhoto, swapPhotoLabel } from "./PhotoPicker";
+import { askForPhoto, shownPhotoSource, swapPhoto, swapPhotoLabel } from "./PhotoPicker";
 import { usePhotoFollowsPanel } from "./usePhotoFollowsPanel";
 
 // How much of the page the details panel covers part way up (as on the
@@ -67,7 +67,7 @@ export const ItemPullUpView = ({ form, footer }) => {
         <View style={styles.fill} onLayout={follow.onLayout}>
           <Animated.View style={[styles.fill, follow.style]}>
             <ItemPhoto
-              source={photoSource(form.selectedImage, form.formData.imageUrl)}
+              source={shownPhotoSource(form.selectedImage, form.formData.imageKey)}
               aspect={aspect}
               onAspect={setAspect}
               onPress={changePhoto}

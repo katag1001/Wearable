@@ -34,7 +34,7 @@ const TODAY_BUILD_CLOTHES_FIELDS = "lastWornDate type subtype fabric favourite c
 // together (the snapshot the client takes before marking an outfit worn,
 // restored if another is worn instead on the same device).
 const TODAY_CLOTHES_FIELDS =
-  "name imageUrl type subtype colors lastWornDate timesWorn timesWornThisYear wornYear";
+  "name imageKey type subtype colors lastWornDate timesWorn timesWornThisYear wornYear";
 
 // (match) => its Today score (todayScoreService.js), worked out once per
 // match, its parts (breakdownOf) and trend note (trendNoteOf), plus the

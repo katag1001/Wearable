@@ -10,6 +10,18 @@ When a service changes, update its row in **Unit figures**, re-measure if
 the change affects usage (see **Re-measuring**), and recompute the four
 per-user numbers.
 
+## Cloudinary replaced by Cloudflare (2026-11-18, page version 18)
+
+Cloudinary is gone (`context/cloudflare-migration-plan.md`). Photos live
+in Cloudflare R2 (two WebP sizes, 900 and 300 px); when the phone can't cut
+a photo out, a Cloudflare Worker removes the background with Cloudflare
+Images. On the page: the "Cloudinary" column is now "Cloudflare" (R2 +
+Images + Workers $5 plan), the fallback setting keeps its id (`fallback`)
+so saved numbers carry over, and the domain for photo links (~$11/year)
+is a month-1 one-off. Fixed fees drop from $175 to $81 a month. Sections
+below dated before 2026-11-18 describe the Cloudinary setup and are
+history; **Unit figures**, **Plan steps** and **Re-measuring** are current.
+
 ## Setup being priced
 
 - Tier 1: wardrobe capped at 70 pieces. Tier 2: unlimited, taken as 200.
@@ -85,23 +97,26 @@ What each service costs and which code drives it.
 
 | Service | Unit cost used | Driven by |
 |---|---|---|
-| Cloudinary transformations | 85 per added photo (75 background removal + ~10 resized versions) × $0.44/credit (1 credit = 1,000 tx) = **$0.037/photo** | `server/services/backgroundRemovalService.js` (`e_background_removal`, 75 tx), `analysisImageService.js` (1024px copy), `core/utils/getImageUrl.js` sizes (150–900, each new size = 1 tx per image) |
-| Cloudinary storage | **3.2 MB per piece** × $0.44/GB/month | original upload (~2.5 MB, never shrunk), `_nobg` (~85 KB), `_thumb` (~10 KB), derived versions |
-| Cloudinary delivery | **0.17 GB per user per month** × $0.44 | every image shown in the apps |
+| Cloudflare R2 storage | **~50 KB per piece** (900 + 300 px WebP; test photos 20–40 KB) × $0.015/GB-month, first 10 GB free | `server/services/photoService.js` (`storeSizes`), bucket `lws-images` |
+| Cloudflare R2 operations | Writes $4.50/M (1M free a month): ~3 per piece added. Reads $0.36/M (10M free): ~3 per piece added + 1 per photo shown (~6,000 a user a month, before the phone's cache). Deletes and egress free | `server/services/storage/r2Storage.js`, `core/images/photoSource.js` |
+| Cloudflare Images (background removal) | **$0.0005 per photo the phone can't cut out** (5,000 free a month) | `workers/cutout` (`segment: "foreground"`), called by `photoService.js` |
+| Cloudflare Workers | Free while testing; **$5/month** from launch (10M requests included, then $0.30/M) for serving photos and the cut-out | `workers/cutout`; photo serving Worker: `context/before-launch.md` |
+| Domain for photo links | ~$11/year (from launch) | `context/before-launch.md` |
 | Gemini 3.5 Flash-Lite | **$0.0044 per analysed photo** ($0.30 / $2.50 per M tokens in/out) | `server/services/geminiClient.js`, one call + up to 1 retry (`constants/itemAnalysis.js`) |
 | MongoDB Atlas | **~1.4 KB per saved outfit** (data + index), outfits ≈ 5,672 × (clothes ÷ 98)^2.5; shared out at ~$10/GB | `matches` collection, filled by `matchService.js` (≤2,000 new per piece). 70 pieces ≈ 1,500 outfits / 2.3 MB; 200 pieces ≈ 21,000 / 30 MB |
 | Vercel | ~$0.0003 per piece added (matching + analysis), ~$0.005 per user per month of daily use. Active CPU $0.128/h, memory $0.0106/GB-h, $0.60/M calls | `api/index.vercel.js`, matching runs via `waitUntil` |
 | Weather (MET Norway + NASA POWER) | Free; one call to our server per user per day (Vercel usage), shared by area | `server/services/weatherService.js` |
 | Expo EAS Update | $0.005 per monthly active user above 3,000 | OTA updates on the `preview` channel |
 
-Per added photo, all services: **≈ $0.042** (Cloudinary 0.037 + Gemini
-0.0044 + Vercel 0.0003).
+Per added photo, all services: **≈ $0.005** (Gemini 0.0044 + Vercel 0.0003
++ Cloudflare: storage ~$0.00001 a month, background removal $0.0005 only
+for the ~8% the phone can't do, and only past 5,000 a month).
 
 ## Plan steps (where fixed costs jump)
 
-- **Cloudinary:** Plus $99 = 225 credits, Advanced $249 = 600, then an
-  Enterprise quote. Credits per user: new tier 2 ~18, new tier 1 ~6.3,
-  existing tier 1 ~0.5, existing tier 2 ~1.0. The first limit to hit.
+- **Cloudflare:** no plan steps; pay as you go past the free amounts
+  above. Workers Paid ($5) from launch. Nothing here is expected to matter
+  before tens of thousands of users.
 - **Atlas:** Flex $8–30 up to 5 GB, M10 ~$57 (10 GB), M20 ~$146 (20 GB),
   M30 ~$394 (40 GB), M40 ~$760 (80 GB).
 - **Weather:** free (MET Norway, NASA POWER). MET Norway asks for a special
@@ -124,20 +139,21 @@ Per added photo, all services: **≈ $0.042** (Cloudinary 0.037 + Gemini
 
 Both are read-only. Run from the project root.
 
-Cloudinary usage and average image sizes:
+Cloudflare R2: photo count and sizes (2026-11-18 onwards):
 
 ```js
 node -e '
 require("dotenv").config({path:"server/.env"});
-const c=require("./server/cloudinary.js");
+const r2=require("./server/services/storage/r2Storage.js");
 (async()=>{
-const u=await c.api.usage();
-console.log(JSON.stringify({credits:u.credits,storage:u.storage,bandwidth:u.bandwidth,transformations:u.transformations,resources:u.resources,derived:u.derived_resources}));
-let all=[],next;do{const r=await c.api.resources({max_results:500,next_cursor:next});all.push(...r.resources);next=r.next_cursor}while(next);
-const g={};for(const r of all){const k=r.public_id.endsWith("_nobg")?"nobg":r.public_id.endsWith("_thumb")?"thumb":"original";(g[k]=g[k]||[]).push(r.bytes)}
-for(const k in g){const a=g[k];console.log(k,a.length,"avgKB",Math.round(a.reduce((x,y)=>x+y,0)/a.length/1024))}
+const keys=await r2.listFiles("users/");
+const g={};for(const k of keys){const i=await r2.fileInfo(k);const t=k.endsWith("-300.webp")?"300":k.endsWith("-900.webp")?"900":"upload";(g[t]=g[t]||[]).push(i?i.bytes:0)}
+for(const t in g){const a=g[t];console.log(t,a.length,"avgKB",Math.round(a.reduce((x,y)=>x+y,0)/a.length/1024))}
 })()'
 ```
+
+Background removals and storage totals: Cloudflare dashboard → R2 →
+`lws-images` → Metrics, and Images → Transformations.
 
 MongoDB collection sizes:
 

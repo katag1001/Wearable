@@ -1,5 +1,5 @@
 // One wardrobe item in the grid, in the same box as the outfit cards
-// (ui/cardBox): its photo (a small Cloudinary copy, cached by expo-image)
+// (ui/cardBox): its photo (the small stored size, cached by expo-image)
 // small and centred, no name - that's on its edit screen. Tap to edit.
 // Clothes (not footwear) get the heart in the corner - outfits with a
 // favourite item score higher (useItemFavourite). `width` is the column's.
@@ -8,7 +8,7 @@ import { Image } from "expo-image";
 import { StyleSheet } from "react-native";
 
 import { useItemFavourite } from "@core/hooks/useItemFavourite.js";
-import { getImageUrl } from "@core/utils/getImageUrl.js";
+import { photoSource } from "@core/images/photoSource.js";
 
 import { PressableScale } from "../soft/PressableScale";
 import { FavouriteHeart } from "../ui";
@@ -54,7 +54,7 @@ export const ItemTile = ({
       style={[styles.card, { width }]}
     >
       <Image
-        source={item.imageUrl ? getImageUrl(item.imageUrl, 400) : null}
+        source={photoSource(item.imageKey, 400)}
         style={{ width: photoSize, height: photoSize }}
         contentFit="contain"
         transition={150}

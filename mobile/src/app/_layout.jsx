@@ -26,8 +26,8 @@ import { PagedCacheProvider } from "@core/cache/PagedCacheProvider.jsx";
 import { SessionProvider, useSession } from "../auth/SessionProvider";
 import { DialogHost } from "../components/soft/Dialog";
 import { Button, EmptyState, Screen } from "../components/ui";
-import { API_URL, CLOUD_NAME, UPLOAD_PRESET } from "../platform/config";
-import { prepareGarmentCutout } from "../platform/garmentCutout";
+import { API_URL } from "../platform/config";
+import { prepareGarmentCutout, registerCutoutNotice } from "../platform/garmentCutout";
 import { storage } from "../platform/storage";
 import { useStorageReady } from "../platform/useStorageReady";
 
@@ -37,9 +37,11 @@ SplashScreen.preventAutoHideAsync();
 configureCore({
   apiUrl: API_URL,
   storage,
-  cloudName: CLOUD_NAME,
-  uploadPreset: UPLOAD_PRESET,
 });
+
+// TESTING ONLY: tell the user when Cloudflare removed a background
+// (context/before-launch.md, "Must take out").
+registerCutoutNotice();
 
 // Shown instead of a blank screen if any screen crashes.
 export function ErrorBoundary({ error, retry }) {

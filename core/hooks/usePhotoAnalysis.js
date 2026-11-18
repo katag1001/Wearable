@@ -1,56 +1,48 @@
 import { useEffect, useRef, useState } from "react";
 
-import { analyseItemPhoto, removeItemPhotoBackground } from "../api/analysis.js";
+import { analyseItemPhoto } from "../api/analysis.js";
 import { getErrorMessage } from "../api/errors.js";
-import { deleteUnusedImage, uploadImageToCloudinary } from "../api/images.js";
+import { discardPhotos, processPhoto, uploadPhoto } from "../api/images.js";
+import { reportCutout } from "../images/cutoutNotice.js";
 import { WARDROBE_KINDS } from "../wardrobe/itemKinds.js";
 
 /*
- * Adding an item from its photo alone (shared by the web and mobile apps).
- * The photo is uploaded to Cloudinary, then the server removes its
- * background and fills in everything else - clothing or footwear, name,
- * type, colours, pattern, fabric, tags (server/controllers/
- * analysisControllers.js). The item is shown and saved with the
- * background-removed photo (`image`); if the background couldn't be
- * removed, with the photo as uploaded.
- *
- * `cutOut` (the phone only - mobile/src/platform/garmentCutout.js; see
- * context/phone-cutout-plan.md): the phone cuts the garment out FIRST and
- * uploads the cut-out, and the server doesn't remove anything. If the
- * phone can't, the photo as taken is uploaded and the server asks
- * Cloudinary - unless `cloudinaryBackup` is false (the strict test build),
- * when it's used as it is. `cutoutFailure` says why the phone couldn't.
- * The web passes no `cutOut` and works as before.
+ * Adding an item from its photo alone (the phone app).
+ * The phone cuts the garment out first (`cutOut`:
+ * mobile/src/platform/garmentCutout.js), uploads the cut-out (or, if it
+ * couldn't, the photo as taken - then Cloudflare removes the background on
+ * the server), and the server makes the item photo (two stored sizes) and
+ * fills in everything else - clothing or footwear, name, type, colours,
+ * pattern, fabric, tags (server/controllers/analysisControllers.js;
+ * context/cloudflare-migration-plan.md).
  *
  * `useAi` false (the user opted out of AI analysis - useAiConsent /
- * Settings): nothing goes to Gemini, and the user fills the item in
- * themselves ("manual"). The server only removes the background, when the
- * phone didn't.
+ * Settings): nothing goes to Gemini; the server only makes the item photo,
+ * and the user fills the item in themselves ("manual").
  *
  * Steps:
  *   "pick"      - waiting for a photo (`notice` says why a photo was turned
  *                 down: "multiple" items or "none")
- *   "analysing" - cutting out, uploading and analysing - or, without AI,
- *                 just the background (a loading screen)
+ *   "analysing" - cutting out, uploading and analysing (a loading screen)
  *   "ready"     - analysed: the user checks what was found, changes
  *                 anything, and saves - an item form filled in from the
  *                 analysis (`reviewPrefill`; useAnalysedItemReview), which
  *                 calls markSaved
- *   "manual"    - without AI: the user fills the form in, with the
- *                 background-removed photo attached (`manualPrefill`)
+ *   "manual"    - without AI: the user fills the form in, with the photo
+ *                 attached (`manualPrefill`)
  *   "failed"    - couldn't analyse (`error`): the user fills the form in,
  *                 with the photo already attached (`manualPrefill`)
  *   "saved"     - `savedItem` { id, name, kind, hasMatches, message }
  *
- * Whenever the background was removed (by the phone or Cloudinary),
+ * Whenever the background was removed (by the phone or Cloudflare),
  * `photoChoice` lets the user swap to the photo as taken and back - just
- * the image, nothing is analysed again. On the phone the photo as taken is
- * only uploaded then, the first time it's chosen.
+ * the image, nothing is analysed again. The photo as taken is only
+ * uploaded then, the first time it's chosen.
  *
- * Every uploaded image the saved item doesn't use is deleted again - and
- * all of them if the item is never saved: when another photo is chosen,
- * the flow restarts, or it's closed (unmount). The server only deletes
- * images no item uses, so that's always safe.
+ * Every photo made that the saved item doesn't use is discarded - and all
+ * of them if the item is never saved: when another photo is chosen, the
+ * flow restarts, or it's closed (unmount). The server only deletes the
+ * user's own photos no item uses, so that's always safe.
  */
 
 export const NOTICES = {
@@ -70,62 +62,54 @@ const failureMessage = (err, useAi) => {
     : "We couldn't process this photo. You can fill in the details yourself.";
 };
 
-const toImage = (uploaded) => ({ imageUrl: uploaded.secure_url, cloudinaryId: uploaded.public_id });
-
 const NO_IMAGES = { original: null, cutout: null };
 
-export const usePhotoAnalysis = ({ useAi = true, cutOut = null, cloudinaryBackup = true } = {}) => {
+export const usePhotoAnalysis = ({ useAi = true, cutOut = null } = {}) => {
   const [step, setStep] = useState("pick");
-  // The chosen photo (a File on the web, { uri, name, type } on a phone).
+  // The chosen photo ({ uri, name, type } on a phone).
   const [photo, setPhoto] = useState(null);
   const [notice, setNotice] = useState(null);
   const [error, setError] = useState("");
   // { kind, fields } from the server.
   const [result, setResult] = useState(null);
-  // The uploaded images ({ imageUrl, cloudinaryId }): the photo as taken
-  // (on the phone, only once it's needed) and the background-removed one
-  // (the phone's or Cloudinary's), if any.
+  // The item photos made ({ imageKey }): the photo as taken (only once
+  // it's needed, unless the background couldn't be removed) and the one
+  // with its background removed (the phone's or Cloudflare's), if any.
   const [images, setImages] = useState(NO_IMAGES);
   // The user chose the photo as taken over the cut-out.
   const [usingOriginal, setUsingOriginal] = useState(false);
-  // Uploading the photo as taken, after the user chose it.
+  // Making the photo as taken, after the user chose it.
   const [swapping, setSwapping] = useState(false);
   const [swapError, setSwapError] = useState("");
-  // Why the phone couldn't cut the photo out ({ reason, ... }), or null.
-  const [cutoutFailure, setCutoutFailure] = useState(null);
   const [savedItem, setSavedItem] = useState(null);
 
-  // Ignores an analysis that finishes after the user moved on.
+  // Ignores work that finishes after the user moved on.
   const runRef = useRef(0);
-  // Every image uploaded or made for this photo (the photo as taken, the
-  // cut-out, Cloudinary's thumbnail) while no saved item uses them.
+  // Every item photo made for this photo while no saved item uses it.
   const unsavedImagesRef = useRef([]);
 
-  // The image shown and saved.
+  // The photo shown and saved.
   const image = usingOriginal || !images.cutout ? images.original : images.cutout;
 
   const discardImage = () => {
-    const publicIds = unsavedImagesRef.current;
+    const imageKeys = unsavedImagesRef.current;
 
     unsavedImagesRef.current = [];
 
-    publicIds.forEach((publicId) => deleteUnusedImage(publicId));
+    discardPhotos(imageKeys);
   };
 
-  const trackUnsaved = (publicIds) => {
-    unsavedImagesRef.current = [...unsavedImagesRef.current, ...publicIds];
-  };
+  // A photo the server made ({ imageKey, removedBy }): shown and saved.
+  const takeImage = (made) => {
+    if (!made?.imageKey) return;
 
-  // The server's background-removed photo (`removed`, or null if it
-  // couldn't be made): shown and saved instead of the upload.
-  const takeRemovedImage = (removed) => {
-    if (!removed?.cloudinaryId) return;
-
-    trackUnsaved(removed.createdIds || [removed.cloudinaryId]);
-    setImages((current) => ({
-      ...current,
-      cutout: { imageUrl: removed.imageUrl, cloudinaryId: removed.cloudinaryId },
-    }));
+    unsavedImagesRef.current = [...unsavedImagesRef.current, made.imageKey];
+    setImages((current) =>
+      made.removedBy
+        ? { ...current, cutout: { imageKey: made.imageKey } }
+        : { ...current, original: { imageKey: made.imageKey } }
+    );
+    reportCutout(made.removedBy);
   };
 
   // Closing the flow without saving.
@@ -144,7 +128,6 @@ export const usePhotoAnalysis = ({ useAi = true, cutOut = null, cloudinaryBackup
     setUsingOriginal(false);
     setSwapping(false);
     setSwapError("");
-    setCutoutFailure(null);
     setSavedItem(null);
   };
 
@@ -156,6 +139,8 @@ export const usePhotoAnalysis = ({ useAi = true, cutOut = null, cloudinaryBackup
 
     setPhoto(picked);
     setStep("analysing");
+
+    let uploaded = false;
 
     try {
       // The phone's cut-out, if it can.
@@ -169,53 +154,38 @@ export const usePhotoAnalysis = ({ useAi = true, cutOut = null, cloudinaryBackup
 
         phoneCutout = attempt.image;
         failure = attempt.image ? null : attempt.failure || { reason: "unknown" };
-        setCutoutFailure(failure);
       }
 
-      const uploaded = toImage(await uploadImageToCloudinary(phoneCutout || picked));
+      const uploadKey = await uploadPhoto(phoneCutout || picked);
+      uploaded = true;
 
-      if (!isCurrent()) {
-        deleteUnusedImage(uploaded.cloudinaryId);
-        return;
-      }
+      if (!isCurrent()) return;
 
-      unsavedImagesRef.current = [uploaded.cloudinaryId];
-      setImages(phoneCutout ? { original: null, cutout: uploaded } : { original: uploaded, cutout: null });
-
-      // What the server does about the background.
-      const options = !cutOut
-        ? {}
-        : phoneCutout
-          ? { background: "phone" }
-          : { ...(!cloudinaryBackup && { background: "keep" }), cutoutFailure: failure };
-
-      // Whether the server still has to remove the background.
-      const serverRemoves = !phoneCutout && (!cutOut || cloudinaryBackup);
+      // What the server does about the background: keep the phone's
+      // cut-out, or Cloudflare removes it (with why the phone couldn't).
+      const options = phoneCutout ? { background: "phone" } : { ...(failure && { cutoutFailure: failure }) };
 
       if (!useAi) {
-        if (serverRemoves) {
-          const processed = await removeItemPhotoBackground(uploaded.cloudinaryId, options);
+        const made = await processPhoto(uploadKey, options);
 
-          if (!isCurrent()) {
-            (processed.image?.createdIds || []).forEach((publicId) => deleteUnusedImage(publicId));
-            return;
-          }
-
-          takeRemovedImage(processed.image);
+        if (!isCurrent()) {
+          discardPhotos([made?.imageKey]);
+          return;
         }
 
+        takeImage(made);
         setStep("manual");
         return;
       }
 
-      const analysis = await analyseItemPhoto(uploaded.cloudinaryId, options);
+      const analysis = await analyseItemPhoto(uploadKey, options);
 
       if (!isCurrent()) {
-        (analysis.image?.createdIds || []).forEach((publicId) => deleteUnusedImage(publicId));
+        discardPhotos([analysis.image?.imageKey]);
         return;
       }
 
-      takeRemovedImage(analysis.image);
+      takeImage(analysis.image);
 
       if (analysis.status !== "ok") {
         reset(analysis.status === "none" ? "none" : "multiple");
@@ -229,14 +199,16 @@ export const usePhotoAnalysis = ({ useAi = true, cutOut = null, cloudinaryBackup
 
       console.error("Photo analysis error:", err, err.response?.data);
 
-      // The background may have been removed before the analysis failed.
-      takeRemovedImage(err.response?.data?.image);
+      // The photo may have been made before the analysis failed.
+      takeImage(err.response?.data?.image);
 
-      // Not even uploaded: nothing to fill in by hand yet.
+      // No photo made: nothing to fill in by hand yet.
       if (!unsavedImagesRef.current.length) {
         setPhoto(null);
         setStep("pick");
-        setError(getErrorMessage(err, "Couldn't upload the photo. Please try again."));
+        setError(
+          getErrorMessage(err, uploaded ? "Couldn't process the photo. Please try again." : "Couldn't upload the photo. Please try again.")
+        );
         return;
       }
 
@@ -245,9 +217,8 @@ export const usePhotoAnalysis = ({ useAi = true, cutOut = null, cloudinaryBackup
     }
   };
 
-  // "Use original photo": the photo as taken instead of the cut-out -
-  // uploaded now if it wasn't yet (the phone's cut-out). Nothing is
-  // analysed again.
+  // "Use original photo": the photo as taken instead of the cut-out - made
+  // now if it wasn't yet. Nothing is analysed again.
   const chooseOriginal = async () => {
     if (swapping) return;
 
@@ -264,20 +235,20 @@ export const usePhotoAnalysis = ({ useAi = true, cutOut = null, cloudinaryBackup
     setSwapping(true);
 
     try {
-      const uploaded = toImage(await uploadImageToCloudinary(photo));
+      const made = await processPhoto(await uploadPhoto(photo), { background: "none" });
 
       if (run !== runRef.current) {
-        deleteUnusedImage(uploaded.cloudinaryId);
+        discardPhotos([made?.imageKey]);
         return;
       }
 
-      trackUnsaved([uploaded.cloudinaryId]);
-      setImages((current) => ({ ...current, original: uploaded }));
+      unsavedImagesRef.current = [...unsavedImagesRef.current, made.imageKey];
+      setImages((current) => ({ ...current, original: { imageKey: made.imageKey } }));
       setUsingOriginal(true);
     } catch (err) {
       if (run !== runRef.current) return;
 
-      console.error("Original photo upload error:", err);
+      console.error("Original photo error:", err);
       setSwapError("Couldn't upload the original photo. Please try again.");
     } finally {
       if (run === runRef.current) setSwapping(false);
@@ -290,14 +261,13 @@ export const usePhotoAnalysis = ({ useAi = true, cutOut = null, cloudinaryBackup
   };
 
   const markSaved = (saved, kind) => {
-    // Every image the saved item uses (shown, thumbnail, original) stays;
-    // the rest - e.g. the cut-out the user swapped away from, or every one
-    // if the manual form saved another photo instead - is deleted.
-    const used = [saved.cloudinaryId, saved.thumbnailCloudinaryId, saved.originalCloudinaryId].filter(Boolean);
-    const unused = unsavedImagesRef.current.filter((publicId) => !used.includes(publicId));
+    // The photo the saved item uses stays; the rest - e.g. the cut-out the
+    // user swapped away from, or every one if the manual form saved
+    // another photo instead - is discarded.
+    const unused = unsavedImagesRef.current.filter((imageKey) => imageKey !== saved.imageKey);
 
     unsavedImagesRef.current = [];
-    unused.forEach((publicId) => deleteUnusedImage(publicId));
+    discardPhotos(unused);
 
     setSavedItem({
       id: saved._id,
@@ -334,11 +304,10 @@ export const usePhotoAnalysis = ({ useAi = true, cutOut = null, cloudinaryBackup
 
     kind: result?.kind || null,
     switchKind,
-    // The photo to show: background removed once analysed (unless the
-    // user chose the original).
-    imageUrl: image?.imageUrl || null,
-    // { imageUrl, cloudinaryId } - the image the item is saved with.
+    // The item photo shown and saved ({ imageKey }), or null before
+    // there is one.
     image,
+    imageKey: image?.imageKey || null,
     // Swapping between the cut-out and the photo as taken, or null when
     // there's no cut-out to swap with.
     photoChoice: images.cutout
@@ -350,13 +319,8 @@ export const usePhotoAnalysis = ({ useAi = true, cutOut = null, cloudinaryBackup
           chooseCutout,
         }
       : null,
-    // Why the phone couldn't cut the photo out ({ reason, platform,
-    // osVersion }), or null. Only shown in the strict test build.
-    cutoutFailure,
     // For the item form: the analysis, editable before saving.
-    reviewPrefill: result
-      ? { fields: { ...result.fields, ...image }, fromAnalysis: true }
-      : null,
+    reviewPrefill: result ? { fields: { ...result.fields, ...image }, fromAnalysis: true } : null,
     // For the item form without AI, or after a failed analysis: just the photo.
     manualPrefill: image ? { fields: { ...image }, fromAnalysis: false } : null,
 

@@ -7,7 +7,7 @@
 // `onSwitchKind(fields)` starts the review again as the other kind
 // (clothing <-> footwear) - the screen remounts this with the new kind.
 //
-// `image` ({ imageUrl, cloudinaryId }) is the photo the item is saved
+// `image` ({ imageKey }) is the photo the item is saved
 // with; "Use original photo" (`photoChoice`, PhotoChoice) can swap it, and
 // the form follows. "Choose another photo" asks first if the user has
 // changed anything, since the new photo's analysis replaces it.
@@ -34,7 +34,7 @@ import { showDialog } from "../soft/Dialog";
 
 // Fields that aren't the user's edits: the photo (swapped separately) and
 // footwear's style (set from the colours).
-const NOT_EDITS = new Set(["imageUrl", "cloudinaryId", "styles"]);
+const NOT_EDITS = new Set(["imageKey", "styles"]);
 
 // The form's details, comparable before and after.
 const detailsOf = (formData) =>
@@ -48,10 +48,9 @@ const detailsOf = (formData) =>
 export const AnalysedItemReview = ({
   kind,
   prefill,
-  photoUri,
+  photo,
   image,
   photoChoice,
-  cutoutFailure,
   onSaved,
   onSwitchKind,
   onChooseAnotherPhoto,
@@ -65,12 +64,11 @@ export const AnalysedItemReview = ({
   // The photo swapped (cut-out <-> as taken): save with the new one.
   const { updateField } = form;
   useEffect(() => {
-    if (image?.cloudinaryId) {
-      updateField("imageUrl", image.imageUrl);
-      updateField("cloudinaryId", image.cloudinaryId);
+    if (image?.imageKey) {
+      updateField("imageKey", image.imageKey);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [image?.cloudinaryId]);
+  }, [image?.imageKey]);
 
   const chooseAnotherPhoto = () => {
     if (detailsOf(form.formData) === analysedDetails) {
@@ -133,9 +131,9 @@ export const AnalysedItemReview = ({
 
   return (
     <>
-      <ImageTile source={{ uri: photoUri }} aspectRatio={4 / 5} resizeMode="contain" />
+      <ImageTile source={photo} aspectRatio={4 / 5} resizeMode="contain" />
 
-      <PhotoChoice choice={photoChoice} failure={cutoutFailure} disabled={form.saving} />
+      <PhotoChoice choice={photoChoice} disabled={form.saving} />
 
       <View>{rows(review.mainFields)}</View>
 

@@ -8,7 +8,7 @@ const PAGE_CHECKS = {
   1: (formData, hasNewImage) => [
     !formData.name.trim() && "a name",
     !formData.subtype.trim() && "a type",
-    !formData.imageUrl && !hasNewImage && "an image",
+    !formData.imageKey && !hasNewImage && "an image",
   ],
 
   // At least one colour.

@@ -38,38 +38,6 @@ process.exit(1);
 
 connectToDB();
 
-/* -------------------- CLOUDINARY -------------------- */
-
-const cloudinary = require("cloudinary").v2;
-
-const {
-  CLOUD_NAME,
-  CLOUD_API_KEY,
-  CLOUD_API_SECRET,
-} = process.env;
-
-if (!CLOUD_NAME || !CLOUD_API_KEY || !CLOUD_API_SECRET) {
-  console.warn("⚠️ Cloudinary not configured - image uploads disabled");
-} else {
-  cloudinary.config({
-    cloud_name: CLOUD_NAME,
-    api_key: CLOUD_API_KEY,
-    api_secret: CLOUD_API_SECRET,
-  });
-
-  (async () => {
-    try {
-      const response = await cloudinary.api.ping();
-      console.log("☁️ Cloudinary connected:", response.status || response);
-    } catch (error) {
-  console.error("☁️ Cloudinary connection failed:");
-  console.dir(error, { depth: null });
-}
-  })();
-}
-
-module.exports.cloudinary = cloudinary;
-
 /* -------------------- ROUTES -------------------- */
 
 app.use("/api", allRoutes);

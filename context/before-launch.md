@@ -13,6 +13,35 @@ as you go; tick things off when they're done.
       variables (Production and Preview), and in `server/.env` for running
       locally.
 
+## Must take out
+
+- [ ] **The "background removed by Cloudflare" notice.** While testing, the
+      app tells you whenever a photo's background was removed by Cloudflare
+      instead of on the phone (`context/cloudflare-migration-plan.md`). It's
+      one on/off setting in the phone app: `SHOW_CLOUDFLARE_CUTOUT_NOTICE`
+      in `mobile/src/platform/garmentCutout.js` (with `registerCutoutNotice`,
+      called in `mobile/src/app/_layout.jsx`, and `core/images/cutoutNotice.js`).
+      Remove it before launch so users never see it, and remove its entry
+      from the plan's docs.
+
+## Must build
+
+- [ ] **Private image serving on Cloudflare** (replaces the testing setup).
+      While testing, item photos stay private by going through our own
+      server (a logged-in request to `/api/images/...`, which reads them from
+      the private R2 bucket): free, but every photo view is a server call,
+      which gets slow and costly with real users. Before launch:
+      - **Buy a domain** and put it on Cloudflare (~$10 a year).
+      - **Take the Workers Paid plan** ($5 a month, includes 10 million
+        requests).
+      - **Build a Worker on `images.<your domain>`** that serves photos from
+        the private bucket only with a signature from our server that
+        expires (e.g. after a week), with caching, so copied links stop
+        working and viewing never touches our server.
+      - Switch the app's image links to it (one place:
+        `core/utils/getImageUrl.js` / the image source helper) and remove
+        the server's `/api/images` route.
+
 ## Must add
 
 - [ ] **An "About & legal" screen** in the app, opened from a row in
@@ -36,9 +65,8 @@ as you go; tick things off when they're done.
       exists, remove the temporary credits: the source line on the Plan tab's
       weather card (`mobile/src/components/plan/DayWeatherCard.jsx`,
       `dayWeatherSource` in `core/plan/dayWeather.js`) and the credits
-      paragraph at the bottom of Profile (`profile.jsx`). The web's Today
-      line (`src/components/today/autoWeather.jsx`) can stay until the web
-      goes offline.
+      paragraph at the bottom of Profile (`profile.jsx`). (The website no
+      longer shows weather: it's a "Coming soon" page.)
 
 ## Check
 
@@ -51,40 +79,38 @@ as you go; tick things off when they're done.
       changes or a version is retired (usually a month's notice): the feed
       `https://api.met.no/feed/changelog` or their api-users mailing list.
 
-## Deploying the weather change (built 2026-11-17, not deployed yet)
+## Deploying the test version (weather + Cloudflare photos, 2026-11-18)
 
-The forecast now comes from MET Norway and the typical weather from NASA
-POWER, both through our server (`server/services/weatherService.js`); the
-apps no longer call a weather service themselves. Weather is free (it was
-$29 a month). In this order:
+Everything built so far goes out together: the weather from MET Norway /
+NASA POWER, Cloudflare instead of Cloudinary, the website as "Coming soon",
+typed-DELETE account deletion. All of it runs on free plans. Pushing
+`main` makes Vercel deploy the server straight away, so the Vercel
+settings go in FIRST.
 
-1. **Set `MET_CONTACT`** in Vercel → the project → Settings → Environment
-   Variables (Production and Preview), to the contact email. Without it the
-   server won't call MET Norway (they ban requests that don't say who's
-   calling), so the weather would be unavailable.
-2. **Commit and push `main`.** Vercel deploys the server and the web app;
-   the web app uses the new weather straight away. The server creates a
-   small `weathercaches` collection in MongoDB by itself (entries delete
-   themselves).
-3. **Send the phone an update** (JavaScript only, no new build). From
-   `mobile/`:
+1. **Vercel settings.** vercel.com → the project → Settings → Environment
+   Variables. Add each of these (tick Production and Preview), copying the
+   values from `server/.env`: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`,
+   `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `CUTOUT_WORKER_URL`,
+   `CUTOUT_WORKER_KEY`, and `MET_CONTACT` if it isn't there yet. Delete
+   `CLOUD_NAME`, `CLOUD_API_KEY`, `CLOUD_API_SECRET`.
+2. **Commit and push `main`.** Vercel deploys. Check the deployment is
+   "Ready"; the website shows "Coming soon".
+3. **New phone build** (new native package, so an update isn't enough;
+   app version 1.2.0). From `mobile/`:
    ```
-   npx eas-cli@latest update --channel preview --environment preview --platform android --message "Weather from MET Norway via the server"
+   npx eas-cli@latest build -p android --profile preview
    ```
-   Until then the installed app keeps using the old weather service
-   directly, which still works.
-4. **Check:** Today and the Plan tab show sensible temperatures and icons;
-   Profile shows the weather credits; Vercel logs show few calls to MET
-   Norway and no "refused" or "203" warnings.
+   Install the APK from the link it gives, over the old test app.
+4. **Sign up** in the app, then make the account admin from the project
+   root: `node server/scripts/setAdmin.js <email> --confirm`.
+5. **Check:** add an item from a photo (cut out, analysed, saved, shown in
+   the wardrobe and on Today), change an item's photo, delete an item;
+   Today and Plan show weather; Profile → Delete account needs DELETE typed.
 
-Merging the phone cut-out branch later (`phone-cutout`): both it and
-`main` changed `context/cost-plan.md` and `context/cost-plan.html`. If git
-reports a conflict there, keep `main`'s versions (they're newer).
+Later JavaScript-only changes go to this build with
+`npx eas-cli@latest update --channel preview --environment preview --platform android --message "..."`.
 
 ## Also waiting
 
-- **Phone cut-out** (on the branch `phone-cutout`): built, not deployed.
-  Steps in `context/phone-cutout-plan.md` on that branch, "Deploying it
-  later".
 - **iPhone:** nothing has run on an iPhone yet (needs the Apple developer
   account). Includes the cut-out's iPhone half.

@@ -9,8 +9,7 @@
 // A clothing item, from the add / edit form and the favourite heart.
 const CLOTHING_FIELDS = [
   "name",
-  "imageUrl",
-  "cloudinaryId",
+  "imageKey",
   "colors",
   "pattern",
   "fabric",
@@ -27,8 +26,7 @@ const CLOTHING_FIELDS = [
 // only by the shoe box's wear / unwear routes.)
 const FOOTWEAR_FIELDS = [
   "name",
-  "imageUrl",
-  "cloudinaryId",
+  "imageKey",
   "colors",
   "styles",
   "subtype",

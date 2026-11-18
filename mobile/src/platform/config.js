@@ -37,6 +37,3 @@ export const API_URL = __DEV__
   ? `http://${devMachineHost()}:${LOCAL_API_PORT}/api`
   : process.env.EXPO_PUBLIC_API_URL || DEFAULT_API_URL;
 
-// The Cloudinary account item photos upload to.
-export const CLOUD_NAME = process.env.EXPO_PUBLIC_CLOUD_NAME;
-export const UPLOAD_PRESET = process.env.EXPO_PUBLIC_UPLOAD_PRESET;

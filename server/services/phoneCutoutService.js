@@ -2,30 +2,30 @@
 //
 // The phone app cuts garments out of photos itself before uploading
 // (context/phone-cutout-plan.md; mobile/src/platform/garmentCutout.js), so
-// the photo routes (controllers/analysisControllers.js) are told what to
-// do about the background:
+// each photo request (controllers/analysisControllers.js,
+// controllers/imagesControllers.js) says what to do about the background:
 //
-//   background: "phone" - already cut out on the phone: leave it
-//               "keep"  - leave the background (the strict test build)
-//               anything else / missing - remove it with Cloudinary, as
-//               before (the web, older apps, and phones that couldn't)
+//   background: "phone" - already cut out on the phone: keep it
+//               "none"  - the photo as taken ("Use original photo")
+//               anything else / missing - remove it: our Cloudflare Worker
+//               does (services/photoService.js); the phone couldn't
 //
 // and, when the phone couldn't, why (`cutoutFailure`), which is logged so
 // failures show up in the server logs after launch. Pure - no DB access.
 
 const REMOVE = "remove";
-const BACKGROUND_CHOICES = new Set(["phone", "keep"]);
+const BACKGROUND_CHOICES = new Set(["phone", "none"]);
 
 const MAX_TEXT = 300;
 
-// "remove" | "phone" | "keep"
+// "remove" | "phone" | "none"
 const backgroundChoice = (body) => {
   const value = body?.background;
 
   return BACKGROUND_CHOICES.has(value) ? value : REMOVE;
 };
 
-// Whether Cloudinary should remove the background.
+// Whether Cloudflare should remove the background.
 const removesBackground = (body) => backgroundChoice(body) === REMOVE;
 
 const shortText = (value) =>
@@ -47,7 +47,7 @@ const cutoutFailureOf = (body) => {
   };
 };
 
-// Logs a failed phone cut-out (and what happens instead), if there was one.
+// Logs a failed phone cut-out (Cloudflare then removes the background).
 const logCutoutFailure = (label, userId, body) => {
   const failure = cutoutFailureOf(body);
 
@@ -56,7 +56,7 @@ const logCutoutFailure = (label, userId, body) => {
   console.warn(`[${label}] phone couldn't cut the photo out`, {
     userId,
     ...failure,
-    then: removesBackground(body) ? "cloudinary" : "kept as taken",
+    then: removesBackground(body) ? "cloudflare" : "kept as taken",
   });
 };
 

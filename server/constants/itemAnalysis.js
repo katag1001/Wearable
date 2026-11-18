@@ -25,7 +25,7 @@ const DAILY_ANALYSIS_LIMIT = require("../../shared/photoLimits.json").dailyPhoto
 // The photo is sent at most this many pixels on its longest side.
 const IMAGE_MAX_SIZE = 1024;
 
-// What a background-removed photo is shown on (Cloudinary colour).
+// What a cut-out photo is put on for Gemini (services/analysisImageService.js).
 const ANALYSIS_BACKGROUND = "rgb:C8C8C8";
 
 // Give up on one Gemini request after this long.
